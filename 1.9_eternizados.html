@@ -422,7 +422,7 @@
     #nav-panel {
       position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
       width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px;
-      gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 60px var(--shadow);
+      gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 60px var(--shadow); overflow-y: auto;
     }
     #nav-overlay.open #nav-panel { transform: translateX(0); }
     .nav-link {
