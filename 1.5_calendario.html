@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendário — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #f0f0f0;
+      --text-sub:#999999;
+      --badge-text: #f0f0f0;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #111111;
+      --text-sub:#555555;
+      --badge-text: #111111;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      filter: blur(3px) brightness(0.38) saturate(0.55);
+      transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg {
+      filter: blur(3px) brightness(0.78) saturate(0.65);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+      transition: background 0.5s;
+    }
+    [data-theme="light"] .hero-overlay {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed;
+      top: 20px; right: 22px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: #000;
+      border: 2.5px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow);
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai {
+      width: 26px; height: 26px;
+      transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--glow);
+      transition: box-shadow 0.3s, transform 0.2s;
+      padding: 0;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    #nav-panel {
+      position: relative; z-index: 1;
+      background: var(--surface);
+      border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%;
+      display: flex; flex-direction: column;
+      padding: 110px 36px 40px;
+      gap: 4px;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow);
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.92rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18);
+      position: relative;
+      transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link::before {
+      content: '';
+      position: absolute; left: -36px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 2px;
+      background: var(--accent);
+      transition: width 0.25s;
+    }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+    .nav-link:hover::before { width: 20px; }
+
+    /* ======= PÁGINA CALENDÁRIO ======= */
+    #calendario {
+      min-height: 100vh;
+      padding: 100px 24px 80px;
+      transition: background 0.4s;
+    }
+
+    /* Cabeçalho (Bloco 1) */
+    .calendario-header {
+      max-width: 860px;
+      margin: 0 auto 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+    }
+    .calendario-header-red {
+      background: #cc0000;
+      padding: 20px 36px;
+      display: flex; align-items: center; gap: 18px;
+    }
+    .calendario-header-red h1 {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.22em;
+      color: #fff;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .calendario-header-deco {
+      flex: 1; height: 2px;
+      background: rgba(255,255,255,0.3);
+    }
+    .calendario-header-body {
+      background: var(--surface);
+      padding: 26px 36px;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text-sub);
+      transition: background 0.4s, color 0.4s;
+      text-align: justify;
+    }
+
+    /* Calendário */
+    .calendario-wrapper {
+      max-width: 860px;
+      margin: 0 auto 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+      background: var(--surface);
+      padding: 30px;
+      transition: background 0.4s;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(204,0,0,0.18);
+    }
+
+    .calendar-month-year {
+      font-family: 'Bangers', cursive;
+      font-size: 1.8rem;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .calendar-nav {
+      display: flex;
+      gap: 12px;
+    }
+
+    .calendar-nav button {
+      background: rgba(204,0,0,0.15);
+      border: 1.5px solid var(--accent);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .calendar-nav button:hover {
+      background: rgba(204,0,0,0.25);
+      box-shadow: 0 0 12px var(--glow);
+    }
+
+    /* WRAPPER RESPONSIVO PARA A TABELA */
+    .calendar-table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin; /* Estilização sutil da barra de rolagem */
+    }
+
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px; /* Reduzido para dar espaço à rolagem se houver */
+      table-layout: fixed; /* Força colunas iguais */
+    }
+
+    .calendar-table th {
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding: 12px 4px;
+      text-align: center;
+      border-bottom: 2px solid rgba(204,0,0,0.18);
+    }
+
+    .calendar-table td {
+      padding: 8px 4px;
+      text-align: center;
+      vertical-align: top; /* Ajustado para topo para alinhar badges */
+      border: 1px solid rgba(204,0,0,0.12);
+      position: relative;
+      background: rgba(255,255,255,0.01);
+      transition: background 0.2s;
+      cursor: pointer;
+      min-height: 80px;
+    }
+
+    .calendar-table td:hover {
+      background: rgba(204,0,0,0.08);
+    }
+
+    .calendar-table td.other-month {
+      opacity: 0.4;
+    }
+
+    .calendar-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100%;
+      gap: 6px;
+    }
+
+    .day-number {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .day-events {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .event-badge {
+      display: inline-block;
+      width: 100%;
+      padding: 3px 4px;
+      border-radius: 4px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-align: center;
+      line-height: 1.2;
+      text-transform: uppercase;
+      border: 1px solid;
+      color: white;
+      word-wrap: break-word; /* O SEGREDO: permite quebrar linha! */
+      white-space: normal; /* Garante que o texto pode cair pra linha de baixo */
+    }
+
+    .today-highlight {
+      border: 2px solid var(--accent);
+      box-shadow: inset 0 0 12px rgba(204,0,0,0.2);
+    }
+
+    /* Seções de Info */
+    .calendario-section {
+      max-width: 860px;
+      margin: 0 auto 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+    }
+
+    .calendario-section-header {
+      background: #cc0000;
+      padding: 20px 36px;
+      display: flex; align-items: center; gap: 18px;
+    }
+
+    .calendario-section-header h2 {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .calendario-section-deco {
+      flex: 1; height: 2px;
+      background: rgba(255,255,255,0.3);
+    }
+
+    .calendario-section-body {
+      background: var(--surface);
+      padding: 30px 36px;
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text-sub);
+      transition: background 0.4s, color 0.4s;
+    }
+
+    .section-list {
+      list-style: none;
+    }
+
+    .section-list li {
+      margin-bottom: 18px;
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .section-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .section-list strong {
+      color: var(--accent2);
+      font-weight: 700;
+    }
+
+    /* Ajustes específicos para Celular */
+    @media (max-width: 580px) {
+      #calendario { padding-top: 130px; padding-left: 15px; padding-right: 15px; }
+      .calendario-header-red { padding: 16px 20px; }
+      .calendario-header-body { padding: 18px 20px; }
+      .calendario-wrapper { padding: 16px; }
+      
+      /* Ajuste fino na tabela para não explodir a tela */
+      .calendar-table th { padding: 8px 2px; font-size: 0.65rem; letter-spacing: 0; }
+      .calendar-table td { padding: 4px 2px; height: auto; min-height: 60px; }
+      .day-number { font-size: 0.85rem; }
+      .event-badge { font-size: 0.55rem; padding: 2px; line-height: 1.1; }
+      
+      .calendar-nav { gap: 8px; }
+      .calendar-nav button { width: 32px; height: 32px; font-size: 0.9rem; }
+      .calendario-section-header { padding: 16px 20px; }
+      .calendario-section-body { padding: 20px; }
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo Calendário" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="2"  x2="12" y2="5"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="2"  y1="12" x2="5"  y2="12"/>
+        <line x1="19" y1="12" x2="22" y2="12"/>
+        <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+        <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+        <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">História</a>
+      <a class="nav-link" href="#">Calendário</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="#">Discord</a>
+      <a class="nav-link" href="#">Cadastrar</a>
+    </nav>
+  </div>
+
+  <main id="calendario">
+
+    <div class="calendario-header">
+      <div class="calendario-header-red">
+        <h1>CALENDÁRIO</h1>
+        <div class="calendario-header-deco"></div>
+      </div>
+      <div class="calendario-header-body">
+        A nossa linha do tempo segue rigorosamente as datas e horas do mundo real, o que facilita a organização de todos. No entanto, a narrativa não é uma bagunça sem fim. Ela é magistralmente dividida em ciclos.
+      </div>
+    </div>
+
+    <div class="calendario-wrapper">
+      <div class="calendar-header">
+        <div class="calendar-month-year" id="calendar-title">Maio 2026</div>
+        <div class="calendar-nav">
+          <button id="prev-month" aria-label="Mês anterior">‹</button>
+          <button id="next-month" aria-label="Próximo mês">›</button>
+        </div>
+      </div>
+      
+      <div class="calendar-table-responsive">
+        <table class="calendar-table">
+          <thead>
+            <tr>
+              <th>DOM</th>
+              <th>SEG</th>
+              <th>TER</th>
+              <th>QUA</th>
+              <th>QUI</th>
+              <th>SEX</th>
+              <th>SÁB</th>
+            </tr>
+          </thead>
+          <tbody id="calendar-body">
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div class="calendario-section">
+      <div class="calendario-section-header">
+        <h2>Ciclos de Narrativa</h2>
+        <div class="calendario-section-deco"></div>
+      </div>
+      <div class="calendario-section-body">
+        <ul class="section-list">
+          <li><strong>Geração (7 meses):</strong> Quem sobrevive a esse período vira uma Lenda Viva (Nível Hashirama/Madara) para a história futura do RPG.</li>
+          <li><strong>Temporada (1 mês):</strong> Período de clímax. É o tempo de grandes guerras estourarem, novos Daimyōs subirem ao poder ou a economia de uma vila colapsar.</li>
+          <li><strong>Arco Narrativo (3-4 dias):</strong> Roleplay intenso e direto (Exames Chūnin, invasões de fortalezas).</li>
+          <li><strong>Eventos/Missões (1-2 dias):</strong> Agito global como leilões no Mercado Negro ou reuniões diplomáticas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="calendario-section">
+      <div class="calendario-section-header">
+        <h2>Passagem do Tempo</h2>
+        <div class="calendario-section-deco"></div>
+      </div>
+      <div class="calendario-section-body">
+        <ul class="section-list">
+          <li><strong>Time Skip:</strong> Saltos de anos na história (3, 5 ou 10 anos) anunciados pela Staff ao fim dos ciclos.</li>
+          <li><strong>Estações do Ano:</strong> O continente transita entre Inverno, Verão, etc. Isso altera a geografia (neve bloqueando caminhos) e a economia (preços de itens). Aniversários serão por estações.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="calendario-section">
+      <div class="calendario-section-header">
+        <h2>Campanhas</h2>
+        <div class="calendario-section-deco"></div>
+      </div>
+      <div class="calendario-section-body">
+        <p>As <strong>Campanhas Paralelas</strong> correm em conjunto com a narrativa principal. Elas servem para explorar mistérios de clãs, descobrir novas terras ou resolver crises locais, além de gerar missões focadas no enredo da temporada.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    /* ---- DADOS DE EVENTOS ---- */
+    const events = [
+      { date: '2026-06-10', name: 'Exame Chūnin', color: '#3498db', bgColor: 'rgba(52, 152, 219, 0.8)' },
+      { date: '2026-06-15', name: 'Invasão', color: '#e74c3c', bgColor: 'rgba(231, 76, 60, 0.8)' },
+      { date: '2026-06-20', name: 'Leilão Negro', color: '#9b59b6', bgColor: 'rgba(155, 89, 182, 0.8)' },
+      { date: '2026-06-28', name: 'Reunião Diplomática', color: '#f39c12', bgColor: 'rgba(243, 156, 18, 0.8)' },
+    ];
+
+    /* ---- CALENDÁRIO ---- */
+    let currentDate = new Date(); 
+
+    const monthNames = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      document.getElementById('calendar-title').textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+      const tbody = document.getElementById('calendar-body');
+      tbody.innerHTML = '';
+
+      let currentWeek = [];
+      let date = new Date(startDate);
+
+      while (date <= lastDay || currentWeek.length > 0) {
+        const cell = document.createElement('td');
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day';
+
+        const isCurrentMonth = date.getMonth() === month;
+        const dayNum = document.createElement('div');
+        dayNum.className = 'day-number';
+        dayNum.textContent = date.getDate();
+        dayDiv.appendChild(dayNum);
+
+        if (!isCurrentMonth) {
+          cell.classList.add('other-month');
+        }
+
+        // Verifica se é hoje
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+          cell.classList.add('today-highlight');
+        }
+
+        // Adiciona eventos do dia
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        const dayEvents = events.filter(e => e.date === dateStr);
+
+        if (dayEvents.length > 0) {
+          const eventsDiv = document.createElement('div');
+          eventsDiv.className = 'day-events';
+
+          dayEvents.forEach(evt => {
+            const badge = document.createElement('div');
+            badge.className = 'event-badge';
+            badge.textContent = evt.name;
+            badge.style.backgroundColor = evt.bgColor;
+            badge.style.borderColor = evt.color;
+            eventsDiv.appendChild(badge);
+          });
+
+          dayDiv.appendChild(eventsDiv);
+        }
+
+        cell.appendChild(dayDiv);
+        currentWeek.push(cell);
+
+        if (currentWeek.length === 7) {
+          const tr = document.createElement('tr');
+          currentWeek.forEach(c => tr.appendChild(c));
+          tbody.appendChild(tr);
+          currentWeek = [];
+        }
+
+        date.setDate(date.getDate() + 1);
+      }
+    }
+
+    document.getElementById('prev-month').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    });
+
+    document.getElementById('next-month').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    });
+
+    renderCalendar();
+
+    /* ---- MENU ---- */
+    const menuBtn    = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); } });
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    /* ---- TEMA ---- */
+    const root  = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+  </script>
+</body>
+</html>

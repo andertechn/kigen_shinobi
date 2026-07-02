@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clãs — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.85); 
+      --surface-inner: rgba(18, 18, 20, 0.95);
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #ff4444;
+      --glow:    rgba(204, 0, 0, 0.5);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+      --star:    #FFD700;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-inner: #f5f5f7;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #dd0000;
+      --glow:    rgba(204, 0, 0, 0.25);
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#6b7280;
+      --star:    #F57F17;
+    }
+
+    /* Cores Dinâmicas por Vila */
+    [data-village="konoha"] { --village-color: #ff4d4d; --village-glow: rgba(255, 77, 77, 0.4); }
+    [data-village="suna"]   { --village-color: #4CAF50; --village-glow: rgba(76, 175, 80, 0.4); }
+    [data-village="kiri"]   { --village-color: #29B6F6; --village-glow: rgba(41, 182, 246, 0.4); }
+    [data-village="kumo"]   { --village-color: #FFD700; --village-glow: rgba(255, 215, 0, 0.4); }
+    [data-village="iwa"]    { --village-color: #8D6E63; --village-glow: rgba(141, 110, 99, 0.4); }
+    [data-village="uzochi"] { --village-color: #FF4081; --village-glow: rgba(255, 64, 129, 0.4); }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      overflow-x: hidden;
+      transition: background-color 0.4s, color 0.4s;
+    }
+
+    p, li, .text-content { text-align: justify; line-height: 1.6; }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      z-index: -10; overflow: hidden; background-color: #000;
+    }
+    .hero-bg { 
+      position: absolute; inset: 0; z-index: 0; 
+      width: 100%; height: 100%; object-fit: cover; 
+      filter: brightness(0.3) saturate(0.6); 
+      transition: filter 0.4s ease; 
+    }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { 
+      position: absolute; inset: 0; z-index: 1; pointer-events: none; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.95) 100%); 
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow); transition: transform 0.2s; }
+    #menu-btn:hover, #theme-toggle:hover { transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #cc0000; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= PÁGINA ESPECÍFICA ======= */
+    #page-container { 
+      position: relative; z-index: 10; min-height: 100vh; 
+      padding: 140px 20px 80px; max-width: 1100px; margin: 0 auto; 
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* BLOCO DO CABEÇALHO ======= */
+    .main-header-group {
+      background: var(--surface-inner); border-radius: 8px; overflow: hidden;
+      border: 1px solid rgba(204, 0, 0, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column;
+    }
+    .header-image {
+      width: 100%; height: 220px; background: #050505; position: relative;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .header-image span { font-family: 'Russo One', sans-serif; color: var(--text-sub); opacity: 0.4; }
+    .header-image img { position: absolute; width: 100%; height: 100%; object-fit: cover; top: 0; left: 0; }
+    .header-red {
+      background: var(--accent); padding: 15px 25px; display: flex; align-items: center; gap: 15px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; 
+      color: #fff; text-transform: uppercase; margin: 0; font-style: italic;
+    }
+    .header-deco { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, transparent 100%); }
+
+    /* VIEWS CONTROL */
+    .view-section { display: none; opacity: 0; animation: fadeInView 0.4s forwards; flex-direction: column; gap: 20px; }
+    .view-section.active { display: flex; opacity: 1; }
+    @keyframes fadeInView { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ======= GRADE DE VILAS ======= */
+    .village-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;
+    }
+    .village-card {
+      background: var(--surface-inner); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+      padding: 30px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+      cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    [data-theme="light"] .village-card { border-color: rgba(0,0,0,0.1); }
+    .village-card:hover { transform: translateY(-5px); border-color: var(--village-color, var(--accent)); box-shadow: 0 10px 25px var(--village-glow, var(--glow)); }
+    
+    .village-logo {
+      width: 90px; height: 90px; border-radius: 50%; background: #000;
+      border: 2px solid var(--text-sub); display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative; transition: border-color 0.3s;
+    }
+    .village-card:hover .village-logo { border-color: var(--village-color, var(--accent)); }
+    .village-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .village-logo span { font-size: 0.7rem; color: #555; text-align: center; }
+    
+    .village-name {
+      font-family: 'Russo One', sans-serif; font-size: 1.2rem; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.05em; text-align: center; transition: color 0.3s;
+    }
+    .village-card:hover .village-name { color: var(--village-color, var(--accent)); }
+
+    /* ======= LISTA DE CLÃS DA VILA ======= */
+    .clan-list-header {
+      display: flex; align-items: center; gap: 15px; background: var(--surface-inner);
+      padding: 15px 20px; border-radius: 8px; border-left: 4px solid var(--village-color, var(--accent));
+      transition: border-color 0.3s;
+    }
+    .btn-back {
+      background: transparent; border: 1px solid var(--text-sub); color: var(--text);
+      padding: 6px 15px; border-radius: 4px; font-family: 'Russo One', sans-serif;
+      cursor: pointer; transition: all 0.2s; text-transform: uppercase; font-size: 0.8rem;
+    }
+    .btn-back:hover { background: var(--text); color: #000; }
+    .current-village-title { font-family: 'Bangers', cursive; font-size: 2rem; color: var(--village-color, var(--text)); letter-spacing: 0.05em; margin: 0; transition: color 0.3s; }
+
+    /* RESUMO DOS CLÃS - 3 COLUNAS */
+    .clan-summary {
+      background: var(--surface-inner); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+      padding: 20px; margin-bottom: 10px; display: none;
+    }
+    .clan-summary.active { display: block; }
+    .clan-summary h3 {
+      font-family: 'Russo One', sans-serif; color: var(--village-color, var(--accent)); margin-bottom: 15px; text-transform: uppercase; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;
+    }
+    .summary-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .summary-link {
+      color: var(--text); text-decoration: none; font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 600;
+      padding: 5px 10px; border-radius: 4px; transition: background 0.2s, color 0.2s;
+    }
+    .summary-link:hover { background: rgba(255,255,255,0.05); color: var(--village-color, var(--accent2)); }
+
+    /* ESTILO DOS CARTÕES DE CLÃ */
+    .clan-list { display: flex; flex-direction: column; gap: 20px; }
+    
+    .clan-card {
+      background: var(--surface-inner); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+      display: flex; flex-direction: row; gap: 20px; padding: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: border-color 0.3s;
+      scroll-margin-top: 120px;
+    }
+    [data-theme="light"] .clan-card { border-color: rgba(0,0,0,0.1); }
+    .clan-card:hover { border-color: var(--village-color, var(--accent)); }
+    
+    .clan-card-image {
+      width: 200px; flex-shrink: 0; border-radius: 6px; overflow: hidden;
+      border: 1px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+      background: #000; position: relative;
+    }
+    .clan-card-image span { font-family: 'Russo One', sans-serif; font-size: 0.8rem; color: #555; }
+    .clan-card-image img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
+    
+    .clan-card-content { flex: 1; display: flex; flex-direction: column; }
+    .clan-card-title { 
+      font-family: 'Bangers', cursive; font-size: 2rem; 
+      color: var(--village-color, var(--accent)); 
+      letter-spacing: 0.05em; margin-bottom: 10px; 
+    }
+    .clan-card-desc { font-size: 0.95rem; color: var(--text); line-height: 1.5; margin-bottom: 15px; }
+    
+    .clan-card-bullets { list-style: none; margin-bottom: 15px; color: var(--text-sub); font-size: 0.95rem; }
+    .clan-card-bullets li { margin-bottom: 8px; padding-left: 15px; border-left: 2px solid var(--village-color, var(--accent)); }
+    .clan-card-bullets strong { color: var(--text); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em; }
+    
+    .btn-open-clan {
+      align-self: flex-start; background: var(--bg); border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text); padding: 8px 20px; font-family: 'Russo One', sans-serif;
+      text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-radius: 4px;
+      transition: all 0.2s; margin-top: auto;
+    }
+    .btn-open-clan:hover { background: var(--village-color, var(--accent)); color: #fff; border-color: var(--village-color, var(--accent)); }
+
+    /* ======= MODAL DA FICHA DO CLÃ ======= */
+    #clan-modal {
+      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    #clan-modal.active { opacity: 1; pointer-events: all; }
+
+    .modal-container {
+      background: #111; width: 100%; max-width: 800px; max-height: 90vh;
+      border-radius: 8px; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,1);
+      border: 1px solid rgba(255,255,255,0.05); transform: scale(0.95); transition: transform 0.3s ease;
+      display: flex; flex-direction: column; position: relative;
+    }
+    [data-theme="light"] .modal-container { background: #f9f9f9; border-color: rgba(0,0,0,0.1); }
+    #clan-modal.active .modal-container { transform: scale(1); }
+
+    .close-modal {
+      position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 15px;
+      border-radius: 20px; font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      font-size: 0.9rem; cursor: pointer; z-index: 10; transition: background 0.2s;
+    }
+    .close-modal:hover { background: var(--accent); border-color: var(--accent); }
+
+    /* Banner do Modal */
+    .modal-banner {
+      width: 100%; height: 280px; position: relative; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; overflow: hidden; border-bottom: 2px solid var(--accent);
+    }
+    .modal-banner-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.4) contrast(1.2); z-index: 0; }
+    .modal-header-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    
+    .modal-logo {
+      width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent);
+      object-fit: cover; box-shadow: 0 0 20px rgba(204,0,0,0.8); background: #000;
+    }
+    .modal-title { font-family: 'Bangers', cursive; font-size: 3rem; color: #fff; letter-spacing: 0.08em; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); margin: 0; line-height: 1; text-align: center; }
+    .modal-subtitle { font-family: 'Russo One', sans-serif; font-size: 1rem; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
+    .modal-stars { color: var(--star); font-size: 1.2rem; margin-top: 5px; letter-spacing: 2px; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+
+    /* SEÇÃO LÍDER DO CLÃ */
+    .modal-leader-section {
+      background: linear-gradient(90deg, rgba(204,0,0,0.15) 0%, transparent 100%);
+      border-left: 3px solid var(--accent);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .leader-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 6px;
+      border: 2px solid var(--accent);
+      background: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .leader-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .leader-avatar span { font-size: 0.7rem; color: #666; }
+    .leader-info h5 { font-family: 'Russo One', sans-serif; color: var(--accent); margin: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .leader-info p { font-size: 0.85rem; color: var(--text); margin: 5px 0 0 0; font-weight: 600; }
+    
+    /* Abas do Modal */
+    .modal-tabs { display: flex; background: #080808; border-bottom: 1px solid #222; overflow-x: auto; }
+    [data-theme="light"] .modal-tabs { background: #eee; border-bottom-color: #ddd; }
+    .modal-tab-btn {
+      flex: 1; background: none; border: none; color: var(--text-sub);
+      font-family: 'Russo One', sans-serif; font-size: 0.85rem; padding: 15px 10px;
+      cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.2s, background 0.2s;
+      border-bottom: 3px solid transparent; min-width: 120px;
+    }
+    .modal-tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+    .modal-tab-btn.active { color: var(--text); border-bottom-color: var(--accent); background: rgba(255,255,255,0.05); }
+
+    .modal-body { padding: 30px; color: var(--text); }
+    .modal-body h4 { font-family: 'Russo One', sans-serif; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+    .modal-body p { margin-bottom: 15px; font-size: 0.95rem; }
+    
+    .modal-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; margin-bottom: 20px; }
+    .tag-pill { background: var(--surface-inner); color: #fff; font-family: 'Russo One', sans-serif; font-size: 0.8rem; padding: 6px 14px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.1); }
+
+    /* MEMBROS NOTÁVEIS */
+    .members-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-top: 15px;
+    }
+    .member-card {
+      display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 15px;
+      background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s ease;
+    }
+    .member-card:hover { background: rgba(255,255,255,0.05); border-color: var(--accent); }
+    
+    .member-avatar {
+      width: 100px; height: 100px; border-radius: 8px; border: 2px dashed var(--accent);
+      background: linear-gradient(135deg, #222, #111); display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .member-avatar span { font-size: 0.7rem; color: #666; text-align: center; padding: 10px; }
+    
+    .member-name { font-family: 'Russo One', sans-serif; font-size: 0.9rem; color: var(--text); text-align: center; text-transform: uppercase; letter-spacing: 0.05em; }
+    .member-name.empty { color: var(--text-sub); font-style: italic; }
+
+    /* Scrollbar */
+    .modal-container::-webkit-scrollbar { width: 6px; }
+    .modal-container::-webkit-scrollbar-track { background: transparent; }
+    .modal-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    .modal-container::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    @media (max-width: 768px) {
+      .clan-card { flex-direction: column; }
+      .clan-card-image { width: 100%; height: 200px; }
+      .btn-open-clan { align-self: stretch; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_5_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Civil</a>
+      <a class="nav-link" href="#">Sistemas</a>
+      <a class="nav-link" href="#">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="page-container">
+
+    <!-- BLOCO DO CABEÇALHO GRUDADO -->
+    <div class="main-header-group">
+      <div class="header-image">
+        <img src="00_clas.png" alt="Header Clãs" onerror="this.style.display='none'" />
+        <span></span>
+      </div>
+      <div class="header-red">
+        <h1>OS CLÃS NINJAS</h1>
+        <div class="header-deco"></div>
+      </div>
+    </div>
+
+    <!-- VIEW 1: GRADE DE VILAS -->
+    <div id="view-villages" class="view-section active">
+      <div class="village-grid">
+        <div class="village-card" onclick="openVillage('konoha', 'Konohagakure')">
+          <div class="village-logo"><img src="00_logo_konoha.png" alt="Konoha" onerror="this.style.display='none'"><span></span></div>
+          <div class="village-name">Konohagakure</div>
+        </div>
+        <div class="village-card" onclick="openVillage('suna', 'Sunagakure')">
+          <div class="village-logo"><img src="00_logo_suna.jpg" alt="Suna" onerror="this.style.display='none'"><span></span></div>
+          <div class="village-name">Sunagakure</div>
+        </div>
+        <div class="village-card" onclick="openVillage('kiri', 'Kirigakure')">
+          <div class="village-logo"><img src="00_logo_kiri.png" alt="Kiri" onerror="this.style.display='none'"><span></span></div>
+          <div class="village-name">Kirigakure</div>
+        </div>
+        <div class="village-card" onclick="openVillage('kumo', 'Kumogakure')">
+          <div class="village-logo"><img src="00_kumogakure.jpg" alt="Kumo" onerror="this.style.display='none'"><span></span></div>
+          <div class="village-name">Kumogakure</div>
+        </div>
+        <div class="village-card" onclick="openVillage('iwa', 'Iwagakure')">
+          <div class="village-logo"><img src="00_logo_iwa.png" alt="Iwa" onerror="this.style.display='none'"><span></span></div>
+          <div class="village-name">Iwagakure</div>
+        </div>
+        <div class="village-card" onclick="openVillage('uzochi', 'Uzushiogakure')">
+          <div class="village-logo"><img src="00_logo_uzochi.png" alt="Uzochi" onerror="this.style.display='none'"><span></span></div>
+          <div class="village-name">Uzushiogakure</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: LISTA DE CLÃS DA VILA SELECIONADA -->
+    <div id="view-clans" class="view-section">
+      <div class="clan-list-header">
+        <button class="btn-back" onclick="backToVillages()">← Voltar</button>
+        <h2 class="current-village-title" id="current-village-name">NOME DA VILA</h2>
+      </div>
+
+      <!-- RESUMO DOS CLÃS (3 COLUNAS) -->
+      <div class="clan-summary active" id="village-summary-box">
+        <h3>Resumo dos Clãs</h3>
+        <div class="summary-grid" id="village-summary-grid">
+          <!-- Links inseridos via JS dinamicamente -->
+        </div>
+      </div>
+
+      <div class="clan-list" id="clan-list-container">
+        
+        <!-- ========================================================================= -->
+        <!-- KONOHAGAKURE (13 Clãs) -->
+        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-aburame" data-village="konoha" data-name="Aburame">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Aburame_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Aburame</h3>
+            <p class="clan-card-desc">Conhecidos pelo uso de insetos como armas. Vivem em simbiose com espécies sob a pele, que se alimentam de chakra em troca de poderes mortais.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Roupas que cobrem a maior parte do corpo e óculos escuros.</li>
+              <li><strong>Membros Notáveis:</strong> Shino, Torune, Shibi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('ABURAME', 'Senhores dos Insetos', '★★★☆☆', '', '', 'Nenhum', 'Kamizuru', 'Técnica de Insetos Parasitas (Kikaichū).', ['Shino Aburame', 'Torune Aburame', 'Shibi Aburame'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-akimichi" data-village="konoha" data-name="Akimichi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Akimichi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Akimichi</h3>
+            <p class="clan-card-desc">Famosos pela força física e controle de calorias. Membros do trio lendário Ino-Shika-Cho.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Estrutura física corpulenta, símbolos de comida nas bochechas.</li>
+              <li><strong>Membros Notáveis:</strong> Choji, Choza.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('AKIMICHI', 'A Força Esmagadora', '★★★★☆', '', '', 'Nara, Yamanaka', 'Nenhum', 'Baika no Jutsu (Expansão).', ['Choji Akimichi', 'Choza Akimichi'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-kurama-konoha" data-village="konoha" data-name="Kurama">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kurama_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kurama</h3>
+            <p class="clan-card-desc">Possuem um dom raro para Genjutsu tão poderoso que o cérebro da vítima acredita na ilusão ao ponto de causar dano físico real.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Variadas, geralmente aparência pálida em membros habilidosos.</li>
+              <li><strong>Membros Notáveis:</strong> Yakumo.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KURAMA', 'Mestres da Ilusão', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Genjutsu Neural.', ['Yakumo Kurama'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-yamanaka" data-village="konoha" data-name="Yamanaka">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yamanaka_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Yamanaka</h3>
+            <p class="clan-card-desc">Especialistas na manipulação da mente, capazes de assumir corpos de inimigos e conectar telepatas em massa.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cabelos loiros e olhos claros (predominante).</li>
+              <li><strong>Membros Notáveis:</strong> Ino, Inoichi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('YAMANAKA', 'Conexão Mental', '★★★☆☆', '', '', 'Akimichi, Nara', 'Nenhum', 'Shintenshin no Jutsu.', ['Ino Yamanaka', 'Inoichi Yamanaka'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-hatake" data-village="konoha" data-name="Hatake">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hatake_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Hatake</h3>
+            <p class="clan-card-desc">Guerreiros prodigiosos, extremamente talentosos em rastreamento, kenjutsu e domínios elementais variados.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cabelos grisalhos/prateados.</li>
+              <li><strong>Membros Notáveis:</strong> Kakashi, Sakumo.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('HATAKE', 'Os Caninos Brancos', '★★★★★', '', '', 'Nenhum', 'Nenhum', 'Ninjutsu Rápido, Kenjutsu.', ['Kakashi Hatake', 'Sakumo Hatake'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-sarutobi" data-village="konoha" data-name="Sarutobi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Sarutobi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Sarutobi</h3>
+            <p class="clan-card-desc">A personificação da Vontade do Fogo. Conhecidos pela grande reserva de chakra e domínio sobre múltiplos elementos.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Traços austeros, cabelos escuros, comumente usam armaduras ou cachimbos.</li>
+              <li><strong>Membros Notáveis:</strong> Hiruzen, Asuma, Konohamaru.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('SARUTOBI', 'Chamas Ancestrais', '★★★★☆', '', '', 'Senju', 'Nenhum', 'Ninjutsu Elemental Combinado.', ['Hiruzen Sarutobi', 'Asuma Sarutobi', 'Konohamaru Sarutobi'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-hyuuga" data-village="konoha" data-name="Hyuuga">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hyuuga_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Hyuuga</h3>
+            <p class="clan-card-desc">Divididos entre a casa principal e secundária, são donos do cobiçado Byakugan, que enxerga o sistema circulatório de chakra perfeitamente.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Olhos totalmente brancos, cabelos escuros lisos.</li>
+              <li><strong>Membros Notáveis:</strong> Neji, Hinata, Hiashi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('HYUUGA', 'O Olho Que Tudo Vê', '★★★★★', '', '', 'Nenhum', 'Uchiha (Rivalidade)', 'Byakugan, Punho Suave.', ['Neji Hyuuga', 'Hinata Hyuuga', 'Hiashi Hyuuga'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-inuzuka" data-village="konoha" data-name="Inuzuka">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Inuzuka_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Inuzuka</h3>
+            <p class="clan-card-desc">Lutam em perfeita sincronia com seus cães ninja (Ninken) e possuem sentidos ampliados, principalmente o olfato.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Marcas vermelhas nas bochechas em forma de presas, olhos selvagens.</li>
+              <li><strong>Membros Notáveis:</strong> Kiba, Tsume.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('INUZUKA', 'Feras em Batalha', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Taijutsu Feral, Rastreamento.', ['Kiba Inuzuka', 'Tsume Inuzuka'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-lee" data-village="konoha" data-name="Lee">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Lee_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Herança Lee</h3>
+            <p class="clan-card-desc">Incapazes de usar ninjutsu, compensam com esforço brutal. Mestres absolutos no Goken (Punho Forte) e Oito Portões.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Sobrancelhas grossas, roupas de treinamento.</li>
+              <li><strong>Membros Notáveis:</strong> Rock Lee.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('LEE', 'A Força da Juventude', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Hachimon Tonko (Oito Portões).', ['Rock Lee'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-nara" data-village="konoha" data-name="Nara">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Nara_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Nara</h3>
+            <p class="clan-card-desc">Mentes táticas brilhantes que utilizam sombras físicas para imobilizar e enforcar seus inimigos.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cabelos escuros amarrados em rabo de cavalo ou coque.</li>
+              <li><strong>Membros Notáveis:</strong> Shikamaru, Shikaku.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('NARA', 'Mestres das Sombras', '★★★★☆', '', '', 'Akimichi, Yamanaka', 'Nenhum', 'Kagemane no Jutsu.', ['Shikamaru Nara', 'Shikaku Nara'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-senju" data-village="konoha" data-name="Senju">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Senju_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Senju</h3>
+            <p class="clan-card-desc">Descendentes diretos do sábio, dotados de vitalidade absurda. Alguns poucos manifestam a rara manipulação de madeira (Mokuton).</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Traços fortes, geralmente cabelos castanhos ou claros.</li>
+              <li><strong>Membros Notáveis:</strong> Hashirama, Tobirama, Tsunade.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('SENJU', 'A Raiz de Konoha', '★★★★★', '', '', 'Sarutobi, Uzumaki', 'Uchiha', 'Mokuton, Vitalidade.', ['Hashirama Senju', 'Tobirama Senju', 'Tsunade Senju'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-uchiha" data-village="konoha" data-name="Uchiha">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Uchiha_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Uchiha</h3>
+            <p class="clan-card-desc">O temido clã da maldição do ódio. Donos do Sharingan, enxergam a verdade das batalhas e executam genjutsus impenetráveis.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cabelos e olhos escuros (que se tornam vermelhos quando ativados).</li>
+              <li><strong>Membros Notáveis:</strong> Madara, Sasuke, Itachi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('UCHIHA', 'Olhos Escarlates', '★★★★★', '', '', 'Nenhum', 'Senju (Rivalidade Histórica)', 'Sharingan, Katon.', ['Madara Uchiha', 'Sasuke Uchiha', 'Itachi Uchiha'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-shimura" data-village="konoha" data-name="Shimura">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Shimura_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Shimura</h3>
+            <p class="clan-card-desc">Pragmáticos e impiedosos. Focados no sacrifício necessário e no elemento vento, agindo constantemente pelas sombras políticas.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cicatrizes ou modificações corporais ocultas (opcional).</li>
+              <li><strong>Membros Notáveis:</strong> Danzou.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('SHIMURA', 'As Raízes Sombrias', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Fūton Avançado.', ['Danzou Shimura'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUNAGAKURE (6 Clãs) -->
+        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-akasuna" data-village="suna" data-name="Akasuna">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Akasuna_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Akasuna</h3>
+            <p class="clan-card-desc">Mestres das marionetes. Transformam corpos caídos em armas letais e controlam venenos com maestria no campo de batalha.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Roupas adaptadas para pergaminhos de marionete.</li>
+              <li><strong>Membros Notáveis:</strong> Sasori, Chiyo.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('AKASUNA', 'Mestres de Marionetes', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Kugutsu no Jutsu (Marionetes).', ['Sasori Akasuna', 'Chiyo'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-shira" data-village="suna" data-name="Shira">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Shira_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Shira</h3>
+            <p class="clan-card-desc">Sem aptidão para ninjutsu, desenvolveram o Método de Respiração dos Sete Paraísos para se igualarem a feras em combate corpo a corpo.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Vigorosos e calmos.</li>
+              <li><strong>Membros Notáveis:</strong> Shira.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('SHIRA', 'O Vento Silencioso', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Sete Respirações Celestiais.', ['Shira'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-kazekage" data-village="suna" data-name="Kazekage">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kazekage_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Linhagem Kazekage</h3>
+            <p class="clan-card-desc">A realeza de Suna. Possuidores do Jiton (Magnetismo), manipulam Areia de Ouro ou Areia de Ferro para aniquilação em massa.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cabelos com tons exóticos (vermelho, ruivo, castanho escuro).</li>
+              <li><strong>Membros Notáveis:</strong> Rasa, Gaara.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KAZEKAGE', 'A Tempestade do Deserto', '★★★★★', '', '', 'Nenhum', 'Nenhum', 'Jiton (Magnetismo).', ['Rasa', 'Gaara'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-shakuton" data-village="suna" data-name="Shakuton">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Shakuton_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Linhagem Shakuton</h3>
+            <p class="clan-card-desc">Manifestam a liberação do calor escaldante, evaporando os fluidos corporais de seus inimigos em meros segundos.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Temperatura corporal muito elevada.</li>
+              <li><strong>Membros Notáveis:</strong> Pakura.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('SHAKUTON', 'Sol Implacável', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Shakuton (Calor).', ['Pakura'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-yome" data-village="suna" data-name="Yome">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yome_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Yome</h3>
+            <p class="clan-card-desc">Rastreadores natos. Dilatam suas pupilas para captar reflexos da luz em gotículas d'água no ar e observar milhas de distância.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Olhos extremamente adaptativos à luz.</li>
+              <li><strong>Membros Notáveis:</strong> Yome.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('YOME', 'Olhos do Oásis', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Rastreamento Ótico.', ['Yome'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-hanzou" data-village="suna" data-name="Hanzou">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hanzou_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Herança Hanzou</h3>
+            <p class="clan-card-desc">Implantam veneno puro em seus próprios corpos. Podem exalar gases tóxicos e sobreviver em ambientes contaminados.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Máscaras respiratórias, marcas cirúrgicas nos lados do tronco.</li>
+              <li><strong>Membros Notáveis:</strong> Hanzou da Salamandra.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('HANZOU', 'A Morte Silenciosa', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Venenos Mortais.', ['Hanzou'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- KIRIGAKURE (8 Clãs) -->
+        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-hoshigaki" data-village="kiri" data-name="Hoshigaki">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hoshigaki_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Hoshigaki</h3>
+            <p class="clan-card-desc">Predadores formidáveis. Possuem guelras, pele texturizada e reservas monstruosas de chakra, assemelhando-se a tubarões.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Pele cinza/azulada, dentes pontiagudos e guelras no rosto/ombros.</li>
+              <li><strong>Membros Notáveis:</strong> Kisame, Shizuma.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('HOSHIGAKI', 'O Predador Abissal', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Absorção de Chakra, Suiton avançado.', ['Kisame Hoshigaki', 'Shizuma'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-hozuki" data-village="kiri" data-name="Hozuki">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hozuki_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Hozuki</h3>
+            <p class="clan-card-desc">Seus corpos podem se dissolver inteiramente em água (Suika no Jutsu), anulando ataques contundentes e armas brancas.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Corpo fluido e cabelos geralmente brancos/claros. Precisa se hidratar constantemente.</li>
+              <li><strong>Membros Notáveis:</strong> Suigetsu, Mangetsu.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('HOZUKI', 'Corpo Fluido', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Suika no Jutsu (Hidratação).', ['Suigetsu Hozuki', 'Mangetsu'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-kaguya" data-village="kiri" data-name="Kaguya">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kaguya_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kaguya</h3>
+            <p class="clan-card-desc">Um clã bárbaro de sede por sangue, portadores do Shikotsumyaku, manipulando o próprio esqueleto para atacar e defender.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Marcas circulares na testa, pele pálida.</li>
+              <li><strong>Membros Notáveis:</strong> Kimimaro.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KAGUYA', 'Guerreiros de Osso', '★★★★★', '', '', 'Nenhum', 'Governo de Kiri (Rebeldia)', 'Shikotsumyaku (Ossos).', ['Kimimaro Kaguya'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-utakata" data-village="kiri" data-name="Utakata">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Utakata_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Herança Utakata</h3>
+            <p class="clan-card-desc">Focam no estilo elegante porém letal de Ninjutsu de Bolhas de Sabão, que explodem ou aprisionam alvos.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Elegantes, sempre portando tubos/canudos para as bolhas.</li>
+              <li><strong>Membros Notáveis:</strong> Utakata.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('UTAKATA', 'Estouro Fugaz', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Ninjutsu de Bolhas.', ['Utakata'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-akagan" data-village="kiri" data-name="Akagan">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Akagan_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Akagan (Chinoike)</h3>
+            <p class="clan-card-desc">Originários de outra terra mas escondidos na Névoa, portam o Ketsuryūgan, um genjutsu sangrento poderoso.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Olhos vermelho-sangue intensos.</li>
+              <li><strong>Membros Notáveis:</strong> Chino.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('AKAGAN', 'Olho de Sangue', '★★★★☆', '', '', 'Nenhum', 'Uchiha', 'Ketsuryugan.', ['Chino Akagan'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-suikasan" data-village="kiri" data-name="Suikasan">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Suikasan_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Suikasan</h3>
+            <p class="clan-card-desc">Focados em brutalidade corporal e táticas covardes usando o ocultamento perfeito e cabelos como arma pontiaguda.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Muito altos e robustos, cabelos laranjas/compridos.</li>
+              <li><strong>Membros Notáveis:</strong> Fuguki.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('SUIKASAN', 'As Agulhas Capilares', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Kenjutsu e Manipulação Capilar.', ['Fuguki Suikasan'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-terumi" data-village="kiri" data-name="Terumi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Terumi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Terumi</h3>
+            <p class="clan-card-desc">Prodígios monstruosos possuidores de não apenas uma, mas duas Kekkei Genkai destrutivas: Yōton (Lava) e Futton (Fervura).</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Belos traços, cabelos geralmente avermelhados/castanhos.</li>
+              <li><strong>Membros Notáveis:</strong> Mei Terumi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('TERUMI', 'Fervura e Lava', '★★★★★', '', '', 'Nenhum', 'Nenhum', 'Futton e Youton.', ['Mei Terumi'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-yuki" data-village="kiri" data-name="Yuki">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yuki_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Yuki</h3>
+            <p class="clan-card-desc">Foram caçados na Névoa por seu poder assustador. Dominam o Hyōton (Gelo), criando espelhos congelados em combate.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Pele pálida, traços delicados, andróginos.</li>
+              <li><strong>Membros Notáveis:</strong> Haku.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('YUKI', 'Cristais de Neve', '★★★★☆', '', '', 'Nenhum', 'Governo Antigo de Kiri', 'Hyouton (Gelo).', ['Haku Yuki'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- KUMOGAKURE (8 Clãs) -->
+        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-yotsuki" data-village="kumo" data-name="Yotsuki">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yotsuki_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Yotsuki</h3>
+            <p class="clan-card-desc">Um dos mais respeitados clãs de Kumo, fiéis aliados do Raikage. Nunca revelam segredos a inimigos, mesmo sob tortura.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Pele escura, fortes e musculosos.</li>
+              <li><strong>Membros Notáveis:</strong> Kiyoi Yotsuki.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('YOTSUKI', 'Lealdade Eterna', '★★★★☆', '', '', 'Clã do Raikage', 'Nenhum', 'Raiton Avançado.', ['Kiyoi Yotsuki'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-chinoike-kumo" data-village="kumo" data-name="Chinoike">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Chinoike_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Chinoike (Vale do Inferno)</h3>
+            <p class="clan-card-desc">Antigos residentes do País do Relâmpago exilados no Vale do Inferno. Mestres do Ketsuryūgan e ilusões sangrentas.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Olhos vermelhos brilhantes, estatura menor.</li>
+              <li><strong>Membros Notáveis:</strong> En Oyashiro.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('CHINOIKE', 'A Névoa de Sangue', '★★★★☆', '', '', 'Nenhum', 'Uchiha', 'Ketsuryūgan.', ['En Oyashiro'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-jugo" data-village="kumo" data-name="Jugo">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Jugo_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Linhagem Jugo</h3>
+            <p class="clan-card-desc">Aptos a absorver energia natural passivamente. Isso lhes dá força insana (Modo Sábio Imperfeito), mas também fúria assassina.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Corpo que sofre mutações monstruosas quando enfurecido.</li>
+              <li><strong>Membros Notáveis:</strong> Jugo.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('JUGO', 'Sábios da Fúria', '★★★★☆', '', '', 'Nenhum', 'Eles mesmos (quando em fúria)', 'Transformação Sábia.', ['Jugo'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-kanji" data-village="kumo" data-name="Kanji">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kanji_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kanji</h3>
+            <p class="clan-card-desc">Operadores táticos e seladores, essenciais para o transporte de pergaminhos e tesouros de Kumogakure.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Tatuagens de selamento espalhadas pelo corpo.</li>
+              <li><strong>Membros Notáveis:</strong> [Membros Vagas].</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KANJI', 'Selos Eletrizantes', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Fuinjutsu.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-karyu" data-village="kumo" data-name="Karyū">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Karyu_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Karyū</h3>
+            <p class="clan-card-desc">Conseguem materializar o relâmpago de forma tão densa que cria formas de dragões e criaturas, usando o Raiton como armamento ofensivo contínuo.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cabelos espetados, frequentemente azuis ou amarelos.</li>
+              <li><strong>Membros Notáveis:</strong> [Membros Vagas].</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KARYŪ', 'Dragões do Trovão', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Modelagem Raiton.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-kurama-kumo" data-village="kumo" data-name="Kurama">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kurama_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kurama (Kumo)</h3>
+            <p class="clan-card-desc">Ramo diplomático que emigrou de Konoha. Usam o clarão do Raiton para induzir inimigos instantaneamente em seus Genjutsus.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Pálidos, veste padrão de Kumo.</li>
+              <li><strong>Membros Notáveis:</strong> [Membros Vagas].</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KURAMA', 'Clarão Enganoso', '★★★★☆', '', '', 'Kurama (Konoha)', 'Nenhum', 'Genjutsu Neural e Ótico.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-toroi" data-village="kumo" data-name="Toroi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Toroi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Herança Toroi</h3>
+            <p class="clan-card-desc">Guerreiros robustos que portam o Jiton (Magnetismo). Eles magnetizam armas, garantindo que o próximo ataque nunca erre o inimigo marcado.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Olhos intensos, geralmente carregam shurikens quadradas enormes.</li>
+              <li><strong>Membros Notáveis:</strong> Toroi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('TOROI', 'Atração Mortal', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Jiton.', ['Toroi'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-yomi" data-village="kumo" data-name="Yomi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yomi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Yomi</h3>
+            <p class="clan-card-desc">Envoltos em mistério, lidam com jutsu médico sombrio e reanimação neural. Suas técnicas manipulam fluidos corporais escuros.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Olhos obscuros, marcas roxas abaixo dos olhos.</li>
+              <li><strong>Membros Notáveis:</strong> Yomi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('YOMI', 'Servos da Sombra', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Jutsu Médico Sombrio.', ['Yomi'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- IWAGAKURE (8 Clãs) -->
+        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-ameyuki" data-village="iwa" data-name="Ameyuki">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Ameyuki_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Ameyuki</h3>
+            <p class="clan-card-desc">Operários fundamentais da fundação de Iwa, eles endurecem seus corpos como diamantes e manipulam a rocha com as próprias mãos.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Corpos brutos, muitas vezes não usam camisas.</li>
+              <li><strong>Membros Notáveis:</strong> [Membros Vagas].</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('AMEYUKI', 'A Muralha Pessoal', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Doton Corpo de Aço.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-katsu" data-village="iwa" data-name="Katsu">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Katsu_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Linhagem Katsu</h3>
+            <p class="clan-card-desc">Mestres do Bakuton (Explosão). Combinam Doton e Raiton para infundir chakra em argila e causar atentados em grande escala.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Bocas adicionais nas palmas das mãos e no peito (opcional).</li>
+              <li><strong>Membros Notáveis:</strong> Deidara, Gari.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KATSU', 'A Arte é a Explosão', '★★★★★', '', '', 'Nenhum', 'Nenhum', 'Bakuton.', ['Deidara', 'Gari'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-kamizuru" data-village="iwa" data-name="Kamizuru">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kamizuru_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kamizuru</h3>
+            <p class="clan-card-desc">Especialistas no uso de abelhas gigantes. Já foram rivais do Clã Aburame, buscando restaurar sua glória na Pedra.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Roupas amarelas/listradas (padrões de abelha).</li>
+              <li><strong>Membros Notáveis:</strong> Suzumebachi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KAMIZURU', 'O Enxame da Pedra', '★★★☆☆', '', '', 'Nenhum', 'Aburame', 'Manipulação de Abelhas.', ['Suzumebachi'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-mu" data-village="iwa" data-name="Mu">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Mu_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Herança Mū</h3>
+            <p class="clan-card-desc">Secreta e letal. Dominam as três naturezas base (Doton, Katon, Futon) para criar a Poeira (Jinton), desintegrando alvos instantaneamente.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Costumam usar faixas cobrindo o corpo inteiro (múmias).</li>
+              <li><strong>Membros Notáveis:</strong> Mū (Segundo Tsuchikage).</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('MŪ', 'A Desintegração', '★★★★★', '', '', 'Nenhum', 'Nenhum', 'Jinton (Poeira).', ['Mū'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-origami" data-village="iwa" data-name="Origami">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Origami_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Herança Origami</h3>
+            <p class="clan-card-desc">Podem infundir seu chakra no papel. Esse material, uma vez seco com Doton, ganha rigidez e filo igual a lâminas de metal.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Acessórios e dobraduras de papel na roupa.</li>
+              <li><strong>Membros Notáveis:</strong> Konan (como usuária notória).</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('ORIGAMI', 'Lâminas Brancas', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Shikigami no Mai.', ['Konan'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-guren" data-village="iwa" data-name="Guren">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Guren_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Herança Guren</h3>
+            <p class="clan-card-desc">Transmutam a matéria ao redor (e o corpo dos inimigos) em Cristal indestrutível (Shōton) através de ninjutsus altamente reflexivos.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Visual limpo, geralmente vestem verde e vermelho.</li>
+              <li><strong>Membros Notáveis:</strong> Guren.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('GUREN', 'O Brilho Indestrutível', '★★★★★', '', '', 'Nenhum', 'Nenhum', 'Shōton (Cristal).', ['Guren'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-tsushi" data-village="iwa" data-name="Tsushi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Tsushi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Tsushi</h3>
+            <p class="clan-card-desc">Caçadores que se utilizam de Meisaigakure. Controlam as refrações de luz nas pedras para ficar totalmente invisíveis e apagar seus cheiros.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Discretos, poucas roupas com metal para não fazer ruído.</li>
+              <li><strong>Membros Notáveis:</strong> Taiseki.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('TSUSHI', 'Assassinos Invisíveis', '★★★☆☆', '', '', 'Nenhum', 'Nenhum', 'Camuflagem Ótica.', ['Taiseki'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-iburi" data-village="iwa" data-name="Iburi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Iburi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Iburi</h3>
+            <p class="clan-card-desc">Possuem o trágico dom de converter seus corpos em fumaça pura. São invulneráveis na forma de gás, mas um forte vento pode matá-los acidentalmente.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Pele levemente cinzenta, tosse constante ou necessidade de viver em cavernas sem vento.</li>
+              <li><strong>Membros Notáveis:</strong> Yukimi.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('IBURI', 'Gás Asfixiante', '★★★★☆', '', '', 'Nenhum', 'Nenhum', 'Transformação em Fumaça.', ['Yukimi'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- UZUSHIOGAKURE (1 Clã) -->
+        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-uzumaki" data-village="uzochi" data-name="Uzumaki">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Uzumaki_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Uzumaki</h3>
+            <p class="clan-card-desc">Príncipes do Redemoinho. Conhecidos mundialmente pela vitalidade absurda e Fuinjutsu tão perigoso que o clã precisou ser aniquilado em uma guerra conjunta.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Características Físicas:</strong> Cabelos vermelho-carmesim brilhantes.</li>
+              <li><strong>Membros Notáveis:</strong> Kushina, Mito, Naruto, Nagato.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('UZUMAKI', 'O Redemoinho Vermelho', '★★★★★', '', '', 'Senju, Namikaze', 'Nenhum (Todos temem)', 'Fuinjutsu, Correntes Adamantinas.', ['Kushina Uzumaki', 'Mito Uzumaki', 'Naruto Uzumaki', 'Nagato Uzumaki'])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ======= MODAL DA FICHA DO CLÃ ======= -->
+  <div id="clan-modal">
+    <div class="modal-container">
+      <button class="close-modal" onclick="closeClanModal()">← Fechar Ficha</button>
+      
+      <!-- Banner Modal -->
+      <div class="modal-banner">
+        <img src="" alt="Banner Clã" class="modal-banner-bg" id="modal-banner-img" onerror="this.style.display='none'">
+        <div class="modal-header-content">
+          <img src="" alt="Logo Clã" class="modal-logo" id="modal-logo-img" onerror="this.style.display='none'">
+          <h2 class="modal-title" id="modal-name-txt">NOME DO CLÃ</h2>
+          <div class="modal-subtitle" id="modal-title-txt">Título do Clã</div>
+          <div class="modal-stars" id="modal-stars-txt">★★★★★</div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO LIDER -->
+      <div class="modal-leader-section">
+        <div class="leader-avatar">
+          <img src="" alt="Líder" id="modal-leader-img" onerror="this.style.display='none'">
+          <span>Foto</span>
+        </div>
+        <div class="leader-info">
+          <h5>Líder do Clã</h5>
+          <p id="modal-leader-name">Vago</p>
+        </div>
+      </div>
+
+      <!-- Abas -->
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" onclick="switchTab(0)">Técnicas / Hiden</button>
+        <button class="modal-tab-btn" onclick="switchTab(1)">Membros Notáveis</button>
+        <button class="modal-tab-btn" onclick="switchTab(2)">Relações</button>
+      </div>
+
+      <!-- Corpo da Ficha -->
+      <div class="modal-body">
+        
+        <div id="tab-content-0">
+          <h4>Técnicas e Habilidades</h4>
+          <p id="modal-tech-txt">Texto das técnicas do clã entra aqui.</p>
+        </div>
+        
+        <div id="tab-content-1" style="display: none;">
+          <h4>Membros Notáveis</h4>
+          <div class="members-grid" id="modal-members-grid"></div>
+        </div>
+        
+        <div id="tab-content-2" style="display: none;">
+          <h4>Aliados Formais</h4>
+          <div class="modal-tags" id="modal-allies-tags" style="justify-content: flex-start; margin-bottom: 20px;"></div>
+          
+          <h4 style="color: var(--border);">Inimigos Mortais</h4>
+          <div class="modal-tags" id="modal-enemies-tags" style="justify-content: flex-start;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Menu Overlay
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    function closeNav() { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); }
+
+    // Toggle Tema
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    // Lógica de Transição (Vilas -> Clãs)
+    function openVillage(villageId, villageName) {
+      document.getElementById('view-villages').classList.remove('active');
+      document.getElementById('view-clans').classList.add('active');
+      document.getElementById('current-village-name').innerText = villageName;
+
+      // Reseta e gera o Resumo Dinâmico
+      const summaryGrid = document.getElementById('village-summary-grid');
+      summaryGrid.innerHTML = '';
+      
+      const clans = document.querySelectorAll('.clan-item');
+      clans.forEach(clan => {
+        if(clan.getAttribute('data-village') === villageId) {
+          clan.style.display = 'flex';
+          
+          const clanId = clan.getAttribute('id');
+          const clanName = clan.getAttribute('data-name');
+          const link = document.createElement('a');
+          link.href = `#${clanId}`;
+          link.className = 'summary-link';
+          link.innerText = clanName;
+          summaryGrid.appendChild(link);
+          
+        } else {
+          clan.style.display = 'none';
+        }
+      });
+      
+      window.scrollTo(0, 0);
+    }
+
+    function backToVillages() {
+      document.getElementById('view-clans').classList.remove('active');
+      document.getElementById('view-villages').classList.add('active');
+    }
+
+    // Modal do Clã
+    const clanModal = document.getElementById('clan-modal');
+    
+    function openClanModal(name, title, stars, bannerSrc, logoSrc, alliesStr, enemiesStr, techText, membersArray) {
+      document.getElementById('modal-name-txt').innerText = name;
+      document.getElementById('modal-title-txt').innerText = title;
+      document.getElementById('modal-stars-txt').innerText = stars;
+      document.getElementById('modal-tech-txt').innerText = techText;
+      document.getElementById('modal-leader-name').innerText = membersArray && membersArray.length > 0 ? membersArray[0] : 'Vago';
+
+      // MEMBROS NOTÁVEIS
+      const membersGrid = document.getElementById('modal-members-grid');
+      membersGrid.innerHTML = '';
+      if(membersArray && membersArray.length > 0) {
+        membersArray.forEach(member => {
+          membersGrid.innerHTML += `
+            <div class="member-card">
+              <div class="member-avatar">
+                <span>Foto</span>
+              </div>
+              <div class="member-name">${member}</div>
+            </div>
+          `;
+        });
+      } else {
+        membersGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666; padding: 20px; font-style: italic;">Nenhum membro registrado.</div>';
+      }
+
+      // Aliados
+      const alliesContainer = document.getElementById('modal-allies-tags');
+      alliesContainer.innerHTML = '';
+      if(alliesStr && alliesStr !== 'Nenhum' && alliesStr !== '-') {
+        alliesStr.split(',').forEach(ally => {
+          alliesContainer.innerHTML += `<span class="tag-pill" style="background: var(--surface-inner); border: 1px solid var(--star); color: #fff;">${ally.trim()}</span>`;
+        });
+      } else {
+        alliesContainer.innerHTML = '<span style="color: #666; font-style: italic;">Nenhum aliado formal registrado.</span>';
+      }
+
+      // Inimigos
+      const enemiesContainer = document.getElementById('modal-enemies-tags');
+      enemiesContainer.innerHTML = '';
+      if(enemiesStr && enemiesStr !== 'Nenhum' && enemiesStr !== '-') {
+        enemiesStr.split(',').forEach(enemy => {
+          enemiesContainer.innerHTML += `<span class="tag-pill" style="background: var(--surface-inner); border: 1px solid var(--border); color: #fff;">${enemy.trim()}</span>`;
+        });
+      } else {
+        enemiesContainer.innerHTML = '<span style="color: #666; font-style: italic;">Nenhum inimigo letal registrado.</span>';
+      }
+
+      const bannerImg = document.getElementById('modal-banner-img');
+      const logoImg = document.getElementById('modal-logo-img');
+      
+      if(bannerSrc) { bannerImg.src = bannerSrc; bannerImg.style.display = 'block'; } else { bannerImg.style.display = 'none'; }
+      if(logoSrc) { logoImg.src = logoSrc; logoImg.style.display = 'block'; } else { logoImg.style.display = 'none'; }
+
+      switchTab(0);
+      clanModal.classList.add('active');
+      document.body.style.overflow = 'hidden'; 
+    }
+
+    function closeClanModal() {
+      clanModal.classList.remove('active');
+      document.body.style.overflow = 'auto'; 
+    }
+
+    // Abas do Modal
+    const tabBtns = document.querySelectorAll('.modal-tab-btn');
+    function switchTab(index) {
+      tabBtns.forEach((btn, i) => {
+        if(i === index) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      document.getElementById('tab-content-0').style.display = index === 0 ? 'block' : 'none';
+      document.getElementById('tab-content-1').style.display = index === 1 ? 'block' : 'none';
+      document.getElementById('tab-content-2').style.display = index === 2 ? 'block' : 'none';
+    }
+
+    // Fechar Modal
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') { closeNav(); closeClanModal(); }
+    });
+    clanModal.addEventListener('click', (e) => {
+      if(e.target === clanModal) closeClanModal();
+    });
+  </script>
+</body>
+</html>

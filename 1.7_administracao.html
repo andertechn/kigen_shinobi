@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administração — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #f0f0f0;
+      --text-sub:#999999;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      filter: blur(3px) brightness(0.38) saturate(0.55);
+      transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+      transition: background 0.5s;
+    }
+    [data-theme="light"] .hero-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%); }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed;
+      top: 20px; right: 22px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: #000;
+      border: 2.5px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow);
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai {
+      width: 26px; height: 26px;
+      transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--glow);
+      transition: box-shadow 0.3s, transform 0.2s;
+      padding: 0;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel {
+      position: relative; z-index: 1;
+      background: var(--surface);
+      border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%;
+      display: flex; flex-direction: column;
+      padding: 110px 36px 40px;
+      gap: 4px;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow);
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block; font-family: 'Russo One', sans-serif;
+      font-size: 0.92rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text); text-decoration: none; padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18); position: relative;
+      transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link::before {
+      content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 2px; background: var(--accent); transition: width 0.25s;
+    }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+    .nav-link:hover::before { width: 20px; }
+
+    /* ======= PÁGINA ADMINISTRAÇÃO ======= */
+    #admin {
+      min-height: 100vh;
+      padding: 100px 24px 80px;
+      transition: background 0.4s;
+    }
+
+    /* BLOCOS (Containers Gerais) */
+    .content-card {
+      max-width: 900px;
+      margin: 0 auto 50px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(204,0,0,0.25);
+      box-shadow: 0 15px 40px var(--shadow);
+    }
+
+    /* CABEÇALHO PADRÃO KIGEN SHINOBI (LINHA) */
+    .header-red {
+      background: #cc0000;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-red h1, .header-red h2 { 
+      font-family: 'Bangers', cursive; 
+      font-size: 2.2rem; 
+      letter-spacing: 0.1em; 
+      color: #fff; 
+      text-transform: uppercase; 
+      margin: 0; 
+      font-style: italic;
+    }
+    .header-deco { 
+      flex: 1; 
+      height: 1px; 
+      background: rgba(255,255,255,0.5);
+    }
+
+    .card-body {
+      background: var(--surface);
+      padding: 26px 36px;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text-sub);
+      transition: background 0.4s, color 0.4s;
+      text-align: justify;
+    }
+
+    /* ======= SEÇÃO DE SALÁRIOS ======= */
+    .salary-body {
+      padding: 32px 36px;
+      overflow-x: auto;
+    }
+    .salary-table {
+      width: 100%; border-collapse: collapse; text-align: left;
+    }
+    .salary-table th {
+      font-family: 'Russo One', sans-serif; font-size: 1.1rem; letter-spacing: 0.05em;
+      color: var(--text); text-transform: uppercase; padding: 16px 12px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .salary-table td {
+      padding: 16px 12px; font-size: 1.1rem; color: var(--text-sub);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    [data-theme="light"] .salary-table td { border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .salary-table tbody tr:last-child td { border-bottom: none; }
+    .salary-table strong { color: var(--text); font-weight: 700; }
+
+    /* Container de Departamentos */
+    .departments-grid {
+      max-width: 900px;
+      margin: 0 auto 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    /* Card Departamento */
+    .dept-card {
+      background: var(--surface); border: 2px solid rgba(204,0,0,0.25);
+      border-radius: 12px; padding: 24px; cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .dept-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(204,0,0,0.1), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .dept-card:hover {
+      border-color: var(--accent); box-shadow: 0 0 20px var(--glow);
+      transform: translateY(-6px);
+    }
+    .dept-card:hover::before { opacity: 1; }
+
+    /* FILTROS DOS ÍCONES PARA VISIBILIDADE NO MODO ESCURO E CLARO */
+    .dept-icon {
+      width: 55px; height: 55px;
+      object-fit: contain;
+      margin: 0 auto 14px;
+      display: block;
+      transition: transform 0.3s, filter 0.3s;
+      filter: brightness(0) invert(1); /* Força a imagem a ficar branca no tema escuro */
+    }
+    .dept-card:hover .dept-icon { 
+      transform: scale(1.15) rotate(5deg); 
+      filter: brightness(0) invert(1) drop-shadow(0 0 12px var(--glow)); /* Adiciona um brilho vermelho no hover */
+    }
+
+    [data-theme="light"] .dept-icon {
+      filter: brightness(0); /* Força a imagem a ficar preta no tema claro */
+    }
+    [data-theme="light"] .dept-card:hover .dept-icon {
+      filter: brightness(0) drop-shadow(0 0 8px var(--shadow)); /* Sombra escura suave no hover */
+    }
+
+    .dept-title {
+      font-family: 'Russo One', sans-serif; font-size: 0.95rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--text); margin-bottom: 8px; transition: color 0.3s;
+    }
+    .dept-card:hover .dept-title { color: var(--accent); }
+    .dept-role { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 12px; }
+    .dept-members {
+      font-size: 0.75rem; color: #666; background: rgba(204,0,0,0.05);
+      padding: 6px; border-radius: 4px; margin-top: 10px;
+    }
+
+    /* Modal Departamento */
+    .dept-modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 24px;
+    }
+    .dept-modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .dept-modal {
+      background: var(--surface); border: 2px solid var(--accent);
+      border-radius: 20px; max-width: 600px; width: 100%;
+      padding: 44px 40px; box-shadow: 0 0 60px var(--glow);
+      transform: translateY(28px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+      position: relative; max-height: 80vh; overflow-y: auto;
+    }
+    .dept-modal-overlay.active .dept-modal { transform: translateY(0) scale(1); }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 20px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-sub); font-size: 1.7rem; line-height: 1; transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--accent); }
+
+    /* FILTRO PARA O ÍCONE DO MODAL TAMBÉM */
+    .modal-header-icon {
+      width: 70px; height: 70px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 20px;
+      filter: brightness(0) invert(1); /* Branco no escuro */
+    }
+    [data-theme="light"] .modal-header-icon {
+      filter: brightness(0); /* Preto no claro */
+    }
+
+    .modal-title {
+      font-family: 'Bangers', cursive; font-size: clamp(1.8rem, 4vw, 2.5rem);
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
+      text-align: center; margin-bottom: 6px;
+    }
+    .modal-role {
+      font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-sub); text-align: center; margin-bottom: 20px;
+    }
+    .modal-deco {
+      width: 100%; height: 2px; background: linear-gradient(90deg, var(--accent), transparent);
+      margin-bottom: 22px; opacity: 0.55;
+    }
+    .modal-description { font-size: 1rem; line-height: 1.7; color: var(--text-sub); margin-bottom: 28px; text-align: justify; }
+
+    .team-section { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(204,0,0,0.2); }
+    .team-title {
+      font-family: 'Russo One', sans-serif; font-size: 0.9rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .team-list { list-style: none; display: grid; gap: 8px; }
+    .team-list li {
+      padding: 10px 14px; background: rgba(204,0,0,0.08); border-left: 3px solid var(--accent);
+      border-radius: 4px; font-size: 0.95rem; color: var(--text);
+    }
+    .team-list li strong { color: var(--accent); }
+
+    /* Seção de Sugestões */
+    .suggestion-criteria {
+      background: rgba(204,0,0,0.08); border-left: 4px solid var(--accent);
+      padding: 20px; border-radius: 8px; margin-bottom: 20px; margin-top: 20px;
+    }
+    .criteria-item { margin-bottom: 12px; font-size: 0.98rem; line-height: 1.6; color: var(--text-sub); }
+    .criteria-item strong { color: var(--accent); }
+
+    /* Layout para os dois botões */
+    .suggestions-buttons {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .btn-suggestion {
+      flex: 1;
+      display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 16px 20px; background: #cc0000; color: white;
+      border: 2px solid #cc0000; border-radius: 8px; cursor: pointer;
+      font-family: 'Russo One', sans-serif; font-size: 0.90rem; letter-spacing: 0.1em;
+      text-transform: uppercase; transition: all 0.3s;
+    }
+    .btn-suggestion:hover { background: transparent; color: #cc0000; box-shadow: 0 0 20px var(--glow); }
+    .btn-suggestion-icon { font-size: 1.3rem; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    @media (max-width: 768px) {
+      #admin { padding-top: 130px; }
+      .departments-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+      .header-red h1, .header-red h2 { font-size: 1.8rem; }
+    }
+    @media (max-width: 600px) {
+      .suggestions-buttons { flex-direction: column; }
+    }
+    @media (max-width: 580px) {
+      .departments-grid { grid-template-columns: 1fr; }
+      .card-body, .salary-body { padding: 18px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo Administração" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">História</a>
+      <a class="nav-link" href="#">Administração</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="#">Discord</a>
+      <a class="nav-link" href="#">Cadastrar</a>
+    </nav>
+  </div>
+
+  <main id="admin">
+
+    <div class="content-card">
+      <div class="header-red">
+        <h1>ADMINISTRAÇÃO</h1>
+        <div class="header-deco"></div>
+      </div>
+      <div class="card-body">
+        Se você gosta de ajudar, tem ideias criativas ou quer contribuir para o crescimento do nosso universo, junte-se à nossa equipe administrativa e seja recompensado!
+      </div>
+    </div>
+
+    <div class="content-card">
+      <div class="header-red">
+        <h2>TABELA DE SALÁRIOS</h2>
+        <div class="header-deco"></div>
+      </div>
+      <div class="card-body salary-body">
+        <table class="salary-table">
+          <thead>
+            <tr>
+              <th>GRADUAÇÃO</th>
+              <th>SLOTS</th>
+              <th>SALÁRIO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Líder / Gerência</strong></td>
+              <td>1 vaga</td>
+              <td>10 Kigens / mês</td>
+            </tr>
+            <tr>
+              <td><strong>Coordenador</strong></td>
+              <td>3 vagas</td>
+              <td>5 Kigens / mês</td>
+            </tr>
+            <tr>
+              <td><strong>Membros</strong></td>
+              <td>Ilimitado</td>
+              <td>2 Kigens / mês</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="departments-grid" id="departments-grid"></div>
+
+    <div class="content-card">
+      <div class="header-red">
+        <h2>SUGESTÕES</h2>
+        <div class="header-deco"></div>
+      </div>
+      <div class="card-body">
+        <p>
+          O Kigen Shinobi aceita e valoriza a sua visão. Se você tem uma ideia que pode melhorar o servidor, envie para a Staff!
+        </p>
+        
+        <div class="suggestion-criteria">
+          <div class="criteria-item">
+            <strong>• Critério:</strong> A ideia deve ser original, viável e útil para o servidor.
+          </div>
+          <div class="criteria-item">
+            <strong>• Recompensa:</strong> Sugestões implementadas rendem Kigens na hora (valor por complexidade).
+          </div>
+          <div class="criteria-item">
+            <strong>• Avaliação:</strong> Resposta em até [X] dias: ✅ Aprovada | 🔄 Em Análise | ❌ Negada.
+          </div>
+        </div>
+
+        <div class="suggestions-buttons">
+          <button class="btn-suggestion">
+            <span class="btn-suggestion-icon">📝</span>
+            Enviar Sugestão
+          </button>
+          <button class="btn-suggestion">
+            <span class="btn-suggestion-icon">⚙️</span>
+            Sugestão - Controle
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="dept-modal-overlay" id="dept-modal">
+    <div class="dept-modal" id="dept-modal-content">
+      <button class="modal-close" id="modal-close">×</button>
+    </div>
+  </div>
+
+  <script>
+    const departments = [
+      {
+        id: 'supervisores',
+        icon: '00_supervisores.png', 
+        title: 'Supervisores',
+        role: 'Atributos e Jutsus',
+        description: 'Guardiões do equilíbrio! Avaliam fichas, monitoram a distribuição de atributos, aprovam jutsus e garantem um sistema de poder justo.',
+        teams: {
+          'Líderes': ['[Nome do Líder]'],
+          'Coordenadores': ['[Nome Coordenador 1]', '[Nome Coordenador 2]', '[Nome Coordenador 3]'],
+          'Membros': ['Descrição do time']
+        }
+      },
+      {
+        id: 'narradores',
+        icon: '00_narradores.png',
+        title: 'Narradores',
+        role: 'Equipe de Trama',
+        description: 'Os diretores do mundo! Narram eventos oficiais, missões, exames e controlam os NPCs de trama, moldando a história junto com a comunidade.',
+        teams: {
+          'Líderes': ['[Nome do Líder]'],
+          'Coordenadores': ['[Nome Coordenador 1]', '[Nome Coordenador 2]', '[Nome Coordenador 3]'],
+          'Membros': ['Descrição do time']
+        }
+      },
+      {
+        id: 'treinadores',
+        icon: '00_treinadores.png',
+        title: 'Treinadores',
+        role: 'Entretenimento Off',
+        description: 'Motores do engajamento! Organizam mini-games, sorteios, trivias e mantêm a interação ativa no chat Off, deixando todo mundo animado.',
+        teams: {
+          'Líderes': ['[Nome do Líder]'],
+          'Coordenadores': ['[Nome Coordenador 1]', '[Nome Coordenador 2]', '[Nome Coordenador 3]'],
+          'Membros': ['Descrição do time']
+        }
+      },
+      {
+        id: 'gerencia',
+        icon: '00_gerencia.png',
+        title: 'Gerência',
+        role: 'Administração Geral',
+        description: 'Núcleo estratégico. Cuidam das regras gerais, resolvem conflitos maiores e coordenam todas as equipes para manter o servidor funcionando.',
+        teams: {
+          'Diretor de Sistemas': ['Kenji'],
+          'Diretor de Tramas': ['Ian'],
+          'Diretor de Software': ['Daan'],
+          'Diretor de Estrutura': ['Davi'],
+        }
+      }
+    ];
+
+    /* ---- BUILD GRID ---- */
+    const grid = document.getElementById('departments-grid');
+    departments.forEach(dept => {
+      const card = document.createElement('div');
+      card.className = 'dept-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      
+      card.innerHTML = `
+        <img src="${dept.icon}" alt="${dept.title}" class="dept-icon" />
+        <h3 class="dept-title">${dept.title}</h3>
+        <p class="dept-role">${dept.role}</p>
+        <div class="dept-members">Clique para mais detalhes</div>
+      `;
+      
+      card.addEventListener('click', () => openDeptModal(dept));
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDeptModal(dept);
+        }
+      });
+      
+      grid.appendChild(card);
+    });
+
+    /* ---- MODAL ---- */
+    const modalOverlay = document.getElementById('dept-modal');
+    const modalContent = document.getElementById('dept-modal-content');
+
+    function openDeptModal(dept) {
+      let teamHtml = '';
+      for (const [role, members] of Object.entries(dept.teams)) {
+        teamHtml += `
+          <li><strong>${role}:</strong> ${members.join(', ')}</li>
+        `;
+      }
+
+      modalContent.innerHTML = `
+        <button class="modal-close" id="modal-close">×</button>
+        <img src="${dept.icon}" alt="${dept.title}" class="modal-header-icon" />
+        <h2 class="modal-title">${dept.title}</h2>
+        <p class="modal-role">${dept.role}</p>
+        <div class="modal-deco"></div>
+        <p class="modal-description">${dept.description}</p>
+        
+        <div class="team-section">
+          <h3 class="team-title">👥 Equipe</h3>
+          <ul class="team-list">
+            ${teamHtml}
+          </ul>
+        </div>
+      `;
+
+      document.getElementById('modal-close').addEventListener('click', closeDeptModal);
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeptModal() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    modalOverlay.addEventListener('click', e => {
+      if (e.target === modalOverlay) closeDeptModal();
+    });
+
+    /* ---- MENU ---- */
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeDeptModal();
+        closeNav();
+      }
+    });
+
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    /* ---- TEMA ---- */
+    const root = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transformação da Natureza — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.9); 
+      --surface-inner: #121214;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #ff4444;
+      --glow:    rgba(204, 0, 0, 0.5);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+
+      /* Cores Elementais */
+      --color-fogo: #ff4d4d;
+      --color-vento: #4CAF50;
+      --color-raio: #FFD700;
+      --color-terra: #8D6E63;
+      --color-agua: #29B6F6;
+    }
+
+    [data-theme="light"] {
+      --bg:      #f0f0f0;
+      --surface: rgba(255, 255, 255, 0.95);
+      --surface-inner: #ffffff;
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ======= FUNDO FIXO BLINDADO ======= */
+    #fixed-background { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      z-index: -10; overflow: hidden; background-color: #000;
+    }
+    .hero-bg { 
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; 
+      filter: brightness(0.3) saturate(0.6); 
+    }
+    .hero-overlay { 
+      position: absolute; inset: 0; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%); 
+    }
+
+    /* ======= UI FLUTUANTE (CORRIGIDA E IDÊNTICA AOS OUTROS) ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { 
+      width: 48px; height: 48px; border-radius: 50%; background: #000; 
+      border: 2px solid var(--border); cursor: pointer; display: flex; 
+      align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow);
+      transition: transform 0.2s;
+    }
+    #menu-btn:hover, #theme-toggle:hover { transform: scale(1.07); }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: var(--accent); stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= CONTEÚDO PRINCIPAL ======= */
+    #page-container { 
+      position: relative; z-index: 10; 
+      /* Desgrudando do topo e botões flutuantes */
+      padding: 160px 20px 80px; 
+      max-width: 900px; margin: 0 auto; 
+    }
+
+    .main-card {
+      background: var(--surface); border-radius: 8px; border: 1px solid rgba(204,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden;
+    }
+
+    .header-red {
+      background: var(--accent); padding: 20px 25px; display: flex; align-items: center; gap: 15px;
+    }
+    .header-red h1 { font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; color: #fff; text-transform: uppercase; margin: 0; font-style: italic;}
+
+    .content-padding { padding: 40px; }
+    
+    /* Espaço para respirar entre introdução e o Círculo */
+    .intro-text { 
+      font-size: 1.1rem; line-height: 1.6; text-align: justify; 
+      margin-bottom: 50px; 
+    }
+
+    /* ======= CÍRCULO INTERATIVO ======= */
+    .wheel-section {
+      background: var(--surface-inner); border-radius: 12px; padding: 40px 20px;
+      margin-bottom: 40px; display: flex; flex-direction: column; align-items: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .wheel-container {
+      position: relative; width: 340px; height: 340px; margin-top: 20px;
+    }
+
+    /* Linha tracejada circular */
+    .wheel-border {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 260px; height: 260px; border-radius: 50%;
+      border: 2px dashed rgba(255,255,255,0.2);
+    }
+
+    .elem-node {
+      position: absolute; width: 60px; height: 60px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; cursor: pointer; border: 3px solid #000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: 0.3s;
+      transform: translate(-50%, -50%); z-index: 5;
+    }
+    .elem-node:hover { transform: translate(-50%, -50%) scale(1.2); }
+
+    /* Posições */
+    .fogo  { top: 5%; left: 50%; background: var(--color-fogo); box-shadow: 0 0 15px var(--color-fogo); }
+    .vento { top: 38%; left: 93%; background: var(--color-vento); box-shadow: 0 0 15px var(--color-vento); }
+    .raio  { top: 88%; left: 78%; background: var(--color-raio); box-shadow: 0 0 15px var(--color-raio); }
+    .terra { top: 88%; left: 22%; background: var(--color-terra); box-shadow: 0 0 15px var(--color-terra); }
+    .agua  { top: 38%; left: 7%; background: var(--color-agua); box-shadow: 0 0 15px var(--color-agua); }
+
+    .wheel-center {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 170px; height: 170px; background: #000; border-radius: 50%;
+      border: 3px solid var(--accent); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 10px; z-index: 10; transition: 0.4s;
+    }
+    
+    #center-name { font-family: 'Russo One', sans-serif; font-size: 1rem; color: #fff; margin-bottom: 5px; }
+    #center-info { font-size: 0.85rem; line-height: 1.3; }
+
+    /* ======= LISTAS E REGRAS ======= */
+    .section-title {
+      font-family: 'Russo One', sans-serif; font-size: 1.2rem; color: var(--accent2);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+      text-transform: uppercase; border-left: 4px solid var(--accent); padding-left: 15px;
+    }
+
+    .rules-list { list-style: none; margin-bottom: 30px; }
+    .rules-list li { 
+      background: rgba(255,255,255,0.03); 
+      padding: 15px 15px 15px 40px; /* Espaço para a seta */
+      border-radius: 4px;
+      margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);
+      position: relative;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+    
+    /* SETAS ANTES DAS LINHAS */
+    .rules-list li::before {
+      content: '➔';
+      position: absolute; left: 15px; top: 15px;
+      color: var(--accent); font-weight: bold; font-family: sans-serif;
+    }
+    
+    .rules-list li strong { color: var(--accent2); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em; }
+
+    .training-box { background: var(--surface-inner); padding: 25px; border-radius: 8px; margin-bottom: 30px; border: 1px solid rgba(204,0,0,0.3); }
+    .day-item { color: var(--text-sub); margin-bottom: 8px; font-size: 1.05rem; padding-left: 20px; position: relative; }
+    .day-item::before { content: '➤'; position: absolute; left: 0; color: var(--text); font-size: 0.9rem; top: 2px; }
+    .day-item strong { color: var(--text); font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; font-weight: normal; }
+
+    @media (max-width: 500px) {
+      .wheel-container { transform: scale(0.8); margin: -40px 0; }
+      #page-container { padding-top: 120px; }
+      .content-padding { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" class="hero-bg" alt="Fundo">
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Sistemas</a>
+      <a class="nav-link" href="#">Natureza de Chakra</a>
+      <a class="nav-link" href="personagens.html">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="page-container">
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>TRANSFORMAÇÃO DA NATUREZA</h1>
+      </div>
+
+      <div class="content-padding">
+        <p class="intro-text">
+          A <strong>Transformação da Natureza (性質変化, Seishitsu Henka)</strong> é uma forma avançada de controle do chakra que permite moldá-lo em um tipo elemental específico. Ao alterar as propriedades do chakra, o shinobi desenvolve jutsus com características de fogo, vento, raio, terra ou água.
+        </p>
+
+        <div class="wheel-section">
+          <h2 class="section-title" style="border:none; text-align:center; padding:0; margin-bottom: 5px;">Círculo de Vantagens</h2>
+          <p style="color: var(--text-sub); margin-bottom: 20px;">Clique em um elemento para ver as interações</p>
+          
+          <div class="wheel-container">
+            <div class="wheel-border"></div>
+            
+            <div class="elem-node fogo"  onclick="updateWheel('fogo')">🔥</div>
+            <div class="elem-node vento" onclick="updateWheel('vento')">🍃</div>
+            <div class="elem-node raio"  onclick="updateWheel('raio')">⚡</div>
+            <div class="elem-node terra" onclick="updateWheel('terra')">🪨</div>
+            <div class="elem-node agua"  onclick="updateWheel('agua')">🌊</div>
+
+            <div class="wheel-center" id="wheel-center">
+              <div id="center-name">SELECIONE</div>
+              <div id="center-info">Clique nas orbes ao redor</div>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title">Resolução de Confrontos</h2>
+        <ul class="rules-list">
+          <li><strong>Rank Igual:</strong> Em técnicas do mesmo rank, vence aquele com mais pontos no subatributo do elemento.</li>
+          <li><strong>Empate Absoluto:</strong> Em caso de empate em rank e pontos, a vantagem elemental natural (Roda acima) define o vencedor.</li>
+          <li><strong>Reversão de Vantagem:</strong> Se o usuário em desvantagem elemental possui o dobro de pontos no subatributo, ele reverte a vantagem e vence o choque.</li>
+          <li><strong>Poder Superior:</strong> Técnicas de rank superior prevalecem independentemente de pontuação ou vantagem elemental.</li>
+        </ul>
+
+        <h2 class="section-title">Aquisição e Treinamento</h2>
+        <ul class="rules-list">
+          <li><strong>Treinamento com Mentor:</strong> 3 cenas em 3 dias consecutivos com outro personagem que possua o elemento desejado. O mentor deve estar ativo em todas as cenas.</li>
+          <li><strong>Treinamento Autodidata:</strong> 6 cenas em 6 dias consecutivos com foco teórico e prático. O personagem deve estudar, aplicar e dominar um jutsu de baixo rank referente ao elemento.</li>
+        </ul>
+
+        <div class="training-box">
+          <h3 style="margin-bottom:15px; font-size:1.1rem; color: var(--accent); font-family: 'Russo One', sans-serif;">ESTRUTURA DO TREINO ON:</h3>
+          <div class="day-item"><strong>Dia 1:</strong> Estudo teórico do elemento, base conceitual e fundamentos.</div>
+          <div class="day-item"><strong>Dia 2:</strong> Prática intensiva, manipulação inicial e controle bruto.</div>
+          <div class="day-item"><strong>Dia 3:</strong> Aprimoramento do controle, refinamento da técnica e domínio básico.</div>
+          <p style="color: var(--text-sub); margin-top: 15px; font-size: 0.9rem; font-style: italic;">Seguido conforme a quantidade de dias necessária para o tipo de treino (3 ou 6 dias).</p>
+        </div>
+
+        <h2 class="section-title">Pontos de Atributo Elemental</h2>
+        <ul class="rules-list">
+          <li><strong>Elemento Primário:</strong> Ao escolher um elemento inicial com afinidade do clã, o personagem recebe +50 pontos no subatributo do elemento escolhido.</li>
+          <li><strong>Elementos Secundários:</strong> Elementos adquiridos posteriormente iniciam com 0 pontos, devendo ser evoluídos via treino contínuo de RP.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Menu Overlay
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    
+    function closeNav() { 
+      navOverlay.classList.remove('open'); 
+      menuBtn.classList.remove('open'); 
+    }
+
+    // Toggle Tema
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') closeNav(); 
+    });
+
+    // Lógica do Círculo de Elementos
+    const data = {
+      fogo:  { n: 'KATON (FOGO)', v: 'Vento', d: 'Água', c: 'var(--color-fogo)' },
+      vento: { n: 'FUUTON (VENTO)', v: 'Raio', d: 'Fogo', c: 'var(--color-vento)' },
+      raio:  { n: 'RAITON (RAIO)', v: 'Terra', d: 'Vento', c: 'var(--color-raio)' },
+      terra: { n: 'DOTON (TERRA)', v: 'Água', d: 'Raio', c: 'var(--color-terra)' },
+      agua:  { n: 'SUITON (ÁGUA)', v: 'Fogo', d: 'Terra', c: 'var(--color-agua)' }
+    };
+
+    function updateWheel(elem) {
+      const info = data[elem];
+      const center = document.getElementById('wheel-center');
+      center.style.borderColor = info.c;
+      center.style.boxShadow = `0 0 20px ${info.c}`;
+      
+      document.getElementById('center-name').innerText = info.n;
+      document.getElementById('center-name').style.color = info.c;
+      
+      document.getElementById('center-info').innerHTML = `
+        <div style="margin-top:10px; font-size: 0.95rem;">
+          <span style="color:#fff; font-weight:bold">Vence:</span> <span style="color:var(--color-vento)">${info.v}</span><br>
+          <span style="color:#fff; font-weight:bold; margin-top:5px; display:inline-block;">Perde p/:</span> <span style="color:var(--color-fogo)">${info.d}</span>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

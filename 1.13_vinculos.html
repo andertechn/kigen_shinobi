@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kigen - Sistema de Vínculos</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ======= VARIÁVEIS DE TEMA ======= */
+        :root {
+            --bg:      #0a0a0a;
+            --surface: #161616;
+            --border:  #cc0000;
+            --accent:  #cc0000;
+            --accent2: #ff4444;
+            --glow:    rgba(204,0,0,0.6);
+            --shadow:  rgba(204,0,0,0.38);
+            --text:    #f0f0f0;
+            --text-sub:#999999;
+        }
+        [data-theme="light"] {
+            --bg:      #efefef;
+            --surface: #ffffff;
+            --border:  #cc0000;
+            --accent:  #cc0000;
+            --accent2: #dd0000;
+            --glow:    rgba(204,0,0,0.30);
+            --shadow:  rgba(204,0,0,0.18);
+            --text:    #111111;
+            --text-sub:#555555;
+        }
+
+        /* === RESET E ESTABILIDADE TOTAL === */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; 
+            /* ALTERADO: De 100px para 150px no topo para dar espaço aos botões fixos */
+            padding: 150px 20px 60px 20px; 
+            overflow-x: hidden;
+            transition: color 0.4s;
+        }
+
+        /* ======= FUNDO FIXO ======= */
+        #fixed-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -1;
+        }
+        .hero-bg {
+            position: absolute; inset: 0; z-index: 0;
+            width: 100%; height: 100%; object-fit: cover;
+            filter: blur(3px) brightness(0.38) saturate(0.55);
+            transition: filter 0.4s ease;
+        }
+        [data-theme="light"] .hero-bg {
+            filter: blur(3px) brightness(0.78) saturate(0.65);
+        }
+        .hero-overlay {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+            transition: background 0.5s;
+        }
+        [data-theme="light"] .hero-overlay {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+        }
+
+        /* ======= FLOATING UI (MENU & TEMA) ======= */
+        #floating-ui {
+            position: fixed;
+            top: 20px; right: 22px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #menu-btn {
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            background: #000;
+            border: 2.5px solid var(--border);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 14px var(--glow);
+            transition: box-shadow 0.25s, transform 0.2s;
+        }
+        #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+        #menu-btn svg.kunai {
+            width: 26px; height: 26px;
+            transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55);
+        }
+        #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+        #theme-toggle {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--glow);
+            transition: box-shadow 0.3s, transform 0.2s;
+            padding: 0;
+        }
+        #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+        #theme-toggle svg { width: 15px; height: 15px; }
+        #theme-toggle .icon-sun  { display: none; }
+        #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+        [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+        [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+        /* ======= NAV OVERLAY ======= */
+        #nav-overlay {
+            position: fixed; inset: 0; z-index: 900;
+            display: flex; align-items: flex-start; justify-content: flex-end;
+            pointer-events: none; opacity: 0;
+            transition: opacity 0.35s;
+        }
+        #nav-overlay.open { pointer-events: all; opacity: 1; }
+        .overlay-bg {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.82);
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+        }
+        #nav-panel {
+            position: relative; z-index: 1;
+            background: var(--surface);
+            border-left: 2px solid var(--border);
+            width: min(300px, 80vw); height: 100%;
+            display: flex; flex-direction: column;
+            padding: 110px 36px 40px;
+            gap: 4px;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+            box-shadow: -10px 0 60px var(--shadow);
+        }
+        #nav-overlay.open #nav-panel { transform: translateX(0); }
+        .nav-link {
+            display: block;
+            font-family: 'Russo One', sans-serif;
+            font-size: 0.92rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(204,0,0,0.18);
+            position: relative;
+            transition: color 0.2s, padding-left 0.2s;
+        }
+        .nav-link::before {
+            content: '';
+            position: absolute; left: -36px; top: 50%;
+            transform: translateY(-50%);
+            width: 0; height: 2px;
+            background: var(--accent);
+            transition: width 0.25s;
+        }
+        .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+        .nav-link:hover::before { width: 20px; }
+
+        /* ======= LAYOUT DA PÁGINA (ADAPTADO) ======= */
+        .history-card {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--surface);
+            border-radius: 12px; 
+            overflow: hidden;
+            border: 1.5px solid rgba(204,0,0,0.25);
+            box-shadow: 0 20px 40px var(--shadow);
+            margin-bottom: 60px;
+            transition: background 0.4s, box-shadow 0.4s;
+        }
+
+        /* HEADER CORRIGIDO PARA O PADRÃO E PARA NÃO BARRAR NOS BOTÕES */
+        .card-header {
+            background-color: var(--accent);
+            color: white;
+            padding: 20px 36px;
+            padding-right: 90px; /* Garante que o texto/linha não encoste no menu flutuante */
+            display: flex; 
+            justify-content: flex-start; /* Alinhado à esquerda para a linha esticar */
+            align-items: center;
+            gap: 15px; /* Espaço entre o texto e a linha */
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            letter-spacing: 0.10em; 
+            text-transform: uppercase;
+            font-style: italic; 
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3); 
+        }
+
+        .title-line {
+            flex-grow: 1; /* Estica a linha até o final do bloco */
+            height: 2px;
+            background-color: white;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+
+        .card-body {
+            padding: 30px 36px;
+        }
+
+        .intro-text {
+            font-size: 1.15rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 40px;
+            text-align: justify; /* TEXTO JUSTIFICADO */
+            transition: color 0.4s;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* === SISTEMA DE CARDS (GRID BRANCA) === */
+        .vinculos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .vinc-card {
+            background: #ffffff; 
+            border-radius: 20px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .vinc-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(204,0,0,0.25);
+        }
+
+        /* ÍCONE COM FORMATO DE BOLHA */
+        .icon-bubble {
+            width: 80px;
+            height: 80px;
+            background: #e6f0ff; 
+            color: #0055ff;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50% 50% 50% 10%; 
+            margin-bottom: 20px;
+            transition: transform 0.3s, background 0.3s, color 0.3s;
+        }
+
+        .vinc-card:nth-child(1) .icon-bubble { background: #ffe6e6; color: #cc0000; }
+        .vinc-card:nth-child(2) .icon-bubble { background: #fff0e6; color: #ff6600; border-radius: 10% 50% 50% 50%; }
+        .vinc-card:nth-child(3) .icon-bubble { background: #ffe6f2; color: #e60073; border-radius: 50% 10% 50% 50%; }
+        .vinc-card:nth-child(4) .icon-bubble { background: #e6ffff; color: #00cccc; }
+        .vinc-card:nth-child(5) .icon-bubble { background: #e6e6e6; color: #333333; border-radius: 50% 50% 10% 50%; }
+        .vinc-card:nth-child(6) .icon-bubble { background: #e6ffe6; color: #009900; }
+
+        .vinc-card:hover .icon-bubble {
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        .vinc-title {
+            font-family: 'Russo One', sans-serif;
+            color: #111111; 
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .vinc-subtitle {
+            font-size: 0.95rem;
+            color: #666666;
+            margin-bottom: 10px;
+            min-height: 40px; 
+            text-align: justify; /* TEXTO JUSTIFICADO */
+        }
+
+        /* CONTEÚDO EXPANSÍVEL DO CARD */
+        .vinc-content {
+            display: none;
+            text-align: justify; /* TEXTO JUSTIFICADO */
+            margin-top: 15px;
+            padding-top: 20px;
+            border-top: 2px dashed #eeeeee;
+            font-size: 0.95rem;
+            color: #444444;
+            line-height: 1.6;
+            width: 100%;
+        }
+
+        .vinc-content p {
+            margin-bottom: 12px;
+            text-align: justify; /* TEXTO JUSTIFICADO */
+        }
+
+        .vinc-content strong {
+            color: #cc0000;
+            font-family: 'Russo One', sans-serif;
+            font-weight: normal;
+        }
+
+        .vinc-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 580px) {
+            .card-header { padding: 16px 20px; padding-right: 70px; font-size: 1.6rem; }
+            .card-body { padding: 20px; }
+            .vinculos-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="fixed-background">
+        <img src="00_fundo_2_kigen.jpg" alt="Fundo Vínculos" class="hero-bg" />
+        <div class="hero-overlay"></div>
+    </div>
+
+    <div id="floating-ui">
+        <button id="menu-btn" aria-label="Abrir menu">
+            <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+                <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+                <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+                <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+            </svg>
+        </button>
+        <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+            <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="2"  x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="5"  y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+                <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+                <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+                <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+                <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="nav-overlay" role="dialog" aria-modal="true">
+        <div class="overlay-bg" id="overlay-close"></div>
+        <nav id="nav-panel">
+            <a class="nav-link" href="historia_kigen.html">HISTÓRIA</a>
+            <a class="nav-link" href="geografi_kigen.html">GEOGRAFIA</a>
+            <a class="nav-link" href="estilo_vida.html">ESTILOS DE VIDA</a>
+            <a class="nav-link" href="calendario.html">CALENDÁRIO</a>
+            <a class="nav-link" href="jornal.html">JORNAL</a>
+            <a class="nav-link" href="religioes.html">RELIGIÃO</a>
+            <a class="nav-link" href="sangue.html">SANGUE</a>
+            <a class="nav-link" href="proposito.html">PROPÓSITO DE VIDA</a>
+            <a class="nav-link" href="hall_da_fama.html">HALL DA FAMA</a>
+            <a class="nav-link" href="vinculos.html">SISTEMA DE VÍNCULOS</a>
+            <a class="nav-link" href="administracao.html">ADMINISTRAÇÃO</a>
+        </nav>
+    </div>
+
+    <div class="history-card">
+        <div class="card-header">
+            <span>VÍNCULOS</span>
+            <div class="title-line"></div>
+        </div>
+        
+        <div class="card-body">
+            
+            <p class="intro-text">
+                No Kigen, dizer que alguém é seu "melhor amigo" ou "namorado" em OFF não significa nada para o sistema. Para ganhar os benefícios, vocês precisam provar em ON clicando nos vínculos abaixo.
+            </p>
+
+            <div class="vinculos-grid">
+                
+                <div class="vinc-card" onclick="toggleCard('irmaos-batalha')">
+                    <div class="icon-bubble">⚔️</div>
+                    <h3 class="vinc-title">Irmãos de Batalha</h3>
+                    <p class="vinc-subtitle">Aquele parceiro que cobre as suas costas quando tudo dá errado.</p>
+                    
+                    <div class="vinc-content" id="irmaos-batalha">
+                        <p><strong>Requisito em ON:</strong> Sobreviver a uma missão de Rank B (ou maior) juntos, ou realizar um duelo sangrento de treinamento que termine em empate/respeito mútuo.</p>
+                        <p><strong>O Benefício:</strong> Ataque Sincronizado. Quando lutam no mesmo chat, combos de Taijutsu ou Ninjutsu feitos em dupla recebem um pequeno bônus de dano pela sintonia.</p>
+                    </div>
+                </div>
+
+                <div class="vinc-card" onclick="toggleCard('sangue-heranca')">
+                    <div class="icon-bubble">🩸</div>
+                    <h3 class="vinc-title">Sangue e Herança</h3>
+                    <p class="vinc-subtitle">Irmãos, pais, filhos ou primos. O sangue fala mais alto.</p>
+                    
+                    <div class="vinc-content" id="sangue-heranca">
+                        <p><strong>Requisito em ON:</strong> Precisam ter o mesmo sobrenome/clã na ficha e realizar pelo menos 2 cenas focadas na dinâmica familiar.</p>
+                        <p><strong>O Benefício:</strong> Legado Compartilhado. Se um membro da família morrer, o parente vivo ganha um bônus de Pontos de Legado (PL) extra em nome da vingança ou do luto.</p>
+                    </div>
+                </div>
+
+                <div class="vinc-card" onclick="toggleCard('namoro')">
+                    <div class="icon-bubble">❤️</div>
+                    <h3 class="vinc-title">Namoro e Romance</h3>
+                    <p class="vinc-subtitle">A vida ninja é curta, então o amor precisa ser vivido intensamente.</p>
+                    
+                    <div class="vinc-content" id="namoro">
+                        <p><strong>Requisito em ON:</strong> Não basta mudar o status. É preciso cenar o desenvolvimento. Exige cenas de encontros pacíficos e conversas profundas.</p>
+                        <p><strong>O Benefício:</strong> Moradia Conjunta & Vigor. O casal pode dividir os custos para comprar imóveis e compartilhar benefícios de descanso.</p>
+                    </div>
+                </div>
+
+                <div class="vinc-card" onclick="toggleCard('almas-gemeas')">
+                    <div class="icon-bubble">💍</div>
+                    <h3 class="vinc-title">Almas Gêmeas</h3>
+                    <p class="vinc-subtitle">O nível máximo de uma relação. Uma conexão que transcende a lógica.</p>
+                    
+                    <div class="vinc-content" id="almas-gemeas">
+                        <p><strong>Requisito em ON (Extremo):</strong> Um precisa salvar a vida do outro em uma situação de morte quase certa, sacrificando algo grande.</p>
+                        <p><strong>O Benefício:</strong> Ressonância de Chakra. Em desespero, podem sentir o estado do outro mesmo em chats diferentes.</p>
+                    </div>
+                </div>
+
+                <div class="vinc-card" onclick="toggleCard('odio')">
+                    <div class="icon-bubble">🗡️</div>
+                    <h3 class="vinc-title">Vínculo de Ódio</h3>
+                    <p class="vinc-subtitle">Relações não são apenas sobre amor. O ódio também é um vínculo poderoso.</p>
+                    
+                    <div class="vinc-content" id="odio">
+                        <p><strong>Requisito em ON:</strong> Um player precisa matar alguém importante para o outro, trair a organização dele ou causar uma derrota humilhante.</p>
+                        <p><strong>O Benefício:</strong> Foco Assassino. Quando luta contra o seu Nêmesis, você ignora efeitos de medo/intimidação, mas perde a capacidade de recuar.</p>
+                    </div>
+                </div>
+
+                <div class="vinc-card" onclick="toggleCard('mestre')">
+                    <div class="icon-bubble">👨‍🏫</div>
+                    <h3 class="vinc-title">Mestre e Discípulo</h3>
+                    <p class="vinc-subtitle">A passagem de conhecimento para a nova geração.</p>
+                    
+                    <div class="vinc-content" id="mestre">
+                        <p><strong>Requisito em ON:</strong> O mestre precisa dedicar pelo menos 3 cenas ensinando uma técnica ou filosofia ao aluno.</p>
+                        <p><strong>Benefício (Herança de Sabedoria):</strong> O aluno gasta menos tempo/pontos para aprender jutsus da mesma especialidade do mestre.</p>
+                    </div>
+                </div>
+
+                <div class="vinc-card" onclick="toggleCard('esquadrao')">
+                    <div class="icon-bubble">🤝</div>
+                    <h3 class="vinc-title">Irmãos de Armas</h3>
+                    <p class="vinc-subtitle">O seu esquadrão tático em campo de batalha.</p>
+                    
+                    <div class="vinc-content" id="esquadrao">
+                        <p><strong>Requisito em ON:</strong> Um trio ou dupla que sobreviva a 3 missões perigosas seguidas operando juntos.</p>
+                        <p><strong>Benefício (Formação Tática):</strong> Quando lutam juntos no mesmo chat, ganham um bônus de percepção em emboscadas.</p>
+                    </div>
+                </div>
+
+                <div class="vinc-card" onclick="toggleCard('companheiros')">
+                    <div class="icon-bubble">🍻</div>
+                    <h3 class="vinc-title">Companheiros</h3>
+                    <p class="vinc-subtitle">Aquela amizade de quem divide a mesa da taverna.</p>
+                    
+                    <div class="vinc-content" id="companheiros">
+                        <p><strong>Requisito em ON:</strong> Compartilhar pelo menos 2 cenas de descontração total, focadas em conversar e passar tempo.</p>
+                        <p><strong>Benefício (Apoio Moral e Escambo):</strong> Amigos podem trocar itens, informações e Ryos sem pagar nenhuma taxa de transferência do sistema.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* ---- SCRIPT DOS CARDS ---- */
+        function toggleCard(id) {
+            const content = document.getElementById(id);
+            if(content) {
+                content.classList.toggle("active");
+            }
+        }
+
+        /* ---- MENU NOVO ---- */
+        const menuBtn    = document.getElementById('menu-btn');
+        const navOverlay = document.getElementById('nav-overlay');
+        document.getElementById('overlay-close').addEventListener('click', closeNav);
+        
+        menuBtn.addEventListener('click', () => {
+            const open = navOverlay.classList.toggle('open');
+            menuBtn.classList.toggle('open', open);
+        });
+        
+        document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); } });
+        
+        function closeNav() {
+            navOverlay.classList.remove('open');
+            menuBtn.classList.remove('open');
+        }
+
+        /* ---- TEMA NOVO ---- */
+        const root  = document.documentElement;
+        const saved = localStorage.getItem('ks-theme') || 'dark';
+        root.setAttribute('data-theme', saved);
+        
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('ks-theme', next);
+        });
+    </script>
+
+</body>
+</html>

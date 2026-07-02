@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kigen Shinobi — Eternizados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:          #0a0a0a;
+      --surface:     #161616;
+      --border:      #cc0000;
+      --accent:      #cc0000;
+      --accent2:     #ff4444;
+      --glow:        rgba(204,0,0,0.6);
+      --shadow:      rgba(204,0,0,0.38);
+      --text:        #f0f0f0;
+      --text-sub:    #999999;
+      --badge-text:  #f0f0f0;
+      --hero-line1:  #ffffff;          
+      --hero-line2:  #ffffff;          
+      --hero-overlay: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+    }
+
+    [data-theme="light"] {
+      --bg:          #efefef;
+      --surface:     #ffffff;
+      --border:      #cc0000;
+      --accent:      #cc0000;
+      --accent2:     #dd0000;
+      --glow:        rgba(204,0,0,0.30);
+      --shadow:      rgba(204,0,0,0.18);
+      --text:        #111111;
+      --text-sub:    #555555;
+      --badge-text:  #111111;
+      --hero-line1:  #111111;          
+      --hero-line2:  #111111;          
+      --hero-overlay: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%;
+      object-fit: cover; filter: blur(3px) brightness(0.38) saturate(0.55);
+      transition: filter 0.4s ease; 
+    }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: var(--hero-overlay); transition: background 0.5s;
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed; top: 20px; right: 22px; z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px; border-radius: 50%; background: #000;
+      border: 2.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow); transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 26px; height: 26px; transition: transform 0.35s; }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+      background: #000; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 8px var(--glow); transition: box-shadow 0.3s, transform 0.2s;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= HERO ======= */
+    #hero {
+      position: relative; width: 100%; height: 100vh; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #hero-title { position: relative; z-index: 2; text-align: center; pointer-events: none; }
+    #hero-title .line1 {
+      display: block; font-family: 'Russo One', sans-serif; font-size: clamp(0.82rem, 2.2vw, 1.45rem);
+      letter-spacing: 0.44em; text-transform: uppercase; color: var(--hero-line1);
+      text-shadow: 0 0 22px rgba(204,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.6);
+      margin-bottom: 6px; animation: revealUp 1.4s cubic-bezier(0.22,1,0.36,1) 0.1s both; transition: color 0.4s;
+    }
+    [data-theme="light"] #hero-title .line1 { text-shadow: 0 0 12px rgba(204,0,0,0.5), 1px 1px 0 rgba(255,255,255,0.7); }
+    #hero-title .line2 {
+      display: block; font-family: 'Bangers', cursive; font-size: clamp(4.5rem, 13vw, 11rem);
+      line-height: 0.87; letter-spacing: 0.05em; text-transform: uppercase; color: var(--hero-line2);
+      text-shadow: 0 0 30px var(--accent), 0 0 80px var(--accent), 3px 3px 0 rgba(0,0,0,0.55), -1px -1px 0 rgba(0,0,0,0.35);
+      animation: revealUp 1.4s cubic-bezier(0.22,1,0.36,1) 0.3s both, float 4s ease-in-out 2s infinite; transition: color 0.4s;
+    }
+    [data-theme="light"] #hero-title .line2 { text-shadow: 0 0 22px rgba(204,0,0,0.65), 0 0 60px rgba(204,0,0,0.35), 2px 2px 0 rgba(255,255,255,0.5); }
+    #hero-title .deco-line {
+      display: block; width: 50%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 14px auto 0; animation: revealUp 1s 0.6s both;
+    }
+
+    @keyframes revealUp { from { opacity: 0; transform: translateY(34px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+    #scroll-arrow {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 3;
+      display: flex; flex-direction: column; align-items: center; animation: arrowBounce 1.8s ease-in-out infinite;
+    }
+    #scroll-arrow span {
+      display: block; width: 20px; height: 20px; border-right: 2.5px solid var(--accent);
+      border-bottom: 2.5px solid var(--accent); transform: rotate(45deg);
+    }
+    #scroll-arrow span:nth-child(2) { opacity: 0.55; margin-top: -13px; }
+    #scroll-arrow span:nth-child(3) { opacity: 0.25; margin-top: -13px; }
+    @keyframes arrowBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+
+    /* ======= SEÇÃO ETERNIZADOS ======= */
+    #welcome {
+      background: transparent; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 24px; min-height: auto;
+    }
+    .welcome-inner {
+      max-width: 860px; width: 100%; border-radius: 24px; border: 2px solid var(--border);
+      background: var(--surface); box-shadow: 0 0 60px var(--shadow), 0 0 120px rgba(204,0,0,0.1);
+      padding: 50px 42px; text-align: center; transition: background 0.4s, box-shadow 0.4s;
+    }
+    .welcome-header {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.22em;
+      color: var(--accent);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .welcome-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.15rem;
+      color: var(--text-sub);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    /* ======= BLOCO DE SISTEMA ======= */
+    .system-box {
+      background: var(--surface);
+      border-left: 5px solid var(--accent);
+      padding: 24px;
+      border-radius: 8px;
+      margin: 32px 0;
+      font-size: 1rem;
+      color: var(--text-sub);
+      line-height: 1.8;
+      text-align: justify;
+    }
+    .system-box .title {
+      font-family: 'Russo One', sans-serif;
+      color: var(--accent);
+      font-size: 1.3rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .system-box .description {
+      margin-bottom: 16px;
+    }
+    .system-box .quote {
+      font-family: 'Bangers', cursive;
+      font-size: 1.4rem;
+      color: var(--accent);
+      margin-top: 20px;
+      font-style: italic;
+      letter-spacing: 0.05em;
+    }
+
+    /* ======= GRID DE ETERNIZADOS ======= */
+    .eternizados-grid {
+      max-width: 860px;
+      width: 100%;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .eternizado-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .eternizado-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: var(--accent);
+      border-radius: 16px 0 0 16px;
+    }
+
+    .eternizado-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px var(--glow);
+      transform: translateX(8px);
+      background: rgba(204,0,0,0.05);
+    }
+
+    .eternizado-avatar-wrapper {
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .eternizado-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background: linear-gradient(135deg, rgba(204,0,0,0.2), rgba(204,0,0,0.05));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      overflow: hidden;
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    .eternizado-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .eternizado-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .eternizado-name {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.1em;
+      color: var(--text);
+      text-transform: uppercase;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .eternizado-player {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .eternizado-arrow {
+      flex-shrink: 0;
+      color: var(--text-sub);
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+
+    .eternizado-card:hover .eternizado-arrow {
+      transform: translateX(4px);
+      color: var(--accent);
+    }
+
+    /* ======= MODAL ======= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      padding: 24px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 40px;
+      box-shadow: 0 0 80px var(--shadow);
+      transform: scale(0.95) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-sub);
+      font-size: 2rem;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--accent);
+    }
+
+    .modal-avatar {
+      width: 140px;
+      height: 140px;
+      border-radius: 12px;
+      margin: 0 auto 24px;
+      border: 3px solid var(--accent);
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(204,0,0,0.2), rgba(204,0,0,0.05));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+
+    .modal-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-title {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .modal-player {
+      text-align: center;
+      color: var(--text-sub);
+      margin-bottom: 24px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .modal-divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      margin-bottom: 24px;
+      opacity: 0.55;
+    }
+
+    .modal-story {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text-sub);
+      text-align: justify;
+    }
+
+    .modal-story p {
+      margin-bottom: 16px;
+    }
+
+    .modal-story p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ======= NAV ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0; transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel {
+      position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px;
+      gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 60px var(--shadow);
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text); text-decoration: none; padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link::before { content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+    .nav-link:hover::before { width: 20px; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    @media (max-width: 580px) {
+      #hero-title .line2 { font-size: clamp(2.5rem, 8vw, 4rem); }
+      .welcome-inner { padding: 32px 24px; }
+      .eternizados-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_imagem_eternizados.gif" alt="Fundo Eternizados" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="2"  x2="12" y2="5"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="2"  y1="12" x2="5"  y2="12"/>
+        <line x1="19" y1="12" x2="22" y2="12"/>
+        <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+        <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+        <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="index.html">Início</a>
+      <a class="nav-link" href="historia.html">História</a>
+      <a class="nav-link" href="religioes.html">Religiões</a>
+      <a class="nav-link" href="proposito.html">Propósito de Vida</a>
+      <a class="nav-link" href="eternizados.html">Eternizados</a>
+      <a class="nav-link" href="alcunhas.html">Alcunhas</a>
+      <a class="nav-link" href="legado.html">Legado & Conquista</a>
+      <a class="nav-link" href="vinculos.html">Vínculos</a>
+      <a class="nav-link" href="organizacoes.html">Organizações</a>
+      <a class="nav-link" href="tags.html">Tags</a>
+    </nav>
+  </div>
+
+  <section id="hero">
+    <div id="hero-title">
+      <span class="line1">CONHEÇA OS</span>
+      <span class="line2">ETERNIZADOS</span>
+      <span class="deco-line"></span>
+    </div>
+
+    <a href="#welcome" id="scroll-arrow" aria-label="Rolar para baixo">
+      <span></span><span></span><span></span>
+    </a>
+  </section>
+
+  <section id="welcome">
+    <div class="welcome-inner">
+      <p class="welcome-subtitle">Aqui residem as lendas cujos nomes deixaram de ser apenas fichas para se tornarem a história oficial do Kigen Shinobi.</p>
+    <!-- GRID DE ETERNIZADOS -->
+    <div class="eternizados-grid" id="eternizados-container">
+      <!-- Cards serão gerados dinamicamente aqui -->
+    </div>
+  </section>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <div class="modal-avatar" id="modal-avatar"></div>
+      <h2 class="modal-title" id="modal-name"></h2>
+      <p class="modal-player" id="modal-player"></p>
+      <div class="modal-divider"></div>
+      <div class="modal-story" id="modal-story"></div>
+    </div>
+  </div>
+
+  <script>
+    // ========== DADOS DOS ETERNIZADOS ==========
+    const eternizados = [
+      {
+        id: 1,
+        name: "NOME DO PERSONAGEM",
+        player: "Player: Seu Nome Aqui",
+        avatar: "avatar_1.jpg",
+        story: "A história deste lendário personagem será registrada aqui. Descreva seus feitos, sua ascensão ao poder, as batalhas que venceu e o legado que deixou para as gerações futuras. Este é o espaço para eternizar sua memória."
+      },
+      
+    ];
+
+    // ========== RENDERIZAR GRID ==========
+    const container = document.getElementById('eternizados-container');
+    eternizados.forEach(eternizado => {
+      const card = document.createElement('div');
+      card.className = 'eternizado-card';
+      card.innerHTML = `
+        <div class="eternizado-avatar-wrapper">
+          <div class="eternizado-avatar">
+            <img src="${eternizado.avatar}" alt="${eternizado.name}" onerror="this.style.display='none'"/>
+          </div>
+        </div>
+        <div class="eternizado-info">
+          <div class="eternizado-name">${eternizado.name}</div>
+          <div class="eternizado-player">${eternizado.player}</div>
+        </div>
+        <div class="eternizado-arrow">▸</div>
+      `;
+      card.addEventListener('click', () => openModal(eternizado));
+      container.appendChild(card);
+    });
+
+    // ========== MODAL ==========
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalClose = document.getElementById('modal-close');
+    const modalAvatar = document.getElementById('modal-avatar');
+    const modalName = document.getElementById('modal-name');
+    const modalPlayer = document.getElementById('modal-player');
+    const modalStory = document.getElementById('modal-story');
+
+    function openModal(eternizado) {
+      modalAvatar.innerHTML = `<img src="${eternizado.avatar}" alt="${eternizado.name}" onerror="this.style.display='none'"/>`;
+      modalName.textContent = eternizado.name;
+      modalPlayer.textContent = eternizado.player;
+      modalStory.innerHTML = `<p>${eternizado.story}</p>`;
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ========== MENU E TEMA ==========
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    const overlayClose = document.getElementById('overlay-close');
+
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+
+    overlayClose.addEventListener('click', closeNav);
+
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeNav();
+    });
+
+    // ========== TEMA ==========
+    const root = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+  </script>
+</body>
+</html>

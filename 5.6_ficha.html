@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kigen Shinobi - Sistema de Fichas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #161616;
+      --border: #cc0000;
+      --accent: #cc0000;
+      --accent2: #ff4444;
+      --glow: rgba(204,0,0,0.6);
+      --shadow: rgba(204,0,0,0.38);
+      --text: #f0f0f0;
+      --text-sub: #999999;
+    }
+
+    [data-theme="light"] {
+      --bg: #efefef;
+      --surface: #ffffff;
+      --text: #111111;
+      --text-sub: #555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg);
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed; top: 20px; right: 22px; z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+
+    #menu-btn {
+      width: 54px; height: 54px; border-radius: 50%; background: #000;
+      border: 2.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow); transition: box-shadow 0.25s, transform 0.2s;
+    }
+
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+
+    #menu-btn svg { width: 26px; height: 26px; transition: transform 0.35s; }
+    #menu-btn.open svg { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+      background: #000; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 8px var(--glow); transition: box-shadow 0.3s, transform 0.2s;
+    }
+
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      pointer-events: none; opacity: 0; transition: opacity 0.35s;
+    }
+
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+
+    #nav-panel {
+      position: fixed; right: 0; top: 0; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 40px 36px;
+      gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow);
+    }
+
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+
+    .nav-link {
+      display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text); text-decoration: none; padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18); transition: color 0.2s, padding-left 0.2s;
+    }
+
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+
+    /* ======= MAIN CONTAINER ======= */
+    .container {
+      max-width: 1200px; margin: 0 auto; padding: 40px 20px;
+    }
+
+    /* ======= SEÇÃO VILAS ======= */
+    .villages-section {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 0 30px var(--shadow);
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-family: 'Russo One', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 30px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .section-title i {
+      font-size: 2.2rem;
+    }
+
+    .villages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .village-btn {
+      padding: 30px 20px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Russo One', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 150px;
+    }
+
+    .village-btn i {
+      font-size: 2.5rem;
+    }
+
+    .village-btn:hover {
+      background: rgba(204,0,0,0.1);
+      box-shadow: 0 0 20px var(--glow);
+      transform: translateY(-4px);
+    }
+
+    .village-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 30px var(--glow);
+    }
+
+    /* ======= SEÇÃO PATENTES ======= */
+    .ranks-section {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 0 30px var(--shadow);
+      margin-bottom: 40px;
+      display: none;
+    }
+
+    .ranks-section.show {
+      display: block;
+      animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ranks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .rank-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .rank-card:hover {
+      background: rgba(204,0,0,0.1);
+      box-shadow: 0 0 15px var(--glow);
+      transform: translateY(-4px);
+    }
+
+    .rank-name {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .rank-count {
+      color: var(--text-sub);
+      font-size: 0.85rem;
+    }
+
+    /* ======= SEÇÃO PERSONAGENS ======= */
+    .characters-section {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 0 30px var(--shadow);
+      margin-bottom: 40px;
+      display: none;
+    }
+
+    .characters-section.show {
+      display: block;
+      animation: slideDown 0.4s ease;
+    }
+
+    .characters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .character-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .character-card:hover {
+      background: rgba(204,0,0,0.1);
+      box-shadow: 0 0 20px var(--glow);
+      transform: translateY(-4px);
+    }
+
+    .character-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--surface);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .character-name {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .character-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* ======= SEÇÃO FICHA ======= */
+    .character-sheet {
+      background: var(--surface);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px var(--shadow);
+      display: none;
+      border: 2px solid var(--border);
+    }
+
+    .character-sheet.show {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sheet-header {
+      background: linear-gradient(135deg, rgba(204,0,0,0.3) 0%, rgba(204,0,0,0.1) 100%);
+      padding: 40px;
+      text-align: center;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .sheet-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .sheet-name {
+      font-family: 'Russo One', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .sheet-subtitle {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+    }
+
+    .sheet-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--accent2);
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(204,0,0,0.1);
+    }
+
+    .btn-back {
+      margin-bottom: 20px;
+    }
+
+    /* ======= SHEET CONTENT ======= */
+    .sheet-tabs {
+      display: flex;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sheet-tab {
+      flex: 1;
+      padding: 15px;
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .sheet-tab:hover {
+      color: var(--text);
+    }
+
+    .sheet-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(204,0,0,0.05);
+    }
+
+    .sheet-content {
+      padding: 30px 40px;
+      display: none;
+    }
+
+    .sheet-content.active {
+      display: block;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .info-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      border-left: 3px solid var(--accent);
+      padding-left: 15px;
+    }
+
+    .section-header i {
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+
+    .section-header h2 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.3rem;
+      color: var(--text);
+      letter-spacing: 0.1em;
+    }
+
+    .traits-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .trait-pill {
+      background: var(--bg);
+      border: 1px solid var(--accent);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trait-pill i {
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+
+    .edit-mode {
+      background: rgba(204,0,0,0.05);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      display: none;
+    }
+
+    .edit-mode.show {
+      display: block;
+    }
+
+    .attribute-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .attribute-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .attr-name {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .attr-value {
+      min-width: 50px;
+      text-align: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .attr-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .attr-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--accent);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: all 0.3s;
+    }
+
+    .attr-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .visibility-section {
+      background: rgba(204,0,0,0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .visibility-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.2);
+    }
+
+    .visibility-item:last-child {
+      border-bottom: none;
+    }
+
+    .visibility-toggle {
+      cursor: pointer;
+      color: var(--text-sub);
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .visibility-toggle:hover {
+      color: var(--accent);
+    }
+
+    .visibility-toggle.hidden {
+      color: var(--accent2);
+    }
+
+    @media (max-width: 768px) {
+      .villages-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      .sheet-header {
+        padding: 20px;
+      }
+    }
+
+    .hidden-message {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-sub);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating UI -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,2 20,14 16,18 12,14" fill="currentColor"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="currentColor"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="2" x2="12" y2="5" stroke="currentColor" stroke-width="2"/>
+        <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Nav Overlay -->
+  <div id="nav-overlay">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#" id="nav-home">Sistema</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="#">Discord</a>
+    </nav>
+  </div>
+
+  <!-- Main -->
+  <div class="container">
+    
+    <!-- VILAS -->
+    <div class="villages-section" id="villagesSection">
+      <h1 class="section-title">
+        <i class="fas fa-map"></i> Selecione a Vila
+      </h1>
+      
+      <div class="villages-grid" id="villagesGrid"></div>
+    </div>
+
+    <!-- PATENTES -->
+    <div class="ranks-section" id="ranksSection">
+      <h2 class="section-title">
+        <i class="fas fa-star"></i> <span id="selectedVillageName"></span>
+      </h2>
+      
+      <div class="ranks-grid" id="ranksGrid"></div>
+    </div>
+
+    <!-- PERSONAGENS -->
+    <div class="characters-section" id="charactersSection">
+      <h2 class="section-title">
+        <i class="fas fa-users"></i> <span id="selectedRankName"></span> - <span id="selectedVillageName2"></span>
+      </h2>
+      
+      <div class="characters-grid" id="charactersGrid"></div>
+    </div>
+
+    <!-- FICHA -->
+    <div class="character-sheet" id="characterSheet">
+      <div class="sheet-header">
+        <button class="btn btn-secondary btn-back" id="backBtn">← Voltar</button>
+        <div class="sheet-avatar" id="sheetAvatar">👤</div>
+        <h1 class="sheet-name" id="sheetName">Nome</h1>
+        <p class="sheet-subtitle" id="sheetSubtitle">Vila • Patente</p>
+        <div class="sheet-buttons">
+          <button class="btn" id="editToggleBtn">Editar</button>
+          <button class="btn btn-secondary" id="saveBtn" style="display:none;">Salvar</button>
+        </div>
+      </div>
+
+      <div class="sheet-tabs">
+        <button class="sheet-tab active" data-tab="perfil">Perfil</button>
+        <button class="sheet-tab" data-tab="combate">Combate</button>
+        <button class="sheet-tab" data-tab="jornada">Jornada</button>
+      </div>
+
+      <div class="sheet-content active" id="tab-perfil">
+        <div class="section-header">
+          <i class="fas fa-user"></i>
+          <h2>Informações Básicas</h2>
+        </div>
+        <div class="info-grid" id="perfilGrid"></div>
+      </div>
+
+      <div class="sheet-content" id="tab-combate">
+        <div class="visibility-section" id="visibilitySection"></div>
+        <div class="edit-mode" id="editMode"></div>
+        <div class="section-header">
+          <i class="fas fa-balance-scale"></i>
+          <h2>Atributos</h2>
+        </div>
+        <div id="combateContent"></div>
+      </div>
+
+      <div class="sheet-content" id="tab-jornada">
+        <div class="section-header">
+          <i class="fas fa-scroll"></i>
+          <h2>Jornada</h2>
+        </div>
+        <div id="jornadadContent"><p class="hidden-message">Seção em desenvolvimento</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ======= CONFIG SUPABASE =======
+    const SUPABASE_URL = 'https://seu-projeto.supabase.co';
+    const SUPABASE_KEY = 'sua-chave-publica';
+
+    // ======= DADOS DE VILAS =======
+    const villagesData = {
+      konoha: { name: 'Konoha', icon: 'fas fa-pagelines', color: '#22c55e' },
+      kiri: { name: 'Kiri', icon: 'fas fa-water', color: '#0ea5e9' },
+      suna: { name: 'Suna', icon: 'fas fa-sun', color: '#f97316' },
+      kumo: { name: 'Kumo', icon: 'fas fa-cloud', color: '#6366f1' },
+      iwa: { name: 'Iwa', icon: 'fas fa-mountain', color: '#84cc16' },
+      uzushio: { name: 'Uzushio', icon: 'fas fa-home', color: '#ec4899' }
+    };
+
+    const ranks = ['Gennin', 'Chunnin', 'Jounnin', 'ANBU', 'Estado-Maior', 'Kage'];
+
+    // ======= DADOS MOCK (temporário até Supabase) =======
+    const mockCharacters = {
+      konoha: {
+        Gennin: [
+          { id: 1, name: 'Naruto Uzumaki', village: 'konoha', rank: 'Gennin', age: 12, birthday: 'Outono', clan: 'Uzumaki', kekkei: 'Kyuubi', profession: 'Shinobi', attributes: { forca: 60, velocidade: 65, resistencia: 70, chakra: 95, controle: 50, selos: 55 }, traits: { qualities: ['Grande chakra'], flaws: ['Impulsivo'] } },
+        ],
+        Chunnin: [
+          { id: 2, name: 'Sakura Haruno', village: 'konoha', rank: 'Chunnin', age: 13, birthday: 'Primavera', clan: 'Haruno', kekkei: 'Nenhum', profession: 'Médica', attributes: { forca: 65, velocidade: 70, resistencia: 70, chakra: 80, controle: 90, selos: 75 }, traits: { qualities: ['Médica talentosa'], flaws: ['Insegura'] } },
+        ],
+        Jounnin: [
+          { id: 3, name: 'Kakashi Hatake', village: 'konoha', rank: 'Jounnin', age: 26, birthday: 'Inverno', clan: 'Hatake', kekkei: 'Sharingan', profession: 'Instrutor', attributes: { forca: 80, velocidade: 85, resistencia: 85, chakra: 88, controle: 90, selos: 85 }, traits: { qualities: ['Genialidade', 'Sharingan'], flaws: ['Passado'] } },
+        ],
+      },
+      suna: {
+        Gennin: [
+          { id: 4, name: 'Gaara do Deserto', village: 'suna', rank: 'Gennin', age: 12, birthday: 'Inverno', clan: 'Sabaku', kekkei: 'Ichibi', profession: 'Shinobi', attributes: { forca: 70, velocidade: 75, resistencia: 80, chakra: 92, controle: 85, selos: 60 }, traits: { qualities: ['Domínio Areia'], flaws: ['Isolamento'] } },
+        ],
+      },
+      kiri: {
+        Anbu: [
+          { id: 5, name: 'Itachi Uchiha', village: 'kiri', rank: 'ANBU', age: 21, birthday: 'Verão', clan: 'Uchiha', kekkei: 'Sharingan', profession: 'Assassino', attributes: { forca: 85, velocidade: 88, resistencia: 80, chakra: 95, controle: 95, selos: 90 }, traits: { qualities: ['Genjutsu Supremo', 'Taijutsu'], flaws: ['Doença'] } },
+        ],
+      }
+    };
+
+    // ======= ESTADO GLOBAL =======
+    let state = {
+      selectedVillage: null,
+      selectedRank: null,
+      selectedCharacter: null,
+      isEditMode: false,
+      visibility: { perfil: true, combate: true, jornada: true }
+    };
+
+    // ======= MENU ======= 
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    const overlayClose = document.getElementById('overlay-close');
+
+    menuBtn.addEventListener('click', () => {
+      const isOpen = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', isOpen);
+    });
+
+    overlayClose.addEventListener('click', () => {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    });
+
+    document.getElementById('nav-home').addEventListener('click', (e) => {
+      e.preventDefault();
+      resetToVillages();
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    });
+
+    // ======= TEMA =======
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('kigen-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('kigen-theme', next);
+    });
+
+    // ======= VILAS =======
+    function renderVillages() {
+      const grid = document.getElementById('villagesGrid');
+      grid.innerHTML = '';
+      
+      Object.entries(villagesData).forEach(([key, village]) => {
+        const btn = document.createElement('button');
+        btn.className = 'village-btn';
+        btn.innerHTML = `<i class="${village.icon}"></i> ${village.name}`;
+        btn.addEventListener('click', () => selectVillage(key, village.name));
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectVillage(key, name) {
+      state.selectedVillage = key;
+      document.querySelectorAll('.village-btn').forEach(b => b.classList.remove('active'));
+      event.target.closest('.village-btn').classList.add('active');
+      
+      document.getElementById('selectedVillageName').textContent = name;
+      document.getElementById('selectedVillageName2').textContent = name;
+      
+      renderRanks();
+      document.getElementById('ranksSection').classList.add('show');
+      document.getElementById('charactersSection').classList.remove('show');
+      document.getElementById('characterSheet').classList.remove('show');
+    }
+
+    // ======= PATENTES =======
+    function renderRanks() {
+      const grid = document.getElementById('ranksGrid');
+      grid.innerHTML = '';
+      
+      ranks.forEach(rank => {
+        const card = document.createElement('div');
+        card.className = 'rank-card';
+        const count = mockCharacters[state.selectedVillage]?.[rank]?.length || 0;
+        card.innerHTML = `
+          <div class="rank-name">${rank}</div>
+          <div class="rank-count">${count} personagem(ns)</div>
+        `;
+        card.addEventListener('click', () => selectRank(rank));
+        grid.appendChild(card);
+      });
+    }
+
+    function selectRank(rank) {
+      state.selectedRank = rank;
+      document.getElementById('selectedRankName').textContent = rank;
+      
+      renderCharacters();
+      document.getElementById('charactersSection').classList.add('show');
+      document.getElementById('characterSheet').classList.remove('show');
+    }
+
+    // ======= PERSONAGENS =======
+    function renderCharacters() {
+      const grid = document.getElementById('charactersGrid');
+      grid.innerHTML = '';
+      
+      const characters = mockCharacters[state.selectedVillage]?.[state.selectedRank] || [];
+      
+      if (characters.length === 0) {
+        grid.innerHTML = '<p class="hidden-message">Nenhum personagem nesta patente</p>';
+        return;
+      }
+
+      characters.forEach(char => {
+        const card = document.createElement('div');
+        card.className = 'character-card';
+        card.innerHTML = `
+          <div class="character-avatar">${char.name.charAt(0)}</div>
+          <div class="character-name">${char.name}</div>
+          <div class="character-subtitle">${char.clan}</div>
+        `;
+        card.addEventListener('click', () => selectCharacter(char));
+        grid.appendChild(card);
+      });
+    }
+
+    // ======= FICHA =======
+    function selectCharacter(character) {
+      state.selectedCharacter = character;
+      state.isEditMode = false;
+      
+      document.getElementById('sheetAvatar').textContent = character.name.charAt(0);
+      document.getElementById('sheetName').textContent = character.name;
+      document.getElementById('sheetSubtitle').textContent = `${villagesData[character.village].name} • ${character.rank}`;
+      
+      renderCharacterSheet();
+      
+      document.getElementById('charactersSection').classList.remove('show');
+      document.getElementById('characterSheet').classList.add('show');
+    }
+
+    function renderCharacterSheet() {
+      const char = state.selectedCharacter;
+      
+      // Perfil
+      const perfilGrid = document.getElementById('perfilGrid');
+      perfilGrid.innerHTML = `
+        <div class="info-box"><div class="info-label">Idade</div><div class="info-value">${char.age}</div></div>
+        <div class="info-box"><div class="info-label">Aniversário</div><div class="info-value">${char.birthday}</div></div>
+        <div class="info-box"><div class="info-label">Clã</div><div class="info-value">${char.clan}</div></div>
+        <div class="info-box"><div class="info-label">Kekkei</div><div class="info-value">${char.kekkei}</div></div>
+        <div class="info-box"><div class="info-label">Profissão</div><div class="info-value">${char.profession}</div></div>
+        <div class="info-box"><div class="info-label">Vila</div><div class="info-value">${villagesData[char.village].name}</div></div>
+      `;
+
+      // Combate
+      const combateContent = document.getElementById('combateContent');
+      let html = '';
+      
+      if (state.visibility.combate) {
+        html += '<div class="sub-section-title" style="font-size:0.9rem;color:var(--accent);text-transform:uppercase;margin-bottom:15px;"><strong>ATRIBUTOS</strong></div>';
+        html += '<div class="traits-container">';
+        
+        for (const [attr, value] of Object.entries(char.attributes)) {
+          html += `<div class="trait-pill"><strong>${attr}:</strong> ${value}</div>`;
+        }
+        
+        html += '</div>';
+
+        if (char.traits?.qualities?.length > 0) {
+          html += '<div class="sub-section-title" style="font-size:0.9rem;color:var(--accent);text-transform:uppercase;margin-bottom:15px;margin-top:20px;"><strong>QUALIDADES</strong></div>';
+          html += '<div class="traits-container">';
+          char.traits.qualities.forEach(q => {
+            html += `<div class="trait-pill"><i class="fas fa-check"></i> ${q}</div>`;
+          });
+          html += '</div>';
+        }
+
+        if (char.traits?.flaws?.length > 0) {
+          html += '<div class="sub-section-title" style="font-size:0.9rem;color:var(--accent);text-transform:uppercase;margin-bottom:15px;margin-top:20px;"><strong>DEFEITOS</strong></div>';
+          html += '<div class="traits-container">';
+          char.traits.flaws.forEach(f => {
+            html += `<div class="trait-pill" style="border-color:#ef4444;"><i class="fas fa-times" style="color:#ef4444;"></i> ${f}</div>`;
+          });
+          html += '</div>';
+        }
+      } else {
+        html += '<p class="hidden-message"><i class="fas fa-eye-slash"></i> Esta seção está oculta</p>';
+      }
+
+      combateContent.innerHTML = html;
+
+      // Visibilidade
+      const visSection = document.getElementById('visibilitySection');
+      visSection.innerHTML = `
+        <div style="font-size:0.9rem;color:var(--accent);text-transform:uppercase;margin-bottom:15px;"><strong>CONTROLE DE VISIBILIDADE</strong></div>
+        <div class="visibility-item">
+          <span>Perfil</span>
+          <span class="visibility-toggle ${!state.visibility.perfil ? 'hidden' : ''}" onclick="toggleVisibility('perfil')">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+        <div class="visibility-item">
+          <span>Combate</span>
+          <span class="visibility-toggle ${!state.visibility.combate ? 'hidden' : ''}" onclick="toggleVisibility('combate')">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+        <div class="visibility-item">
+          <span>Jornada</span>
+          <span class="visibility-toggle ${!state.visibility.jornada ? 'hidden' : ''}" onclick="toggleVisibility('jornada')">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+      `;
+    }
+
+    function toggleVisibility(section) {
+      state.visibility[section] = !state.visibility[section];
+      renderCharacterSheet();
+    }
+
+    // ======= EDIÇÃO =======
+    document.getElementById('editToggleBtn').addEventListener('click', () => {
+      state.isEditMode = !state.isEditMode;
+      
+      const editMode = document.getElementById('editMode');
+      const saveBtn = document.getElementById('saveBtn');
+      const editBtn = document.getElementById('editToggleBtn');
+
+      if (state.isEditMode) {
+        let html = '<h3 style="color:var(--accent);margin-bottom:20px;">EDITAR ATRIBUTOS</h3><div class="attribute-list">';
+        
+        for (const [attr, value] of Object.entries(state.selectedCharacter.attributes)) {
+          html += `
+            <div class="attribute-item">
+              <span class="attr-name">${attr.toUpperCase()}</span>
+              <span class="attr-value" id="attr-${attr}">${value}</span>
+              <div class="attr-buttons">
+                <button class="attr-btn" onclick="addPoint('${attr}')">+</button>
+                <button class="attr-btn" onclick="removePoint('${attr}')">−</button>
+              </div>
+            </div>
+          `;
+        }
+        
+        html += '</div>';
+        editMode.innerHTML = html;
+        editMode.classList.add('show');
+        editBtn.style.display = 'none';
+        saveBtn.style.display = 'block';
+      } else {
+        editMode.classList.remove('show');
+        editBtn.style.display = 'block';
+        saveBtn.style.display = 'none';
+      }
+    });
+
+    function addPoint(attr) {
+      state.selectedCharacter.attributes[attr]++;
+      document.getElementById(`attr-${attr}`).textContent = state.selectedCharacter.attributes[attr];
+    }
+
+    function removePoint(attr) {
+      if (state.selectedCharacter.attributes[attr] > 0) {
+        state.selectedCharacter.attributes[attr]--;
+        document.getElementById(`attr-${attr}`).textContent = state.selectedCharacter.attributes[attr];
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      alert('Alterações salvas! (Integração Supabase)');
+      state.isEditMode = false;
+      document.getElementById('editToggleBtn').click();
+    });
+
+    // ======= TABS =======
+    document.querySelectorAll('.sheet-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.sheet-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+      });
+    });
+
+    // ======= VOLTAR =======
+    document.getElementById('backBtn').addEventListener('click', () => {
+      state.selectedCharacter = null;
+      document.getElementById('characterSheet').classList.remove('show');
+      document.getElementById('charactersSection').classList.add('show');
+    });
+
+    function resetToVillages() {
+      state = {
+        selectedVillage: null,
+        selectedRank: null,
+        selectedCharacter: null,
+        isEditMode: false,
+        visibility: { perfil: true, combate: true, jornada: true }
+      };
+
+      document.getElementById('villagesSection').classList.remove('show');
+      document.getElementById('ranksSection').classList.remove('show');
+      document.getElementById('charactersSection').classList.remove('show');
+      document.getElementById('characterSheet').classList.remove('show');
+      document.querySelectorAll('.village-btn').forEach(b => b.classList.remove('active'));
+
+      setTimeout(() => {
+        document.getElementById('villagesSection').classList.add('show');
+      }, 100);
+    }
+
+    // ======= INIT =======
+    renderVillages();
+    document.getElementById('villagesSection').classList.add('show');
+  </script>
+
+</body>
+</html>

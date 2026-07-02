@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>História — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #f0f0f0;
+      --text-sub:#999999;
+      --badge-text: #f0f0f0;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #111111;
+      --text-sub:#555555;
+      --badge-text: #111111;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      /* Fundo removido para mostrar a imagem fixa */
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      filter: blur(3px) brightness(0.38) saturate(0.55);
+      transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg {
+      filter: blur(3px) brightness(0.78) saturate(0.65);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+      transition: background 0.5s;
+    }
+    [data-theme="light"] .hero-overlay {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed;
+      top: 20px; right: 22px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: #000;
+      border: 2.5px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow);
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai {
+      width: 26px; height: 26px;
+      transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--glow);
+      transition: box-shadow 0.3s, transform 0.2s;
+      padding: 0;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    #nav-panel {
+      position: relative; z-index: 1;
+      background: var(--surface);
+      border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%;
+      display: flex; flex-direction: column;
+      padding: 110px 36px 40px;
+      gap: 4px;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow);
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.92rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18);
+      position: relative;
+      transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link::before {
+      content: '';
+      position: absolute; left: -36px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 2px;
+      background: var(--accent);
+      transition: width 0.25s;
+    }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+    .nav-link:hover::before { width: 20px; }
+
+    /* ======= PÁGINA HISTÓRIA ======= */
+    #historia {
+      min-height: 100vh;
+      padding: 100px 24px 80px;
+      transition: background 0.4s;
+    }
+
+    /* Cabeçalho (Bloco 1) */
+    .historia-header {
+      max-width: 860px;
+      margin: 0 auto 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+    }
+    .historia-header-red {
+      background: #cc0000;
+      padding: 20px 36px;
+      display: flex; align-items: center; gap: 18px;
+    }
+    .historia-header-red h1 {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.22em;
+      color: #fff;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .historia-header-deco {
+      flex: 1; height: 2px;
+      background: rgba(255,255,255,0.3);
+    }
+    .historia-header-body {
+      background: var(--surface);
+      padding: 26px 36px;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text-sub);
+      transition: background 0.4s, color 0.4s;
+      text-align: justify;
+    }
+
+    /* Bloco da Timeline (Bloco 2) */
+    .historia-timeline-box {
+      max-width: 860px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+      background: var(--surface);
+      padding: 40px 0;
+      transition: background 0.4s;
+    }
+
+    /* ======= GERAÇÃO (ACCORDION - DIMINUÍDO MAIS UM POUCO) ======= */
+    .gen-item {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; cursor: pointer; padding: 0 20px;
+      user-select: none;
+      outline: none;
+    }
+    .gen-item .tl-season-num {
+      font-family: 'Russo One', sans-serif; font-size: 0.75rem; letter-spacing: 0.22em;
+      color: var(--accent); margin-bottom: 6px; text-transform: uppercase;
+    }
+    .gen-item .tl-season-title {
+      font-family: 'Bangers', cursive; font-size: clamp(1.4rem, 3vw, 2rem);
+      letter-spacing: 0.08em; color: var(--accent); line-height: 1.05; text-transform: uppercase;
+    }
+    
+    /* DIMINUÍDO MAIS UM POUCO: Círculo da Geração (Accordion) */
+    .gen-item .tl-ring-outer { 
+      /* Reduzido de 120px para 100px */
+      width: 100px; height: 100px; margin-top: 16px; 
+      border-radius: 50%; border: 3px solid var(--accent); 
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 18px var(--glow); 
+    }
+    .gen-item .tl-ring-inner { 
+      /* Reduzido de 95px para 80px */
+      width: 80px; height: 80px; 
+      border-radius: 50%; border: 3px solid var(--accent);
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow); 
+      transition: transform 0.25s, box-shadow 0.3s;
+    }
+    .gen-item:hover .tl-ring-inner { transform: scale(1.09); box-shadow: 0 0 28px var(--glow); }
+    /* Reduzido ícone proporcionalmente de 42px para 34px */
+    .gen-item .tl-icon { width: 34px; height: 34px; } 
+    
+    .gen-icon {
+      width: 100%; height: 100%;
+      transition: transform 0.4s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    .gen-item.open .gen-icon { transform: rotate(180deg); }
+
+    .gen-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .gen-content-inner {
+      overflow: hidden;
+    }
+    .gen-content.open {
+      grid-template-rows: 1fr;
+    }
+
+    /* Reduzido conector de geração de 60px para 50px */
+    .gen-connector {
+      width: 4px; height: 50px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      margin: 10px auto 0;
+      border-radius: 2px;
+      opacity: 0.6;
+    }
+
+
+    /* ======= LINHA DO TEMPO (TEMPORADAS - DIMINUÍDO UM POUCO MAIS) ======= */
+    .timeline-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .tl-item {
+      display: flex;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      /* Reduzido min-height de 140px para 120px para maior compactação */
+      min-height: 120px; 
+    }
+    .tl-item:nth-child(odd)  { flex-direction: row; }
+    .tl-item:nth-child(even) { flex-direction: row-reverse; }
+
+    .tl-text {
+      flex: 1;
+      padding: 0 36px;
+      text-align: center;
+    }
+    .tl-season-num {
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      transition: color 0.3s;
+    }
+    .tl-season-title {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      transition: color 0.3s;
+    }
+    /* .tl-locked-tag (Tag "Em breve" na linha do tempo principal) removida por solicitação anterior */
+
+    /* DIMINUÍDO UM POUCO MAIS: Círculos das Temporadas */
+    .tl-circle-wrap {
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tl-ring-outer {
+      /* Reduzido de 85px para 70px */
+      width: 70px; height: 70px; 
+      border-radius: 50%;
+      border: 3px solid;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+    .tl-ring-inner {
+      /* Reduzido de 65px para 55px */
+      width: 55px; height: 55px; 
+      border-radius: 50%;
+      background: var(--surface);
+      border: 3px solid;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.3s, border-color 0.4s, background 0.4s;
+    }
+    .tl-ring-inner:hover { transform: scale(1.09); }
+    /* Reduzido ícone proporcionalmente de 30px para 24px */
+    .tl-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; } 
+    .tl-icon svg { width: 100%; height: 100%; }
+
+    /* LOCKED */
+    .tl-item.locked .tl-ring-outer { border-color: #2e2e2e; box-shadow: none; }
+    .tl-item.locked .tl-ring-inner { border-color: #2e2e2e; box-shadow: none; }
+    .tl-item.locked .tl-season-num   { color: #444; }
+    .tl-item.locked .tl-season-title { color: #383838; }
+
+    /* UNLOCKED */
+    .tl-item.unlocked .tl-ring-outer { border-color: var(--c); box-shadow: 0 0 18px var(--cg); }
+    .tl-item.unlocked .tl-ring-inner { border-color: var(--c); box-shadow: 0 0 14px var(--cg); }
+    .tl-item.unlocked .tl-ring-inner:hover { box-shadow: 0 0 36px var(--cg); }
+    .tl-item.unlocked .tl-season-num   { color: var(--c); }
+    .tl-item.unlocked .tl-season-title { color: var(--c); }
+
+    /* Reduzido conector SVG de temporadas de 80px para 60px de altura */
+    .tl-connector {
+      display: block;
+      width: 100%;
+      height: 60px;
+      overflow: visible;
+    }
+
+    .tl-mirror {
+      flex: 1;
+      visibility: hidden;
+      pointer-events: none;
+      padding: 0 36px;
+      text-align: center;
+    }
+
+    /* ======= MODAL ======= */
+    .tl-modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+      padding: 24px;
+    }
+    .tl-modal-overlay.active { opacity: 1; pointer-events: all; }
+    .tl-modal {
+      background: var(--surface);
+      border: 2px solid var(--mc, #cc0000);
+      border-radius: 20px;
+      max-width: 560px; width: 100%;
+      padding: 44px 40px;
+      box-shadow: 0 0 60px var(--mg, rgba(204,0,0,0.5));
+      transform: translateY(28px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), background 0.4s;
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .tl-modal-overlay.active .tl-modal { transform: translateY(0) scale(1); }
+    .tl-modal-close {
+      position: absolute; top: 16px; right: 20px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-sub); font-size: 1.7rem; line-height: 1;
+      transition: color 0.2s;
+    }
+    .tl-modal-close:hover { color: var(--accent); }
+    .tl-modal-tag {
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 4px;
+      border: 1.5px solid var(--mc, #cc0000);
+      color: var(--mc, #cc0000);
+      background: rgba(255,255,255,0.04);
+      display: inline-block; margin-bottom: 14px;
+    }
+    .tl-modal-title {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--mc, #cc0000); line-height: 1.05; margin-bottom: 18px;
+    }
+    .tl-modal-deco {
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--mc, #cc0000), transparent);
+      margin-bottom: 22px; opacity: 0.55;
+    }
+    .tl-modal-body {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.05rem; line-height: 1.78; color: var(--text-sub);
+      text-align: justify;
+    }
+    .tl-modal-body p { margin-bottom: 16px; }
+    .tl-modal-locked {
+      text-align: center; padding: 24px 0;
+    }
+    .tl-modal-locked .lock-svg {
+      width: 56px; height: 56px; margin: 0 auto 18px;
+      opacity: 0.28;
+    }
+    .tl-modal-locked p {
+      font-family: 'Bangers', cursive;
+      font-size: 2.2rem; letter-spacing: 0.18em; color: #555;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    @media (max-width: 580px) {
+      #historia { padding-top: 160px; }
+      .tl-item { flex-direction: column !important; min-height: auto; padding: 28px 0; }
+      .tl-mirror { display: none; }
+      .tl-text { padding: 18px 16px 0; }
+      .historia-header-red { padding: 16px 20px; }
+      .historia-header-body { padding: 18px 20px; }
+      .historia-timeline-box { padding: 30px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo História" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="2"  x2="12" y2="5"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="2"  y1="12" x2="5"  y2="12"/>
+        <line x1="19" y1="12" x2="22" y2="12"/>
+        <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+        <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+        <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">História</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="#">Discord</a>
+      <a class="nav-link" href="#">Cadastrar</a>
+    </nav>
+  </div>
+
+  <main id="historia">
+
+    <div class="historia-header">
+      <div class="historia-header-red">
+        <h1>HISTÓRIA</h1>
+        <div class="historia-header-deco"></div>
+      </div>
+      <div class="historia-header-body">
+        Esqueça Madara ou Hashirama! Sem amarras ao cânone, aqui a origem dos ninjas e das Vilas Ocultas está nas suas mãos. A lenda a ser escrita é a sua.
+      </div>
+    </div>
+
+    <div class="historia-timeline-box">
+      
+      <div class="gen-item" id="btn-gen-1" tabindex="0" role="button" aria-label="Expandir 1ª Geração">
+        <div class="tl-season-num">1ª GERAÇÃO</div>
+        <div class="tl-season-title">ERA DOS ESTADOS COMBATENTES</div>
+        <div class="tl-circle-wrap">
+          <div class="tl-ring-outer">
+            <div class="tl-ring-inner">
+              <div class="tl-icon" style="color: var(--accent);">
+                
+                <svg class="gen-icon" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g transform="rotate(38 26 26)">
+                    <polygon points="26,3 29.5,19 26,23 22.5,19" fill="currentColor" opacity="0.92"/>
+                    <rect x="23.5" y="22" width="5" height="3" rx="1" fill="currentColor" opacity="0.7"/>
+                    <rect x="24.5" y="25" width="3" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
+                    <circle cx="26" cy="34.5" r="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>
+                  </g>
+                  <g transform="rotate(-38 26 26)">
+                    <polygon points="26,3 29.5,19 26,23 22.5,19" fill="currentColor" opacity="0.92"/>
+                    <rect x="23.5" y="22" width="5" height="3" rx="1" fill="currentColor" opacity="0.7"/>
+                    <rect x="24.5" y="25" width="3" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
+                    <circle cx="26" cy="34.5" r="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>
+                  </g>
+                </svg>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gen-content" id="content-gen-1">
+        <div class="gen-content-inner">
+          <div class="gen-connector"></div>
+          <div class="timeline-wrap" id="timeline-wrap"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="tl-modal-overlay" id="modal-overlay">
+    <div class="tl-modal" id="modal-box">
+      <button class="tl-modal-close" id="modal-close" aria-label="Fechar">×</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ---- DADOS ---- */
+    const seasons = [
+      {
+        num: "TEMPORADA 1", title: "O QUEBRA-TERRAS", unlocked: true,
+        story: "Na Era dos Estados Combatentes, clãs ninjas são apenas nômades vendendo suas vidas como cães de guerra. Enquanto os Daimyōs financiam massacres por migalhas de terra, exércitos de Samurais caçam usuários de chakra como anomalias a serem exterminadas.\n\nNas sombras, o submundo sorri: a Máfia e os Piratas lucram com o caos absoluto. É neste cenário que a 1ª Temporada: O Quebra-Terras começa. O mapa-múndi é um pergaminho em branco e a corrida territorial explodiu.\n\nFoco: conquista territorial brutal e sobrevivência. A corrida inicial por terras, minas e recursos."
+      },
+      { num: "TEMPORADA 2", title: "O EFEITO KIRIGAKURE",    unlocked: false, story: "" },
+      { num: "TEMPORADA 3", title: "O DESPERTAR DAS BESTAS", unlocked: false, story: "" },
+      { num: "TEMPORADA 4", title: "A NOITE DAS CINZAS",     unlocked: false, story: "" },
+      { num: "TEMPORADA 5", title: "O INVERNO DAS BESTAS",   unlocked: false, story: "" },
+      { num: "TEMPORADA 6", title: "O PROTOCOLO DE FERRO",   unlocked: false, story: "" },
+      { num: "TEMPORADA 7", title: "O AMANHECER DAS NAÇÕES", unlocked: false, story: "" }
+    ];
+
+    const palette = [
+      { c: "#e05a00", g: "rgba(224,90,0,0.55)"   },
+      { c: "#c0392b", g: "rgba(192,57,43,0.55)"  },
+      { c: "#8e44ad", g: "rgba(142,68,173,0.55)" },
+      { c: "#2980b9", g: "rgba(41,128,185,0.55)" },
+      { c: "#16a085", g: "rgba(22,160,133,0.55)" },
+      { c: "#d4ac0d", g: "rgba(212,172,13,0.55)" },
+      { c: "#cc0000", g: "rgba(204,0,0,0.65)"    }
+    ];
+
+    /* ---- ÍCONES ---- */
+    const svgKunai = `<svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g transform="rotate(38 26 26)">
+        <polygon points="26,3 29.5,19 26,23 22.5,19" fill="currentColor" opacity="0.92"/>
+        <rect x="23.5" y="22" width="5" height="3" rx="1" fill="currentColor" opacity="0.7"/>
+        <rect x="24.5" y="25" width="3" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
+        <circle cx="26" cy="34.5" r="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>
+      </g>
+      <g transform="rotate(-38 26 26)">
+        <polygon points="26,3 29.5,19 26,23 22.5,19" fill="currentColor" opacity="0.92"/>
+        <rect x="23.5" y="22" width="5" height="3" rx="1" fill="currentColor" opacity="0.7"/>
+        <rect x="24.5" y="25" width="3" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
+        <circle cx="26" cy="34.5" r="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>
+      </g>
+    </svg>`;
+
+    const svgLock = `<svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="12" y="23" width="28" height="21" rx="4" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2.2"/>
+      <path d="M18 23v-6.5a8 8 0 0 1 16 0V23" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+      <circle cx="26" cy="33.5" r="3.2" fill="currentColor" opacity="0.9"/>
+      <rect x="24.5" y="33.5" width="3" height="4.5" rx="1.5" fill="currentColor" opacity="0.7"/>
+    </svg>`;
+
+    /* ---- BUILD TIMELINE ---- */
+    const wrap = document.getElementById('timeline-wrap');
+
+    seasons.forEach((s, i) => {
+      /* Conector antes do item (exceto o primeiro) */
+      if (i > 0) {
+        const isEven = i % 2 === 0;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+        svg.setAttribute('viewBox','0 0 860 80');
+        svg.setAttribute('preserveAspectRatio','none');
+        svg.classList.add('tl-connector');
+
+        const prevCol = seasons[i-1].unlocked ? palette[i-1].c : '#2a2a2a';
+        const cx = 430;
+        const dx = 160;
+        const d = isEven
+          ? `M${cx+dx},0 C${cx+dx},40 ${cx-dx},40 ${cx-dx},80`
+          : `M${cx-dx},0 C${cx-dx},40 ${cx+dx},40 ${cx+dx},80`;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill','none');
+        path.setAttribute('stroke', prevCol);
+        path.setAttribute('stroke-width','5');
+        path.setAttribute('stroke-linecap','round');
+        path.setAttribute('opacity','0.5');
+        svg.appendChild(path);
+        wrap.appendChild(svg);
+      }
+
+      /* Item */
+      const p = palette[i];
+      const iconColor = s.unlocked ? p.c : '#3a3a3a';
+      const icon = i === 0 ? svgKunai : svgLock;
+
+      const item = document.createElement('div');
+      item.className = `tl-item ${s.unlocked ? 'unlocked' : 'locked'}`;
+      if (s.unlocked) {
+        item.style.setProperty('--c', p.c);
+        item.style.setProperty('--cg', p.g);
+      }
+
+      // Tag "Em breve" (.tl-locked-tag) removida da linha do tempo principal
+      item.innerHTML = `
+        <div class="tl-text">
+          <div class="tl-season-num">${s.num}</div>
+          <div class="tl-season-title">${s.title}</div>
+        </div>
+        <div class="tl-circle-wrap">
+          <div class="tl-ring-outer">
+            <div class="tl-ring-inner" role="button" tabindex="0" aria-label="${s.num}: ${s.title}">
+              <div class="tl-icon" style="color:${iconColor}">${icon}</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-mirror">
+          <div class="tl-season-num">${s.num}</div>
+          <div class="tl-season-title">${s.title}</div>
+        </div>`;
+
+      const ring = item.querySelector('.tl-ring-inner');
+      ring.addEventListener('click', () => openModal(s, i));
+      ring.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') openModal(s,i); });
+
+      wrap.appendChild(item);
+    });
+
+    /* ---- GERAÇÃO TOGGLE (ACCORDION) ---- */
+    const btnGen1 = document.getElementById('btn-gen-1');
+    const contentGen1 = document.getElementById('content-gen-1');
+
+    function toggleGeneration() {
+      btnGen1.classList.toggle('open');
+      contentGen1.classList.toggle('open');
+    }
+
+    btnGen1.addEventListener('click', toggleGeneration);
+    btnGen1.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleGeneration();
+      }
+    });
+
+    /* ---- MODAL ---- */
+    const overlay = document.getElementById('modal-overlay');
+    const box     = document.getElementById('modal-box');
+    const content = document.getElementById('modal-content');
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if(e.target===overlay) closeModal(); });
+
+    function openModal(s, i) {
+      const p = palette[i];
+      box.style.setProperty('--mc', s.unlocked ? p.c : '#444');
+      box.style.setProperty('--mg', s.unlocked ? p.g : 'rgba(60,60,60,0.4)');
+      box.style.borderColor = s.unlocked ? p.c : '#444';
+      box.style.boxShadow   = `0 0 60px ${s.unlocked ? p.g : 'rgba(0,0,0,0.3)'}`;
+
+      if (!s.unlocked) {
+        // Texto de bloqueio personalizado para o modal
+        content.innerHTML = `
+          <div class="tl-modal-locked">
+            <svg class="lock-svg" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="12" y="23" width="28" height="21" rx="4" fill="#888" stroke="#888" stroke-width="2"/>
+              <path d="M18 23v-6.5a8 8 0 0 1 16 0V23" stroke="#888" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+              <circle cx="26" cy="33.5" r="3.2" fill="#bbb"/>
+            </svg>
+            <p>Te desafio a chegar vivo até aqui.<br/>O caminho é para poucos.</p>
+          </div>`;
+      } else {
+        const paras = s.story.split('\n\n').map(p => `<p>${p}</p>`).join('');
+        content.innerHTML = `
+          <div class="tl-modal-tag">${s.num}</div>
+          <div class="tl-modal-title">${s.title}</div>
+          <div class="tl-modal-deco"></div>
+          <div class="tl-modal-body">${paras}</div>`;
+      }
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    /* ---- MENU ---- */
+    const menuBtn    = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); closeModal(); } });
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    /* ---- TEMA ---- */
+    const root  = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+  </script>
+</body>
+</html>

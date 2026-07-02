@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kigen - Religiões</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ======= VARIÁVEIS DE TEMA ======= */
+        :root {
+            --bg:      #0a0a0a;
+            --surface: #161616;
+            --border:  #cc0000;
+            --accent:  #cc0000;
+            --accent2: #ff4444;
+            --glow:    rgba(204,0,0,0.6);
+            --shadow:  rgba(204,0,0,0.38);
+            --text:    #f0f0f0;
+            --text-sub:#999999;
+        }
+        [data-theme="light"] {
+            --bg:      #efefef;
+            --surface: #ffffff;
+            --border:  #cc0000;
+            --accent:  #cc0000;
+            --accent2: #dd0000;
+            --glow:    rgba(204,0,0,0.30);
+            --shadow:  rgba(204,0,0,0.18);
+            --text:    #111111;
+            --text-sub:#555555;
+        }
+
+        /* RESET E ESTABILIDADE */
+        *, *::before, *::after { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        body { 
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh; 
+            /* Aumentado de 100px para 140px para garantir o respiro dos botões flutuantes */
+            padding: 140px 20px 60px 20px; 
+            overflow-x: hidden;
+            transition: color 0.4s;
+        }
+
+        /* ======= FUNDO FIXO ======= */
+        #fixed-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -1;
+        }
+        .hero-bg {
+            position: absolute; inset: 0; z-index: 0;
+            width: 100%; height: 100%; object-fit: cover;
+            filter: blur(3px) brightness(0.38) saturate(0.55);
+            transition: filter 0.4s ease;
+        }
+        [data-theme="light"] .hero-bg {
+            filter: blur(3px) brightness(0.78) saturate(0.65);
+        }
+        .hero-overlay {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+            transition: background 0.5s;
+        }
+        [data-theme="light"] .hero-overlay {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+        }
+
+        /* ======= FLOATING UI (MENU & TEMA) ======= */
+        #floating-ui {
+            position: fixed;
+            top: 20px; right: 22px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #menu-btn {
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            background: #000;
+            border: 2.5px solid var(--border);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 14px var(--glow);
+            transition: box-shadow 0.25s, transform 0.2s;
+        }
+        #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+        #menu-btn svg.kunai {
+            width: 26px; height: 26px;
+            transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55);
+        }
+        #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+        #theme-toggle {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--glow);
+            transition: box-shadow 0.3s, transform 0.2s;
+            padding: 0;
+        }
+        #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+        #theme-toggle svg { width: 15px; height: 15px; }
+        #theme-toggle .icon-sun  { display: none; }
+        #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+        [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+        [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+        /* ======= NAV OVERLAY ======= */
+        #nav-overlay {
+            position: fixed; inset: 0; z-index: 900;
+            display: flex; align-items: flex-start; justify-content: flex-end;
+            pointer-events: none; opacity: 0;
+            transition: opacity 0.35s;
+        }
+        #nav-overlay.open { pointer-events: all; opacity: 1; }
+        .overlay-bg {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.82);
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+        }
+        #nav-panel {
+            position: relative; z-index: 1;
+            background: var(--surface);
+            border-left: 2px solid var(--border);
+            width: min(300px, 80vw); height: 100%;
+            display: flex; flex-direction: column;
+            padding: 110px 36px 40px;
+            gap: 4px;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+            box-shadow: -10px 0 60px var(--shadow);
+        }
+        #nav-overlay.open #nav-panel { transform: translateX(0); }
+        .nav-link {
+            display: block;
+            font-family: 'Russo One', sans-serif;
+            font-size: 0.92rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(204,0,0,0.18);
+            position: relative;
+            transition: color 0.2s, padding-left 0.2s;
+        }
+        .nav-link::before {
+            content: '';
+            position: absolute; left: -36px; top: 50%;
+            transform: translateY(-50%);
+            width: 0; height: 2px;
+            background: var(--accent);
+            transition: width 0.25s;
+        }
+        .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+        .nav-link:hover::before { width: 20px; }
+
+        /* ======= LAYOUT DA PÁGINA ======= */
+        .history-card { 
+            width: 100%; 
+            max-width: 860px; 
+            background: var(--surface); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1.5px solid rgba(204,0,0,0.25);
+            box-shadow: 0 20px 40px var(--shadow); 
+            backface-visibility: hidden; 
+            transition: background 0.4s, box-shadow 0.4s;
+        }
+
+        /* HEADER ATUALIZADO COM LINHA */
+        .card-header { 
+            background-color: var(--accent); 
+            color: #fff; 
+            padding: 20px 36px; 
+            display: flex; 
+            align-items: center;
+            gap: 20px;
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            letter-spacing: 0.15em; 
+            text-transform: uppercase;
+        }
+
+        .header-line {
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.4);
+            margin-right: 15px; /* Espaço para o botão flutuante não sobrepor a linha caso reduza a tela */
+        }
+
+        .card-body { 
+            padding: 30px 36px; 
+        }
+
+        /* TEXTO NEON FLUTUANTE (Fora do quadrado vermelho) */
+        .neon-floating-text {
+            color: var(--text);
+            text-shadow: 0 0 5px var(--glow), 0 0 10px var(--accent), 0 0 20px var(--accent);
+            text-align: center; /* Centralizado conforme solicitado */
+            font-size: 1.15rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            animation: floatText 3s ease-in-out infinite;
+            font-weight: 600;
+        }
+
+        @keyframes floatText {
+            0% { transform: translateY(0); text-shadow: 0 0 5px var(--glow), 0 0 10px var(--accent); }
+            50% { transform: translateY(-4px); text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2), 0 0 30px var(--accent2); }
+            100% { transform: translateY(0); text-shadow: 0 0 5px var(--glow), 0 0 10px var(--accent); }
+        }
+
+        /* TEXTO NORMAL JUSTIFICADO E RESUMIDO */
+        .normal-text-box { 
+            font-size: 1.05rem; 
+            color: var(--text-sub); 
+            line-height: 1.75; 
+            text-align: justify;
+            margin-bottom: 30px; 
+            transition: color 0.4s;
+        }
+
+        .normal-text-box strong {
+            color: var(--text);
+        }
+        
+        .gen-btn { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            width: 100%; 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            border: 1px solid rgba(204,0,0,0.2); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            font-family: 'Russo One', sans-serif;
+            font-size: 0.95rem; 
+            letter-spacing: 0.05em;
+            margin-top: 15px; 
+            border-left: 5px solid var(--accent); 
+            transition: background-color 0.2s ease, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .gen-btn:hover { 
+            background-color: rgba(204,0,0,0.05); 
+            box-shadow: 0 4px 10px var(--shadow); 
+        }
+
+        .expand-content { 
+            display: none; 
+            padding: 20px; 
+            border: 1px solid rgba(204,0,0,0.1); 
+            border-top: none; 
+            background: var(--bg); 
+            border-radius: 0 0 10px 10px; 
+            transition: background 0.4s;
+        }
+
+        .expand-content.active { display: block; }
+
+        .img-container { 
+            width: 100%; 
+            height: 220px; 
+            background-color: #000; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            margin-bottom: 20px; 
+        }
+
+        .religion-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            opacity: 0.9;
+        }
+
+        .religion-detail { 
+            margin-bottom: 12px; 
+            padding-bottom: 12px; 
+            border-bottom: 1px dashed rgba(204,0,0,0.2); 
+            font-size: 1.05rem; 
+            color: var(--text-sub); 
+            line-height: 1.6; 
+            transition: color 0.4s;
+        }
+
+        .religion-detail strong {
+            color: var(--accent);
+            font-family: 'Russo One', sans-serif;
+            font-weight: normal;
+            letter-spacing: 0.05em;
+            margin-right: 5px;
+        }
+
+        .religion-detail:last-child { border-bottom: none; }
+
+        @media (max-width: 580px) {
+            .card-header { padding: 16px 20px; }
+            .card-body { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="fixed-background">
+        <img src="00_fundo_5_kigen.jpg" alt="Fundo História" class="hero-bg" />
+        <div class="hero-overlay"></div>
+    </div>
+
+    <div id="floating-ui">
+        <button id="menu-btn" aria-label="Abrir menu">
+            <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+                <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+                <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+                <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+            </svg>
+        </button>
+        <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+            <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="2"  x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="5"  y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+                <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+                <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+                <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+                <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="nav-overlay" role="dialog" aria-modal="true">
+        <div class="overlay-bg" id="overlay-close"></div>
+        <nav id="nav-panel">
+            <a class="nav-link" href="#">HISTÓRIA</a>
+            <a class="nav-link" href="#">GEOGRAFIA</a>
+            <a class="nav-link" href="#">ESTILOS DE VIDA</a>
+            <a class="nav-link" href="#">CALENDÁRIO</a>
+            <a class="nav-link" href="#">JORNAL</a>
+            <a class="nav-link" href="#">RELIGIÃO</a>
+            <a class="nav-link" href="#">SANGUE</a>
+            <a class="nav-link" href="#">ADMINISTRAÇÃO</a>
+        </nav>
+    </div>
+
+    <div class="history-card">
+        <div class="card-header">
+            <span>RELIGIÕES</span>
+            <span class="header-line"></span>
+        </div>
+        
+        <div class="card-body">
+            
+            <div class="neon-floating-text">
+                Os deuses do Kigen ouvem, mas eles cobram caro por seus milagres. 
+            </div>
+
+            <div class="normal-text-box">
+                Neste sistema, o jogador não escolhe apenas uma religião; ele precisa praticá-la ativamente. A fé é medida em Pontos de Devoção (PD), que são adquiridos ao realizar rituais específicos em RP.<br>
+                <br>
+                • <strong>Oferenda:</strong> Cada crença tem sua exigência, variando desde tempo e meditação, a doações ou sacrifícios.<br>
+                • <strong>Fanatismo:</strong> Evolua de Iniciado para Sumo Sacerdote, ganhando status global para influenciar e declarar Guerras Santas.<br>
+                • <strong>Heresia:</strong> Praticar cultos proibidos pelas Vilas Ocultas torna o jogador um criminoso, exigindo sigilo e esconderijos.
+            </div>
+
+            <button class="gen-btn" onclick="toggle('jashin')"><span> O CAMINHO DE JASHIN</span><span id="seta-jashin">▼</span></button>
+            <div class="expand-content" id="jashin">
+                <div class="img-container"><img src="00_jashin.jpg" class="religion-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x250/111/eee?text=JASHIN'"></div>
+                <div class="religion-detail"><strong>Ritual:</strong> Sacrifício de 5 NPCS ou 1 Player a cada 15 dias.</div>
+                <div class="religion-detail"><strong>Bônus:</strong> Imortalidade (desde que seja feito os sacríficos), Técnicas dos Dogmas Jashonismo.</div>
+            </div>
+
+            <button class="gen-btn" onclick="toggle('lotus')"><span> A ORDEM DO LÓTUS BRANCO</span><span id="seta-lotus">▼</span></button>
+            <div class="expand-content" id="lotus">
+                <div class="img-container"><img src="00_lotus_branca.jpg" class="religion-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x250/fff/333?text=LOTUS+BRANCO'"></div>
+                <div class="religion-detail"><strong>Público:</strong> Ninjas Médicos, Civis e estrategistas.</div>
+                <div class="religion-detail"><strong>Ritual:</strong> Meditação em santuários, jejum prolongado ou curar inimigos derrotados em vez de os matar. A cada 15 dias.</div>
+                <div class="religion-detail"><strong>Bônus:</strong> Acesso a Fuuinjutsus (Selamentos) sagrados exclusivos e uma barreira mental natural que pode refletir Genjutsus básicos.</div>
+            </div>
+
+            <button class="gen-btn" onclick="toggle('neko')"><span> MANEKI NEKO DOURADO</span><span id="seta-neko">▼</span></button>
+            <div class="expand-content" id="neko">
+                <div class="img-container"><img src="00_maneko_.png" class="religion-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x250/daa520/fff?text=MANEKI+NEKO'"></div>
+                <div class="religion-detail"><strong>Público:</strong> Daimyōs, magnatas e Civis ambiciosos.</div>
+                <div class="religion-detail"><strong>Ritual:</strong> Oferendas de grandes quantias de Ryos (queima de dinheiro) ou fechar contratos que prejudiquem nações rivais.</div>
+                <div class="religion-detail"><strong>Bônus:</strong> "Toque de Midas" — bônus em persuasão contra NPCs, subornos mais baratos e proteção comercial contra bandidos comuns.</div>
+            </div>
+
+            <button class="gen-btn" style="border-left-color: #daa520; margin-top: 30px;" onclick="toggle('hagoromo')"><span>🪬 HAGOROMO ŌTSUTSUKI</span><span id="seta-hagoromo">▼</span></button>
+            <div class="expand-content" id="hagoromo">
+                <div class="img-container"><img src="00_hagoromo.jpg" class="religion-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x250/333/daa520?text=HAGOROMO'"></div>
+                <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 15px; text-align: justify;">Hagoromo está acima das religiões comuns, funcionando como o Endgame do servidor através de três caminhos:</p>
+                <div class="religion-detail"><strong>O Ninshū:</strong> O caminho do pacifismo absoluto que permite transferir chakra e estamina para aliados.</div>
+                <div class="religion-detail"><strong>A Ordem das Ferramentas:</strong> Uma guilda de exploradores focada em encontrar as 5 armas lendárias do Sábio espalhadas pelo mapa.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggle(id) {
+            const content = document.getElementById(id);
+            const seta = document.getElementById('seta-' + id);
+            content.classList.toggle("active");
+            seta.innerText = content.classList.contains("active") ? "▲" : "▼";
+        }
+
+        const menuBtn    = document.getElementById('menu-btn');
+        const navOverlay = document.getElementById('nav-overlay');
+        document.getElementById('overlay-close').addEventListener('click', closeNav);
+        
+        menuBtn.addEventListener('click', () => {
+            const open = navOverlay.classList.toggle('open');
+            menuBtn.classList.toggle('open', open);
+        });
+        
+        document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); } });
+        
+        function closeNav() {
+            navOverlay.classList.remove('open');
+            menuBtn.classList.remove('open');
+        }
+
+        const root  = document.documentElement;
+        const saved = localStorage.getItem('ks-theme') || 'dark';
+        root.setAttribute('data-theme', saved);
+        
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('ks-theme', next);
+        });
+    </script>
+</body>
+</html>

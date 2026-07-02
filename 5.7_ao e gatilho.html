@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ações Ocultas e Gatilhos — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.9); 
+      --surface-inner: #121214;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #ff4444;
+      --glow:    rgba(204, 0, 0, 0.5);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+    }
+
+    [data-theme="light"] {
+      --bg:      #f0f0f0;
+      --surface: rgba(255, 255, 255, 0.95);
+      --surface-inner: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #dd0000;
+      --glow:    rgba(204, 0, 0, 0.25);
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.4s, color 0.4s;
+    }
+
+    p, li { text-align: justify; line-height: 1.6; }
+
+    /* ======= FUNDO FIXO BLINDADO ======= */
+    #fixed-background { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      z-index: -10; overflow: hidden; background-color: #000;
+    }
+    .hero-bg { 
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; 
+      filter: brightness(0.3) saturate(0.6); 
+      transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { 
+      position: absolute; inset: 0; pointer-events: none; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%); 
+    }
+
+    /* ======= UI FLUTUANTE ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { 
+      width: 48px; height: 48px; border-radius: 50%; background: #000; 
+      border: 2px solid var(--border); cursor: pointer; display: flex; 
+      align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow);
+      transition: transform 0.2s;
+    }
+    #menu-btn:hover, #theme-toggle:hover { transform: scale(1.07); }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: var(--accent); stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= CONTEÚDO PRINCIPAL ======= */
+    #page-container { 
+      position: relative; z-index: 10; 
+      padding: 160px 20px 80px; 
+      max-width: 900px; margin: 0 auto; 
+    }
+
+    .main-card {
+      background: var(--surface); border-radius: 8px; border: 1px solid rgba(204,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden;
+    }
+
+    .header-red {
+      background: var(--accent); padding: 20px 25px; display: flex; align-items: center; gap: 15px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; 
+      color: #fff; text-transform: uppercase; margin: 0; font-style: italic;
+    }
+    .header-deco { flex: 1; height: 1px; background: rgba(255,255,255,0.4); }
+
+    .content-padding { padding: 40px; }
+    
+    .intro-text { 
+      font-size: 1.1rem; line-height: 1.6; text-align: justify; 
+      margin-bottom: 40px; color: var(--text);
+    }
+    .intro-text strong { color: var(--accent2); font-weight: 600; }
+
+    /* ======= CARTÕES DE CONCEITO ======= */
+    .concept-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .concept-card {
+      background: var(--surface-inner);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--accent);
+      padding: 30px;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    [data-theme="light"] .concept-card { border-color: rgba(0,0,0,0.1); border-left-color: var(--accent); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+    .concept-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px var(--glow);
+    }
+
+    .concept-title {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .concept-desc {
+      font-size: 1.05rem;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    /* Caixa de Exemplo */
+    .example-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 15px 20px;
+      margin-bottom: 25px;
+      font-style: italic;
+      color: var(--text-sub);
+      position: relative;
+    }
+    [data-theme="light"] .example-box { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.2); }
+    .example-box::before {
+      content: 'Exemplo:';
+      display: block;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.85rem;
+      font-style: normal;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+    .example-box span { color: var(--text); font-weight: 600; }
+
+    /* Lista de Regras Internas */
+    .rules-list { list-style: none; }
+    .rules-list li { 
+      background: rgba(255,255,255,0.02); padding: 12px 15px 12px 35px; 
+      border-radius: 4px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03);
+      position: relative; font-size: 0.95rem; line-height: 1.5;
+    }
+    [data-theme="light"] .rules-list li { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.05); }
+    .rules-list li:last-child { margin-bottom: 0; }
+    
+    .rules-list li::before {
+      content: '➔'; position: absolute; left: 12px; top: 12px;
+      color: var(--accent); font-weight: bold; font-family: sans-serif;
+    }
+    .rules-list li strong { color: var(--text); font-family: 'Rajdhani', sans-serif; font-weight: 700; }
+
+    @media (max-width: 600px) {
+      #page-container { padding-top: 130px; }
+      .header-red h1 { font-size: 2rem; }
+      .content-padding { padding: 25px 20px; }
+      .concept-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FUNDO BLINDADO -->
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" class="hero-bg" alt="Fundo" onerror="this.style.display='none'">
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- UI FLUTUANTE -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- NAV OVERLAY -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Sistemas</a>
+      <a class="nav-link" href="#">Ações e Gatilhos</a>
+      <a class="nav-link" href="personagens.html">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="page-container">
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>AÇÕES OCULTAS E GATILHOS</h1>
+        <div class="header-deco"></div>
+      </div>
+
+      <div class="content-padding">
+        
+        <p class="intro-text">
+          <strong>Ações Ocultas</strong> e <strong>Gatilhos</strong> são recursos táticos utilizados pelos jogadores para surpreender seus adversários em combate. Ambas estratégias exigem astúcia, coerência narrativa e o bom uso do senso comum, sendo a linha entre o sucesso e o fracasso definida pela capacidade de manter a sutileza e a lógica da ação.
+        </p>
+
+        <div class="concept-grid">
+          
+          <!-- CARTÃO: AÇÃO OCULTA -->
+          <div class="concept-card">
+            <h2 class="concept-title">Ação Oculta (A.O.)</h2>
+            <p class="concept-desc">
+              É uma manobra executada sem que o oponente perceba, geralmente usada para preparar técnicas, armadilhas ou movimentações cruciais durante o confronto.
+            </p>
+            
+            <div class="example-box">
+              "Corro em direção ao meu oponente colocando minha mão para trás das costas e então <span>A.O.</span>"
+            </div>
+
+            <ul class="rules-list">
+              <li>Por padrão, todo personagem possui direito a <strong>uma única ação oculta por combate</strong>.</li>
+              <li>A cada <strong>50 pontos em Inteligência</strong>, o usuário ganha mais uma ação oculta adicional.</li>
+              <li>Para utilizá-la, é essencial inserir a sigla <strong>"A.O."</strong> exatamente no ponto da cena onde a ação acontece.</li>
+              <li>É obrigatório <strong>notificar imediatamente</strong> um dos administradores, garantindo a legitimidade da ação e evitando manipulações posteriores.</li>
+              <li>Para ser considerada de fato oculta, a execução não pode ser perceptível ao adversário em nenhum momento da narração (se houver descrição visível ou sonora, <strong>não se enquadra</strong> como ação oculta).</li>
+            </ul>
+          </div>
+
+          <!-- CARTÃO: GATILHO -->
+          <div class="concept-card">
+            <h2 class="concept-title">Gatilho</h2>
+            <p class="concept-desc">
+              Um artifício narrativo livre de limitações numéricas, baseado no uso inteligente da linguagem para ocultar suas reais intenções. Trata-se de uma forma de "jogo de palavras" que disfarça ações específicas sob um contexto mais amplo ou ambíguo.
+            </p>
+            
+            <div class="example-box">
+              "Preparo meu chakra de modo defensivo enquanto aguardo pelo ataque de meu oponente." 
+              <br><br><span style="font-size: 0.9rem; font-weight: normal;">(Isto pode estar camuflando a preparação de uma Técnica de Substituição, por exemplo).</span>
+            </div>
+
+            <ul class="rules-list">
+              <li>É um recurso <strong>livre de limitações numéricas</strong> (pode ser usado quantas vezes quiser).</li>
+              <li>O sucesso de um gatilho depende inteiramente da <strong>capacidade de camuflagem de palavras</strong> do jogador.</li>
+              <li>Depende da <strong>interpretação do oponente</strong>, sendo perfeitamente possível que ele entenda (ou não) a real natureza da ação que foi descrita.</li>
+            </ul>
+          </div>
+
+        </div> <!-- Fim Grid -->
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Lógica do Menu Overlay
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    
+    function closeNav() { 
+      navOverlay.classList.remove('open'); 
+      menuBtn.classList.remove('open'); 
+    }
+
+    // Toggle Tema
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') closeNav(); 
+    });
+  </script>
+</body>
+</html>

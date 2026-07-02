@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kigen - Sistemas de Governança</title>
+    
+    <style>
+        /* === RESET E ESTABILIDADE TOTAL === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: #111111;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; 
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 100px; 
+            overflow-x: hidden;
+        }
+
+        /* FUNDO FIXO ESTÁVEL */
+        .bg-fixed {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: url('fundo_5_kigen.jpg') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+            pointer-events: none;
+            transform: translateZ(0);
+        }
+
+        /* === MENU KUNAI === */
+        header {
+            position: fixed; 
+            top: 0; right: 0; width: 100%;
+            display: flex; justify-content: flex-end; 
+            padding: 25px 5%; z-index: 100;
+        }
+
+        .dropbtn {
+            background-color: #000000; 
+            border: 2px solid #e53935; 
+            border-radius: 50%; 
+            width: 55px; height: 55px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+            transition: 0.3s;
+        }
+
+        .kunai-icon {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #ffffff; 
+        }
+
+        .dropdown-content {
+            display: none; 
+            position: absolute;
+            right: 0; top: 70px; 
+            background-color: #ffffff;
+            min-width: 220px;
+            border-radius: 8px;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .dropdown-content a {
+            color: #555; padding: 12px 20px;
+            text-decoration: none; display: block;
+            font-size: 14px; font-weight: 800;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dropdown.active .dropdown-content { display: block; }
+
+        /* === CARD DE CONTEÚDO === */
+        .history-card {
+            width: 100%;
+            max-width: 750px; 
+            background: #ffffff;
+            border-radius: 15px; 
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            margin-bottom: 60px;
+        }
+
+        .card-header {
+            background-color: #e53935;
+            color: white;
+            padding: 18px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: 900; letter-spacing: 2px;
+        }
+
+        .card-body {
+            padding: 30px 25px;
+            background-color: #fff;
+        }
+
+        /* TEXTO DE INTRODUÇÃO */
+        .intro-text {
+            font-size: 14.5px;
+            color: #444;
+            line-height: 1.6;
+            text-align: justify;
+            margin-bottom: 25px;
+        }
+
+        /* === BOTÕES GAVETA (ACCORDION PADRÃO) === */
+        .gen-btn {
+            background-color: #fcfcfc;
+            color: #111;
+            width: 100%;
+            padding: 18px 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between;
+            font-weight: 900; font-size: 14px;
+            margin-top: 15px;
+            border-left: 5px solid #e53935; 
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+
+        .gen-btn:hover { background-color: #f1f1f1; }
+
+        .expand-content {
+            display: none;
+            padding: 25px 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            background: #fafafa;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .expand-content.active { display: block; }
+
+        /* === DESIGN INTERNO === */
+        .rite-desc {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+            text-align: justify;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        /* CAIXAS DE DESTAQUE / TÓPICOS */
+        .topic-box {
+            background: #ffffff;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border-left: 4px solid #111;
+        }
+
+        .topic-box:last-child {
+            margin-bottom: 0;
+        }
+
+        .topic-title {
+            font-weight: 900;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #111;
+        }
+
+        .topic-desc {
+            font-size: 13.5px;
+            color: #555;
+            line-height: 1.5;
+            text-align: justify;
+            margin-bottom: 8px;
+        }
+        
+        .topic-desc:last-child {
+            margin-bottom: 0;
+        }
+
+        .topic-desc strong {
+            color: #111;
+        }
+
+        /* Cores de Tema para cada Sistema */
+        .sussurros { border-left-color: #4a148c; } /* Roxo para espionagem */
+        .suprimentos { border-left-color: #2e7d32; } /* Verde para suprimentos */
+        .editais { border-left-color: #f57f17; } /* Amarelo para construção */
+        .geopolitica { border-left-color: #0d47a1; } /* Azul para alianças */
+
+        .alerta-sangue {
+            background: #fdf2f2;
+            border: 1px solid #f5c6c6;
+            border-left: 4px solid #c62828;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 13.5px;
+            color: #555;
+            line-height: 1.5;
+            text-align: justify;
+        }
+
+        .alerta-sangue strong {
+            color: #c62828;
+            display: block;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-fixed"></div>
+
+    <header>
+        <div class="dropdown" id="dropdownMenu">
+            <button class="dropbtn" onclick="toggleMenu()">
+                <svg class="kunai-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <polygon points="12 2 15 11 12 18 9 11 12 2" fill="white"/>
+                    <line x1="12" y1="18" x2="12" y2="21" stroke-width="3"/>
+                    <circle cx="12" cy="22.5" r="1.5" fill="white"/>
+                </svg>
+            </button>
+            <div class="dropdown-content">
+                <a href="#">HISTÓRIA</a>
+                <a href="#">GEOGRAFIA</a>
+                <a href="#">ESTILOS DE VIDA</a>
+                <a href="#">CALENDÁRIO</a>
+                <a href="#">JORNAL</a>
+                <a href="#">RELIGIÃO</a>
+                <a href="#">SANGUE</a>
+                <a href="#">ADMINISTRAÇÃO</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="history-card">
+        <div class="card-header">
+            <span>👑 GOVERNANÇA: SISTEMAS DE PODER</span>
+            <span>Λ</span>
+        </div>
+        
+        <div class="card-body">
+
+            <div class="intro-text">
+                Para um Daimyō ou Magistrado, o verdadeiro campo de batalha não é a fronteira lamacenta, mas a mesa de reuniões. Aqui estão as ferramentas de Governança que permitem manipular exércitos, economias e clãs inteiros usando apenas inteligência e ouro.
+            </div>
+
+            <button class="gen-btn" onclick="toggle('sussurros')" style="border-left-color: #4a148c;">
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:18px; margin-right:10px;">🌑</span>
+                    SISTEMA DE SUSSURROS (INTELIGÊNCIA)
+                </div>
+                <span id="seta-sussurros">▼</span>
+            </button>
+            <div class="expand-content" id="sussurros">
+                <div class="rite-desc">Este sistema é como o Daimyō "enxerga" através das paredes. Ele funciona através do investimento de Ryos Reais em uma rede de informantes. Para saber algo, o Daimyō deve abrir um "Chamado de Espionagem" com a Staff ou com seu General de confiança.</div>
+                
+                <div class="topic-box sussurros">
+                    <span class="topic-title">Como Contratar</span>
+                    <div class="topic-desc">O Daimyō pode contratar dois tipos de espiões:</div>
+                    <div class="topic-desc">- <strong>NPCs (Vagabundos e Mercadores):</strong> São baratos, mas fáceis de serem descobertos e podem passar informações falsas se forem subornados por outros.</div>
+                    <div class="topic-desc">- <strong>Players (Forças Especiais ou Nukenins):</strong> São caros, exigem contratos de exclusividade, mas garantem informações precisas e podem realizar sabotagens.</div>
+                </div>
+
+                <div class="topic-box sussurros">
+                    <span class="topic-title">Níveis de Infiltração</span>
+                    <div class="topic-desc">O sucesso depende do quanto você investe em um alvo específico:</div>
+                    <div class="topic-desc" style="margin-top: 8px;"><strong>Nível 1 (Ruído de Taberna):</strong> Com um investimento baixo, você descobre o "clima" do lugar. Sabe se o povo está feliz, se os ninjas estão se preparando para algo e qual a quantidade básica de tropas visíveis nos portões.</div>
+                    <div class="topic-desc" style="margin-top: 8px;"><strong>Nível 2 (Infiltração de Intendência):</strong> Investimento médio. Você tem acesso aos registros de suprimentos do alvo. Sabe quanto de comida eles têm, quais missões os ninjas estão fazendo no momento e se há falta de algum recurso.</div>
+                    <div class="topic-desc" style="margin-top: 8px;"><strong>Nível 3 (Sombra do Conselho):</strong> Investimento alto. Você tem um informante dentro da sala de reuniões. Você lê os chats de estratégia do inimigo, descobre quem são os traidores em potencial e sabe exatamente qual o ponto fraco das defesas deles.</div>
+                </div>
+            </div>
+
+            <button class="gen-btn" onclick="toggle('suprimentos')" style="border-left-color: #2e7d32;">
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:18px; margin-right:10px;">🍱</span>
+                    SISTEMA DE SUPRIMENTOS (O CABRESTO)
+                </div>
+                <span id="seta-suprimentos">▼</span>
+            </button>
+            <div class="expand-content" id="suprimentos">
+                <div class="rite-desc">No País do Ferro ou em qualquer nação, os clãs (Uchiha, Senju, clãs de samurais) são máquinas de guerra, mas máquinas precisam de combustível. O Daimyō é o dono do posto.</div>
+                
+                <div class="topic-box suprimentos">
+                    <span class="topic-title">A Cota Semanal (Banquete Real)</span>
+                    <div class="topic-desc">Toda semana, o Daimyō define a cota de suprimentos. Clãs que cumpriram ordens e protegeram os interesses da Dinastia recebem o Banquete Real, que dá bônus de regeneração de vida e vigor.</div>
+                </div>
+
+                <div class="alerta-sangue">
+                    <strong>⚠️ O Embargo da Fome</strong>
+                    Se um clã se rebelar ou falhar miseravelmente, o Daimyō assina o decreto de embargo. Isso significa que o clã para de receber arroz, carne e ervas medicinais. Mecanicamente, os players desse clã sofrem um debuff de 30% em todos os atributos físicos por estarem fracos e desnutridos. Para sair dessa, o líder do clã tem que se humilhar publicamente ou realizar uma missão suicida para o Daimyō em troca de comida.
+                </div>
+            </div>
+
+            <button class="gen-btn" onclick="toggle('editais')" style="border-left-color: #f57f17;">
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:18px; margin-right:10px;">🏗️</span>
+                    SISTEMA DE EDITAIS (MOTOR DO PROGRESSO)
+                </div>
+                <span id="seta-editais">▼</span>
+            </button>
+            <div class="expand-content" id="editais">
+                <div class="rite-desc">O Daimyō não constrói, ele financia. Para evoluir o país, ele usa os Editais de Infraestrutura, movimentando a economia das classes civis (Ferreiros e Engenheiros).</div>
+                
+                <div class="topic-box editais">
+                    <span class="topic-title">Como Funciona (A Licitação)</span>
+                    <div class="topic-desc">O Daimyō anuncia no canal oficial: "Edital Aberto: Preciso de uma Muralha de Ferro Negro no Norte". Ele define o prêmio (ex: 500.000 Ryos). Os Engenheiros e Ferreiros do servidor apresentam seus projetos em RP. O Daimyō escolhe o melhor e libera a verba.</div>
+                </div>
+
+                <div class="topic-box editais">
+                    <span class="topic-title">O Impacto Permanente</span>
+                    <div class="topic-desc">A construção exige tempo em ON. Se os players construírem com sucesso, o mapa do RPG muda permanentemente (a Staff adiciona a muralha no canal de mapa). Isso cria um ciclo onde os trabalhadores dependem do Daimyō para ficarem ricos, e o Daimyō depende deles para ter um país imbatível.</div>
+                </div>
+            </div>
+
+            <button class="gen-btn" onclick="toggle('geopolitica')" style="border-left-color: #0d47a1;">
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:18px; margin-right:10px;">📜</span>
+                    GEOPOLÍTICA: ALIANÇAS E REFÉNS
+                </div>
+                <span id="seta-geopolitica">▼</span>
+            </button>
+            <div class="expand-content" id="geopolitica">
+                <div class="rite-desc">A diplomacia no topo é feita com sorrisos e facas escondidas. O sistema de alianças é regido por Tratados de Sangue.</div>
+                
+                <div class="topic-box geopolitica">
+                    <span class="topic-title">Pactos Comerciais</span>
+                    <div class="topic-desc">Quando dois Daimyōs se calam para negociar, eles podem abrir rotas comerciais. Isso aumenta o ganho passivo de Ryos de ambos os países em 20%. Se um lado quebrar o pacto, o bônus vira uma multa pesada automática.</div>
+                </div>
+
+                <div class="alerta-sangue">
+                    <strong>⚠️ O Sistema de Reféns (Casamentos Políticos)</strong>
+                    Para garantir que uma aliança seja real, o Daimyō pode exigir um "Hóspede de Honra". Um membro importante da família ou clã aliado deve morar no seu castelo. Narrativamente, é um convidado; mecanicamente, é um refém. Se o aliado trair a aliança, o Daimyō tem o direito legal de executar o refém ou jogá-lo no Cárcere das Neves, gerando um motivo legítimo de guerra.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("dropdownMenu").classList.toggle("active");
+        }
+
+        function toggle(id) {
+            const content = document.getElementById(id);
+            const seta = document.getElementById('seta-' + id);
+            const isVisible = content.style.display === "block";
+            
+            content.style.display = isVisible ? "none" : "block";
+            if(seta) {
+                seta.innerText = isVisible ? "▼" : "▲";
+            }
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.dropbtn')) {
+                var menu = document.getElementById("dropdownMenu");
+                if (menu && menu.classList.contains('active')) {
+                    menu.classList.remove('active');
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>

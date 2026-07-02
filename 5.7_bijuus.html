@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bijūs e Jinchūrikis — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.9); 
+      --surface-inner: #121214;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #ff4444;
+      --glow:    rgba(204, 0, 0, 0.5);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+      --card-top:#ffffff;
+
+      /* Cores das Bijuus */
+      --b1: #D4E157; /* Shukaku (Areia) */
+      --b2: #29B6F6; /* Matatabi (Fogo Azul) */
+      --b3: #78909C; /* Isobu (Coral/Cinza) */
+      --b4: #EF5350; /* Son Goku (Lava/Vermelho) */
+      --b5: #FFFFFF; /* Kokuo (Branco/Fervura) */
+      --b6: #81D4FA; /* Saiken (Ácido/Azul Claro) */
+      --b7: #66BB6A; /* Chomei (Verde/Inseto) */
+      --b8: #AB47BC; /* Gyuki (Roxo/Polvo) */
+      --b9: #FF9800; /* Kurama (Laranja/Fogo) */
+    }
+
+    [data-theme="light"] {
+      --bg:      #f0f0f0;
+      --surface: rgba(255, 255, 255, 0.95);
+      --surface-inner: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #dd0000;
+      --glow:    rgba(204, 0, 0, 0.25);
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#555555;
+      --card-top:#111111;
+      
+      --b5: #9E9E9E; /* Kokuo (Ajuste para tema claro) */
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.4s, color 0.4s;
+    }
+
+    p, li { text-align: justify; line-height: 1.6; }
+
+    /* ======= FUNDO FIXO BLINDADO ======= */
+    #fixed-background { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      z-index: -10; overflow: hidden; background-color: #000;
+    }
+    .hero-bg { 
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; 
+      filter: brightness(0.3) saturate(0.6); 
+      transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { 
+      position: absolute; inset: 0; pointer-events: none; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%); 
+    }
+
+    /* ======= UI FLUTUANTE ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { 
+      width: 48px; height: 48px; border-radius: 50%; background: #000; 
+      border: 2px solid var(--border); cursor: pointer; display: flex; 
+      align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow);
+      transition: transform 0.2s;
+    }
+    #menu-btn:hover, #theme-toggle:hover { transform: scale(1.07); }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: var(--accent); stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= CONTEÚDO PRINCIPAL ======= */
+    #page-container { 
+      position: relative; z-index: 10; 
+      padding: 160px 20px 80px; 
+      max-width: 1000px; margin: 0 auto; 
+    }
+
+    .main-card {
+      background: var(--surface); border-radius: 8px; border: 1px solid rgba(204,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden;
+    }
+
+    .header-red {
+      background: var(--accent); padding: 20px 25px; display: flex; align-items: center; gap: 15px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; 
+      color: #fff; text-transform: uppercase; margin: 0; font-style: italic;
+    }
+    .header-deco { flex: 1; height: 1px; background: rgba(255,255,255,0.4); }
+
+    .content-padding { padding: 40px; }
+    
+    .intro-text { 
+      font-size: 1.1rem; line-height: 1.6; text-align: justify; 
+      margin-bottom: 40px; color: var(--text);
+    }
+
+    .section-title {
+      font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: var(--text);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+      text-transform: uppercase; border-left: 4px solid var(--accent); padding-left: 15px;
+    }
+
+    /* ======= SELEÇÃO DAS BIJUUS (GRID) ======= */
+    .bijuu-selector {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .bijuu-btn {
+      background: var(--surface-inner);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 15px 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    [data-theme="light"] .bijuu-btn { border-color: rgba(0,0,0,0.1); }
+    
+    .bijuu-btn:hover, .bijuu-btn.active {
+      transform: translateY(-5px);
+      border-color: var(--b-color, var(--accent));
+      box-shadow: 0 8px 20px var(--b-glow, var(--glow));
+    }
+
+    .bijuu-number {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
+      color: var(--b-color, var(--text));
+      line-height: 1;
+      transition: 0.3s;
+    }
+    .bijuu-tail {
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ======= BLOCO DINÂMICO DA BIJUU ======= */
+    .bijuu-display-block {
+      background: var(--surface-inner);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--display-color, var(--accent));
+      border-radius: 8px;
+      display: none; /* Escondido por padrão até o clique */
+      flex-direction: row;
+      gap: 25px;
+      padding: 25px;
+      margin-bottom: 50px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      animation: fadeIn 0.4s ease forwards;
+    }
+    [data-theme="light"] .bijuu-display-block { border-color: rgba(0,0,0,0.1); }
+    
+    .bijuu-display-block.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .bijuu-img-box {
+      width: 250px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      background: #000;
+      border: 1px dashed rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="light"] .bijuu-img-box { border-color: rgba(0,0,0,0.2); background: #eee; }
+    .bijuu-img-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .bijuu-img-box span { font-family: 'Russo One', sans-serif; font-size: 0.8rem; color: var(--text-sub); z-index: 1; }
+
+    .bijuu-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bijuu-title {
+      font-family: 'Bangers', cursive;
+      font-size: 2.5rem;
+      color: var(--display-color, var(--accent));
+      letter-spacing: 0.05em;
+      margin-bottom: 5px;
+      line-height: 1.1;
+    }
+    .bijuu-subtitle {
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    [data-theme="light"] .bijuu-subtitle { border-bottom-color: rgba(0,0,0,0.05); }
+
+    .bijuu-desc {
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .bijuu-traits {
+      display: flex; gap: 15px; flex-wrap: wrap; margin-top: auto;
+    }
+    .trait-pill {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--display-color, var(--accent));
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text);
+      letter-spacing: 0.05em;
+    }
+    [data-theme="light"] .trait-pill { background: rgba(0,0,0,0.03); }
+
+    /* ======= REGRAS DE JINCHUURIKI (ACCORDION) ======= */
+    .rules-grid {
+      display: flex; flex-direction: column; gap: 15px;
+    }
+
+    .ks-accordion {
+      background: var(--surface-inner); border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--accent); border-radius: 6px; overflow: hidden;
+    }
+    [data-theme="light"] .ks-accordion { border-color: rgba(0,0,0,0.1); }
+    
+    .ks-accordion summary {
+      padding: 18px 20px; font-family: 'Russo One', sans-serif; font-size: 1.1rem;
+      color: var(--text); cursor: pointer; display: flex; justify-content: space-between;
+      align-items: center; list-style: none; user-select: none; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .ks-accordion summary::-webkit-details-marker { display: none; }
+    .ks-accordion summary::after { content: '+'; font-size: 1.5rem; color: var(--text-sub); }
+    .ks-accordion[open] summary::after { content: '−'; }
+
+    .accordion-content {
+      padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); background: var(--surface);
+      animation: fade-in 0.3s ease-in-out;
+    }
+    [data-theme="light"] .accordion-content { border-top-color: rgba(0,0,0,0.05); }
+
+    .rules-list { list-style: none; }
+    .rules-list li { 
+      background: rgba(255,255,255,0.03); padding: 15px 15px 15px 40px; 
+      border-radius: 4px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);
+      position: relative; font-size: 1rem; line-height: 1.5;
+    }
+    [data-theme="light"] .rules-list li { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.05); }
+    .rules-list li:last-child { margin-bottom: 0; }
+    .rules-list li::before {
+      content: '➔'; position: absolute; left: 15px; top: 15px;
+      color: var(--accent); font-weight: bold; font-family: sans-serif;
+    }
+    .rules-list li strong { color: var(--accent2); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em; }
+
+    @media (max-width: 768px) {
+      .bijuu-selector { grid-template-columns: repeat(5, 1fr); }
+      .bijuu-display-block { flex-direction: column; }
+      .bijuu-img-box { width: 100%; height: 200px; }
+    }
+    @media (max-width: 500px) {
+      #page-container { padding-top: 130px; }
+      .header-red h1 { font-size: 2rem; }
+      .content-padding { padding: 25px 20px; }
+      .bijuu-selector { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FUNDO BLINDADO -->
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" class="hero-bg" alt="Fundo" onerror="this.style.display='none'">
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- UI FLUTUANTE -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- NAV OVERLAY -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Sistemas</a>
+      <a class="nav-link" href="#">Bijūs</a>
+      <a class="nav-link" href="personagens.html">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="page-container">
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>AS NOVE BIJŪS</h1>
+        <div class="header-deco"></div>
+      </div>
+
+      <div class="content-padding">
+        
+        <p class="intro-text">
+          As Bijūs (Bestas com Cauda) são massas colossais de chakra vivo que habitam o mundo shinobi. Devido ao seu imenso poder destrutivo e reservas inesgotáveis de energia, elas são historicamente caçadas, seladas e usadas como as armas de dissuasão definitivas pelas Grandes Vilas Ocultas.
+        </p>
+
+        <h2 class="section-title">Selecione uma Besta</h2>
+        
+        <!-- SELEÇÃO (GRID DE 9 BOTÕES) -->
+        <div class="bijuu-selector">
+          <div class="bijuu-btn" style="--b-color: var(--b1); --b-glow: rgba(212, 225, 87, 0.4);" onclick="showBijuu(1, this)">
+            <span class="bijuu-number">1</span><span class="bijuu-tail">Cauda</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b2); --b-glow: rgba(41, 182, 246, 0.4);" onclick="showBijuu(2, this)">
+            <span class="bijuu-number">2</span><span class="bijuu-tail">Caudas</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b3); --b-glow: rgba(120, 144, 156, 0.4);" onclick="showBijuu(3, this)">
+            <span class="bijuu-number">3</span><span class="bijuu-tail">Caudas</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b4); --b-glow: rgba(239, 83, 80, 0.4);" onclick="showBijuu(4, this)">
+            <span class="bijuu-number">4</span><span class="bijuu-tail">Caudas</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b5); --b-glow: rgba(255, 255, 255, 0.4);" onclick="showBijuu(5, this)">
+            <span class="bijuu-number">5</span><span class="bijuu-tail">Caudas</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b6); --b-glow: rgba(129, 212, 250, 0.4);" onclick="showBijuu(6, this)">
+            <span class="bijuu-number">6</span><span class="bijuu-tail">Caudas</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b7); --b-glow: rgba(102, 187, 106, 0.4);" onclick="showBijuu(7, this)">
+            <span class="bijuu-number">7</span><span class="bijuu-tail">Caudas</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b8); --b-glow: rgba(171, 71, 188, 0.4);" onclick="showBijuu(8, this)">
+            <span class="bijuu-number">8</span><span class="bijuu-tail">Caudas</span>
+          </div>
+          <div class="bijuu-btn" style="--b-color: var(--b9); --b-glow: rgba(255, 152, 0, 0.4);" onclick="showBijuu(9, this)">
+            <span class="bijuu-number">9</span><span class="bijuu-tail">Caudas</span>
+          </div>
+        </div>
+
+        <!-- BLOCO DINÂMICO (INVISÍVEL POR PADRÃO) -->
+        <div class="bijuu-display-block" id="bijuu-display">
+          <div class="bijuu-img-box">
+            <span id="b-img-placeholder">Imagem da Bijū</span>
+            <img src="" id="b-img" style="display:none;" onerror="this.style.display='none'">
+          </div>
+          <div class="bijuu-info">
+            <h3 class="bijuu-title" id="b-title">NOME DA BIJU</h3>
+            <div class="bijuu-subtitle" id="b-subtitle">TÍTULO / CAUDAS</div>
+            <p class="bijuu-desc" id="b-desc">Descrição completa do monstro, sua origem e as habilidades passivas e ativas que ele concede ao seu portador.</p>
+            <div class="bijuu-traits">
+              <div class="trait-pill" id="b-elem">Elemento</div>
+              <div class="trait-pill" id="b-skill">Habilidade</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMO SE TORNAR JINCHUURIKI -->
+        <h2 class="section-title">COMO SE TORNAR UM JINCHŪRIKI</h2>
+        <p style="margin-bottom: 20px; color: var(--text);">
+          Ser o portador de uma Besta com Cauda não é uma escolha simples; é um fardo diplomático, militar e espiritual. Abaixo estão as diretrizes de como esse processo ocorre em <em>Kigen Shinobi</em>.
+        </p>
+
+        <div class="rules-grid">
+          
+          <details class="ks-accordion">
+            <summary>MÉTODOS DE AQUISIÇÃO E EVENTOS</summary>
+            <div class="accordion-content">
+              <ul class="rules-list">
+                <li><strong>Sorteios ou Eventos da Staff:</strong> As vagas para Jinchūriki costumam ser restritas para manter o balanceamento do mundo. Quando houver uma Bijū disponível na vila, a Staff poderá realizar sorteios, torneios ou sagas específicas para definir o merecedor.</li>
+                <li><strong>Mérito em ON:</strong> Um personagem que possua alto prestígio, seja um ninja fiel à vila e tenha a aprovação direta do Kage pode ser escolhido politicamente para herdar a besta.</li>
+                <li><strong>Captura Criminosa:</strong> Organizações renegadas podem caçar Jinchūrikis ativos, matar o portador e tentar realizar o ritual de selamento/extração em si mesmos (alto risco de morte).</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="ks-accordion">
+            <summary>O RITUAL DE SELAMENTO (FŪINJUTSU)</summary>
+            <div class="accordion-content">
+              <ul class="rules-list">
+                <li><strong>A Presença de um Mestre:</strong> Tornar-se um Jinchūriki exige um Ritual de Selamento em ON. É obrigatório a presença de um Especialista em Fūinjutsu (Rank A ou S) para conduzir o selo que aprisionará a besta no usuário.</li>
+                <li><strong>Risco de Vida:</strong> Se o selo for mal executado, se o corpo do hospedeiro for incompatível (chakra muito baixo), ou se a vontade da besta o dominar durante o ritual, o personagem <strong>pode morrer</strong> no processo.</li>
+                <li><strong>Selo Personalizado:</strong> O tipo de selo usado (Ex: Selo de Oito Trigramas, Selo da Armadura de Ferro) define o quão fácil ou difícil será o controle do chakra da besta no futuro.</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="ks-accordion">
+            <summary>A VIDA DE UM JINCHŪRIKI</summary>
+            <div class="accordion-content">
+              <ul class="rules-list">
+                <li><strong>Poder Colossal:</strong> Hospedeiros recebem buffs gigantescos em suas reservas de Chakra e HP, além de acesso aos Mantos de Chakra (Versão 1, Versão 2 e Transformação Bijuu Total).</li>
+                <li><strong>O Fardo Político:</strong> Você será considerado a arma suprema da sua vila. Kages geralmente restringem a saída de Jinchūrikis da vila sem escolta, pois perdê-los é o mesmo que perder uma guerra de antemão.</li>
+                <li><strong>Ameaça Constante:</strong> A partir do momento do selamento, seu personagem vira um alvo vivo para organizações mercenárias e nukenins interessados em roubar o poder da besta.</li>
+                <li><strong>Morte por Extração:</strong> É uma regra absoluta: se a Besta com Cauda for extraída do seu corpo por qualquer meio, <strong>seu personagem morrerá imediatamente</strong>.</li>
+              </ul>
+            </div>
+          </details>
+
+        </div> <!-- Fim Rules -->
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Lógica do Menu Overlay
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    
+    function closeNav() { 
+      navOverlay.classList.remove('open'); 
+      menuBtn.classList.remove('open'); 
+    }
+
+    // Toggle Tema
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') closeNav(); 
+    });
+
+    // Lógica do Banco de Bijuus
+    const bijuuData = {
+      1: { name: 'Shukaku', tails: 'Uma Cauda (Ichibi)', desc: 'Uma besta rabugenta formada de areia, conhecida por sua defesa absoluta. Odiando visceralmente a Kyūbi, Shukaku é capaz de manipular o magnetismo para selar os movimentos de seus oponentes e esmagá-los sob dunas impenetráveis.', elem: 'Jiton (Magnetismo)', skill: 'Controle de Areia / Selamento', color: 'var(--b1)' },
+      2: { name: 'Matatabi', tails: 'Duas Caudas (Nibi)', desc: 'Um bakeneko envolto em chamas azuis ardentes. Possui músculos extremamente flexíveis que lhe garantem uma velocidade absurda, além de poder incinerar qualquer inimigo transformando tudo ao redor em um mar de chamas fantasmagóricas.', elem: 'Katon (Fogo)', skill: 'Chamas Azuis / Velocidade', color: 'var(--b2)' },
+      3: { name: 'Isobu', tails: 'Três Caudas (Sanbi)', desc: 'Assemelhando-se a uma tartaruga gigante e encouraçada, Isobu domina o elemento água. Ele pode nadar em altíssimas velocidades, criar corais que petrificam oponentes e cuspir névoas alucinógenas.', elem: 'Suiton (Água)', skill: 'Criação de Coral / Névoa', color: 'var(--b3)' },
+      4: { name: 'Son Gokū', tails: 'Quatro Caudas (Yonbi)', desc: 'O Rei Macaco Sábio. Um gigante orgulhoso e muito inteligente, mestre da força bruta e da Liberação de Lava. Ele consegue derreter a terra, criando vulcões que cospem pedras flamejantes do núcleo do planeta.', elem: 'Yōton (Lava)', skill: 'Taijutsu Colossal', color: 'var(--b4)' },
+      5: { name: 'Kokuō', tails: 'Cinco Caudas (Gobi)', desc: 'Uma besta híbrida e pacífica, mas com chifres que podem perfurar qualquer defesa. Ao fundir água e fogo no próprio corpo, cria a Liberação de Fervura (Futton), elevando sua força de investida a níveis avassaladores.', elem: 'Futton (Fervura)', skill: 'Investida Insuperável', color: 'var(--b5)' },
+      6: { name: 'Saiken', tails: 'Seis Caudas (Rokubi)', desc: 'Um grande lesma dócil, mas letal. Capaz de emitir gases extremamente corrosivos e secretar fluidos ácidos fortes o suficiente para derreter carne, rochas e até mesmo as defesas mais rígidas do mundo shinobi.', elem: 'Suiton (Água) / Ácido', skill: 'Gás Corrosivo', color: 'var(--b6)' },
+      7: { name: 'Chōmei', tails: 'Sete Caudas (Nanabi)', desc: 'O besouro-rinoceronte blindado. É a única Bijū com habilidade natural de voo constante. Ela ataca com picadas brutais e emana pós de escama paralisantes ou cegantes de suas asas durante a batalha.', elem: 'Fūton (Vento)', skill: 'Voo / Pó Cegante', color: 'var(--b7)' },
+      8: { name: 'Gyūki', tails: 'Oito Caudas (Hachibi)', desc: 'Um monstro com corpo de touro e tentáculos de polvo. Extremamente poderoso, lógico e experiente em batalha. É capaz de lançar tufões de tinta para cegar ou selar oponentes e destruir montanhas com a força de seus tentáculos.', elem: 'Taijutsu Bruto', skill: 'Tinta Cegante / Cortes', color: 'var(--b8)' },
+      9: { name: 'Kurama', tails: 'Nove Caudas (Kyūbi)', desc: 'A mais poderosa e odiosa das bestas. Possui uma reserva de chakra tão colossal que beira o infinito. É incrivelmente sagaz, sendo capaz de criar ataques em grande escala e obliterar exércitos apenas com o movimento de suas caudas e Bijuudamas perfeitamente concentradas.', elem: 'Chakra Massivo', skill: 'Detecção de Emoções Negativas', color: 'var(--b9)' }
+    };
+
+    function showBijuu(id, btnElement) {
+      // Remove classe active de todos os botões
+      document.querySelectorAll('.bijuu-btn').forEach(btn => btn.classList.remove('active'));
+      // Adiciona ao clicado
+      btnElement.classList.add('active');
+
+      const data = bijuuData[id];
+      const displayBlock = document.getElementById('bijuu-display');
+      
+      // Reinicia a animação removendo e adicionando a classe
+      displayBlock.classList.remove('active');
+      void displayBlock.offsetWidth; // Trigger reflow
+      
+      // Atualiza cores
+      displayBlock.style.setProperty('--display-color', data.color);
+      
+      // Atualiza textos
+      document.getElementById('b-title').innerText = data.name;
+      document.getElementById('b-subtitle').innerText = data.tails;
+      document.getElementById('b-desc').innerText = data.desc;
+      document.getElementById('b-elem').innerText = data.elem;
+      document.getElementById('b-skill').innerText = data.skill;
+      
+      // Imagem (Como não temos as imagens no momento, deixamos o placeholder bonito)
+      const imgTag = document.getElementById('b-img');
+      const placeholder = document.getElementById('b-img-placeholder');
+      
+      // Se você tiver as imagens (ex: 00_bijuu_1.jpg), basta descomentar a linha abaixo:
+      // imgTag.src = `00_bijuu_${id}.jpg`; imgTag.style.display = 'block'; placeholder.style.display = 'none';
+      
+      // Atualiza texto do placeholder para ajudar
+      placeholder.innerText = `Imagem: ${data.name}`;
+
+      // Mostra o bloco
+      displayBlock.classList.add('active');
+
+      // Scroll suave para mostrar o bloco
+      setTimeout(() => {
+        displayBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  </script>
+</body>
+</html>

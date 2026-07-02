@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jornalista — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --surface-inner: #1a1a1a;
+      --border:  #cc0000;
+      /* Cor destaque para o Jornalista (Azul Informação) */
+      --accent:  #2196F3; 
+      --accent2: #64B5F6;
+      --glow:    rgba(33, 150, 243, 0.6);
+      --shadow:  rgba(0,0,0,0.5);
+      --text:    #e0e0e0;
+      --text-sub:#a0a0a0;
+      --box-accent-bg: rgba(33, 150, 243, 0.1);
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --surface-inner: #f5f5f5;
+      --border:  #cc0000;
+      --accent:  #1565C0; 
+      --accent2: #2196F3;
+      --glow:    rgba(21, 101, 192, 0.30);
+      --shadow:  rgba(0,0,0,0.15);
+      --text:    #222222;
+      --text-sub:#555555;
+      --box-accent-bg: rgba(21, 101, 192, 0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= ALINHAMENTO JUSTIFICADO GLOBAL ======= */
+    p, li, .text-content, .intro-text {
+      text-align: justify;
+      line-height: 1.6;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(3px) brightness(0.38) saturate(0.55); transition: filter 0.4s ease; }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%); transition: background 0.5s; }
+    [data-theme="light"] .hero-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%); }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(204,0,0,0.6); transition: box-shadow 0.25s, transform 0.2s; }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    #menu-btn:hover, #theme-toggle:hover { box-shadow: 0 0 20px rgba(204,0,0,0.6); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= PÁGINA ESPECÍFICA ======= */
+    #page-container { min-height: 100vh; padding: 145px 20px 80px; max-width: 900px; margin: 0 auto; display: flex; justify-content: center; }
+
+    .main-card {
+      background: var(--surface);
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 15px 40px var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(33, 150, 243, 0.2);
+    }
+
+    .header-red {
+      background: var(--accent);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; 
+      font-size: 2.2rem; 
+      letter-spacing: 0.1em; 
+      color: #fff; 
+      text-transform: uppercase; 
+      margin: 0; 
+      font-style: italic;
+    }
+    .header-deco { flex: 1; height: 1px; background: rgba(255,255,255,0.4); }
+
+    /* ESPAÇO PARA IMAGEM */
+    .image-placeholder {
+      width: 100%;
+      height: 350px;
+      background: var(--surface-inner);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid var(--accent);
+      position: relative;
+      overflow: hidden;
+    }
+    .image-placeholder img { 
+      position: absolute; 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      top: 0; 
+      left: 0; 
+    }
+
+    /* SEÇÃO INTRO */
+    .intro-section {
+      padding: 40px;
+      background: var(--surface);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .intro-text { font-size: 1.1rem; color: var(--text); margin-bottom: 15px; }
+    .intro-text:last-child { margin-bottom: 0; }
+    .intro-text strong { color: var(--accent); font-weight: 700; }
+
+    /* ======= SEÇÃO DE CARROSSEL DAS AGÊNCIAS ======= */
+    .mafias-showcase-section {
+      padding: 40px 40px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .showcase-title {
+      font-family: 'Bangers', cursive;
+      font-size: 1.8rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+    .carousel-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .carousel-track-container {
+      flex: 1;
+      overflow: hidden;
+      border: 1px solid rgba(33, 150, 243, 0.2);
+      background: var(--surface-inner);
+      border-radius: 6px;
+    }
+    .carousel-slide {
+      display: none;
+      padding: 25px;
+    }
+    .carousel-slide.active {
+      display: block;
+      animation: carousel-fade 0.4s ease-in-out;
+    }
+    @keyframes carousel-fade {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .mafia-card-inner {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 25px;
+      align-items: start;
+    }
+    .mafia-banner {
+      width: 100%;
+      height: 160px;
+      background: var(--surface);
+      border: 1px dashed rgba(33, 150, 243, 0.4);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .mafia-banner span {
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      opacity: 0.6;
+      text-align: center;
+      padding: 10px;
+    }
+    .mafia-banner img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .mafia-details h3 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.3rem;
+      color: var(--text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(33, 150, 243, 0.2);
+      padding-bottom: 6px;
+    }
+    .mafia-details p {
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    .mafia-details p strong {
+      color: var(--accent);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .carousel-btn {
+      background: #000;
+      border: 2px solid var(--accent);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.2rem;
+      box-shadow: 0 0 10px var(--glow);
+      transition: background 0.2s, transform 0.2s, color 0.2s;
+      user-select: none;
+    }
+    .carousel-btn:hover {
+      background: var(--accent);
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    /* ======= SISTEMA DE SANFONAS (ACCORDIONS) ======= */
+    .accordion-container {
+      padding: 20px 40px 40px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .ks-accordion {
+      background: var(--surface-inner);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    [data-theme="light"] .ks-accordion { border-color: rgba(0,0,0,0.1); }
+
+    .ks-accordion summary {
+      padding: 18px 20px;
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.05rem;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style: none;
+      user-select: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .ks-accordion summary::-webkit-details-marker { display: none; }
+    
+    .ks-accordion summary::after {
+      content: '▼';
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      transition: transform 0.3s ease;
+    }
+    .ks-accordion[open] summary::after {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      padding: 20px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: var(--surface);
+      animation: fade-in 0.3s ease-in-out;
+    }
+    [data-theme="light"] .accordion-content { border-top-color: rgba(0,0,0,0.05); }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Listas internas do Accordion */
+    .acc-list { list-style: none; display: flex; flex-direction: column; gap: 15px; }
+    .acc-list li {
+      padding-left: 15px;
+      border-left: 2px solid rgba(33, 150, 243, 0.3);
+    }
+    .acc-list li strong {
+      color: var(--accent);
+      display: block;
+      font-family: 'Russo One', sans-serif;
+      margin-bottom: 5px;
+      font-weight: normal;
+      letter-spacing: 0.05em;
+    }
+
+    /* TABELAS */
+    .ks-table-wrapper { overflow-x: auto; margin-top: 10px; margin-bottom: 15px; }
+    .ks-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 600px; }
+    .ks-table th, .ks-table td { border: 1px solid rgba(255,255,255,0.1); padding: 12px; }
+    [data-theme="light"] .ks-table th, [data-theme="light"] .ks-table td { border-color: rgba(0,0,0,0.1); }
+    .ks-table th { background: rgba(33, 150, 243, 0.1); color: var(--accent); font-family: 'Russo One', sans-serif; text-align: center; }
+    
+    .table-reputacao td { text-align: left; color: var(--text); }
+    .table-reputacao td:first-child { text-align: center; font-family: 'Russo One', sans-serif; width: 90px; }
+    .table-reputacao td:nth-child(2) { text-align: center; font-weight: 600; width: 140px; }
+    .table-reputacao td:nth-child(3) { text-align: center; font-weight: 600; width: 100px; }
+
+    .table-investigacao td { text-align: left; color: var(--text); }
+    .table-investigacao td:first-child { text-align: center; font-family: 'Russo One', sans-serif; width: 110px; }
+    .table-investigacao td:nth-child(2) { text-align: center; font-weight: 600; width: 120px; }
+
+    .table-recompensas td { text-align: left; color: var(--text); }
+    .table-recompensas td:first-child { text-align: center; font-family: 'Russo One', sans-serif; width: 120px; }
+    .table-recompensas td:nth-child(2), .table-recompensas td:nth-child(3) { text-align: center; font-weight: 600; width: 150px; }
+
+    .table-corporativo td { text-align: left; color: var(--text); }
+    .table-corporativo td:first-child { text-align: center; font-family: 'Russo One', sans-serif; width: 130px; }
+    .table-corporativo td:nth-child(2) { font-weight: 600; width: 140px; }
+
+    .ks-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    [data-theme="light"] .ks-table tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+
+    /* DESTAQUE RESPONSABILIDADE LEGAL */
+    .highlight-box {
+      background: var(--box-accent-bg);
+      border-left: 4px solid var(--accent);
+      padding: 25px;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    .highlight-box h4 {
+      color: var(--accent);
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    .highlight-box p {
+      margin-bottom: 10px;
+    }
+    .highlight-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      #page-container { padding-top: 120px; padding-left: 15px; padding-right: 15px; }
+      .header-red h1 { font-size: 1.8rem; }
+      .image-placeholder { height: 200px; }
+      .intro-section { padding: 30px 20px; }
+      .mafias-showcase-section { padding: 30px 20px; }
+      .mafia-card-inner { grid-template-columns: 1fr; gap: 15px; }
+      .mafia-banner { height: 140px; }
+      .accordion-container { padding: 20px; }
+      .highlight-box { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Civil</a>
+      <a class="nav-link" href="geografia.html">Geografia</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="page-container">
+
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>JORNALISTA</h1>
+        <div class="header-deco"></div>
+      </div>
+
+      <div class="image-placeholder">
+        <img src="00.1_jornalista.jpg" alt="Sistema de Jornalismo e Imprensa">
+      </div>
+
+      <div class="intro-section">
+        <p class="intro-text">
+          A caneta é mais letal que a espada. Enquanto os shinobis sangram para esconder seus segredos, o Jornalista lucra revelando-os. Você é a voz do povo, o terror dos governantes e o principal motor de intrigas e guerras do mundo.
+        </p>
+        <p class="intro-text">
+          Seu poder não vem do chakra, mas sim de seus <strong>Yenes</strong> (Orçamento de Mídia) e sua <strong>Fama / Score</strong> (Credibilidade Pública).
+        </p>
+      </div>
+
+      <div class="mafias-showcase-section">
+        <h2 class="showcase-title">Agências de Notícias Ativas</h2>
+        <div class="carousel-container">
+          <button class="carousel-btn prev-btn" aria-label="Anterior">&lt;</button>
+          
+          <div class="carousel-track-container">
+            <div class="carousel-slide active">
+              <div class="mafia-card-inner">
+                <div class="mafia-banner">
+                  <img src="00_jornal_exemplo1.png" alt="Logo da Emissora 1" onerror="this.style.display='none'" />
+                  <span>00_jornal_exemplo1.png</span>
+                </div>
+                <div class="mafia-details">
+                  <h3>Diário do Continente</h3>
+                  <p><strong>Diretor-Chefe:</strong> Nome_Do_Player</p>
+                  <p><strong>Funcionários:</strong> Repórter_A, Fotógrafo_B, Guarda_C</p>
+                  <p><strong>Estrutura:</strong> Centralizada em uma grande sede neutra na Capital do País do Fogo. Possui uma rede de gaviões expressos para distribuição e foca em furos de espionagem política global.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-slide">
+              <div class="mafia-card-inner">
+                <div class="mafia-banner">
+                  <img src="00_jornal_exemplo2.png" alt="Logo da Emissora 2" onerror="this.style.display='none'" />
+                  <span>00_jornal_exemplo2.png</span>
+                </div>
+                <div class="mafia-details">
+                  <h3>Agência Oculta</h3>
+                  <p><strong>Diretor-Chefe:</strong> Nome_Do_Player2</p>
+                  <p><strong>Funcionários:</strong> Repórter_X, Fotógrafo_Y</p>
+                  <p><strong>Estrutura:</strong> Opera de maneira totalmente anônima através de canais criptografados. Especializada em vazamentos do submundo, localização de Jinchuurikis e segredos de clãs criminosos.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="carousel-btn next-btn" aria-label="Próximo">&gt;</button>
+        </div>
+      </div>
+
+      <div class="accordion-container">
+        
+        <details class="ks-accordion">
+          <summary>RANKS, CREDIBILIDADE E ALCANCE</summary>
+          <div class="accordion-content">
+            <p style="margin-bottom: 15px;">Você sobe de Rank automaticamente conforme ganha Fama ao publicar matérias aprovadas pelo sistema.</p>
+            <div class="ks-table-wrapper">
+              <table class="ks-table table-reputacao">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Fama Necessária</th>
+                    <th>Alcance</th>
+                    <th>Descrição do Escopo Editorial</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Rank D (Blogger)</td>
+                    <td>0 a 10.000</td>
+                    <td>Local</td>
+                    <td>Começando na profissão. Cobre festas locais, fofocas civis e eventos públicos simples de seu País de origem.</td>
+                  </tr>
+                  <tr>
+                    <td>Rank C (Repórter de Rua)</td>
+                    <td>10.001 a 30.000</td>
+                    <td>Local</td>
+                    <td>Seu nome ganha peso nas feiras e distritos comerciais. Já consegue entrevistar figuras públicas menores.</td>
+                  </tr>
+                  <tr>
+                    <td>Rank B (Investigativo)</td>
+                    <td>30.001 a 80.000</td>
+                    <td>Local</td>
+                    <td>Conhecido pela coragem. Suas colunas investigativas começam a incomodar conselheiros e capitães ninjas.</td>
+                  </tr>
+                  <tr>
+                    <td>Rank A (Âncora)</td>
+                    <td>80.001 a 200.000</td>
+                    <td>Global</td>
+                    <td>Suas edições são distribuídas internacionalmente por gaviões-correio. O que você publica dita a opinião pública mundial.</td>
+                  </tr>
+                  <tr>
+                    <td>Rank S (Dono de Emissora)</td>
+                    <td>200.001 a 500.000</td>
+                    <td>Global</td>
+                    <td>Dono de um império editorial. Líderes de clãs e organizações buscam sua aliança para limpar ou sujar reputações.</td>
+                  </tr>
+                  <tr>
+                    <td>Rank SS+ (Voz Absoluta)</td>
+                    <td>Acima de 500.000</td>
+                    <td>Global</td>
+                    <td>O topo do quarto poder. Uma única manchete sua tem o poder de causar uma greve global, iniciar guerras mundiais ou colocar a cabeça de um Kage a prêmio.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <details class="ks-accordion">
+          <summary>MÉTODOS DE INVESTIGAÇÃO E TABELA DE CUSTOS</summary>
+          <div class="accordion-content">
+            <ul class="acc-list" style="margin-bottom: 20px;">
+              <li>
+                <strong>Jornalismo Investigativo (Gratuito)</strong>
+                Consiste em estar no lugar certo e na hora certa de forma ativa. Envolve ouvir conversas e boatos nas tavernas através do Roleplay, interrogar suspeitos ou presenciar eventos (como uma batalha de players na fronteira) pessoalmente durante as cenas.
+              </li>
+              <li>
+                <strong>Compra de Dados e Suborno (Investimento em Yenes)</strong>
+                Consiste em comprar relatórios de inteligência, pagar mercenários para espionagem ou subornar guardas NPCs e funcionários públicos. Os preços com NPCs são fixos e estruturados abaixo:
+              </li>
+            </ul>
+
+            <div class="ks-table-wrapper">
+              <table class="ks-table table-investigacao">
+                <thead>
+                  <tr>
+                    <th>Nível da Informação</th>
+                    <th>Preço Fixo (NPC)</th>
+                    <th>Exemplos de Dados Coletados</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Informação Rank D</td>
+                    <td>20.000 Yenes</td>
+                    <td>Fofocas locais, rotinas civis e pequenos esquemas de mercadores de bairro.</td>
+                  </tr>
+                  <tr>
+                    <td>Informação Rank C</td>
+                    <td>40.000 Yenes</td>
+                    <td>Resultados de missões oficiais sigilosas, registros de torneios privados e paradeiro de mercadorias comuns.</td>
+                  </tr>
+                  <tr>
+                    <td>Informação Rank B</td>
+                    <td>80.000 Yenes</td>
+                    <td>Histórico de crimes políticos, assassinatos ocultados de nobres e movimentação de facções criminosas.</td>
+                  </tr>
+                  <tr>
+                    <td>Informação Rank A</td>
+                    <td>160.000 Yenes</td>
+                    <td>Segredos de Estado, roubo de técnicas proibidas (Kinjutsus) e relatórios de espionagem militar.</td>
+                  </tr>
+                  <tr>
+                    <td>Informação Rank S / SS+</td>
+                    <td>320.000 Yenes</td>
+                    <td>Localização exata de Jinchuurikis, planos secretos de invasão global e identidades de líderes do submundo.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <details class="ks-accordion">
+          <summary>MANCHETES E RECOMPENSAS AUTOMATIZADAS</summary>
+          <div class="accordion-content">
+            <p style="margin-bottom: 15px;">A cada jornal ou artigo publicado e devidamente validado pela administração contra metagaming, a Mídia do jogo gera as recompensas com base no nível da matéria:</p>
+            <div class="ks-table-wrapper">
+              <table class="ks-table table-recompensas">
+                <thead>
+                  <tr>
+                    <th>Rank da Matéria</th>
+                    <th>Pagamento Automatizado</th>
+                    <th>Pontos de Fama (Score)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Manchete Rank D</td>
+                    <td>10.000 Yenes</td>
+                    <td>+2.000 Fama</td>
+                  </tr>
+                  <tr>
+                    <td>Manchete Rank C</td>
+                    <td>25.000 Yenes</td>
+                    <td>+5.000 Fama</td>
+                  </tr>
+                  <tr>
+                    <td>Manchete Rank B</td>
+                    <td>60.000 Yenes</td>
+                    <td>+15.000 Fama</td>
+                  </tr>
+                  <tr>
+                    <td>Manchete Rank A</td>
+                    <td>150.000 Yenes</td>
+                    <td>+40.000 Fama</td>
+                  </tr>
+                  <tr>
+                    <td>Manchete Rank S / SS+</td>
+                    <td>400.000 Yenes</td>
+                    <td>+100.000 Fama</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <details class="ks-accordion">
+          <summary>FUNDAÇÃO E PROGRESSÃO DA AGÊNCIA DE NOTÍCIAS</summary>
+          <div class="accordion-content">
+            <p style="margin-bottom: 15px;">Ao alcançar o Rank S, o Jornalista pode investir <strong>1.000.000 Yenes</strong> para fundar uma Corporação de Imprensa Oficial. A agência ganha uma sede física em ON e um canal exclusivo protegido por leis internacionais.</p>
+            
+            <ul class="acc-list" style="margin-bottom: 20px;">
+              <li>
+                <strong>Quadro de Funcionários e Gestão</strong>
+                Como Diretor-Chefe, você pode abrir editais e contratar players autônomos do servidor:<br>
+                • Repórteres de Campo (Outros Jornalistas): Investigam e publicam matérias sob o selo da sua empresa por salário fixo.<br>
+                • Fotógrafos e Paparazzis (Ninjas Rastreadores): Usam Byakugan ou jutsus de ocultação para obter flagrantes em ON.<br>
+                • Seguranças da Sede (Jonins/Mercenários): Protegem os arquivos confidenciais contra invasões de clãs ou facções expostas.
+              </li>
+            </ul>
+
+            <div class="ks-table-wrapper">
+              <table class="ks-table table-corporativo">
+                <thead>
+                  <tr>
+                    <th>Fama da Agência</th>
+                    <th>Nível do Império</th>
+                    <th>Benefícios e Lucros no Servidor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>0 a 9.999</td>
+                    <td>Gazeta de Bairro</td>
+                    <td>Jornal de tiragem pequena. Permite contratar até 2 players. Dá direito a um brasão de imprensa nos posts oficiais.</td>
+                  </tr>
+                  <tr>
+                    <td>10.000 a 39.999</td>
+                    <td>Mídia Regional</td>
+                    <td>Lido por todos os civis e militares de um país inteiro. O lucro de todas as manchetes da equipe recebe +20% em Yenes.</td>
+                  </tr>
+                  <tr>
+                    <td>40.000 a 99.999</td>
+                    <td>Rede Continental</td>
+                    <td>Escritórios em todas as grandes Vilas Ocultas. Direito a Anúncios Patrocinados no jogo e bônus de lucro sobe para +40% em Yenes.</td>
+                  </tr>
+                  <tr>
+                    <td>100.000+</td>
+                    <td>Império Absoluto</td>
+                    <td>O monopólio da informação. Subsídio fixo governamental de 150.000 Yenes por semana. Proibido censurar o jornal sem causar escândalo civil.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <div class="highlight-box">
+          <h4>FILTRO ANTI-METAGAMING E RESPONSABILIDADE LEGAL</h4>
+          <p><strong>Filtro de Integridade:</strong> O Jornalista deve enviar sua matéria previamente para aprovação da Staff. Se a reportagem revelar um segredo real de um player, clã ou vila, é obrigatório anexar os prints comprovando que a descoberta em ON (RP) foi legítima. Dados obtidos em OFF (Metagaming) serão permanentemente banidos.</p>
+          <p><strong>Responsabilidade e Processos:</strong> Se um funcionário da sua agência publicar Fake News ou difamar líderes sem provas coletadas em jogo, o alvo pode processar a corporação. O Dono da Emissora será multado pela Staff em valores pesados ou terá a agência interditada.</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') closeNav(); 
+    });
+    
+    function closeNav() { 
+      navOverlay.classList.remove('open'); 
+      menuBtn.classList.remove('open'); 
+    }
+
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    // Lógica do Carrossel de Emissoras de Jornalismo
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (index + slides.length) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }
+
+    if (prevBtn && nextBtn && slides.length > 0) {
+      prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+      nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+    }
+
+    // Lógica das Sanfonas (Accordion)
+    const details = document.querySelectorAll('details.ks-accordion');
+    details.forEach((targetDetail) => {
+      targetDetail.addEventListener('click', () => {
+        details.forEach((detail) => {
+          if (detail !== targetDetail) {
+            detail.removeAttribute('open');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

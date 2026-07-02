@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jornal Shinobi — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #f0f0f0;
+      --text-sub:#999999;
+      --badge-text: #f0f0f0;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #111111;
+      --text-sub:#555555;
+      --badge-text: #111111;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      filter: blur(3px) brightness(0.38) saturate(0.55);
+      transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg {
+      filter: blur(3px) brightness(0.78) saturate(0.65);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+      transition: background 0.5s;
+    }
+    [data-theme="light"] .hero-overlay {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed;
+      top: 20px; right: 22px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: #000;
+      border: 2.5px solid var(--border);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow);
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai {
+      width: 26px; height: 26px;
+      transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--glow);
+      transition: box-shadow 0.3s, transform 0.2s;
+      padding: 0;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    #nav-panel {
+      position: relative; z-index: 1;
+      background: var(--surface);
+      border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%;
+      display: flex; flex-direction: column;
+      padding: 110px 36px 40px;
+      gap: 4px;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow);
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.92rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18);
+      position: relative;
+      transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link::before {
+      content: '';
+      position: absolute; left: -36px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 2px;
+      background: var(--accent);
+      transition: width 0.25s;
+    }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+    .nav-link:hover::before { width: 20px; }
+
+    /* ======= PÁGINA JORNAL ======= */
+    #jornal {
+      min-height: 100vh;
+      padding: 100px 24px 80px;
+      transition: background 0.4s;
+    }
+
+    /* Cabeçalho */
+    .jornal-header {
+      max-width: 860px;
+      margin: 0 auto 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+    }
+    .jornal-header-red {
+      background: #cc0000;
+      padding: 20px 36px;
+      display: flex; align-items: center; gap: 18px;
+    }
+    .jornal-header-red h1 {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.22em;
+      color: #fff;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .jornal-header-deco {
+      flex: 1; height: 2px;
+      background: rgba(255,255,255,0.3);
+    }
+    .jornal-header-body {
+      background: var(--surface);
+      padding: 26px 36px;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text-sub);
+      transition: background 0.4s, color 0.4s;
+      text-align: justify;
+    }
+
+    /* Caixa de Aviso */
+    .jornal-info-box {
+      max-width: 860px;
+      margin: 0 auto 32px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+      background: var(--surface);
+      padding: 26px 36px;
+      transition: background 0.4s;
+    }
+
+    .jornal-info-box p {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+      text-align: justify;
+    }
+
+    .jornal-info-box p strong {
+      color: var(--accent2);
+      font-weight: 700;
+    }
+
+    .jornal-info-box .info-title {
+      color: var(--accent);
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 12px;
+      margin-top: 14px;
+    }
+
+    .info-list {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .info-list li {
+      margin-bottom: 10px;
+      padding-left: 24px;
+      position: relative;
+      font-size: 0.95rem;
+      color: var(--text-sub);
+    }
+
+    .info-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* Geração (Gaveta) */
+    .gen-btn {
+      max-width: 860px;
+      margin: 0 auto 16px;
+      background: var(--surface);
+      border: 1.5px solid rgba(204,0,0,0.25);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 18px 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      transition: all 0.25s ease;
+      outline: none;
+    }
+
+    .gen-btn:hover {
+      background: rgba(204,0,0,0.08);
+      box-shadow: 0 0 18px var(--glow);
+      transform: translateX(4px);
+    }
+
+    .gen-btn-icon {
+      font-size: 1.3rem;
+      margin-right: 14px;
+    }
+
+    .gen-btn-arrow {
+      color: var(--accent);
+      font-size: 0.8rem;
+      transition: transform 0.3s ease;
+    }
+
+    .gen-btn.open .gen-btn-arrow {
+      transform: scaleY(-1);
+    }
+
+    /* Carrossel */
+    .expand-content {
+      display: none;
+      max-width: 860px;
+      margin: 0 auto 32px;
+    }
+    .expand-content.active { display: block; }
+
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(204,0,0,0.25);
+      background: var(--surface);
+      transition: background 0.4s;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .news-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .news-data-container {
+      padding: 24px;
+    }
+
+    .news-card {
+      background: rgba(204,0,0,0.08);
+      border: 1px solid rgba(204,0,0,0.18);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+      text-align: left;
+      transition: background 0.2s;
+    }
+
+    .news-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .news-card:hover {
+      background: rgba(204,0,0,0.12);
+    }
+
+    .news-card strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Controles do Carrossel */
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.2);
+      border-top: 1px solid rgba(204,0,0,0.18);
+    }
+
+    .carousel-btn {
+      background: rgba(204,0,0,0.15);
+      border: 1.5px solid var(--accent);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .carousel-btn:hover {
+      background: rgba(204,0,0,0.25);
+      box-shadow: 0 0 12px var(--glow);
+    }
+
+    .slide-counter {
+      color: var(--text-sub);
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 580px) {
+      #jornal { padding-top: 160px; }
+      .jornal-header-red { padding: 16px 20px; }
+      .jornal-header-body { padding: 18px 20px; }
+      .jornal-info-box { padding: 18px 20px; }
+      .gen-btn { padding: 14px 18px; font-size: 0.9rem; }
+      .news-data-container { padding: 16px; }
+      .carousel-controls { padding: 12px 16px; }
+      .carousel-btn { width: 36px; height: 36px; font-size: 1rem; }
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo Jornal" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="2"  x2="12" y2="5"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="2"  y1="12" x2="5"  y2="12"/>
+        <line x1="19" y1="12" x2="22" y2="12"/>
+        <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+        <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+        <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">História</a>
+      <a class="nav-link" href="#">Calendário</a>
+      <a class="nav-link" href="#">Jornal</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="#">Discord</a>
+      <a class="nav-link" href="#">Cadastrar</a>
+    </nav>
+  </div>
+
+  <main id="jornal">
+
+    <div class="jornal-header">
+      <div class="jornal-header-red">
+        <h1>JORNAL SHINOBI</h1>
+        <div class="jornal-header-deco"></div>
+      </div>
+      <div class="jornal-header-body">
+        O jornal é a principal fonte oficial de conhecimento global de Kigen. Informações iniciais disponíveis a todos serão estritamente as do jornal. Isso evita que os jogadores descubram habilidades ou características de oponentes de forma antecipada (Metagaming).
+      </div>
+    </div>
+
+    <div class="jornal-info-box">
+      <p style="font-weight: 700; color: var(--accent); margin-bottom: 18px;">COMO LER AS NOTÍCIAS:</p>
+      <ul class="info-list">
+        <li><strong>Validade:</strong> O prazo da notícia. Após a data, os efeitos acabam e vira história.</li>
+        <li><strong>Acesso:</strong> Quem sabe da informação em ON. Respeite isso no roleplay.</li>
+        <li><strong>O Evento:</strong> A consequência real no mapa (NPCs, economia, rotas bloqueadas).</li>
+      </ul>
+    </div>
+
+    <!-- GERAÇÃO 1 -->
+    <button class="gen-btn" onclick="toggleGeneration('gen-1')">
+      <div style="display: flex; align-items: center;">
+        <span class="gen-btn-icon">📰</span>
+        <span>1ª GERAÇÃO: ERA DOS ESTADOS COMBATENTES</span>
+      </div>
+      <span class="gen-btn-arrow" id="arrow-gen-1">▼</span>
+    </button>
+
+    <div class="expand-content" id="gen-1">
+      <div class="carousel-container" id="carousel-gen-1">
+        
+        <!-- NOTÍCIA 1 -->
+        <div class="slide fade slide-gen-1 active">
+          <img src="IMAGEM_JORNAL_1.jpg" alt="Notícia 1" class="news-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x240/2a2a2a/999?text=NOTÍCIA+1'">
+          <div class="news-data-container">
+            <div class="news-card">
+              📅 <strong>Validade:</strong> [EDITAR]
+            </div>
+            <div class="news-card">
+              🔓 <strong>Acesso:</strong> [EDITAR]
+            </div>
+            <div class="news-card">
+              💥 <strong>O Evento:</strong> [EDITAR - Descreva aqui o evento e suas consequências]
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTÍCIA 2 -->
+        <div class="slide fade slide-gen-1">
+          <img src="IMAGEM_JORNAL_2.jpg" alt="Notícia 2" class="news-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/600x240/3a3a3a/999?text=NOTÍCIA+2'">
+          <div class="news-data-container">
+            <div class="news-card">
+              📅 <strong>Validade:</strong> [EDITAR]
+            </div>
+            <div class="news-card">
+              🔓 <strong>Acesso:</strong> [EDITAR]
+            </div>
+            <div class="news-card">
+              💥 <strong>O Evento:</strong> [EDITAR - Descreva aqui o evento e suas consequências]
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-controls">
+          <button class="carousel-btn" onclick="changeSlide(-1, 'gen-1')">‹</button>
+          <span class="slide-counter"><span id="current-gen-1">1</span> / <span id="total-gen-1">2</span></span>
+          <button class="carousel-btn" onclick="changeSlide(1, 'gen-1')">›</button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    /* ---- CONTROLE DO MENU ---- */
+    const menuBtn    = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); } });
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    /* ---- CONTROLE DO TEMA ---- */
+    const root  = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    /* ---- CONTROLE DAS GERAÇÕES (GAVETAS) ---- */
+    function toggleGeneration(genId) {
+      const content = document.getElementById(genId);
+      const arrow = document.getElementById('arrow-' + genId);
+      
+      content.classList.toggle('active');
+      
+      if (content.classList.contains('active')) {
+        arrow.innerText = '▲';
+      } else {
+        arrow.innerText = '▼';
+      }
+    }
+
+    /* ---- CONTROLE DO CARROSSEL ---- */
+    const slideIndexes = {};
+
+    function changeSlide(n, carouselId) {
+      if (!slideIndexes[carouselId]) slideIndexes[carouselId] = 1;
+      showSlides(slideIndexes[carouselId] += n, carouselId);
+    }
+
+    function showSlides(n, carouselId) {
+      const slides = document.querySelectorAll('.slide-' + carouselId);
+      
+      if (slides.length === 0) return;
+
+      if (n > slides.length) { slideIndexes[carouselId] = 1; }
+      if (n < 1) { slideIndexes[carouselId] = slides.length; }
+      
+      slides.forEach(slide => {
+        slide.classList.remove('active');
+      });
+      
+      slides[slideIndexes[carouselId] - 1].classList.add('active');
+      
+      const currentSpan = document.getElementById('current-' + carouselId);
+      const totalSpan = document.getElementById('total-' + carouselId);
+      if (currentSpan && totalSpan) {
+        currentSpan.innerText = slideIndexes[carouselId];
+        totalSpan.innerText = slides.length;
+      }
+    }
+
+    // Inicializar carrossel
+    document.querySelectorAll('[class*="slide-"]').forEach(slide => {
+      const classes = slide.className.split(' ');
+      const carouselId = classes.find(c => c.startsWith('slide-')).replace('slide-', '');
+      if (!slideIndexes[carouselId]) {
+        slideIndexes[carouselId] = 1;
+        const totalSpan = document.getElementById('total-' + carouselId);
+        if (totalSpan) {
+          totalSpan.innerText = document.querySelectorAll('.slide-' + carouselId).length;
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

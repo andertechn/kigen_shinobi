@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geografia — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --surface-btn: #1a1a1a;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #e0e0e0;
+      --text-sub:#a0a0a0;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --surface-btn: #f5f5f5;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #222222;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem; 
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= ALINHAMENTO JUSTIFICADO GLOBAL ======= */
+    p, .justified-text, .text-content, .rp-card-desc {
+      text-align: justify;
+      line-height: 1.6;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(3px) brightness(0.38) saturate(0.55); transition: filter 0.4s ease; }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%); transition: background 0.5s; }
+    [data-theme="light"] .hero-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%); }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow); transition: box-shadow 0.25s, transform 0.2s; }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    #menu-btn:hover, #theme-toggle:hover { box-shadow: 0 0 20px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= PÁGINA GEOGRAFIA ======= */
+    #geografia { min-height: 100vh; padding: 130px 20px 80px; transition: background 0.4s; }
+
+    /* CABEÇALHO DA PÁGINA */
+    .geografia-header { max-width: 860px; margin: 0 auto 30px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(204,0,0,0.25); }
+    .geografia-header-red { background: #cc0000; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+    .geografia-header-red h1 { font-family: 'Bangers', cursive; font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: 0.15em; color: #fff; text-transform: uppercase; line-height: 1; margin: 0; }
+    .geografia-header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
+    .geografia-header-body { background: var(--surface); padding: 18px 24px; color: var(--text-sub); }
+    .geografia-header-body p { margin: 0; }
+
+    /* ======= MAPA CONTAINER (LIMPO) ======= */
+    .mapa-container {
+      max-width: 860px; margin: 0 auto 24px;
+      background: linear-gradient(135deg, #e8dcc8 0%, #f5f0e8 50%, #e8dcc8 100%);
+      padding: 24px; border-radius: 12px; border: 2px solid #8b7355;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3), 0 0 0 1px #8b7355;
+      display: flex; flex-direction: column;
+    }
+
+    /* O MAPA EM SI */
+    .mapa-wrapper {
+      position: relative; width: 100%; display: block; user-select: none;
+      border-radius: 6px; overflow: hidden; border: 2px solid rgba(139, 115, 85, 0.4);
+    }
+    .mapa-wrapper img { display: block; width: 100%; height: auto; z-index: 1; pointer-events: none; }
+
+    /* SVGs SOBRE O MAPA */
+    .mapa-svg-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    
+    #mapa-grid { z-index: 2; pointer-events: none; }
+    .grid-line { stroke: rgba(0, 0, 0, 0.2); stroke-width: 1px; }
+    .grid-cell-label { fill: rgba(0, 0, 0, 0.08); font-family: 'Russo One', sans-serif; font-size: clamp(1.5rem, 4vw, 3rem); text-anchor: middle; dominant-baseline: central; }
+    
+    #mapa-regions { z-index: 3; }
+    
+    /* REGIÕES BASE */
+    .map-region-poly { 
+      fill: rgba(0, 0, 0, 0.15); 
+      stroke: rgba(204, 0, 0, 0.4); 
+      stroke-width: 1.5px;
+      transition: all 0.3s ease; cursor: pointer; 
+      pointer-events: all;
+    }
+    .map-region-poly:hover { 
+      fill: rgba(204, 0, 0, 0.4); 
+      stroke: rgba(204, 0, 0, 1); 
+      stroke-width: 2.5px; 
+    }
+
+    /* CORES FORTES POR PAÍS */
+    .map-region-relampago { fill: rgba(255, 204, 0, 0.4) !important; stroke: rgba(255, 204, 0, 0.9) !important; }
+    .map-region-relampago:hover { fill: rgba(255, 204, 0, 0.6) !important; stroke-width: 3px !important; stroke: #ffcc00 !important;}
+
+    .map-region-agua { fill: rgba(0, 102, 255, 0.4) !important; stroke: rgba(0, 102, 255, 0.9) !important; }
+    .map-region-agua:hover { fill: rgba(0, 102, 255, 0.6) !important; stroke-width: 3px !important; stroke: #0066ff !important;}
+
+    .map-region-fogo { fill: rgba(204, 0, 0, 0.4) !important; stroke: rgba(204, 0, 0, 0.9) !important; }
+    .map-region-fogo:hover { fill: rgba(204, 0, 0, 0.6) !important; stroke-width: 3px !important; stroke: #cc0000 !important;}
+
+    .map-region-vento { fill: rgba(46, 204, 113, 0.4) !important; stroke: rgba(46, 204, 113, 0.9) !important; }
+    .map-region-vento:hover { fill: rgba(46, 204, 113, 0.6) !important; stroke-width: 3px !important; stroke: #2ecc71 !important;}
+
+    .map-region-terra { fill: rgba(139, 69, 19, 0.4) !important; stroke: rgba(139, 69, 19, 0.9) !important; }
+    .map-region-terra:hover { fill: rgba(139, 69, 19, 0.6) !important; stroke-width: 3px !important; stroke: #8B4513 !important;}
+
+    .map-region-ferro { fill: rgba(149, 165, 166, 0.4) !important; stroke: rgba(149, 165, 166, 0.9) !important; }
+    .map-region-ferro:hover { fill: rgba(149, 165, 166, 0.6) !important; stroke-width: 3px !important; stroke: #95a5a6 !important;}
+
+    .map-region-uzushio { fill: rgba(255, 105, 180, 0.4) !important; stroke: rgba(255, 105, 180, 0.9) !important; }
+    .map-region-uzushio:hover { fill: rgba(255, 105, 180, 0.6) !important; stroke-width: 3px !important; stroke: #ff69b4 !important;}
+
+    /* MARCADORES DE PLAYERS */
+    .player-marker { position: absolute; width: 14px; height: 14px; transform: translate(-50%, -50%); z-index: 4; cursor: pointer; }
+    .marker-dot { width: 100%; height: 100%; border-radius: 50%; background: var(--player-color); border: 2px solid #fff; box-shadow: 0 0 6px var(--player-color), 0 1px 3px rgba(0,0,0,0.6); transition: transform 0.2s ease; }
+    .player-marker:hover .marker-dot { transform: scale(1.4); }
+    .marker-tooltip { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(8px); background: rgba(10, 10, 10, 0.95); border: 1px solid var(--player-color); color: #fff; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 0.8rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 5;}
+    .player-marker:hover .marker-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .tooltip-avatar { width: 18px; height: 18px; border-radius: 50%; background-size: cover; background-position: center; border: 1px solid rgba(255,255,255,0.3); }
+
+    /* ======= BOTÕES DE INFORMAÇÃO / ACORDEÃO ======= */
+    .info-buttons-container { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .info-button { background: var(--surface); border: 1px solid rgba(204,0,0,0.2); border-left: 4px solid var(--accent); border-radius: 8px; cursor: pointer; transition: all 0.25s ease; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+    .info-button-header { display: flex; align-items: center; gap: 12px; justify-content: space-between; padding: 16px 20px; width: 100%; }
+    .info-button-title { font-family: 'Russo One', sans-serif; font-size: 0.95rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); flex-grow: 1; text-align: left; margin: 0;}
+    .info-button-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-sub); transition: transform 0.3s; flex-shrink: 0; }
+    .info-button.open .info-button-toggle { transform: rotate(180deg); }
+    
+    .info-button-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; cursor: default; width: 100%; }
+    .info-button.open .info-button-content { max-height: 5000px; }
+    .info-button-content-inner { padding: 18px 20px; border-top: 1px solid rgba(204,0,0,0.1); color: var(--text-sub); }
+
+    /* TEXTOS INTERNOS DO ACORDEÃO */
+    .text-content p { margin-bottom: 12px; }
+    .text-content ul { margin-left: 20px; margin-bottom: 14px; list-style-type: square; }
+    .text-content li { margin-bottom: 6px; font-size: 0.95rem; text-align: justify; }
+    .text-content strong { color: var(--text); font-weight: 600; }
+    .example-box { background: rgba(204,0,0,0.08); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 4px; margin-top: 14px; color: var(--text); }
+    .example-box p { font-style: italic; margin: 0; font-size: 0.9rem; text-align: left;}
+    .rp-section-title { font-family: 'Russo One', sans-serif; font-size: 0.95rem; letter-spacing: 0.08em; color: var(--accent); margin: 24px 0 10px; text-transform: uppercase; text-align: left; }
+
+    /* ======= TABELA DE LOCOMOÇÃO ======= */
+    .locomotion-table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .locomotion-table {
+      width: 100%;
+      min-width: 600px; /* Para não quebrar no celular */
+      border-collapse: collapse;
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--surface);
+      border: 1px solid rgba(204,0,0,0.2);
+      border-radius: 8px;
+    }
+    .locomotion-table th {
+      background: rgba(204,0,0,0.15);
+      color: var(--text);
+      text-transform: uppercase;
+      padding: 14px 16px;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .locomotion-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(204,0,0,0.1);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .locomotion-table tr:last-child td {
+      border-bottom: none;
+    }
+    .locomotion-table tr:hover {
+      background: rgba(204,0,0,0.05);
+    }
+    .td-unavailable {
+      color: var(--text-sub) !important;
+      font-style: italic;
+    }
+    .td-unavailable span {
+      color: var(--accent);
+      margin-right: 6px;
+      font-style: normal;
+    }
+
+    /* ======= ZONAS DE RP (FILTROS HORIONTAIS E CARDS) ======= */
+    .rp-subtitle { margin-bottom: 16px; font-size: 0.95rem; color: var(--text); font-weight: 500; text-align: left; }
+    .rp-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; justify-content: flex-start; }
+    .rp-tab { padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .rp-tab:hover { background: rgba(204,0,0,0.1); }
+    .rp-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--glow); }
+
+    /* Ícones ilustrativos nas abas */
+    .icon-fogo { color: #ff4d4d; }
+    .icon-vento { color: #cccccc; }
+    .icon-agua { color: #4da6ff; }
+    .icon-terra { color: #b37700; }
+    .icon-raio { color: #ffcc00; }
+    .icon-ferro { color: #99ccff; }
+    .icon-uzushio { color: #9933ff; }
+    .icon-konoha { color: #33cc33; }
+    .rp-tab.active span { color: #fff; }
+
+    .rp-group-title { font-family: 'Russo One', sans-serif; font-size: 1.05rem; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; text-align: left; }
+
+    .rp-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media(min-width: 768px) { .rp-grid { grid-template-columns: 1fr 1fr; } }
+
+    .rp-card { background: var(--surface); border: 1px solid rgba(204,0,0,0.15); border-left: 3px solid var(--accent); border-radius: 6px; padding: 18px; box-shadow: 0 3px 10px var(--shadow); display: flex; flex-direction: column; text-align: left; }
+    .rp-card-title { font-family: 'Russo One', sans-serif; font-size: 1rem; margin-bottom: 10px; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.2; }
+    .rp-card-desc { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 16px; flex-grow: 1; line-height: 1.6; text-align: justify; }
+    
+    .rp-card-footer { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 4px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
+    [data-theme="light"] .rp-card-footer { background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }
+    .rp-card-footer div { margin-bottom: 6px; color: var(--text); }
+    .rp-card-footer div:last-child { margin-bottom: 0; }
+    .rp-card-footer span { font-weight: 700; color: var(--accent); margin-right: 4px; }
+
+    .hidden-card { display: none !important; }
+
+    /* ======= MODAL DE JOGADORES / REGIÕES ======= */
+    .player-modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px; }
+    .player-modal-overlay.active { opacity: 1; pointer-events: all; }
+    .player-modal { background: var(--surface); border: 2px solid var(--accent); border-radius: 12px; max-width: 320px; width: 100%; padding: 26px; box-shadow: 0 0 40px var(--glow); transform: translateY(20px) scale(0.98); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); position: relative; text-align: center; }
+    .player-modal-overlay.active .player-modal { transform: translateY(0) scale(1); }
+    .player-modal-close { position: absolute; top: 10px; right: 14px; background: none; border: none; cursor: pointer; color: var(--text-sub); font-size: 1.4rem; transition: color 0.2s; }
+    .player-modal-close:hover { color: var(--accent); }
+    .player-modal-avatar { width: 90px; height: 90px; border-radius: 50%; background-size: cover; background-position: center; border: 2.5px solid var(--accent); margin: 0 auto 12px; box-shadow: 0 0 15px var(--glow); }
+    .player-modal-name { font-family: 'Bangers', cursive; font-size: 1.6rem; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; line-height: 1.1; margin-bottom: 2px; }
+    .player-modal-estilo { font-size: 0.85rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px; font-family: 'Russo One', sans-serif;}
+    .player-modal-coord-box { background: rgba(0,0,0,0.15); border-radius: 6px; padding: 8px; border: 1px solid rgba(255,255,255,0.05); }
+    .player-modal-coordenada { font-size: 0.95rem; color: var(--text); }
+    .player-modal-coordenada span { color: var(--accent); font-family: 'Russo One', sans-serif;}
+
+    @media (max-width: 580px) {
+      #geografia { padding-top: 130px; padding-left: 15px; padding-right: 15px; }
+      .geografia-header-red { padding: 12px 18px; }
+      .geografia-header-body { padding: 14px 18px; }
+      .mapa-container { padding: 16px 14px; }
+      .player-modal { padding: 24px 20px; }
+      .info-button-header { padding: 14px 16px; }
+      .info-button-content-inner { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo Geografia" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="2"  x2="12" y2="5"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="2"  y1="12" x2="5"  y2="12"/>
+        <line x1="19" y1="12" x2="22" y2="12"/>
+        <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
+        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+        <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
+        <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="geografia.html">Geografia</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="#">Discord</a>
+      <a class="nav-link" href="#">Cadastrar</a>
+    </nav>
+  </div>
+
+  <main id="geografia">
+
+    <div class="geografia-header">
+      <div class="geografia-header-red">
+        <h1>GEOGRAFIA</h1>
+        <div class="geografia-header-deco"></div>
+      </div>
+      <div class="geografia-header-body text-content">
+        <p>Os países operam como entidades políticas separadas e são, presumivelmente, todas monarquias, governado pelos daimyōs.</p>
+      </div>
+    </div>
+
+    <map name="image-map" id="hidden-image-map" style="display:none;">
+      <area alt="PAÍS DA ÁGUA" title="PAÍS DA ÁGUA" coords="641,379,659,375,681,375,702,403,691,422,681,447,655,444,630,419" shape="poly">
+      <area alt="PAÍS DO RELÂMPAGO" title="PAÍS DO RELÂMPAGO" coords="580,95,594,108,624,134,648,136,658,162,660,193,668,213,654,241,641,266,628,266,618,258,602,268,586,262,568,270,557,286,531,278,488,282,470,263,465,246,491,232,503,218,517,210,527,196,525,186,531,172,533,152,533,131,539,111,553,99,566,93" shape="poly">
+      <area alt="PAÍS DO FOGO" title="PAÍS DO FOGO" coords="285,307,292,300,307,300,320,308,338,303,349,301,359,300,371,304,386,305,399,306,415,308,429,311,433,323,442,327,452,329,461,337,472,348,481,358,481,367,487,374,493,386,490,401,484,415,481,425,474,435,478,445,466,455,453,459,441,456,420,457,406,463,392,458,374,459,370,466,363,474,357,488,338,491,339,443,325,416,281,382,276,341,275,318,279,310,282,307" shape="poly">
+      <area alt="PAÍS DA TERRA" title="PAÍS DA TERRA" coords="286,284,286,270,293,254,293,236,296,216,308,212,304,203,287,200,272,202,262,198,253,181,260,164,263,135,246,113,229,106,210,94,193,85,179,74,168,68,158,62,146,65,142,70,134,64,117,64,102,61,95,66,97,80,93,90,88,100,84,109,80,115,80,126,78,138,76,148,76,157,76,168,73,181,73,194,72,203,68,213,67,224,64,234,70,242,78,250,85,260,91,265,92,278,92,288,88,293,99,296,115,296,133,297,144,303,152,313,161,321,178,323,181,328,198,328,210,328,224,329,238,324,266,310" shape="poly">
+      <area alt="PAÍS DO VENTO" title="PAÍS DO VENTO" coords="255,396,261,405,265,414,270,420,276,428,277,438,277,448,275,458,272,466,270,473,270,483,280,488,285,495,282,507,279,514,288,516,290,524,299,532,306,544,302,557,300,569,297,578,292,586,289,597,288,605,282,610,271,610,260,615,251,608,244,597,238,584,232,578,229,588,233,600,240,609,246,615,258,620,265,621,274,621,281,622,284,629,285,636,276,644,267,647,260,652,256,650,250,662,244,669,236,672,230,679,221,681,214,690,200,706,185,706,177,708,162,707,152,704,138,700,128,698,115,697,102,701,89,698,70,704,47,695,36,694,24,689,16,687,12,652,10,616,15,578,14,544,14,524,14,510,14,492,14,473,12,457,10,443,10,429,14,416,16,402,27,390,32,376,38,364,54,358,62,344,77,339,89,332,106,329,120,322,136,326,153,338,168,350,181,351,190,357,222,364,234,372,246,379,253,384,256,389" shape="poly">
+      <area alt="PAÍS DO REDEMOINHO" title="PAÍS DO REDEMOINHO" coords="527,396,528,390,530,380,516,371,490,409,511,413,524,404,527,396,528,390" shape="poly">
+      <area alt="PAÍS DO FERRO" title="PAÍS DO FERRO" coords="237,13,414,14,408,26,393,33,395,44,400,55,403,65,405,77,399,88,395,95,378,103,371,101,357,101,341,101,328,102,322,110,319,117,298,120,291,109,280,90,277,83,244,85,261,87,243,75,238,53,235,40" shape="poly">
+    </map>
+
+    <div class="mapa-container">
+      <div class="mapa-wrapper" id="mapa-wrapper">
+        <img src="00_mapa_oficial_kigen.png" alt="Mapa Oficial Kigen" id="mapa-imagem">
+        <svg class="mapa-svg-overlay" id="mapa-grid" preserveAspectRatio="none"></svg>
+        <svg class="mapa-svg-overlay" id="mapa-regions"></svg>
+      </div>
+    </div>
+    
+    <div class="info-buttons-container">
+      
+      <div class="info-button" data-section="locomocao">
+        <div class="info-button-header">
+          <div class="info-button-title">SISTEMA DE LOCOMOÇÃO</div>
+          <div class="info-button-toggle">▼</div>
+        </div>
+        <div class="info-button-content" onclick="event.stopPropagation()">
+          <div class="info-button-content-inner text-content">
+            <p>Para simular o tamanho real do continente e a dificuldade das viagens, o nosso mapa é dividido em Setores Estratégicos (quadriculados), guiados por um sistema exato de coordenadas:</p>
+            <ul>
+              <li><strong>Eixo Horizontal:</strong> De A até I.</li>
+              <li><strong>Eixo Vertical:</strong> De 1 até 7.</li>
+            </ul>
+            <p>Cada quadrado percorrido exige um tempo real de viagem (seguindo o horário oficial de Brasília). Você não simplesmente "aparece" em outro país. Para se mover pelo mapa, você precisa documentar sua viagem no seu turno de interpretação (ação de Roleplay).</p>
+            <p>No final ou início da sua cena, informe sua <strong>Posição Atual</strong>, a <strong>Coordenada de Destino</strong> e qual o <strong>meio de transporte</strong> você está utilizando.</p>
+            <div class="example-box">
+              <p>📌 <strong>Exemplo prático:</strong> "Meu personagem finaliza os preparativos... Estou partindo da coordenada [E3] com destino ao porto na coordenada [H7]. Utilizarei a Rota Terrestre."</p>
+            </div>
+            
+            <div class="locomotion-table-wrapper">
+              <table class="locomotion-table">
+                <thead>
+                  <tr>
+                    <th>Estilo / Classe</th>
+                    <th>Rota Aérea (Invocações/Planadores)</th>
+                    <th>Rota Terrestre</th>
+                    <th>Rota Marítima</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Shinobi</td>
+                    <td>3 horas</td>
+                    <td>4 horas</td>
+                    <td>4 horas</td>
+                  </tr>
+                  <tr>
+                    <td>Samurai</td>
+                    <td class="td-unavailable"><span>❌</span> Indisponível</td>
+                    <td>6 horas</td>
+                    <td>6 horas</td>
+                  </tr>
+                  <tr>
+                    <td>Civil</td>
+                    <td class="td-unavailable"><span>❌</span> Indisponível</td>
+                    <td>10 horas</td>
+                    <td>10 horas</td>
+                  </tr>
+                  <tr>
+                    <td>Daimyo</td>
+                    <td class="td-unavailable"><span>❌</span> Indisponível</td>
+                    <td>14 horas</td>
+                    <td>14 horas</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="info-button" data-section="anexacao">
+        <div class="info-button-header">
+          <div class="info-button-title">ANEXAÇÃO TERRITORIAL</div>
+          <div class="info-button-toggle">▼</div>
+        </div>
+        <div class="info-button-content" onclick="event.stopPropagation()">
+          <div class="info-button-content-inner text-content">
+            <p>O mapa oficial é apenas o cenário inicial. Daimyōs e outros líderes podem realizar campanhas de expansão para engolir novas regiões e reescrever as divisas do mundo.</p>
+            <ul>
+              <li>As áreas neutras (sem cor) não estão vazias. Elas fervem com cidades independentes e esconderijos de mercenários.</li>
+              <li>Sem um governante supremo, essas zonas neutras são o alvo número um dos líderes. Conquistar essas terras significa novos impostos e recursos.</li>
+            </ul>
+            <p>O domínio de um setor é um processo de consolidation de poder.</p>
+
+            <h4 class="rp-section-title">I - NÍVEIS DE CONQUISTA</h4>
+            <p><strong>Nível 1 (Infiltração):</strong> Estágio inicial. Requisitos: 1 Missão Rank B e 2 Missões Rank C.</p>
+            <p><strong>Nível 2 (Ocupação):</strong> Estabelecimento de Posto Avançado. Requisitos: 2 Missões Rank B e 1 Missão Rank A. A anexação dura 7 dias para prosseguir.</p>
+            <p><strong>Nível 3 (Domínio Total):</strong> Estágio final. Exige Missão de Administração ou 14 dias. O setor é totalmente colorido no mapa.</p>
+
+            <h4 class="rp-section-title">II - MOBILIZAÇÃO DE FORÇAS</h4>
+            <ul>
+              <li><strong>Capangas:</strong> Baratos e rápidos (Nível 1). Baixa lealdade.</li>
+              <li><strong>Samurais:</strong> Especialistas em defesa (Nível 2). Lealdade inabalável.</li>
+              <li><strong>Ninjas de Vila:</strong> Mobilizados via missões oficiais para a Vila Oculta aliada.</li>
+            </ul>
+
+            <h4 class="rp-section-title">III - LIDERANÇA E TROPAS</h4>
+            <p>Um Líder com pelo menos 2 players garante bônus de resistência. Em caso de invasão inimiga, o progresso de níveis é congelado até a resolução do conflito.</p>
+
+            <h4 class="rp-section-title">IV - ECONOMIA</h4>
+            <p>Cada setor em Nível 3 gera uma quantia fixa de Ryōs.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-button" id="secao-paises">
+        <div class="info-button-header">
+          <div class="info-button-title">ZONAS DE RP - PAÍSES</div>
+          <div class="info-button-toggle">▼</div>
+        </div>
+        <div class="info-button-content" onclick="event.stopPropagation()">
+          <div class="info-button-content-inner text-content">
+            <p class="rp-subtitle">O mundo recompensa quem se arrisca. Saia da zona de conforto e vá extrair o máximo do mapa!</p>
+            
+            <div class="rp-tabs filter-tabs-paises">
+              <button class="rp-tab active" data-filter="fogo"><span class="icon-fogo">🔥</span> Fogo</button>
+              <button class="rp-tab" data-filter="vento"><span class="icon-vento">🌪</span> Vento</button>
+              <button class="rp-tab" data-filter="agua"><span class="icon-agua">💧</span> Água</button>
+              <button class="rp-tab" data-filter="terra"><span class="icon-terra">🪨</span> Terra</button>
+              <button class="rp-tab" data-filter="relampago"><span class="icon-raio">⚡</span> Relâmpago</button>
+              <button class="rp-tab" data-filter="ferro"><span class="icon-ferro">❄️</span> Ferro</button>
+              <button class="rp-tab" data-filter="uzushio"><span class="icon-uzushio">🌀</span> Uzushio</button>
+            </div>
+
+            <div class="rp-grid" id="grid-paises">
+              
+              <div class="rp-card" data-category="fogo">
+                <div class="rp-card-title">SANTUÁRIO NAKANO (SUBTERRÂNEO)</div>
+                <div class="rp-card-desc">Esconderijo sob um templo abandonado. Os Uchihas se reúnem aqui para ler a pedra ancestral e planejar guerras.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Clã Uchiha (Intrusos correm risco de morte)</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+              
+              <div class="rp-card" data-category="fogo">
+                <div class="rp-card-title">ACAMPAMENTO MÓVEL SENJU</div>
+                <div class="rp-card-desc">Uma base fortificada erguida temporariamente através do Mokuton, movendo-se pelas florestas para evitar emboscadas.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Clã Senju e Aliados</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+              <div class="rp-card" data-category="fogo">
+                <div class="rp-card-title">RIO NAKA</div>
+                <div class="rp-card-desc">Um rio turbulento que marca a linha de tensão entre os Clãs. Onde corpos de batalhas desaguam.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Todos, Zona de Risco</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+              <div class="rp-card" data-category="fogo">
+                <div class="rp-card-title">BOSQUE DOS NARA</div>
+                <div class="rp-card-desc">Mata densa protegida por sombras que se movem sozinhas e cervos que patrulham. Rico em ervas medicinais essenciais para guerra.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Clã Nara e aliados</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+              <div class="rp-card hidden-card" data-category="vento">
+                <div class="rp-card-title">DESERTO DOS DEMÔNIOS</div>
+                <div class="rp-card-desc">Uma vastidão de areia intransponível onde tempestades ocultam segredos esquecidos pelas eras.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Exploradores</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="info-button" id="secao-vilas">
+        <div class="info-button-header">
+          <div class="info-button-title">ZONAS DE RP - LOCAIS (VILAS)</div>
+          <div class="info-button-toggle">▼</div>
+        </div>
+        <div class="info-button-content" onclick="event.stopPropagation()">
+          <div class="info-button-content-inner text-content">
+            
+            <div class="rp-tabs filter-tabs-vilas">
+              <button class="rp-tab active" data-filter="konoha"><span class="icon-konoha">🍃</span> Konoha</button>
+              <button class="rp-tab" data-filter="suna"><span class="icon-vento">🌪</span> Suna</button>
+              <button class="rp-tab" data-filter="kumo"><span class="icon-raio">⚡</span> Kumo</button>
+              <button class="rp-tab" data-filter="kiri"><span class="icon-agua">💧</span> Kiri</button>
+              <button class="rp-tab" data-filter="ferro"><span class="icon-ferro">❄️</span> Ferro</button>
+              <button class="rp-tab" data-filter="uzushio"><span class="icon-uzushio">🌀</span> Uzushio</button>
+            </div>
+
+            <h3 class="rp-group-title" id="titulo-vilas">🍃 KONOHAGAKURE (VILA DA FOLHA)</h3>
+
+            <div class="rp-grid" id="grid-vilas">
+              
+              <div class="rp-card" data-category="konoha">
+                <div class="rp-card-title">ICHIRAKU RAMEN</div>
+                <div class="rp-card-desc">O balcão mais famoso da vila, onde o aroma do caldo atrai desde gennins famintos até líderes exaustos. É o ponto de encontro universal.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Livre</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+              <div class="rp-card" data-category="konoha">
+                <div class="rp-card-title">CHURRASCARIA YAKINIKU Q</div>
+                <div class="rp-card-desc">Onde os clãs se reúnem para banquetes de carne após o sucesso em grandes missões. Ideais para cenas de vitória.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Livre</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+              <div class="rp-card" data-category="konoha">
+                <div class="rp-card-title">MIRANTE DO MONUMENTO DOS HOKAGES</div>
+                <div class="rp-card-desc">O topo das esculturas que vigiam a vila. Um local de silêncio e visão panorâmica, perfeito para cenas de reflexão ou decisões importantes.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Jounins ou com Permissão</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+              <div class="rp-card" data-category="konoha">
+                <div class="rp-card-title">CEMITÉRIO DE KONOHA</div>
+                <div class="rp-card-desc">Um campo de pedras memoriais sob árvores antigas. É o cenário para cenas de luto, onde juramentos e vinganças nascem.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Livre</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+              <div class="rp-card hidden-card" data-category="suna">
+                <div class="rp-card-title">ESTUFA DE SUNAGAKURE</div>
+                <div class="rp-card-desc">Único oásis de verde dentro da vila, onde são cultivadas ervas raras para a divisão de venenos e curas.</div>
+                <div class="rp-card-footer">
+                  <div><span>Acesso:</span> Ninjas Médicos de Suna</div>
+                  <div><span>Premiação:</span></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="player-modal-overlay" id="player-modal-overlay">
+    <div class="player-modal" id="player-modal">
+      <button class="player-modal-close" id="player-modal-close" aria-label="Fechar">×</button>
+      <div id="player-modal-content">
+        <div class="player-modal-avatar" id="player-modal-avatar"></div>
+        <div class="player-modal-name" id="player-modal-name"></div>
+        <div class="player-modal-estilo" id="player-modal-estilo"></div>
+        <div class="player-modal-coord-box">
+          <div class="player-modal-coordenada">Setor Atual: <span id="player-modal-coordenada-valor"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="player-modal-overlay" id="region-modal-overlay">
+    <div class="player-modal" id="region-modal">
+      <button class="player-modal-close" id="region-modal-close" aria-label="Fechar">×</button>
+      <div id="region-modal-content">
+        <div class="player-modal-name" id="region-modal-name" style="margin-top: 15px; margin-bottom: 15px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---- LÓGICA DAS ABAS HORIZONTAIS (FILTROS DE ZONAS) ---- */
+    function setupFilters(tabsSelector, gridSelector, titleSelector = null) {
+      const tabs = document.querySelectorAll(tabsSelector + ' .rp-tab');
+      const cards = document.querySelectorAll(gridSelector + ' .rp-card');
+      const titleElem = titleSelector ? document.querySelector(titleSelector) : null;
+
+      const titulos = {
+        konoha: "🍃 KONOHAGAKURE (VILA DA FOLHA)",
+        suna: "🌪 SUNAGAKURE (VILA DA AREIA)",
+        kumo: "⚡ KUMOGAKURE (VILA DA NUVEM)",
+        kiri: "💧 KIRIGAKURE (VILA DA NÉVOA)",
+        ferro: "❄️ PAÍS DO FERRO",
+        uzushio: "🌀 UZUSHIOGAKURE (VILA DO REDEMOINHO)"
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          e.stopPropagation();
+
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+
+          const category = tab.getAttribute('data-filter');
+
+          if (titleElem && titulos[category]) {
+            titleElem.textContent = titulos[category];
+          }
+
+          cards.forEach(card => {
+            if (card.getAttribute('data-category') === category) {
+              card.classList.remove('hidden-card');
+            } else {
+              card.classList.add('hidden-card');
+            }
+          });
+        });
+      });
+    }
+
+    setupFilters('.filter-tabs-paises', '#grid-paises');
+    setupFilters('.filter-tabs-vilas', '#grid-vilas', '#titulo-vilas');
+
+    /* ---- ACORDEÃO (INFORMAÇÕES) ---- */
+    document.querySelectorAll('.info-button-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const button = header.parentElement;
+        button.classList.toggle('open');
+      });
+    });
+
+    /* ---- JOGADORES (COORDENADAS DO GRID) ---- */
+    /* ATUALIZADO: Usando 'estilo' no lugar de 'clan' */
+    const mockPlayers = [
+      { id: 1, name: 'Itachi Uchiha',  avatar: 'https://via.placeholder.com/120/330000/ff0000?text=Itachi',  gridX: 'E', gridY: '5', color: '#e05a00', estilo: 'Shinobi' },
+      { id: 2, name: 'Kakashi Hatake', avatar: 'https://via.placeholder.com/120/1a1a2e/00d4ff?text=Kakashi', gridX: 'E', gridY: '3', color: '#2980b9', estilo: 'Shinobi' },
+      { id: 3, name: 'Tazuna',         avatar: 'https://via.placeholder.com/120/2d5a2d/00ff88?text=Tazuna',  gridX: 'E', gridY: '4', color: '#16a085', estilo: 'Civil' },
+      { id: 4, name: 'Naruto Uzumaki', avatar: 'https://via.placeholder.com/120/ff6600/ffcc00?text=Naruto',  gridX: 'E', gridY: '3', color: '#d4ac0d', estilo: 'Shinobi' },
+      { id: 5, name: 'Mifune',         avatar: 'https://via.placeholder.com/120/333333/cccccc?text=Mifune',  gridX: 'E', gridY: '3', color: '#95a5a6', estilo: 'Samurai' },
+      { id: 6, name: 'Hinata Hyuga',   avatar: 'https://via.placeholder.com/120/330066/9966ff?text=Hinata',  gridX: 'A', gridY: '5', color: '#8e44ad', estilo: 'Shinobi' },
+      { id: 7, name: 'Daimyo da Água', avatar: 'https://via.placeholder.com/120/003366/0099ff?text=Daimyo',  gridX: 'H', gridY: '5', color: '#0066ff', estilo: 'Daimyo' },
+      { id: 8, name: 'Shikamaru Nara', avatar: 'https://via.placeholder.com/120/333333/cccccc?text=Shika',   gridX: 'E', gridY: '2', color: '#c0392b', estilo: 'Shinobi' },
+      { id: 9, name: 'Ino Yamanaka',   avatar: 'https://via.placeholder.com/120/660066/ff66ff?text=Ino',     gridX: 'F', gridY: '4', color: '#ff00ff', estilo: 'Shinobi' },
+      { id: 10, name: 'Choji Akimichi',avatar: 'https://via.placeholder.com/120/664d33/ffcc99?text=Choji',   gridX: 'D', gridY: '3', color: '#cc0000', estilo: 'Shinobi'}
+    ];
+
+    const cols = 9; 
+    const rows = 7; 
+    const colNames = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+    const rowNames = ['7', '6', '5', '4', '3', '2', '1'];
+
+    function initializeMap() {
+      const mapImg = document.getElementById('mapa-imagem');
+      if(mapImg.complete) { buildOverlays(); } else { mapImg.onload = buildOverlays; }
+
+      function buildOverlays() {
+        const natW = mapImg.naturalWidth || 721;
+        const natH = mapImg.naturalHeight || 616;
+
+        /* 1. QUADRICULADO E LETRAS DE FUNDO */
+        const gridSvg = document.getElementById('mapa-grid');
+        gridSvg.innerHTML = '';
+        for (let i = 1; i < cols; i++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', `${(i / cols) * 100}%`); line.setAttribute('y1', '0');
+          line.setAttribute('x2', `${(i / cols) * 100}%`); line.setAttribute('y2', '100%');
+          line.setAttribute('class', 'grid-line'); gridSvg.appendChild(line);
+        }
+        for (let i = 1; i < rows; i++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', '0'); line.setAttribute('y1', `${(i / rows) * 100}%`);
+          line.setAttribute('x2', '100%'); line.setAttribute('y2', `${(i / rows) * 100}%`);
+          line.setAttribute('class', 'grid-line'); gridSvg.appendChild(line);
+        }
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', `${((c + 0.5) / cols) * 100}%`);
+            text.setAttribute('y', `${((r + 0.5) / rows) * 100}%`);
+            text.setAttribute('class', 'grid-cell-label');
+            text.textContent = `${colNames[c]}${rowNames[r]}`;
+            gridSvg.appendChild(text);
+          }
+        }
+
+        /* 2. REGIÕES DO MAPA COM CORES E MODAL */
+        const regionsSvg = document.getElementById('mapa-regions');
+        regionsSvg.innerHTML = '';
+        regionsSvg.setAttribute('viewBox', `0 0 ${natW} ${natH}`); 
+        const areas = document.querySelectorAll('#hidden-image-map area');
+        areas.forEach(area => {
+          const coords = area.getAttribute('coords');
+          const title = area.getAttribute('title');
+          const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+          polygon.setAttribute('points', coords);
+          
+          let regionColor = '#999999';
+          
+          polygon.setAttribute('class', 'map-region-poly');
+          if (title === 'PAÍS DO RELÂMPAGO') { polygon.classList.add('map-region-relampago'); regionColor = '#ffcc00'; }
+          else if (title === 'PAÍS DA ÁGUA') { polygon.classList.add('map-region-agua'); regionColor = '#0066ff'; }
+          else if (title === 'PAÍS DO FOGO') { polygon.classList.add('map-region-fogo'); regionColor = '#cc0000'; }
+          else if (title === 'PAÍS DO VENTO') { polygon.classList.add('map-region-vento'); regionColor = '#2ecc71'; }
+          else if (title === 'PAÍS DA TERRA') { polygon.classList.add('map-region-terra'); regionColor = '#8B4513'; }
+          else if (title === 'PAÍS DO FERRO') { polygon.classList.add('map-region-ferro'); regionColor = '#95a5a6'; }
+          else if (title === 'PAÍS DO REDEMOINHO') { polygon.classList.add('map-region-uzushio'); regionColor = '#ff69b4'; }
+
+          polygon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openRegionModal(title, regionColor);
+          });
+
+          const titleElem = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          titleElem.textContent = title;
+          polygon.appendChild(titleElem);
+          regionsSvg.appendChild(polygon);
+        });
+
+        /* 3. COLOCAR OS PLAYERS */
+        renderPlayers();
+      }
+    }
+
+    function renderPlayers() {
+      const mapWrapper = document.getElementById('mapa-wrapper');
+      document.querySelectorAll('.player-marker').forEach(m => m.remove());
+      const cellCounts = {};
+
+      mockPlayers.forEach(player => {
+        const cIdx = colNames.indexOf(player.gridX);
+        const rIdx = rowNames.indexOf(player.gridY);
+        if(cIdx === -1 || rIdx === -1) return;
+
+        const cellKey = `${player.gridX}${player.gridY}`;
+        if (!cellCounts[cellKey]) cellCounts[cellKey] = 0;
+        const count = cellCounts[cellKey];
+        cellCounts[cellKey]++;
+
+        let xPct = ((cIdx + 0.5) / cols) * 100;
+        let yPct = ((rIdx + 0.5) / rows) * 100;
+
+        const offsets = [[0,0], [-1.5, -2], [1.5, 2], [-1.5, 2], [1.5, -2]];
+        const offset = offsets[count % offsets.length];
+        xPct += offset[0]; yPct += offset[1];
+
+        const marker = document.createElement('div');
+        marker.className = 'player-marker';
+        marker.style.left = `${xPct}%`; marker.style.top = `${yPct}%`;
+        marker.style.setProperty('--player-color', player.color);
+        
+        marker.innerHTML = `
+          <div class="marker-dot"></div>
+          <div class="marker-tooltip">
+            <div class="tooltip-avatar" style="background-image: url('${player.avatar}')"></div>
+            <span>${player.name}</span>
+          </div>
+        `;
+        
+        marker.addEventListener('mousedown', e => e.stopPropagation());
+        marker.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openPlayerModal(player);
+        });
+        mapWrapper.appendChild(marker);
+      });
+    }
+
+    /* MODAL DE PLAYER (ATUALIZADO PARA EXIBIR O ESTILO) */
+    function openPlayerModal(player) {
+      const avatarEl = document.getElementById('player-modal-avatar');
+      avatarEl.style.backgroundImage = `url('${player.avatar}')`;
+      avatarEl.style.borderColor = player.color;
+      avatarEl.style.boxShadow = `0 0 20px ${player.color}`;
+      
+      const nameEl = document.getElementById('player-modal-name');
+      nameEl.textContent = player.name; nameEl.style.color = player.color;
+      
+      // Inserindo o estilo de vida no lugar do clã
+      document.getElementById('player-modal-estilo').textContent = `Estilo: ${player.estilo}`;
+      
+      document.getElementById('player-modal-coordenada-valor').textContent = `${player.gridX}${player.gridY}`;
+      document.getElementById('player-modal-coordenada-valor').style.color = player.color;
+      
+      const modalBox = document.getElementById('player-modal');
+      modalBox.style.borderColor = player.color; modalBox.style.boxShadow = `0 0 40px ${player.color}60`;
+      
+      document.getElementById('player-modal-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePlayerModal() {
+      document.getElementById('player-modal-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('player-modal-close').addEventListener('click', closePlayerModal);
+    document.getElementById('player-modal-overlay').addEventListener('click', (e) => {
+      if (e.target.id === 'player-modal-overlay') closePlayerModal();
+    });
+
+    /* MODAL DA REGIÃO (PAÍS) */
+    function openRegionModal(title, color) {
+      const nameEl = document.getElementById('region-modal-name');
+      nameEl.textContent = title;
+      nameEl.style.color = color;
+      
+      const modalBox = document.getElementById('region-modal');
+      modalBox.style.borderColor = color; 
+      modalBox.style.boxShadow = `0 0 40px ${color}60`;
+      
+      document.getElementById('region-modal-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeRegionModal() {
+      document.getElementById('region-modal-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('region-modal-close').addEventListener('click', closeRegionModal);
+    document.getElementById('region-modal-overlay').addEventListener('click', (e) => {
+      if (e.target.id === 'region-modal-overlay') closeRegionModal();
+    });
+
+    /* MENU & TEMA */
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); closePlayerModal(); closeRegionModal(); } });
+    function closeNav() { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); }
+
+    const root = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    window.addEventListener('DOMContentLoaded', initializeMap);
+    window.addEventListener('resize', initializeMap);
+  </script>
+</body>
+</html>

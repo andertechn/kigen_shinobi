@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hierarquia Feudal — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: #0a0a0a;
+      --surface-inner: #151515;
+      --border:  #FFD700;
+      /* Destaque Ouro para o Governo */
+      --accent:  #FFD700; 
+      --accent2: #FFE57F;
+      --glow:    rgba(255, 215, 0, 0.4);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#999999;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --surface-inner: #f5f5f5;
+      --border:  #F57F17;
+      --accent:  #F57F17; 
+      --accent2: #FFD700;
+      --glow:    rgba(245, 127, 23, 0.30);
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      overflow-x: hidden;
+      transition: background-color 0.4s, color 0.4s;
+    }
+
+    /* ======= ALINHAMENTO JUSTIFICADO GLOBAL ======= */
+    p, li, .text-content, .intro-text {
+      text-align: justify;
+      line-height: 1.6;
+    }
+
+    /* ======= FUNDO FIXO BLINDADO ======= */
+    #fixed-background { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      z-index: -10; overflow: hidden; background-color: #000;
+    }
+    .hero-bg { 
+      position: absolute; inset: 0; z-index: 0; 
+      width: 100%; height: 100%; object-fit: cover; 
+      filter: brightness(0.3) saturate(0.5); 
+      transition: filter 0.4s ease; 
+    }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { 
+      position: absolute; inset: 0; z-index: 1; pointer-events: none; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.8) 100%); 
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(255,215,0,0.4); transition: box-shadow 0.25s, transform 0.2s; }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    #menu-btn:hover, #theme-toggle:hover { box-shadow: 0 0 20px rgba(255,215,0,0.6); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #FFD700; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #F57F17; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(255,215,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= PÁGINA ESPECÍFICA ======= */
+    #page-container { 
+      position: relative; z-index: 10; min-height: 100vh; 
+      padding: 100px 20px 80px; max-width: 900px; margin: 0 auto; 
+      display: flex; justify-content: center; 
+    }
+    .main-card {
+      background: var(--surface); width: 100%; border-radius: 8px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.9); overflow: hidden;
+      display: flex; flex-direction: column; border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    /* CABEÇALHO AMARELO / TEXTO PRETO */
+    .header-red {
+      background: var(--accent); padding: 20px 24px; display: flex; align-items: center; gap: 16px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; 
+      color: #000; text-transform: uppercase; margin: 0; font-style: italic;
+    }
+    .header-deco { flex: 1; height: 1px; background: rgba(0,0,0,0.3); }
+
+    /* ESPAÇO PARA IMAGEM */
+    .image-placeholder {
+      width: 100%; height: 350px; background: var(--surface-inner);
+      display: flex; align-items: center; justify-content: center;
+      border-bottom: 2px solid var(--accent); position: relative; overflow: hidden;
+    }
+    .image-placeholder span { font-family: 'Russo One', sans-serif; color: var(--text-sub); opacity: 0.5; }
+    .image-placeholder img { position: absolute; width: 100%; height: 100%; object-fit: cover; top: 0; left: 0; }
+
+    /* SEÇÃO INTRO */
+    .intro-section {
+      padding: 40px; background: var(--surface); border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .intro-text { font-size: 1.1rem; color: var(--text); margin-bottom: 15px; text-align: center; }
+
+    /* ======= ORGANOGRAMA / PIRÂMIDE INTERATIVA ======= */
+    .pyramid-section {
+      padding: 40px 20px;
+      background: var(--surface-inner);
+      position: relative;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+    /* Linha vertical central decorativa */
+    .pyramid-section::before {
+      content: ''; position: absolute; top: 40px; bottom: 40px; left: 50%;
+      transform: translateX(-50%); width: 2px; background: rgba(255, 215, 0, 0.15); z-index: 1;
+    }
+
+    .pyramid-level {
+      display: flex; justify-content: center; gap: 15px;
+      position: relative; z-index: 2; width: 100%; flex-wrap: wrap;
+    }
+
+    .pyramid-node {
+      background: var(--bg); border: 2px solid var(--accent);
+      padding: 15px 20px; border-radius: 6px; cursor: pointer;
+      text-align: center; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+      min-width: 150px; flex: 1; max-width: 200px;
+    }
+    .pyramid-node.crown {
+      background: var(--accent); color: #000; border-color: #fff; max-width: 250px;
+    }
+    .pyramid-node.wide { max-width: 300px; }
+
+    .pyramid-node:hover {
+      background: var(--accent); color: #000; transform: translateY(-5px);
+      box-shadow: 0 10px 20px var(--glow);
+    }
+    .pyramid-node h3 { font-family: 'Russo One', sans-serif; font-size: 1rem; margin-bottom: 5px; text-transform: uppercase; }
+    .pyramid-node span { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.8; }
+    .pyramid-node.crown h3 { font-size: 1.3rem; }
+
+    /* ======= SISTEMA DE SANFONAS (ACCORDIONS) ======= */
+    .accordion-container {
+      padding: 40px; background: var(--surface); display: flex; flex-direction: column; gap: 15px;
+    }
+    .ks-accordion {
+      background: var(--surface-inner); border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--accent); border-radius: 6px; overflow: hidden;
+    }
+    [data-theme="light"] .ks-accordion { border-color: rgba(0,0,0,0.1); }
+    .ks-accordion summary {
+      padding: 18px 20px; font-family: 'Russo One', sans-serif; font-size: 1.05rem;
+      color: var(--text); cursor: pointer; display: flex; justify-content: space-between;
+      align-items: center; list-style: none; user-select: none; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .ks-accordion summary::-webkit-details-marker { display: none; }
+    .ks-accordion summary::after { content: '+'; font-size: 1.5rem; font-weight: normal; color: var(--text-sub); }
+    .ks-accordion[open] summary::after { content: '−'; }
+
+    .accordion-content {
+      padding: 25px 20px; border-top: 1px solid rgba(255,255,255,0.05); background: var(--surface);
+      animation: fade-in 0.3s ease-in-out; display: flex; flex-direction: column; gap: 15px;
+    }
+    [data-theme="light"] .accordion-content { border-top-color: rgba(0,0,0,0.05); }
+
+    @keyframes fade-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .acc-list { list-style: none; display: flex; flex-direction: column; gap: 20px; }
+    .acc-list li { padding-left: 15px; border-left: 2px solid rgba(255, 215, 0, 0.3); }
+    .acc-list li strong { color: var(--accent); display: block; font-family: 'Russo One', sans-serif; margin-bottom: 5px; font-weight: normal; letter-spacing: 0.05em; }
+
+    /* ======= MODAL DE INFORMAÇÕES DE CARGO ======= */
+    #role-modal {
+      position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    #role-modal.active { opacity: 1; pointer-events: all; }
+    .role-container {
+      background: var(--surface-inner); width: 100%; max-width: 500px;
+      border-radius: 8px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,1);
+      border: 1px solid var(--accent); transform: scale(0.95); transition: transform 0.3s ease;
+      position: relative;
+    }
+    #role-modal.active .role-container { transform: scale(1); }
+    
+    .role-title { font-family: 'Bangers', cursive; font-size: 2.5rem; color: var(--accent); text-align: center; margin-bottom: 10px; letter-spacing: 0.08em; }
+    .role-subtitle { font-family: 'Russo One', sans-serif; font-size: 1rem; color: #fff; text-align: center; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .role-desc { font-size: 1.1rem; line-height: 1.6; color: var(--text); text-align: justify; margin-bottom: 20px; }
+    
+    .close-role {
+      width: 100%; background: var(--bg); border: 2px solid var(--accent); color: var(--text);
+      padding: 12px; font-family: 'Russo One', sans-serif; font-size: 1rem; cursor: pointer;
+      border-radius: 4px; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .close-role:hover { background: var(--accent); color: #000; }
+
+    @media (max-width: 768px) {
+      #page-container { padding-top: 100px; padding-left: 15px; padding-right: 15px; }
+      .header-red h1 { font-size: 1.8rem; }
+      .image-placeholder { height: 200px; }
+      .pyramid-node { min-width: 120px; padding: 12px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FUNDO BLINDADO -->
+  <div id="fixed-background">
+    <img src="00_fundo_manga.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Civil</a>
+      <a class="nav-link" href="#">Sistemas</a>
+      <a class="nav-link" href="personagens.html">Personagens</a>
+    </nav>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main id="page-container">
+
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>HIERARQUIA E SUCESSÃO</h1>
+        <div class="header-deco"></div>
+      </div>
+
+      <div class="image-placeholder">
+        <img src="00_hierarquia.png" alt="Hierarquia" onerror="this.style.display='none'" />
+        <span>00_hierarquia.png</span>
+      </div>
+
+      <div class="intro-section">
+        <p class="intro-text">
+          Este sistema define a hierarquia, a residência oficial e os métodos de progressão política do seu Estado. 
+          Abaixo encontra-se a Pirâmide de Poder estrutural. <strong>Clique nos cargos para visualizar suas funções e responsabilidades reais.</strong>
+        </p>
+      </div>
+
+      <!-- PIRÂMIDE INTERATIVA -->
+      <div class="pyramid-section">
+        
+        <!-- Nível 1: Daimyō -->
+        <div class="pyramid-level">
+          <div class="pyramid-node crown" onclick="openRole('Daimyō / Senhor Feudal', 'Chefe de Estado', 'Decisor final, assina Decretos e comanda a geopolítica continental.')">
+            <h3>Daimyō</h3>
+            <span>Líder Supremo</span>
+          </div>
+        </div>
+
+        <!-- Nível 2: Os 3 Ministros -->
+        <div class="pyramid-level">
+          <div class="pyramid-node" onclick="openRole('Ministério do Tesouro', 'Gestor do Pilar (Obras & Impostos)', 'Avalia projetos, gerencia orçamentos, impostos, construção e infraestrutura.')">
+            <h3>Min. Tesouro</h3>
+            <span>Alto Conselheiro</span>
+          </div>
+          <div class="pyramid-node" onclick="openRole('Ministério da Defesa', 'Gestor do Pilar (Inteligência & Segurança)', 'Gerencia a segurança, exército, controle de fronteiras e redes de sussurros.')">
+            <h3>Min. Defesa</h3>
+            <span>Alto Conselheiro</span>
+          </div>
+          <div class="pyramid-node" onclick="openRole('Ministério do Interior', 'Gestor do Pilar (Diplomacia & Suprimentos)', 'Controla os suprimentos, implementa leis sociais e firma tratados internacionais.')">
+            <h3>Min. Interior</h3>
+            <span>Alto Conselheiro</span>
+          </div>
+        </div>
+
+        <!-- Nível 3: Os 5 Governadores (Barões) -->
+        <div class="pyramid-level">
+          <div class="pyramid-node" onclick="openRole('Governador do Norte', 'Administrador Regional', 'Garante que as ordens dos Ministros e do Daimyō sejam aplicadas na Província do Norte.')">
+            <h3>Gov. Norte</h3>
+            <span>Barão</span>
+          </div>
+          <div class="pyramid-node" onclick="openRole('Governador do Sul', 'Administrador Regional', 'Garante que as ordens dos Ministros e do Daimyō sejam aplicadas na Província do Sul.')">
+            <h3>Gov. Sul</h3>
+            <span>Barão</span>
+          </div>
+          <div class="pyramid-node" onclick="openRole('Governador do Leste', 'Administrador Regional', 'Garante que as ordens dos Ministros e do Daimyō sejam aplicadas na Província do Leste.')">
+            <h3>Gov. Leste</h3>
+            <span>Barão</span>
+          </div>
+          <div class="pyramid-node" onclick="openRole('Governador do Oeste', 'Administrador Regional', 'Garante que as ordens dos Ministros e do Daimyō sejam aplicadas na Província do Oeste.')">
+            <h3>Gov. Oeste</h3>
+            <span>Barão</span>
+          </div>
+          <div class="pyramid-node" onclick="openRole('Governador Central', 'Administrador Regional', 'Garante que as ordens dos Ministros e do Daimyō sejam aplicadas na Capital.')">
+            <h3>Gov. Central</h3>
+            <span>Barão</span>
+          </div>
+        </div>
+
+        <!-- Nível 4: Magistrados / Herdeiros -->
+        <div class="pyramid-level">
+          <div class="pyramid-node wide" onclick="openRole('Magistrado Local', 'Candidato a Liderança', 'Base do governo civil; cria propostas locais, resolve pequenos atritos e busca reconhecimento para ascensão.')">
+            <h3>Magistrados & Herdeiros</h3>
+            <span>Base Administrativa</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SANFONAS DE REGRAS -->
+      <div class="accordion-container">
+        
+        <details class="ks-accordion" open>
+          <summary>REGRA DE RESIDÊNCIA E NEUTRALIDADE</summary>
+          <div class="accordion-content">
+            <p><strong>A Regra do Daimyō:</strong> O Castelo do Daimyō é uma residência privada e exclusiva; nela, habita apenas o governante supremo.</p>
+            <p>Todos os demais cargos (Ministros, Governadores e Magistrados) devem exercer suas funções e residir no <strong>Gabinete de Governo</strong> (a área administrativa da capital). Isso mantém a neutralidade do poder e a separação entre a vida pessoal do soberano e os assuntos de Estado.</p>
+          </div>
+        </details>
+
+        <details class="ks-accordion">
+          <summary>SISTEMA DE PROMOÇÃO (AS 3 VIAS DE ASCENSÃO)</summary>
+          <div class="accordion-content">
+            <p style="margin-bottom: 15px;">Para subir de cargo, um jogador pode trilhar um dos três caminhos abaixo, provando seu valor para o Estado:</p>
+            <ul class="acc-list">
+              <li>
+                <strong>1. Via de Feitos (Domínio)</strong>
+                O jogador conquista resultados práticos. Dominar uma rota comercial, recrutar ninjas estratégicos, desmantelar organizações inimigas ou realizar qualquer ato que traga um benefício mensurável para a província.
+              </li>
+              <li>
+                <strong>2. Via de Autoridade (Nomeação)</strong>
+                O reconhecimento direto dos superiores por competência demonstrada:<br>
+                • Daimyō: Pode promover qualquer cargo abaixo dele.<br>
+                • Ministro: Pode promover qualquer Governador ou Magistrado.<br>
+                • Governador: Pode promover qualquer Magistrado da sua jurisdição.
+              </li>
+              <li>
+                <strong>3. Via de Pressão (Reputação / Prestígio)</strong>
+                O acúmulo de Prestígio (PP) ou Infâmia (PI) que não pode ser ignorado. Se um jogador atinge um patamar crítico de reputação, o povo gera pressão pública para que ele seja promovido.<br><br>
+                <em>Regra de Ferro:</em> Se o Daimyō recusar uma promoção exigida pelo povo, ele perde pontos de Prestígio. Se o cargo estiver vago, a "pressão popular" pode forçar a nomeação ou o servidor entra em crise.
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="ks-accordion">
+          <summary>SUCESSÃO AO TRONO (TORNANDO-SE DAIMYŌ)</summary>
+          <div class="accordion-content">
+            <p style="margin-bottom: 15px;">O cargo de Daimyō é o topo da hierarquia. Para alcançá-lo, existem dois métodos:</p>
+            <ul class="acc-list">
+              <li>
+                <strong>A. O Golpe de Estado (Via do Sangue)</strong>
+                Exclusivo para Ministros. O Ministro desafia o Daimyō ou outros Ministros. Isso inicia um evento de "Guerra Civil" ou conflito político severo. Se vitorioso (por força, assassinato político ou subversão), o Ministro assume o trono.
+              </li>
+              <li>
+                <strong>B. O Colégio Eleitoral (Via Política)</strong>
+                Os 3 Ministros votam entre si para escolher o novo Daimyō.<br>
+                • O voto é obrigatório.<br>
+                • Proibido votar em si mesmo.<br>
+                • O candidato com mais votos vence. Em caso de empate, vence quem tiver maior pontuação de Prestígio (PP).
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="ks-accordion">
+          <summary>A CRISE DE SUCESSÃO (VÁCUO DE PODER)</summary>
+          <div class="accordion-content">
+            <p>Se o cargo de Daimyō ficar vazio (morte, renúncia ou golpe falho), o governo entra em <strong>Paralisação</strong>.</p>
+            <p><strong>Regra:</strong> "O pessoal para tudo". Nenhum edital, decreto ou mudança de impostos pode ser aprovado durante o vácuo.</p>
+            <p><strong>Resolução:</strong> Os Ministros devem, obrigatoriamente, organizar uma votação imediata ou um candidato deve consolidar o poder (via Golpe) para reativar as funções do Estado.</p>
+          </div>
+        </details>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL DE CARGOS DA PIRÂMIDE -->
+  <div id="role-modal">
+    <div class="role-container">
+      <h2 class="role-title" id="role-title-txt">Cargo</h2>
+      <div class="role-subtitle" id="role-subtitle-txt">Função Principal</div>
+      <p class="role-desc" id="role-desc-txt">Responsabilidade do cargo e descrição do que ele executa dentro do governo.</p>
+      <button class="close-role" onclick="closeRole()">Compreendido</button>
+    </div>
+  </div>
+
+  <script>
+    // Menu
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    
+    function closeNav() { 
+      navOverlay.classList.remove('open'); 
+      menuBtn.classList.remove('open'); 
+    }
+
+    // Tema
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    // Accordions
+    const details = document.querySelectorAll('details.ks-accordion');
+    details.forEach((targetDetail) => {
+      targetDetail.addEventListener('click', () => {
+        details.forEach((detail) => {
+          if (detail !== targetDetail) detail.removeAttribute('open');
+        });
+      });
+    });
+
+    // Modal de Cargos
+    const roleModal = document.getElementById('role-modal');
+    
+    function openRole(title, subtitle, desc) {
+      document.getElementById('role-title-txt').innerText = title;
+      document.getElementById('role-subtitle-txt').innerText = subtitle;
+      document.getElementById('role-desc-txt').innerText = desc;
+      
+      roleModal.classList.add('active');
+      document.body.style.overflow = 'hidden'; 
+    }
+
+    function closeRole() {
+      roleModal.classList.remove('active');
+      document.body.style.overflow = 'auto'; 
+    }
+
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') { closeNav(); closeRole(); }
+    });
+    roleModal.addEventListener('click', (e) => {
+      if(e.target === roleModal) closeRole();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Civil — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --surface-inner: #1a1a1a;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(0,0,0,0.5);
+      --text:    #e0e0e0;
+      --text-sub:#a0a0a0;
+      
+      /* Cores das Subcategorias de Civil */
+      --btn-comum:   #5cb85c;
+      --btn-jornalista: #2196F3;
+      --btn-idolo:   #FFD700;
+      --btn-mafia:   #9C27B0;
+      --btn-ferreiro: #FF6B35;
+      --btn-engenheiro: #00BCD4;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --surface-inner: #f5f5f5;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(0,0,0,0.15);
+      --text:    #222222;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= ALINHAMENTO JUSTIFICADO GLOBAL ======= */
+    p, li, .text-content, .intro-text {
+      text-align: justify;
+      line-height: 1.6;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(3px) brightness(0.38) saturate(0.55); transition: filter 0.4s ease; }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%); transition: background 0.5s; }
+    [data-theme="light"] .hero-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%); }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow); transition: box-shadow 0.25s, transform 0.2s; }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    #menu-btn:hover, #theme-toggle:hover { box-shadow: 0 0 20px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= PÁGINA CIVIL ======= */
+    #civil-page { min-height: 100vh; padding: 145px 20px 80px; max-width: 900px; margin: 0 auto; display: flex; justify-content: center; }
+
+    /* O BLOCO PRINCIPAL FECHADO */
+    .main-card {
+      background: var(--surface);
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 15px 40px var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(204,0,0,0.2);
+    }
+
+    /* CABEÇALHO COM LINHA */
+    .header-red {
+      background: #cc0000;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; 
+      font-size: 2.2rem; 
+      letter-spacing: 0.1em; 
+      color: #fff; 
+      text-transform: uppercase; 
+      margin: 0; 
+      font-style: italic;
+    }
+    .header-deco { 
+      flex: 1; 
+      height: 1px; 
+      background: rgba(255,255,255,0.5);
+    }
+
+    /* SEÇÃO INTRO ======= */
+    .intro-section {
+      padding: 40px;
+      background: var(--surface);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .intro-text {
+      font-size: 1.05rem;
+      color: var(--text);
+      margin: 0;
+    }
+    .intro-text strong {
+      color: #5cb85c;
+      font-weight: 700;
+    }
+
+    /* AVISO REGRAS (Rodapé da Intro) */
+    .warning-section {
+      padding: 0 40px 40px 40px;
+      background: var(--surface);
+    }
+    .civil-footer-warning {
+      border-left: 2px solid #cc0000;
+      position: relative;
+      padding-left: 15px;
+    }
+    .civil-footer-warning::before {
+      content: "···";
+      color: #cc0000;
+      position: absolute;
+      top: -12px;
+      left: -6px;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .civil-footer-warning p {
+      color: #cc0000;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin: 0;
+      padding-top: 8px;
+    }
+
+    /* ======= PALCO INTERATIVO ======= */
+    .interactive-stage {
+      position: relative;
+      width: 100%;
+      height: 550px;
+      background: var(--surface-inner);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 30px;
+      overflow: hidden;
+    }
+    [data-theme="light"] .interactive-stage { border-color: rgba(0,0,0,0.05); }
+
+    /* SETAS DE NAVEGAÇÃO */
+    .nav-arrow {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: transform 0.3s, background 0.3s, box-shadow 0.3s, color 0.3s;
+      box-shadow: 0 5px 15px var(--shadow);
+    }
+    .nav-arrow svg {
+      width: 36px;
+      height: 36px;
+      fill: currentColor;
+    }
+    .nav-arrow:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.1);
+      box-shadow: 0 0 20px var(--glow);
+    }
+    [data-theme="light"] .nav-arrow {
+      background: #fff;
+    }
+    [data-theme="light"] .nav-arrow:hover {
+      background: var(--accent);
+    }
+
+    /* Título Gigante no Fundo */
+    .bg-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Russo One', sans-serif;
+      font-size: clamp(4rem, 15vw, 10rem);
+      color: rgba(255,255,255,0.03);
+      white-space: nowrap;
+      z-index: 1;
+      letter-spacing: 0.1em;
+      transition: color 0.5s, opacity 0.4s ease-in-out;
+      pointer-events: none;
+    }
+    [data-theme="light"] .bg-title { color: rgba(0,0,0,0.04); }
+
+    /* Imagem Central (Sem Cortes) */
+    .character-img {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%; /* Mais espaço agora que não há colunas laterais */
+      height: 100%;
+      background-size: contain;
+      background-position: bottom center;
+      background-repeat: no-repeat;
+      z-index: 2;
+      transition: background-image 0.4s ease-in-out, opacity 0.4s ease, transform 0.4s ease;
+      opacity: 1;
+      pointer-events: none;
+    }
+    .character-img.fade { opacity: 0; transform: translateX(-50%) translateY(15px); }
+
+    /* ======= DESCRIÇÃO ABAIXO DO PALCO ======= */
+    .description-section {
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--surface);
+    }
+
+    .glowing-separator {
+      width: 100%;
+      max-width: 600px;
+      height: 3px;
+      margin-bottom: 24px;
+      border-radius: 2px;
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+
+    .desc-title {
+      font-family: 'Bangers', cursive;
+      font-size: 2.8rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      text-align: center;
+      transition: color 0.4s;
+      font-style: italic;
+    }
+
+    .desc-content { width: 100%; animation: fadeIn 0.4s ease; }
+    .desc-content p { margin-bottom: 14px; color: var(--text); }
+    .desc-content ul { margin-left: 24px; margin-bottom: 16px; color: var(--text-sub); }
+    .desc-content li { margin-bottom: 10px; }
+    .desc-content strong { color: var(--text); font-weight: 600; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      #civil-page { padding-top: 120px; padding-left: 15px; padding-right: 15px; }
+      .header-red h1 { font-size: 1.8rem; }
+      .intro-section { padding: 30px 20px; }
+      .warning-section { padding: 0 20px 30px 20px; }
+      
+      .interactive-stage { 
+        height: 450px; 
+        padding: 0 10px;
+      }
+      
+      .nav-arrow { width: 45px; height: 45px; }
+      .nav-arrow svg { width: 28px; height: 28px; }
+      .character-img { width: 75%; }
+      
+      .description-section { padding: 30px 20px; }
+      .desc-title { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Civil</a>
+      <a class="nav-link" href="geografia.html">Geografia</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="civil-page">
+
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>CIVIL</h1>
+        <div class="header-deco"></div>
+      </div>
+
+      <div class="intro-section">
+        <p class="intro-text">
+          No Kigen Shinobi, o poder não vem apenas do chakra. Os Civis são o motor da <strong>economia, da tecnologia e da informação</strong> do mundo ninja. Jogar como Civil permite uma experiência focada em <strong>RP, Econômico e Social</strong>.
+        </p>
+        <p class="intro-text" style="margin-top: 25px;">
+          Lembre-se: Ser um civil exige inteligência. Sua sobrevivência depende de alianças e de quão indispensável você se torna para as Nações Ninjas!
+        </p>
+      </div>
+
+      <div class="warning-section">
+        <div class="civil-footer-warning">
+          <p>Cada Civil deve possuir uma classe única!</p>
+        </div>
+      </div>
+
+      <div class="interactive-stage">
+        
+        <!-- SETA ESQUERDA -->
+        <button class="nav-arrow" id="prev-btn" aria-label="Classe Anterior">
+          <svg viewBox="0 0 24 24">
+            <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+          </svg>
+        </button>
+
+        <!-- TÍTULO DE FUNDO E IMAGEM -->
+        <div class="bg-title" id="bg-title">CIVIL COMUM</div>
+        <div class="character-img" id="char-img" style="background-image: url('00_civil.png');"></div>
+
+        <!-- SETA DIREITA -->
+        <button class="nav-arrow" id="next-btn" aria-label="Próxima Classe">
+          <svg viewBox="0 0 24 24">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <div class="description-section">
+        
+        <div class="glowing-separator" id="desc-line" style="background: linear-gradient(90deg, transparent, var(--btn-comum), transparent); box-shadow: 0 0 15px var(--btn-comum);"></div>
+        
+        <h2 class="desc-title" id="desc-title" style="color: var(--btn-comum);">🧍 CIVIL COMUM</h2>
+        
+        <div class="desc-content text-content" id="desc-content">
+          <p>Focado no puro RP imersivo de rotina, vivendo em tavernas e empregos simples sem o estresse das batalhas.</p>
+          <ul>
+            <li>Liberdade total para criar histórias pessoais e relacionamentos genuínos.</li>
+            <li>Trabalhos variados: barman, garçom, cozinheiro, vendedor, guarda noturno e mais.</li>
+            <li>Acesso a todas as vilas sem restrições de guerra ou conflito.</li>
+            <li>Possibilidade de se envolver em tramas sociais, romances e mistérios urbanos.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    const civilData = {
+      comum: {
+        title: "🧍 CIVIL COMUM",
+        bgWord: "CIVIL COMUM",
+        color: "var(--btn-comum)",
+        img: "civil_comum.png", 
+        content: `
+          <p>Focado no puro RP imersivo de rotina, vivendo em tavernas e empregos simples sem o estresse das batalhas.</p>
+          <ul>
+            <li>Liberdade total para criar histórias pessoais e relacionamentos genuínos.</li>
+            <li>Trabalhos variados: barman, garçom, cozinheiro, vendedor, guarda noturno e mais.</li>
+            <li>Acesso a todas as vilas sem restrições de guerra ou conflito.</li>
+            <li>Possibilidade de se envolver em tramas sociais, romances e mistérios urbanos.</li>
+          </ul>
+        `
+      },
+      jornalista: {
+        title: "📰 JORNALISTA",
+        bgWord: "JORNALISTA",
+        color: "var(--btn-jornalista)",
+        img: "00_civil_jornalista.png",
+        content: `
+          <p>O olho do mundo. Possui imunidade diplomática para transitar entre países em busca de segredos e fofocas.</p>
+          <ul>
+            <li>Acesso garantido a qualquer local em busca de notícias, mesmo durante conflitos.</li>
+            <li>Poder de influência através da mídia: publicar investigações, expor segredos, moldar opiniões públicas.</li>
+            <li>Rede de contatos espalhada por todo o mundo ninja.</li>
+            <li>Ganhe dinheiro vendendo informações exclusivas aos interessados.</li>
+            <li>Ninguém ousa atacar um jornalista credenciado; sua caneta é mais poderosa que uma espada.</li>
+          </ul>
+        `
+      },
+      idolo: {
+        title: "✨ ÍDOLO",
+        bgWord: "ÍDOLO",
+        color: "var(--btn-idolo)",
+        img: "00_civil_idolo.png",
+        content: `
+          <p>Especialista em fama e influência social, sendo convidado para festas de Daimyōs e atraindo guarda-costas gratuitos.</p>
+          <ul>
+            <li>Fama internacional: seu rosto é reconhecido em qualquer lugar que você vá.</li>
+            <li>Acesso exclusivo a eventos de elite frequentados pela nobreza e pela alta sociedade.</li>
+            <li>Atrai admiradores leais que o protegem voluntariamente.</li>
+            <li>Ganhe fortuna através de patrocínios, apresentações, publicidade e vendas de mercadoria.</li>
+            <li>Sua reputação abra portas que estão fechadas para outros civis comuns.</li>
+          </ul>
+        `
+      },
+      mafia: {
+        title: "🕴️ CRIADOR DE MÁFIAS",
+        bgWord: "MÁFIA",
+        color: "var(--btn-mafia)",
+        img: "00_civil_mafia.png",
+        content: `
+          <p>Domina o submundo através do dinheiro e intimidação, controlando o contrabando e o mercado ilegal.</p>
+          <ul>
+            <li>Crie sua própria organização criminosa e expanda seu poder territorial.</li>
+            <li>Controle rotas de contrabando, venda de itens ilegais e jogos de azar.</li>
+            <li>Corrompa autoridades, suborne ninjas desertores e crie uma rede de espionagem.</li>
+            <li>Ganhe dinheiro sujo em quantidade astronômica através de atividades ilegais.</li>
+            <li>Acesso a assassinos profissionais, mercenários e ex-ninja disponíveis para aluguel.</li>
+          </ul>
+        `
+      },
+      ferreiro: {
+        title: "🔨 FERREIRO",
+        bgWord: "FERREIRO",
+        color: "var(--btn-ferreiro)",
+        img: "00_civil_ferreiro.png",
+        content: `
+          <p>O mestre do aço. Forja katanas afiadas, armaduras resistentes e o armamento essencial para a guerra.</p>
+          <ul>
+            <li>Capacidade exclusiva de forjar Armas Lendárias e Equipamentos únicos.</li>
+            <li>Controle absoluto do mercado de armas: sem você, os guerreiros são inofensivos.</li>
+            <li>Crie lâminas personalizadas, armaduras à prova de jutsu e itens únicos jamais feitos antes.</li>
+            <li>Ganhe riqueza incomparável vendendo para Daimyōs, Shinobi de elite e mercenários.</li>
+            <li>Seu nome se torna uma marca que denota qualidade e poder absoluto.</li>
+          </ul>
+        `
+      },
+      engenheiro: {
+        title: "⚙️ ENGENHEIRO",
+        bgWord: "ENGENHEIRO",
+        color: "var(--btn-engenheiro)",
+        img: "00_civil_engenheiro.png",
+        content: `
+          <p>Mentes brilhantes divididas em Infraestrutura (castelos), Tecnologia (rádios e próteses) e Química (venenos e pólvora).</p>
+          <ul>
+            <li><strong>Infraestrutura:</strong> Projete e construa fortalezas, castelos e estruturas defensivas impenetráveis.</li>
+            <li><strong>Tecnologia:</strong> Desenvolva sistemas de comunicação, próteses robóticas e máquinas de guerra.</li>
+            <li><strong>Química:</strong> Sintetize venenos letais, explosivos, antídotos e elixires de poder.</li>
+            <li>Inovação constante coloca você décadas à frente de qualquer concorrente.</li>
+            <li>Seja admirado por ninjas, contratado por Daimyōs e temido por inimigos em todo o mundo.</li>
+          </ul>
+        `
+      }
+    };
+
+    /* LÓGICA DE NAVEGAÇÃO COM SETAS */
+    const classKeys = ['comum', 'jornalista', 'idolo', 'mafia', 'ferreiro', 'engenheiro'];
+    let currentIndex = 0;
+
+    const charImg = document.getElementById('char-img');
+    const bgTitle = document.getElementById('bg-title');
+    const descTitle = document.getElementById('desc-title');
+    const descContent = document.getElementById('desc-content');
+    const descLine = document.getElementById('desc-line');
+
+    function updateStage(index) {
+      const styleKey = classKeys[index];
+      const data = civilData[styleKey];
+
+      // Efeito Fade suave para a Imagem
+      charImg.classList.add('fade');
+      setTimeout(() => {
+        charImg.style.backgroundImage = `url('${data.img}')`;
+        charImg.classList.remove('fade');
+      }, 300);
+
+      // Efeito de transição suave do Título de Fundo
+      bgTitle.style.opacity = '0';
+      setTimeout(() => {
+        bgTitle.textContent = data.bgWord;
+        bgTitle.style.opacity = '1';
+      }, 250);
+
+      // Atualiza a Linha Divisória de Luz e o Título
+      descLine.style.background = `linear-gradient(90deg, transparent, ${data.color}, transparent)`;
+      descLine.style.boxShadow = `0 0 15px ${data.color}`;
+      descTitle.style.color = data.color;
+      descTitle.textContent = data.title;
+      
+      // Atualiza e reanima o Texto Inferior
+      descContent.innerHTML = data.content;
+      descContent.style.animation = 'none';
+      descContent.offsetHeight; // Força o reflow para a animação reiniciar
+      descContent.style.animation = null;
+    }
+
+    // Eventos de clique nas setas
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + classKeys.length) % classKeys.length;
+      updateStage(currentIndex);
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % classKeys.length;
+      updateStage(currentIndex);
+    });
+
+    /* MENU E TEMA */
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeNav(); });
+    function closeNav() { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); }
+
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+  </script>
+</body>
+</html>

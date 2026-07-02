@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estilos de Vida — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --surface-inner: #1a1a1a;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(0,0,0,0.5);
+      --text:    #e0e0e0;
+      --text-sub:#a0a0a0;
+      
+      /* Cores Vibrantes das Esferas 3D */
+      --btn-shinobi: #ff3333;
+      --btn-samurai: #4d94ff;
+      --btn-civil:   #5cb85c;
+      --btn-daimyo:  #a64dff;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --surface-inner: #f5f5f5;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(0,0,0,0.15);
+      --text:    #222222;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      overflow-x: hidden;
+      transition: color 0.4s;
+    }
+
+    /* ======= ALINHAMENTO JUSTIFICADO GLOBAL ======= */
+    p, li, .text-content {
+      text-align: justify;
+      line-height: 1.6;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(3px) brightness(0.38) saturate(0.55); transition: filter 0.4s ease; }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%); transition: background 0.5s; }
+    [data-theme="light"] .hero-overlay { background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%); }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow); transition: box-shadow 0.25s, transform 0.2s; }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    #menu-btn:hover, #theme-toggle:hover { box-shadow: 0 0 20px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= PÁGINA ESTILOS DE VIDA ======= */
+    /* Padding-top aumentado para 145px para garantir distância dos botões flutuantes */
+    #estilos-vida { min-height: 100vh; padding: 145px 20px 80px; max-width: 900px; margin: 0 auto; display: flex; justify-content: center; }
+
+    /* O BLOCO PRINCIPAL FECHADO (Fundo Sólido) */
+    .main-card {
+      background: var(--surface);
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 15px 40px var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(204,0,0,0.2);
+    }
+
+    /* CABEÇALHO COM LINHA */
+    .header-red {
+      background: #cc0000;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; 
+      font-size: 2.2rem; 
+      letter-spacing: 0.1em; 
+      color: #fff; 
+      text-transform: uppercase; 
+      margin: 0; 
+      font-style: italic;
+    }
+    .header-deco { 
+      flex: 1; 
+      height: 1px; 
+      background: rgba(255,255,255,0.5);
+    }
+
+    /* AVISO REGRAS */
+    .warning-section {
+      padding: 0;
+      background: var(--surface);
+    }
+    .warning-box {
+      background: rgba(204,0,0,0.03);
+      border-left: 4px solid #cc0000;
+      padding: 24px 30px;
+      margin-bottom: 0;
+    }
+    [data-theme="light"] .warning-box { background: rgba(204,0,0,0.02); }
+    .warning-box p { margin-bottom: 14px; color: var(--text); font-weight: 500; font-size: 0.95rem; }
+    .warning-box p:last-child { margin-bottom: 0; }
+    .warning-box .highlight { color: #cc0000; font-weight: 700; display: block; margin-top: 16px; text-align: left; }
+
+    /* ======= PALCO INTERATIVO ======= */
+    .interactive-stage {
+      position: relative;
+      width: 100%;
+      height: 550px;
+      background: var(--surface-inner);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+    [data-theme="light"] .interactive-stage { border-color: rgba(0,0,0,0.05); }
+
+    /* Título Gigante no Fundo */
+    .bg-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Russo One', sans-serif;
+      font-size: clamp(4rem, 15vw, 10rem);
+      color: rgba(255,255,255,0.03);
+      white-space: nowrap;
+      z-index: 1;
+      letter-spacing: 0.1em;
+      transition: color 0.5s, opacity 0.4s ease-in-out;
+      pointer-events: none;
+    }
+    [data-theme="light"] .bg-title { color: rgba(0,0,0,0.04); }
+
+    /* Imagem Central (Sem Cortes) */
+    .character-img {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background-size: contain;
+      background-position: bottom center;
+      background-repeat: no-repeat;
+      z-index: 2;
+      transition: background-image 0.4s ease-in-out, opacity 0.4s ease, transform 0.4s ease;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: none;
+    }
+    .character-img.fade { opacity: 0; transform: translateY(15px); }
+
+    /* ESFERAS 3D (BOTÕES) */
+    .node-btn {
+      position: absolute;
+      width: 85px; height: 85px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 4;
+      transform: translate(-50%, -50%);
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), filter 0.3s, box-shadow 0.3s;
+      
+      box-shadow: 
+        inset 0 8px 12px rgba(255,255,255,0.3),  
+        inset 0 -10px 14px rgba(0,0,0,0.7),       
+        0 10px 20px rgba(0,0,0,0.6);             
+      filter: grayscale(70%) brightness(0.5);
+    }
+    
+    .node-btn::after {
+      content: ''; position: absolute; top: 8px; left: 15%; width: 70%; height: 35%;
+      border-radius: 50%; background: linear-gradient(rgba(255,255,255,0.5), transparent);
+      pointer-events: none;
+    }
+
+    .node-btn svg {
+      width: 34px; height: 34px;
+      fill: #111; stroke: #111;
+      filter: drop-shadow(0 2px 2px rgba(255,255,255,0.2));
+      transition: transform 0.3s;
+      z-index: 2;
+    }
+    
+    .node-btn:hover { filter: grayscale(0%) brightness(1); transform: translate(-50%, -50%) scale(1.05); }
+    .node-btn.active { 
+      filter: grayscale(0%) brightness(1.2); 
+      transform: translate(-50%, -50%) scale(1.1); 
+      box-shadow: 
+        inset 0 8px 12px rgba(255,255,255,0.6), 
+        inset 0 -10px 14px rgba(0,0,0,0.3), 
+        0 0 45px var(--active-shadow-color); 
+    }
+    .node-btn.active svg { transform: scale(1.1); }
+
+    .node-shinobi { background: radial-gradient(circle at 50% 20%, #ff8080 0%, var(--btn-shinobi) 80%); --active-shadow-color: var(--btn-shinobi); top: 25%; left: 22%; }
+    .node-civil   { background: radial-gradient(circle at 50% 20%, #8cff8c 0%, var(--btn-civil) 80%);   --active-shadow-color: var(--btn-civil);   top: 25%; left: 78%; }
+    .node-samurai { background: radial-gradient(circle at 50% 20%, #80bfff 0%, var(--btn-samurai) 80%); --active-shadow-color: var(--btn-samurai); top: 75%; left: 22%; }
+    .node-daimyo  { background: radial-gradient(circle at 50% 20%, #d98cff 0%, var(--btn-daimyo) 80%);  --active-shadow-color: var(--btn-daimyo);  top: 75%; left: 78%; }
+
+    /* ======= DESCRIÇÃO ABAIXO DO PALCO ======= */
+    .description-section {
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--surface);
+    }
+
+    .glowing-separator {
+      width: 100%;
+      max-width: 600px;
+      height: 3px;
+      margin-bottom: 24px;
+      border-radius: 2px;
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+
+    .desc-title {
+      font-family: 'Bangers', cursive;
+      font-size: 2.8rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      text-align: center;
+      transition: color 0.4s;
+      font-style: italic;
+    }
+
+    .desc-content { width: 100%; animation: fadeIn 0.4s ease; }
+    .desc-content p { margin-bottom: 14px; color: var(--text); }
+    .desc-content ul { margin-left: 24px; margin-bottom: 16px; color: var(--text-sub); }
+    .desc-content li { margin-bottom: 10px; }
+    .desc-content strong { color: var(--text); font-weight: 600; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      /* Padding-top aumentado no mobile também */
+      #estilos-vida { padding-top: 120px; padding-left: 15px; padding-right: 15px; }
+      .header-red h1 { font-size: 1.8rem; }
+      .warning-box { padding: 18px 20px; }
+      .interactive-stage { height: 400px; }
+      .node-btn { width: 65px; height: 65px; }
+      .node-btn svg { width: 26px; height: 26px; }
+      .description-section { padding: 30px 20px; }
+      .desc-title { font-size: 2.2rem; }
+      
+      .node-shinobi { top: 20%; left: 25%; }
+      .node-civil   { top: 20%; left: 75%; }
+      .node-samurai { top: 80%; left: 25%; }
+      .node-daimyo  { top: 80%; left: 75%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Estilos de Vida</a>
+      <a class="nav-link" href="geografia.html">Geografia</a>
+      <a class="nav-link" href="#">Wiki</a>
+      <a class="nav-link" href="#">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="estilos-vida">
+
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>ESTILOS DE VIDA</h1>
+        <div class="header-deco"></div>
+      </div>
+
+      <div class="warning-section">
+        <div class="warning-box text-content">
+          <p>§ Você pode começar com 2 personagens.</p>
+          <p>§ Após 1 mês de jogo ativo, você desbloqueia o teto de 3 personagens simultâneos sob sua responsabilidade.</p>
+          <p>§ Seus personagens não podem se favorecer (ex: nomeações políticas ou transferência de poderes). Eles podem ser da mesma vila, mas só devem se encontrar em último caso; fora isso, é estritamente proibido cenarem entre si.</p>
+          <span class="highlight">É extremamente obrigatório que os estilos de vida sejam diferentes!</span>
+        </div>
+      </div>
+
+      <div class="interactive-stage">
+        
+        <div class="bg-title" id="bg-title">SHINOBI</div>
+
+        <div class="character-img" id="char-img" style="background-image: url('URL_DA_SUA_IMAGEM_SHINOBI.png');"></div>
+
+        <div class="node-btn node-shinobi active" data-style="shinobi" title="Shinobi">
+          <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L10 9h4L12 2z M11 9v7h2V9z M9 16h6v2H9z M11 18v4h2v-4z" fill="#111" stroke="none"/>
+          </svg>
+        </div>
+
+        <div class="node-btn node-civil" data-style="civil" title="Civil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+        </div>
+        
+        <div class="node-btn node-samurai" data-style="samurai" title="Samurai do País do Ferro">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2l-5 5 M17 7l-2 2-3-3 2-2 3 3z M15 9L6 18 M4 16l4 4 M6 18l-4 4" fill="none" stroke="#111"/>
+            <path d="M2 2l5 5 M7 7l2 2 3-3-2-2-3 3z M9 9l9 9 M16 20l4-4 M18 18l4 4" fill="none" stroke="#111"/>
+          </svg>
+        </div>
+
+        <div class="node-btn node-daimyo" data-style="daimyo" title="Daimyō / Nobreza">
+          <svg viewBox="0 0 24 24" fill="#111" stroke="none">
+            <path d="M5 21h14v-2H5v2zm2-4h10v-2H7v2zm5-13L7 9h10l-5-5z M6 4h2v3H6z M10 4h4v3h-4z M16 4h2v3h-2z" />
+          </svg>
+        </div>
+
+      </div>
+
+      <div class="description-section">
+        
+        <div class="glowing-separator" id="desc-line" style="background: linear-gradient(90deg, transparent, var(--btn-shinobi), transparent); box-shadow: 0 0 15px var(--btn-shinobi);"></div>
+        
+        <h2 class="desc-title" id="desc-title" style="color: var(--btn-shinobi);">SHINOBI (NINJAS)</h2>
+        
+        <div class="desc-content text-content" id="desc-content">
+          <p>Nascidos em clãs, vocês são a arma suja da nobreza. Vivem pela sobrevivência da família e por território.</p>
+          <ul>
+            <li>Acesso exclusivo aos raríssimos Kekkei Genkai (Linhagens avançadas e Doujutsus).</li>
+            <li>Domínio total sobre Ninjutsu, Genjutsu, Fuinjutsu, Kenjutsu e Taijutsu.</li>
+            <li>Infiltre-se, assassine alvos de alto escalão e construa a lenda do seu clã nas sombras ou até mesmo sozinho.</li>
+            <li>Versatilidade absurda. Você é imprevisível, letal e se adapta a qualquer cenário de guerra.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    const stylesData = {
+      shinobi: {
+        title: "SHINOBI (NINJAS)",
+        bgWord: "SHINOBI",
+        color: "var(--btn-shinobi)",
+        img: "00_ninja.png", 
+        content: `
+          <p>Nascidos em clãs, vocês são a arma suja da nobreza. Vivem pela sobrevivência da família e por território.</p>
+          <ul>
+            <li>Acesso exclusivo aos raríssimos Kekkei Genkai (Linhagens avançadas e Doujutsus).</li>
+            <li>Domínio total sobre Ninjutsu, Genjutsu, Fuinjutsu, Kenjutsu e Taijutsu.</li>
+            <li>Infiltre-se, assassine alvos de alto escalão e construa a lenda do seu clã nas sombras ou até mesmo sozinho.</li>
+            <li>Versatilidade absurda. Você é imprevisível, letal e se adapta a qualquer cenário de guerra.</li>
+          </ul>
+        `
+      },
+      samurai: {
+        title: "SAMURAI DO PAÍS DO FERRO",
+        bgWord: "SAMURAI",
+        color: "var(--btn-samurai)",
+        img: "00_samurai.png",
+        content: `
+          <p>Militares disciplinados e armados até os dentes. Seguem um código rígido, caçam usuários de chakra e servem como a verdadeira força de elite do mundo.</p>
+          <ul>
+            <li>Maestria letal em Kenjutsu (espadas).</li>
+            <li>Usam armaduras pesadas que anulam ou reduzem drasticamente o dano de Ninjutsu inimigos.</li>
+            <li>Maestria absoluta e incomparável em Kenjutsu (combate com espadas). Um corte, uma morte.</li>
+            <li>Lidere batalhões inteiros, expurgue renegados e duele até a morte pela sua patente.</li>
+            <li>Você é a muralha de aço que faz a "magia" inimiga parecer um truque barato.</li>
+          </ul>
+        `
+      },
+      civil: {
+        title: "CIVIL",
+        bgWord: "CIVIL",
+        color: "var(--btn-civil)",
+        img: "00_civil_idolo.png",
+        content: `
+          <p>Você não precisa cuspir fogo para ter poder, o seu poder é o próprio dinheiro. Pode ser um rico lendário, um informante da máfia ou até mesmo um mafioso, um pirata, um médico brilhante ou alguém famoso influente que sobreviveu ao caos - ou não.</p>
+          <ul>
+            <li>Apenas você possui o segredo para forjar Armas Lendárias e itens únicos. Sem o seu trabalho, os maiores guerreiros do mundo são inofensivos.</li>
+            <li>Torne-se um ícone mundial. Seja o ferreiro mais respeitado entre Reis, um Super-star ou o Pirata mais temido dos mares; seu nome é uma marca de poder que precede seus passos.</li>
+            <li>Enquanto eles usam chakra, você usa ciência. Mestre em braços mecânicos, venenos indetectáveis e armadilhas que desafiam a lógica ninja.</li>
+            <li>Liberdade total para viajar sem fronteiras. Conheça segredos ocultos do mapa enquanto vive em mansões ou navios, lucrando com a destruição alheia.</li>
+          </ul>
+        `
+      },
+      daimyo: {
+        title: "DAIMYŌ / NOBREZA",
+        bgWord: "DAIMYŌ",
+        color: "var(--btn-daimyo)",
+        img: "00_daymo.png",
+        content: `
+          <p>Você nasceu em berço de ouro. Dos muros altos do seu castelo, a guerra lá fora é apenas um jogo de xadrez onde os outros são suas peças. Recursos financeiros quase ilimitados e poder diplomático. Você pode iniciar guerras, colocar recompensas em cabeças inimigas e comandar exércitos particulares.</p>
+          <ul>
+            <li>O maior poder financeiro, político e diplomático de todo o RPG.</li>
+            <li>Anexe novos territórios, viaje pelo mundo, conheça novas culturas, financie a criação de vilas e inicie guerras continentais com uma simples assinatura.</li>
+            <li>Coloque recompensas milionárias na cabeça de jogadores inimigos e assista ao caos de camarote.</li>
+            <li>Você não suja as mãos no campo de batalha; você compra a vida de quem luta nele.</li>
+          </ul>
+        `
+      }
+    };
+
+    /* LÓGICA DE INTERAÇÃO DOS BOTÕES */
+    const nodes = document.querySelectorAll('.node-btn');
+    const charImg = document.getElementById('char-img');
+    const bgTitle = document.getElementById('bg-title');
+    const descTitle = document.getElementById('desc-title');
+    const descContent = document.getElementById('desc-content');
+    const descLine = document.getElementById('desc-line');
+
+    nodes.forEach(node => {
+      node.addEventListener('click', () => {
+        if(node.classList.contains('active')) return;
+
+        nodes.forEach(n => n.classList.remove('active'));
+        node.classList.add('active');
+
+        const styleKey = node.getAttribute('data-style');
+        const data = stylesData[styleKey];
+
+        // Efeito Fade suave para a Imagem
+        charImg.classList.add('fade');
+        setTimeout(() => {
+          charImg.style.backgroundImage = `url('${data.img}')`;
+          charImg.classList.remove('fade');
+        }, 300);
+
+        // Efeito de transição suave do Título de Fundo
+        bgTitle.style.opacity = '0';
+        setTimeout(() => {
+          bgTitle.textContent = data.bgWord;
+          bgTitle.style.opacity = '1';
+        }, 250);
+
+        // Atualiza a Linha Divisória de Luz e o Título
+        descLine.style.background = `linear-gradient(90deg, transparent, ${data.color}, transparent)`;
+        descLine.style.boxShadow = `0 0 15px ${data.color}`;
+        descTitle.style.color = data.color;
+        descTitle.textContent = data.title;
+        
+        // Atualiza e reanima o Texto Inferior
+        descContent.innerHTML = data.content;
+        descContent.style.animation = 'none';
+        descContent.offsetHeight; // Força o reflow para a animação reiniciar
+        descContent.style.animation = null;
+      });
+    });
+
+    /* MENU E TEMA */
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeNav(); });
+    function closeNav() { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); }
+
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+  </script>
+</body>
+</html>

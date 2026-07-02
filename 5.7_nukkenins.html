@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Nukenin — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.9); 
+      --surface-inner: #121214;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #ff4444;
+      --glow:    rgba(204, 0, 0, 0.5);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+
+      /* Cores dos Ranks de Periculosidade */
+      --rank-s: #F44336; /* Vermelho */
+      --rank-a: #9C27B0; /* Roxo */
+      --rank-b: #2196F3; /* Azul */
+      --rank-c: #4CAF50; /* Verde */
+      --rank-d: #8D6E63; /* Marrom */
+      --rank-n: #9E9E9E; /* Cinza (Nulo) */
+    }
+
+    [data-theme="light"] {
+      --bg:      #f0f0f0;
+      --surface: rgba(255, 255, 255, 0.95);
+      --surface-inner: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000; 
+      --accent2: #dd0000;
+      --glow:    rgba(204, 0, 0, 0.25);
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.4s, color 0.4s;
+    }
+
+    p, li { text-align: justify; line-height: 1.6; }
+
+    /* ======= FUNDO FIXO BLINDADO ======= */
+    #fixed-background { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      z-index: -10; overflow: hidden; background-color: #000;
+    }
+    .hero-bg { 
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; 
+      filter: brightness(0.3) saturate(0.6); 
+      transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { 
+      position: absolute; inset: 0; pointer-events: none; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%); 
+    }
+
+    /* ======= UI FLUTUANTE ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { 
+      width: 48px; height: 48px; border-radius: 50%; background: #000; 
+      border: 2px solid var(--border); cursor: pointer; display: flex; 
+      align-items: center; justify-content: center; box-shadow: 0 0 10px var(--glow);
+      transition: transform 0.2s;
+    }
+    #menu-btn:hover, #theme-toggle:hover { transform: scale(1.07); }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: var(--accent); stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
+
+    /* ======= CONTEÚDO PRINCIPAL ======= */
+    #page-container { 
+      position: relative; z-index: 10; 
+      padding: 160px 20px 80px; 
+      max-width: 900px; margin: 0 auto; 
+    }
+
+    .main-card {
+      background: var(--surface); border-radius: 8px; border: 1px solid rgba(204,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden;
+    }
+
+    .header-red {
+      background: var(--accent); padding: 20px 25px; display: flex; align-items: center; gap: 15px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; 
+      color: #fff; text-transform: uppercase; margin: 0; font-style: italic;
+    }
+    .header-deco { flex: 1; height: 1px; background: rgba(255,255,255,0.4); }
+
+    .content-padding { padding: 40px; }
+    
+    .intro-text { 
+      font-size: 1.1rem; line-height: 1.6; text-align: justify; 
+      margin-bottom: 25px; color: var(--text);
+    }
+    .intro-text strong { color: var(--accent2); font-weight: normal; font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; }
+
+    .section-title {
+      font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: var(--text);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+      text-transform: uppercase; border-left: 4px solid var(--accent); padding-left: 15px;
+      margin-top: 40px;
+    }
+
+    /* ======= GRADE DE CLASSIFICAÇÃO DOS NUKENINS ======= */
+    .rank-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .rank-card {
+      background: var(--surface-inner);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--r-color);
+      border-radius: 6px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    [data-theme="light"] .rank-card { border-color: rgba(0,0,0,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+    .rank-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--r-color);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    }
+
+    .rank-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+    }
+
+    .rank-title {
+      font-family: 'Bangers', cursive; font-size: 2rem; color: var(--r-color);
+      letter-spacing: 0.05em; margin: 0; line-height: 1;
+    }
+
+    .rank-icon {
+      font-size: 1.5rem; line-height: 1;
+    }
+
+    .rank-desc {
+      font-size: 0.95rem; color: var(--text); line-height: 1.5; flex: 1;
+    }
+
+    /* Cores Injetadas nos Cartões */
+    .r-s { --r-color: var(--rank-s); }
+    .r-a { --r-color: var(--rank-a); }
+    .r-b { --r-color: var(--rank-b); }
+    .r-c { --r-color: var(--rank-c); }
+    .r-d { --r-color: var(--rank-d); }
+    .r-n { --r-color: var(--rank-n); }
+
+    /* Modificador para o cartão S ocupar as duas colunas */
+    .rank-card.r-s { grid-column: span 2; }
+
+    /* ======= SANFONAS (MISSÕES E EVOLUÇÃO) ======= */
+    .accordion-container { display: flex; flex-direction: column; gap: 15px; }
+    .ks-accordion {
+      background: var(--surface-inner); border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--accent); border-radius: 6px; overflow: hidden;
+    }
+    [data-theme="light"] .ks-accordion { border-color: rgba(0,0,0,0.1); }
+    
+    .ks-accordion summary {
+      padding: 18px 20px; font-family: 'Russo One', sans-serif; font-size: 1.1rem;
+      color: var(--text); cursor: pointer; display: flex; justify-content: space-between;
+      align-items: center; list-style: none; user-select: none; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .ks-accordion summary::-webkit-details-marker { display: none; }
+    .ks-accordion summary::after { content: '+'; font-size: 1.5rem; color: var(--text-sub); }
+    .ks-accordion[open] summary::after { content: '−'; }
+
+    .accordion-content {
+      padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); background: var(--surface);
+      animation: fade-in 0.3s ease-in-out;
+    }
+    [data-theme="light"] .accordion-content { border-top-color: rgba(0,0,0,0.05); }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .rules-list { list-style: none; }
+    .rules-list li { 
+      background: rgba(255,255,255,0.03); padding: 15px 15px 15px 40px; 
+      border-radius: 4px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);
+      position: relative; font-size: 1rem; line-height: 1.5;
+    }
+    [data-theme="light"] .rules-list li { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.05); }
+    .rules-list li:last-child { margin-bottom: 0; }
+    .rules-list li::before {
+      content: '➔'; position: absolute; left: 15px; top: 15px;
+      color: var(--accent); font-weight: bold; font-family: sans-serif;
+    }
+    .rules-list li strong { color: var(--accent2); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em; }
+
+    @media (max-width: 600px) {
+      #page-container { padding-top: 130px; }
+      .header-red h1 { font-size: 2.2rem; }
+      .content-padding { padding: 25px 20px; }
+      .rank-grid { grid-template-columns: 1fr; }
+      .rank-card.r-s { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FUNDO BLINDADO -->
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" class="hero-bg" alt="Fundo" onerror="this.style.display='none'">
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- UI FLUTUANTE -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- NAV OVERLAY -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="#">Início</a>
+      <a class="nav-link" href="#">Sistemas</a>
+      <a class="nav-link" href="#">Nukenin</a>
+      <a class="nav-link" href="personagens.html">Personagens</a>
+    </nav>
+  </div>
+
+  <main id="page-container">
+    <div class="main-card">
+      
+      <div class="header-red">
+        <h1>SISTEMA DE NUKENIN</h1>
+        <div class="header-deco"></div>
+      </div>
+
+      <div class="content-padding">
+        
+        <p class="intro-text">
+          <strong>Nukenin (抜け忍, Ninja Fugitivo)</strong> são shinobi que abandonaram suas vilas sem intenção de retorno, cortando voluntariamente seus laços com a aldeia, muitas vezes após cometerem crimes graves, por interesse pessoal ou por cruzarem fronteiras políticas proibidas.
+        </p>
+        <p class="intro-text">
+          Embora cada vila mantenha seus próprios métodos de lidar com esse tipo de deserção, todo criminoso tem, por direito, a possibilidade de julgamento. Em casos de crimes severos, como o assassinato de um daimyō ou tentativa de golpe de estado, o próprio daimyō delega a missão de captura ou julgamento a um shinobi de confiança. Vale lembrar que civis ou forças policiais convencionais são incapazes de conter ou prender um shinobi, o que levou à criação de divisões especializadas (como Oinin) para lidar exclusivamente com esses criminosos.
+        </p>
+
+        <p class="intro-text" style="padding-left: 20px; border-left: 3px solid var(--accent);">
+          No sistema do Kigen, ao optar por se tornar um nukenin, o personagem inicia sua jornada como um andarilho sem afiliação, aceitando trabalhos marginais ou missões paralelas para sobrevivência, geralmente fora da lei. Tais atividades podem ser solicitadas diretamente à administração. A periculosidade desses ninjas define sua classificação por Rank, que é registrada no Bingo Book da vila, tornando-o alvo de caçadores e força militar.
+        </p>
+
+        <h2 class="section-title">Classificação de Periculosidade</h2>
+        <p style="margin-bottom: 25px; color: var(--text-sub);">
+          Essas classificações determinam não só a notoriedade do nukenin, como também o valor de sua recompensa e o tipo de perseguição que poderá sofrer por todo o continente.
+        </p>
+
+        <div class="rank-grid">
+          
+          <div class="rank-card r-s">
+            <div class="rank-header">
+              <h3 class="rank-title">RANK S</h3>
+              <span class="rank-icon">☠️</span>
+            </div>
+            <p class="rank-desc">Nukenin de altíssima periculosidade, com poder comparável ao de um Kage ou membro da elite ANBU. Extremamente procurado, raro e com ordens estritas de eliminação imediata na maioria das vilas.</p>
+          </div>
+
+          <div class="rank-card r-a">
+            <div class="rank-header">
+              <h3 class="rank-title">RANK A</h3>
+              <span class="rank-icon">🔥</span>
+            </div>
+            <p class="rank-desc">Perigo elevado, força e habilidades no nível de um experiente Jōnin. Tido como ameaça direta e letal à sociedade e à segurança do estado.</p>
+          </div>
+
+          <div class="rank-card r-b">
+            <div class="rank-header">
+              <h3 class="rank-title">RANK B</h3>
+              <span class="rank-icon">⚔️</span>
+            </div>
+            <p class="rank-desc">Considerado perigoso para civis e forças comuns. O confronto direto contra um Nukenin Rank B quase sempre resultará em um intenso combate com baixas.</p>
+          </div>
+
+          <div class="rank-card r-c">
+            <div class="rank-header">
+              <h3 class="rank-title">RANK C</h3>
+              <span class="rank-icon">💰</span>
+            </div>
+            <p class="rank-desc">Envolve criminosos de nível chūnin ou inferior, com histórico de delitos moderados como furtos, emboscadas de baixa escala, contrabando e fraudes.</p>
+          </div>
+
+          <div class="rank-card r-d">
+            <div class="rank-header">
+              <h3 class="rank-title">RANK D</h3>
+              <span class="rank-icon">🏃</span>
+            </div>
+            <p class="rank-desc">Baixa ameaça à sociedade, tendo cometido apenas crimes menores, pequenos delitos não violentos ou simplesmente abandonado seu posto na vila por covardia.</p>
+          </div>
+
+          <div class="rank-card r-n">
+            <div class="rank-header">
+              <h3 class="rank-title">RANK NULO</h3>
+              <span class="rank-icon">🌑</span>
+            </div>
+            <p class="rank-desc">Andarilhos sem histórico criminal conhecido. São desconhecidos do público, operam completamente nas sombras e ainda não possuem recompensa atrelada às suas cabeças.</p>
+          </div>
+
+        </div>
+
+        <!-- REGRAS DE MISSÕES E EVOLUÇÃO -->
+        <h2 class="section-title">A Vida Fora da Lei</h2>
+
+        <div class="accordion-container">
+          
+          <details class="ks-accordion">
+            <summary>MISSÕES MARGINAIS (MERCENÁRIAS)</summary>
+            <div class="accordion-content">
+              <ul class="rules-list">
+                <li><strong>Trabalhos do Submundo:</strong> Ao invés do sistema de missões convencional da vila, Nukenins devem solicitar "Missões Paralelas" ou "Trabalhos Sujos" diretamente aos administradores via ticket ou mural específico do submundo.</li>
+                <li><strong>Tipos de Missões:</strong> Envolvem desde proteção de líderes de cartéis, assassinatos encomendados, roubo de artefatos de vilas ocultas, até sabotagem econômica.</li>
+                <li><strong>Recompensas Escusas:</strong> Nukenins ganham Ryōs através de espólios de guerra, tesouros saqueados e pagamentos de clientes do mercado negro, não tendo salário fixo.</li>
+                <li><strong>O Risco:</strong> Missões do submundo podem colocar o Nukenin em choque direto contra esquadrões de ninjas fiéis que estão realizando missões de segurança.</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="ks-accordion">
+            <summary>EVOLUÇÃO E RECOMPENSAS NO LIVRO BINGO</summary>
+            <div class="accordion-content">
+              <ul class="rules-list">
+                <li><strong>Acúmulo de Crimes:</strong> O Rank de um Nukenin não evolui por provas tradicionais (como o Exame Chūnin), mas sim pela <strong>gravidade de seus atos narrados em ON</strong>. Cada assassinato de figura importante, invasão ou furto valioso aumenta seu prestígio (e seu perigo).</li>
+                <li><strong>Revisão da Recompensa:</strong> A Staff monitora as ações dos desertores. Quando um Nukenin realiza grandes feitos caóticos, seu nome no <strong>Livro Bingo</strong> é atualizado para um Rank maior, e o valor em Ryōs pela sua cabeça dispara.</li>
+                <li><strong>Caçados pelos Próprios:</strong> Assim que a recompensa de um Nukenin aumenta substancialmente, ele pode e será caçado por mercenários, Oinins (Caçadores de Ninjas) e até mesmo por outros Nukenins interessados em receber o dinheiro sujo pela sua cabeça.</li>
+                <li><strong>Organizações:</strong> Nukenins experientes (Rank B ou superior) podem tentar fundar ou ingressar em organizações criminosas com ideais próprios, reunindo forças para sobreviver à caçada contínua das Grandes Nações.</li>
+              </ul>
+            </div>
+          </details>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Lógica do Menu Overlay
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    
+    function closeNav() { 
+      navOverlay.classList.remove('open'); 
+      menuBtn.classList.remove('open'); 
+    }
+
+    // Toggle Tema
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') closeNav(); 
+    });
+  </script>
+</body>
+</html>
