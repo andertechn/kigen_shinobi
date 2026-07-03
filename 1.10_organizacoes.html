@@ -45,10 +45,9 @@
             color: var(--text);
             font-family: 'Rajdhani', sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: flex-start; 
+            flex-direction: column;
+            align-items: center; 
             min-height: 100vh;
-            /* Aumentei o padding-top para 140px para criar espaço abaixo do botão do tema */
             padding: 140px 20px 60px 20px; 
             overflow-x: hidden;
             transition: color 0.4s;
@@ -184,8 +183,8 @@
             border-radius: 12px; 
             overflow: hidden;
             border: 1.5px solid rgba(204,0,0,0.25);
-            box-shadow: 0 20px 40px var(--shadow);
-            margin-bottom: 60px;
+            box-shadow: 0 15px 40px var(--shadow);
+            margin-bottom: 40px; 
             transition: background 0.4s, box-shadow 0.4s;
         }
 
@@ -202,7 +201,6 @@
             text-transform: uppercase;
         }
 
-        /* Linha até o final do bloco */
         .header-line {
             display: block;
             flex-grow: 1;
@@ -292,6 +290,79 @@
 
         strong { color: var(--text); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em; }
 
+        /* === TABELA DE FAMA === */
+        .fama-table {
+            width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 25px;
+            background: rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden;
+        }
+        .fama-table th {
+            background: var(--accent); color: #fff; padding: 15px 12px;
+            font-family: 'Russo One', sans-serif; font-size: 0.95rem; letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .fama-table td {
+            padding: 15px 12px; font-size: 1.05rem; color: var(--text-sub);
+            border-bottom: 1px solid rgba(204,0,0,0.15);
+        }
+        [data-theme="light"] .fama-table td { border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .fama-table tr:hover { background: rgba(204,0,0,0.05); }
+        .fama-table tr:last-child td { border-bottom: none; }
+        
+        .fama-rank { font-weight: bold; font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; }
+        .fama-score { color: var(--accent2); font-family: 'Russo One', sans-serif; }
+
+        /* ====== ESTILOS DA LISTA DE ORGANIZAÇÕES ====== */
+        .active-org-card {
+            display: flex;
+            gap: 24px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(204,0,0,0.3);
+            border-radius: 8px;
+            padding: 20px;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .active-org-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px var(--shadow);
+            border-color: var(--accent);
+        }
+        
+        .org-img-placeholder {
+            width: 140px;
+            height: 140px;
+            background: rgba(0,0,0,0.5);
+            border: 2px dashed var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+            font-family: 'Russo One', sans-serif;
+            font-size: 0.8rem;
+            text-align: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .org-img-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0; left: 0;
+        }
+
+        .org-details { flex: 1; }
+        .org-details p {
+            font-size: 1.05rem; color: var(--text-sub); margin-bottom: 8px; line-height: 1.5;
+        }
+        .org-details p:last-child { margin-bottom: 0; }
+        .org-details strong { color: var(--text); }
+
+        @media (max-width: 650px) {
+            .active-org-card { flex-direction: column; align-items: flex-start; text-align: left; }
+            .org-img-placeholder { width: 100%; height: 180px; }
+        }
         @media (max-width: 580px) {
             .card-header { padding: 16px 20px; }
             .card-body { padding: 20px; }
@@ -332,43 +403,54 @@
         </button>
     </div>
 
- <div id="nav-overlay" role="dialog" aria-modal="true">
-    <div class="overlay-bg" id="overlay-close"></div>
-    <nav id="nav-panel">
-      <a class="nav-link" href="index.html">Início</a>
-      <a class="nav-link" href="1.2_historia.html">História</a>
-      <a class="nav-link" href="1.3_geografia.html">Geografia</a>
-      <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de vida</a>
-      <a class="nav-link" href="1.5_calendario.html">Calendário</a>
-      <a class="nav-link" href="1.6_jornal.html">Jornal</a>
-      <a class="nav-link" href="1.7_administracao.html">Administração</a>
-      <a class="nav-link" href="1.8_sangue.html">Sangue</a>
-      <a class="nav-link" href="1.9_eternizados.html">Eternizados</a>
-      <a class="nav-link" href="1.10_organizacoes.html">Organizações</a>
-      <a class="nav-link" href="1.11_religioes.html">Religiões</a>
-      <a class="nav-link" href="1.12_tag.html">TAGS</a>
-      <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
-      <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
-      <a class="nav-link" href="1.15_hall_da_fama.html">Hall da Fama</a>
-      <a class="nav-link" href="1.16_alcunhas.html">Alcunhas</a>
-      <a class="nav-link" href="1.17_legado.html">Legado</a>
-      <a class="nav-link" href="#">Loja</a>
-      <a class="nav-link" href="1.18_regras.html">Regras</a>
-    </nav>
-  </div>
+    <div id="nav-overlay" role="dialog" aria-modal="true">
+        <div class="overlay-bg" id="overlay-close"></div>
+        <nav id="nav-panel">
+            <a class="nav-link" href="index.html">Início</a>
+            <a class="nav-link" href="1.2_historia.html">História</a>
+            <a class="nav-link" href="1.3_geografia.html">Geografia</a>
+            <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de vida</a>
+            <a class="nav-link" href="1.5_calendario.html">Calendário</a>
+            <a class="nav-link" href="1.6_jornal.html">Jornal</a>
+            <a class="nav-link" href="1.7_administracao.html">Administração</a>
+            <a class="nav-link" href="1.8_sangue.html">Sangue</a>
+            <a class="nav-link" href="1.9_eternizados.html">Eternizados</a>
+            <a class="nav-link" href="1.10_organizacoes.html">Organizações</a>
+            <a class="nav-link" href="1.11_religioes.html">Religiões</a>
+            <a class="nav-link" href="1.12_tag.html">TAGS</a>
+            <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
+            <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
+            <a class="nav-link" href="1.15_hall_da_fama.html">Hall da Fama</a>
+            <a class="nav-link" href="1.16_alcunhas.html">Alcunhas</a>
+            <a class="nav-link" href="1.17_legado.html">Legado</a>
+            <a class="nav-link" href="#">Loja</a>
+            <a class="nav-link" href="1.18_regras.html">Regras</a>
+        </nav>
+    </div>
+
 
     <div class="history-card">
         <div class="card-header">
             <span>ORGANIZAÇÕES</span>
             <span class="header-line"></span>
-            </div>
+        </div>
+        
+        <div class="card-body">
+            <p style="font-size: 1.05rem; color: var(--text-sub); line-height: 1.6; text-align: justify; transition: color 0.4s;">
+                No caos da Era dos Estados Combatentes, sobreviver sozinho é para tolos ou lendas. Os players podem se unir para fundar suas próprias Organizações, moldando a política, a economia e o mapa do servidor.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="history-card">
+        <div class="card-header">
+            <span>SISTEMAS DA FACÇÃO</span>
+            <span class="header-line"></span>
+        </div>
         
         <div class="card-body">
             
-            <p style="font-size: 1.05rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; text-align: justify; transition: color 0.4s;">
-                No caos da Era dos Estados Combatentes, sobreviver sozinho é para tolos ou lendas. Os players podem se unir para fundar suas próprias Organizações, moldando a política, a economia e o mapa do servidor.
-            </p>
-
             <button class="gen-btn" onclick="toggle('fundacao')">
                 <span>FUNDAÇÃO</span>
                 <span id="seta-fundacao">▼</span>
@@ -376,9 +458,9 @@
             <div class="expand-content" id="fundacao">
                 <div class="org-text">
                     Para criar uma facção oficial, o grupo não pode apenas "se juntar". É preciso:<br><br>
-                    • <strong>Mínimo de Membros:</strong> O grupo deve ter, obrigatoriamente, 3 fundadores iniciais.<br>
-                    • <strong>Motivação em ON:</strong> Um trauma compartilhado, uma filosofia de paz, um desejo de monopólio ou vingança contra um Daimyō.<br>
-                    • <strong>Registro Oficial:</strong> Preencher o formulário da Staff detalhando o nome, os líderes e o símbolo da facção.
+                    • O grupo deve ter, obrigatoriamente, 3 fundadores iniciais.<br>
+                    • Um trauma compartilhado, uma filosofia de paz, um desejo de monopólio ou vingança contra um Daimyō.<br>
+                    • Acessar o formulário em: <strong>Atividades > GERÊNCIA DE TRAMAS > FUNDAÇÃO DE UMA ORGANIZAÇÃO</strong> e preencher detalhando o nome, os líderes e o símbolo da facção.
                 </div>
             </div>
 
@@ -409,10 +491,12 @@
             </button>
             <div class="expand-content" id="defesa">
                 <div class="org-text">
-                    Toda organização precisa de um teto, e no Kigen, qualquer base pode ser invadida por grupos rivais. A segurança da sua facção depende do seu bolso:<br><br>
-                    • <strong>Esconderijo Básico (Gratuito):</strong> Uma caverna úmida ou casa abandonada. Zero defesas. Qualquer um pode descobrir e invadir facilmente.<br><br>
-                    • <strong>Mercado Imobiliário (Upgrades):</strong> Com o tempo e acúmulo de Ryos, a organização pode comprar imóveis melhores, como Mansões, Fortalezas ou Castelos.<br><br>
-                    • <strong>Sistema de Segurança:</strong> Bases compradas permitem contratar NPCs Mercenários (guardas, cães ninjas) e instalar armadilhas. Uma Fortaleza nível máximo exige um exército para ser invadida.
+                    Toda organização precisa de uma base, e no Kigen, qualquer base pode ser invadida por grupos rivais. A segurança da sua facção depende da estratégia dos líderes:<br><br>
+                    • <strong>Esconderijo Básico:</strong> Qualquer local considerado invadido pelo grupo em ON, seja uma caverna úmida, uma casa abandonada ou um pequeno posto esquecido.<br><br>
+                    • <strong>Esconderijo Estruturado:</strong> Com o tempo e acúmulo de Ryos, a organização pode comprar imóveis melhores e legalizados.<br>
+                    &nbsp;&nbsp;&nbsp;» <strong>Rank B</strong> (Casas urbanas, estalagens discretas, fazendas de pequeno porte ou templos isolados): 50.000 Ryos<br>
+                    &nbsp;&nbsp;&nbsp;» <strong>Rank A</strong> (Mansões fortificadas, complexos de armazéns, dojos de grande porte ou vilarejos controlados): 100.000 Ryos<br>
+                    &nbsp;&nbsp;&nbsp;» <strong>Rank S</strong> (Castelos imponentes, fortalezas montanhosas, complexos subterrâneos secretos ou ilhas particulares): 200.000 Ryos
                 </div>
             </div>
 
@@ -421,28 +505,77 @@
                 <span id="seta-fama">▼</span>
             </button>
             <div class="expand-content" id="fama">
+                <div class="org-text" style="margin-bottom: 20px;">
+                    Para graduar o nível da organização, os líderes devem acumular <strong>Score Requisito</strong>. Esse Score é conquistado através de missões, eventos e grandes feitos com seus membros, determinando a influência da sua facção no mundo shinobi.
+                </div>
+
+                <table class="fama-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Score Requisito</th>
+                            <th>O que a Organização Alcança</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fama-rank" style="color: #b3b3b3;">Rank D</td>
+                            <td class="fama-score">0 Score</td>
+                            <td>O bando acabou de se formar. Fama estritamente local e estrutura inicial.</td>
+                        </tr>
+                        <tr>
+                            <td class="fama-rank" style="color: #76c7c0;">Rank C</td>
+                            <td class="fama-score">30.000 Score</td>
+                            <td>O nome começa a circular nas tavernas. Fama regional e respeito de pequenos grupos.</td>
+                        </tr>
+                        <tr>
+                            <td class="fama-rank" style="color: #4fa5d6;">Rank B</td>
+                            <td class="fama-score">60.000 Score</td>
+                            <td>Vocês controlam uma parte do mapa. Força militar reconhecida e influência econômica consolidada.</td>
+                        </tr>
+                        <tr>
+                            <td class="fama-rank" style="color: #d9534f;">Rank A</td>
+                            <td class="fama-score">120.000 Score</td>
+                            <td>Uma verdadeira cidadela inexpugnável. Poder político capaz de peitar as Grandes Nações.</td>
+                        </tr>
+                        <tr>
+                            <td class="fama-rank" style="color: #ff3333;">Rank S</td>
+                            <td class="fama-score">200.000 Score</td>
+                            <td>O Mundo shinobi tem medo ou prestígio. A organização é conhecida por todos.</td>
+                        </tr>
+                        <tr>
+                            <td class="fama-rank" style="color: #ff3333;">Rank S+</td>
+                            <td class="fama-score">500.000 Score</td>
+                            <td>Lendas vivas. A organização molda a história do continente inteiro.</td>
+
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="org-text" style="margin-bottom: 25px; padding-top: 10px; border-top: 1px dashed rgba(204,0,0,0.2);">
+                    <strong style="color: var(--accent); font-size: 1.2rem;">GANHO DE FAMA POR MISSÕES E AÇÕES</strong><br>
+                    Para acumular o Score necessário para subir de Rank, a organização deve realizar feitos em ON. Abaixo estão os níveis de ações e a Fama que elas rendem:
+                </div>
+
                 <div class="org-item">
-                    <span class="org-title">Rank D (Desconhecidos):</span>
-                    <div class="org-text">O bando acabou de se formar. Feitos: Pequenas missões de escolta ou roubos locais.</div>
+                    <span class="org-title">Ação Nível D (+1.000 Pontos de Fama):</span>
+                    <div class="org-text">Pequenas missões de escolta, dominação de postos simples ou roubos locais.</div>
                 </div>
                 <div class="org-item">
-                    <span class="org-title">Rank C (Rumores Crescentes):</span>
-                    <div class="org-text">O nome de vocês começa a circular nas tavernas. Feitos: Assassinar um NPC importante ou monopolizar o comércio de uma pequena vila.</div>
+                    <span class="org-title">Ação Nível C (+2.000 Pontos de Fama):</span>
+                    <div class="org-text">Assassinar um NPC importante ou monopolizar o comércio de uma pequena vila.</div>
                 </div>
                 <div class="org-item">
-                    <span class="org-title">Rank B (Ameaça/Força Regional):</span>
-                    <div class="org-text">Vocês controlam uma parte do mapa. Feitos: Vencer uma Guerra de Território, caçar membros do Bingo Book de alto nível ou defender um Daimyō.</div>
+                    <span class="org-title">Ação Nível B (+4.000 Pontos de Fama):</span>
+                    <div class="org-text">Vencer uma Guerra de Território, caçar membros do Bingo Book de alto nível ou defender um Daimyō ativamente.</div>
                 </div>
                 <div class="org-item">
-                    <span class="org-title">Rank A (A Potência Global):</span>
-                    <div class="org-text">
-                        Uma verdadeira cidadela inexpugnável. Feitos: Declarar (e vencer) uma Guerra Oficial. <br>
-                        <strong>Vantagem:</strong> Acesso a uma "Árvore de Pesquisa" onde os membros podem criar Jutsus ou Armas Exclusivas.
-                    </div>
+                    <span class="org-title">Ação Nível A (+8.000 Pontos de Fama):</span>
+                    <div class="org-text">Declarar (e vencer) uma Guerra Oficial e dominar rotas comerciais massivas.</div>
                 </div>
                 <div class="org-item">
-                    <span class="org-title">Rank S (Lendas Vivas):</span>
-                    <div class="org-text">A organização molda a história do continente inteiro.</div>
+                    <span class="org-title">Ação Nível S (+16.000 Pontos ou Feito Global):</span>
+                    <div class="org-text">Realizar um ataque global coordenado e massivo contra Grandes Nações com sucesso absoluto.</div>
                 </div>
             </div>
 
@@ -452,8 +585,8 @@
             </button>
             <div class="expand-content" id="recrutamento">
                 <div class="org-text">
-                    • <strong>Caçada Ativa (Ranks D e C):</strong> Os fundadores precisam ir atrás dos players no mapa, conversar em ON e tentar convencê-los a entrar.<br><br>
-                    • <strong>Busca Passiva (Ranks B pra cima):</strong> Quando a organização ganha fama regional, players novatos e mercenários começarão a procurar a base implorando por uma vaga.
+                    • <strong>Caçada Ativa:</strong> Os fundadores precisam ir atrás dos players no mapa, conversar em ON e tentar convencê-los a entrar.<br><br>
+                    • <strong>Busca Passiva:</strong> Quando a organização ganha fama regional, players novatos e mercenários começarão a procurar a base implorando por uma vaga.
                 </div>
             </div>
 
@@ -463,8 +596,8 @@
             </button>
             <div class="expand-content" id="guerras">
                 <div class="org-text">
-                    • <strong>O Domínio:</strong> Se a sua organização conquistar um local do mapa, vocês podem cobrar pedágio (taxa de Ryos) ou expulsá-los à força.<br><br>
-                    • <strong>O Conflito:</strong> Para tomar um local, é preciso invadir o chat e derrotar os membros da organização rival que estiverem defendendo a área.
+                    • <strong>Domínio:</strong> Se a sua organização conquistar um local do mapa, vocês podem cobrar pedágio (taxa de Ryos) ou expulsar civis/shinobis à força.<br><br>
+                    • <strong>Conflitos:</strong> Para tomar um local, é preciso invadir o chat respectivo no servidor e derrotar os membros da organização rival que estiverem defendendo a área.
                 </div>
             </div>
 
@@ -475,8 +608,33 @@
         </div>
     </div>
 
+
+    <div class="history-card">
+        <div class="card-header">
+            <span>ORGANIZAÇÕES ATIVAS</span>
+            <span class="header-line"></span>
+        </div>
+        
+        <div class="card-body">
+            
+            <div class="active-org-card">
+                <div class="org-img-placeholder">
+                    Imagem / Logo da Facção
+                </div>
+                
+                <div class="org-details">
+                    <p><strong>Nome da Facção:</strong> Nenhum</p>
+                    <p><strong>Fundadores:</strong> Nenhum</p>
+                    <p><strong>Polaridade:</strong> Nenhum</p>
+                    <p><strong>Base:</strong> Básico</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <script>
-        /* ---- SCRIPT ORIGINAL (ACCORDION) ---- */
+        /* ---- SCRIPT (ACCORDION) ---- */
         function toggle(id) {
             const content = document.getElementById(id);
             const seta = document.getElementById('seta-' + id);
@@ -486,7 +644,7 @@
             }
         }
 
-        /* ---- MENU NOVO ---- */
+        /* ---- MENU ---- */
         const menuBtn    = document.getElementById('menu-btn');
         const navOverlay = document.getElementById('nav-overlay');
         document.getElementById('overlay-close').addEventListener('click', closeNav);
@@ -503,7 +661,7 @@
             menuBtn.classList.remove('open');
         }
 
-        /* ---- TEMA NOVO ---- */
+        /* ---- TEMA ---- */
         const root  = document.documentElement;
         const saved = localStorage.getItem('ks-theme') || 'dark';
         root.setAttribute('data-theme', saved);

@@ -48,7 +48,6 @@
             justify-content: center;
             align-items: flex-start; 
             min-height: 100vh;
-            /* Aumentei o padding superior de 100px para 130px para dar mais espaço aos botões */
             padding: 130px 20px 60px 20px; 
             overflow-x: hidden;
             transition: color 0.4s;
@@ -189,35 +188,23 @@
             transition: background 0.4s, box-shadow 0.4s;
         }
 
-        /* CABEÇALHO ATUALIZADO */
         .card-header {
             background-color: var(--accent);
             color: white;
             padding: 20px 36px;
             display: flex; 
             align-items: center;
-            gap: 15px; /* Espaço entre o texto e a linha */
+            gap: 15px; 
             font-family: 'Bangers', cursive;
             font-size: clamp(1.8rem, 4vw, 2.5rem);
             letter-spacing: 0.15em; 
             text-transform: uppercase;
-            font-style: italic; /* Adicionado para ficar igual ao "Vínculos" */
+            font-style: italic; 
         }
 
-        .header-title {
-            white-space: nowrap;
-        }
-
-        /* Linha que se estende até o final */
-        .header-line {
-            flex-grow: 1;
-            height: 2px;
-            background-color: white;
-        }
-
-        .card-body {
-            padding: 30px 36px;
-        }
+        .header-title { white-space: nowrap; }
+        .header-line { flex-grow: 1; height: 2px; background-color: white; }
+        .card-body { padding: 30px 36px; }
 
         /* === BOX DE SISTEMA === */
         .system-box {
@@ -276,47 +263,53 @@
 
         .expand-content.active { display: block; }
 
-        /* === RANKS (SEPARADORES SIMPLES) === */
+        /* === RANKS === */
         .rank-item {
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 1px dashed rgba(204,0,0,0.2);
         }
-        .rank-item:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
+        .rank-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
         .rank-title {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: var(--text);
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-family: 'Russo One', sans-serif; font-size: 1.1rem; margin-bottom: 8px;
+            color: var(--text); letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;
         }
 
         .rank-text {
-            font-size: 1.05rem;
-            color: var(--text-sub);
-            line-height: 1.6;
-            text-align: justify;
-            transition: color 0.4s;
+            font-size: 1.05rem; color: var(--text-sub); line-height: 1.6; text-align: justify; transition: color 0.4s;
         }
         
         .rank-text strong {
-            color: var(--accent);
-            font-family: 'Russo One', sans-serif;
-            font-weight: normal;
-            letter-spacing: 0.05em;
+            color: var(--accent); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em;
         }
+
+        /* === TABELA DE RECOMPENSAS === */
+        .rewards-table {
+            width: 100%; border-collapse: collapse; text-align: center; margin-top: 20px;
+            background: rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden;
+        }
+        .rewards-table th {
+            background: var(--accent); color: #fff; padding: 15px 10px;
+            font-family: 'Russo One', sans-serif; font-size: 0.95rem; letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .rewards-table td {
+            padding: 15px 10px; font-size: 1.05rem; color: var(--text-sub);
+            border-bottom: 1px solid rgba(204,0,0,0.15); vertical-align: middle;
+            line-height: 1.5;
+        }
+        [data-theme="light"] .rewards-table td { border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .rewards-table tr:hover { background: rgba(204,0,0,0.05); }
+        .rewards-table tr:last-child td { border-bottom: none; }
+        
+        .reward-rank { font-weight: bold; font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; }
+        .reward-ninja { color: #4fa5d6; font-weight: bold; }
+        .reward-civil { color: #d4ac0d; font-weight: bold; }
 
         @media (max-width: 580px) {
             .card-header { padding: 16px 20px; }
             .card-body { padding: 20px; }
+            .rewards-table td, .rewards-table th { padding: 10px 5px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -354,30 +347,30 @@
         </button>
     </div>
 
- <div id="nav-overlay" role="dialog" aria-modal="true">
-    <div class="overlay-bg" id="overlay-close"></div>
-    <nav id="nav-panel">
-      <a class="nav-link" href="index.html">Início</a>
-      <a class="nav-link" href="1.2_historia.html">História</a>
-      <a class="nav-link" href="1.3_geografia.html">Geografia</a>
-      <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de vida</a>
-      <a class="nav-link" href="1.5_calendario.html">Calendário</a>
-      <a class="nav-link" href="1.6_jornal.html">Jornal</a>
-      <a class="nav-link" href="1.7_administracao.html">Administração</a>
-      <a class="nav-link" href="1.8_sangue.html">Sangue</a>
-      <a class="nav-link" href="1.9_eternizados.html">Eternizados</a>
-      <a class="nav-link" href="1.10_organizacoes.html">Organizações</a>
-      <a class="nav-link" href="1.11_religioes.html">Religiões</a>
-      <a class="nav-link" href="1.12_tag.html">TAGS</a>
-      <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
-      <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
-      <a class="nav-link" href="1.15_hall_da_fama.html">Hall da Fama</a>
-      <a class="nav-link" href="1.16_alcunhas.html">Alcunhas</a>
-      <a class="nav-link" href="1.17_legado.html">Legado</a>
-      <a class="nav-link" href="#">Loja</a>
-      <a class="nav-link" href="1.18_regras.html">Regras</a>
-    </nav>
-  </div>
+    <div id="nav-overlay" role="dialog" aria-modal="true">
+        <div class="overlay-bg" id="overlay-close"></div>
+        <nav id="nav-panel">
+            <a class="nav-link" href="index.html">Início</a>
+            <a class="nav-link" href="1.2_historia.html">História</a>
+            <a class="nav-link" href="1.3_geografia.html">Geografia</a>
+            <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de vida</a>
+            <a class="nav-link" href="1.5_calendario.html">Calendário</a>
+            <a class="nav-link" href="1.6_jornal.html">Jornal</a>
+            <a class="nav-link" href="1.7_administracao.html">Administração</a>
+            <a class="nav-link" href="1.8_sangue.html">Sangue</a>
+            <a class="nav-link" href="1.9_eternizados.html">Eternizados</a>
+            <a class="nav-link" href="1.10_organizacoes.html">Organizações</a>
+            <a class="nav-link" href="1.11_religioes.html">Religiões</a>
+            <a class="nav-link" href="1.12_tag.html">TAGS</a>
+            <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
+            <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
+            <a class="nav-link" href="1.15_hall_da_fama.html">Hall da Fama</a>
+            <a class="nav-link" href="1.16_alcunhas.html">Alcunhas</a>
+            <a class="nav-link" href="1.17_legado.html">Legado</a>
+            <a class="nav-link" href="#">Loja</a>
+            <a class="nav-link" href="1.18_regras.html">Regras</a>
+        </nav>
+    </div>
 
     <div class="history-card">
         
@@ -389,7 +382,7 @@
         <div class="card-body">
             
             <p style="font-size: 1.05rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; transition: color 0.4s;">
-                No momento da Criação do Personagem, todo jogador deve definir 5 Objetivos de Vida. Esses objetivos são o norte da sua história e o que define o seu legado.
+                No momento inicial do Personagem, todo jogador deve definir 5 Objetivos de Vida. Esses objetivos são o norte da sua história e o que define o seu legado.
             </p>
 
             <div class="system-box">
@@ -401,13 +394,13 @@
                 • Ao completar todos os seus 5 Objetivos de Vida atuais, o jogador ganha o direito de criar +5 novos propósitos, e assim por diante.
             </div>
 
+            <!-- ACORDEÃO DOS RANKS -->
             <button class="gen-btn" onclick="toggle('ranks-container')">
                 <span>🏆 RANK DOS PROPÓSITOS DE VIDA</span>
                 <span id="seta-ranks-container">▼</span>
             </button>
 
             <div class="expand-content" id="ranks-container">
-                
                 <div class="rank-item">
                     <div class="rank-title">🟢 Rank E | Primeiros passos na jornada shinobi</div>
                     <div class="rank-text">
@@ -463,7 +456,65 @@
                         <strong>Exemplos:</strong> Tornar-se Jinchūriki do Jūbi, despertar o Rinnegan, alcançar a imortalidade ou subjugar as Cinco Grandes Nações.
                     </div>
                 </div>
+            </div>
 
+            <!-- ACORDEÃO DAS RECOMPENSAS (NOVO) -->
+            <button class="gen-btn" onclick="toggle('premios-container')" style="margin-top: 15px;">
+                <span>🎁 RECOMPENSAS POR CONCLUSÃO</span>
+                <span id="seta-premios-container">▼</span>
+            </button>
+            
+            <div class="expand-content" id="premios-container">
+                <p style="font-size: 1.05rem; color: var(--text-sub); line-height: 1.6; text-align: justify; margin-bottom: 10px;">
+                    As recompensas variam de acordo com o Estilo de Vida escolhido pelo seu personagem. Enquanto combatentes focam em aprimorar o corpo e seu arsenal, civis e líderes políticos acumulam fortunas e influência social (Score).
+                </p>
+
+                <table class="rewards-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Ninjas e Samurais</th>
+                            <th>Civis e Daimyōs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="reward-rank" style="color: #76c7c0;">Rank E</td>
+                            <td class="reward-ninja">+5 Atributos <br> +10 Chakra <br> 5.000 Ryos</td>
+                            <td class="reward-civil">10.000 Ryos <br> +10 Score</td>
+                        </tr>
+                        <tr>
+                            <td class="reward-rank" style="color: #4fa5d6;">Rank D</td>
+                            <td class="reward-ninja">+10 Atributos <br> +20 Chakra <br> 10.000 Ryos</td>
+                            <td class="reward-civil">20.000 Ryos <br> +20 Score</td>
+                        </tr>
+                        <tr>
+                            <td class="reward-rank" style="color: #e67e22;">Rank C</td>
+                            <td class="reward-ninja">+15 Atributos <br> +30 Chakra <br> 20.000 Ryos</td>
+                            <td class="reward-civil">40.000 Ryos <br> +30 Score</td>
+                        </tr>
+                        <tr>
+                            <td class="reward-rank" style="color: #d9534f;">Rank B</td>
+                            <td class="reward-ninja">+20 Atributos <br> +40 Chakra <br> 40.000 Ryos</td>
+                            <td class="reward-civil">80.000 Ryos <br> +40 Score</td>
+                        </tr>
+                        <tr>
+                            <td class="reward-rank" style="color: #ff3333;">Rank A</td>
+                            <td class="reward-ninja">+30 Atributos <br> +50 Chakra <br> 80.000 Ryos</td>
+                            <td class="reward-civil">160.000 Ryos <br> +50 Score</td>
+                        </tr>
+                        <tr>
+                            <td class="reward-rank" style="color: #9b59b6;">Rank S</td>
+                            <td class="reward-ninja">+50 Atributos <br> +100 Chakra <br> 150.000 Ryos</td>
+                            <td class="reward-civil">300.000 Ryos <br> +100 Score</td>
+                        </tr>
+                        <tr>
+                            <td class="reward-rank" style="color: #f1c40f;">Rank S++</td>
+                            <td class="reward-ninja">+100 Atributos <br> +200 Chakra <br> 300.000 Ryos</td>
+                            <td class="reward-civil">600.000 Ryos <br> +200 Score</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
         </div>
@@ -502,7 +553,6 @@
         const saved = localStorage.getItem('ks-theme') || 'dark';
         root.setAttribute('data-theme', saved);
         
-        // Corrigido "docuSment" para "document"
         document.getElementById('theme-toggle').addEventListener('click', () => {
             const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             root.setAttribute('data-theme', next);

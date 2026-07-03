@@ -48,7 +48,6 @@
             justify-content: center;
             align-items: flex-start; 
             min-height: 100vh;
-            /* Aumentado o padding-top de 100px para 150px para afastar dos botões flutuantes */
             padding: 150px 20px 60px 20px; 
             overflow-x: hidden;
             transition: color 0.4s;
@@ -194,27 +193,18 @@
             color: white;
             padding: 20px 36px;
             display: flex; 
-            justify-content: space-between; 
             align-items: center;
+            gap: 15px; 
             font-family: 'Bangers', cursive;
-            font-size: clamp(1.6rem, 4vw, 2.5rem);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             letter-spacing: 0.15em; 
             text-transform: uppercase;
+            font-style: italic; 
         }
 
-        /* Nova classe para a listra esticada */
-        .header-stripe {
-            flex-grow: 1;
-            height: 3px;
-            background-color: #ffffff;
-            margin: 0 20px;
-            border-radius: 2px;
-            opacity: 0.8;
-        }
-
-        .card-body {
-            padding: 30px 36px;
-        }
+        .header-title { white-space: nowrap; }
+        .header-stripe { flex-grow: 1; height: 3px; background-color: #ffffff; margin: 0 20px; border-radius: 2px; opacity: 0.8; }
+        .card-body { padding: 30px 36px; }
 
         /* === BOX DE SISTEMA === */
         .system-box {
@@ -228,6 +218,9 @@
             line-height: 1.75;
             text-align: justify;
             transition: color 0.4s, background-color 0.4s;
+        }
+        .system-box strong {
+            color: var(--text); font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; font-weight: normal;
         }
 
         /* === GAVETAS ESTÁVEIS === */
@@ -248,64 +241,56 @@
             transition: background-color 0.2s ease, box-shadow 0.2s;
             outline: none;
         }
-
-        .gen-btn:hover { 
-            background-color: rgba(204,0,0,0.05); 
-            box-shadow: 0 4px 10px var(--shadow); 
-        }
+        .gen-btn:hover { background-color: rgba(204,0,0,0.05); box-shadow: 0 4px 10px var(--shadow); }
 
         .expand-content {
-            display: none;
-            padding: 20px;
-            border: 1px solid rgba(204,0,0,0.1);
-            border-top: none;
-            background: var(--bg);
-            border-radius: 0 0 10px 10px;
-            transition: background 0.4s;
+            display: none; padding: 20px; border: 1px solid rgba(204,0,0,0.1); border-top: none;
+            background: var(--bg); border-radius: 0 0 10px 10px; transition: background 0.4s;
         }
-
         .expand-content.active { display: block; }
 
         /* === SEPARADORES DE CONTEÚDO (.item-list) === */
         .item-list {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px dashed rgba(204,0,0,0.2);
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed rgba(204,0,0,0.2);
         }
-        .item-list:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
+        .item-list:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
         .item-title {
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: var(--accent);
-            letter-spacing: 0.05em;
-            display: block;
+            font-family: 'Russo One', sans-serif; font-size: 1.1rem; margin-bottom: 8px; color: var(--accent);
+            letter-spacing: 0.05em; display: block;
         }
 
         .item-text {
-            font-size: 1.05rem;
-            color: var(--text-sub);
-            line-height: 1.6;
-            text-align: justify;
-            transition: color 0.4s;
+            font-size: 1.05rem; color: var(--text-sub); line-height: 1.6; text-align: justify; transition: color 0.4s;
         }
+        .item-text strong { color: var(--text); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em; }
+
+        /* === TABELA DE LEGADO (PONTUAÇÃO PL) === */
+        .legado-table {
+            width: 100%; border-collapse: collapse; text-align: center; margin-top: 15px; margin-bottom: 15px;
+            background: rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden;
+        }
+        .legado-table th {
+            background: var(--accent); color: #fff; padding: 15px 10px;
+            font-family: 'Russo One', sans-serif; font-size: 0.95rem; letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .legado-table td {
+            padding: 15px 10px; font-size: 1.05rem; color: var(--text-sub);
+            border-bottom: 1px solid rgba(204,0,0,0.15); vertical-align: middle; line-height: 1.5;
+        }
+        [data-theme="light"] .legado-table td { border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .legado-table tr:hover { background: rgba(204,0,0,0.05); }
+        .legado-table tr:last-child td { border-bottom: none; }
         
-        .system-box strong,
-        .item-text strong { 
-            color: var(--text); 
-            font-family: 'Russo One', sans-serif; 
-            font-weight: normal; 
-            letter-spacing: 0.05em; 
-        }
+        .legado-rank { font-weight: bold; font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; }
+        .legado-pts { color: #fff; font-family: 'Russo One', sans-serif; font-size: 0.95rem;}
+        .legado-ninja { color: #4fa5d6; font-weight: bold; }
+        .legado-civil { color: #d4ac0d; font-weight: bold; }
 
         @media (max-width: 580px) {
             .card-header { padding: 16px 20px; }
             .card-body { padding: 20px; }
+            .legado-table td, .legado-table th { padding: 10px 5px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -370,7 +355,7 @@
 
     <div class="history-card">
         <div class="card-header">
-            <span>LEGADO E CONQUISTA</span>
+            <span class="header-title">LEGADO E CONQUISTA</span>
             <div class="header-stripe"></div>
         </div>
         
@@ -381,8 +366,8 @@
             </p>
 
             <div class="system-box">
-                Quando um personagem morre ou se aposenta, seus feitos são convertidos em <strong>Pontos de Legado (PL)</strong> e <strong>Conquista (PC)</strong> para o seu próximo personagem.<br><br>
-                O bônus de legado é exclusivo para o seu novo personagem e não pode ser transferido entre personagens já existentes.
+                Quando um personagem morre ou se aposenta, seus feitos e evolução são convertidos em <strong>Pontos de Legado (PL)</strong> e <strong>Legado por Conquista (PLC)</strong> para o seu próximo personagem.<br><br>
+                O bônus de legado é exclusivo para a ficha seguinte e não pode ser transferido entre múltiplos personagens já criados do mesmo player.
             </div>
 
             <button class="gen-btn" onclick="toggle('pilares-container')">
@@ -394,61 +379,126 @@
                 <div class="item-list">
                     <span class="item-title">1. Legado por Pontuação (PL) - O Pilar Técnico</span>
                     <div class="item-text">
-                        Os Pontos de Legado (PL) são acumulados através do esforço mecânico. Eles garantem que o seu próximo personagem não sofra com a perda de atributos e treinos.<br><br>
-                        • <strong>Como ganha:</strong> Cumprindo missões, realizando treinos diários, participando de eventos e ganhando XP.<br>
-                        • <strong>O que recompensa:</strong> Define a herança de atributos (Força, Agilidade, Chakra, etc.), a quantidade de Ryo inicial e os Pontos de Técnica para já começar com jutsus aprendidos.
+                        Os Pontos de Legado (PL) são acumulados através do esforço mecânico contínuo. Eles garantem que o seu próximo personagem não comece do zero, mantendo parte da força conquistada na vida passada.<br><br>
+                        • <strong>Como ganha:</strong> Acumulando pontos ao cumprir missões, realizar treinos de atributos/jutsus, participar de eventos da staff e ganhar XP geral no servidor.<br>
+                        • <strong>O que recompensa:</strong> Bônus de Atributos extras no início da ficha ou ganho massivo de Score/Ryos (dependendo se a sua próxima ficha será militar ou civil).
                     </div>
                 </div>
 
                 <div class="item-list">
-                    <span class="item-title">2. Os pontos de legado por Conquista (PC) - O Pilar Narrativo</span>
+                    <span class="item-title">2. Legado por Conquista (PLC) - O Pilar Narrativo</span>
                     <div class="item-text">
-                        O Rank de Conquista é definido pelo impacto que o seu personagem deixou no mundo. Ele define o "quem você é" ao chegar no mapa.<br><br>
-                        • <strong>Como ganha:</strong> Batendo as metas de Rank (C até SS+) através de atos heroicos, vilanias ou conquistas políticas.<br>
-                        • <strong>O que recompensa:</strong> Define o seu Rank de Ficha inicial (Ex: já começar como Jōnin), títulos de prestígio, itens exclusivos e influência sobre NPCs ou Nações.
+                        O Legado por Conquista (PLC) é definido unicamente pelo impacto que o seu personagem deixou no mundo em ON (interpretação). Ele define o seu status político e militar na vida seguinte.<br><br>
+                        • <strong>Como ganha:</strong> Realizando feitos memoráveis na história. (Vencendo guerras, criando vilas, exterminando linhagens ou tornando-se líder).<br>
+                        • <strong>O que recompensa:</strong> Permite que o seu próximo personagem pule as patentes iniciais e já inicie o RPG com altos cargos hierárquicos e títulos de prestígio, além de garantir monumentos póstumos ao morto.
                     </div>
                 </div>
             </div>
 
-            <button class="gen-btn" onclick="toggle('ranks-container')">
-                <span>🏆 RANKS DE CONQUISTA E PREMIAÇÃO</span>
-                <span id="seta-ranks-container">▼</span>
+            <button class="gen-btn" onclick="toggle('pl-container')">
+                <span>🏆 RECOMPENSAS POR PONTUAÇÃO (PL)</span>
+                <span id="seta-pl-container">▼</span>
             </button>
 
-            <div class="expand-content" id="ranks-container">
+            <div class="expand-content" id="pl-container">
+                <div class="item-text" style="margin-bottom: 15px;">
+                    Ao atingir a pontuação necessária no final da vida do seu personagem atual, seu próximo personagem receberá os bônus abaixo de acordo com o estilo de vida que você escolher criar:
+                </div>
+
+                <table class="legado-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Pontos Exigidos</th>
+                            <th>Próximo Char (Ninja/Samurai)</th>
+                            <th>Próximo Char (Civil/Daimyō)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="legado-rank" style="color: #76c7c0;">Rank D</td>
+                            <td class="legado-pts">100 PL</td>
+                            <td class="legado-ninja">+10 Atributos <br> 10.000 Ryos</td>
+                            <td class="legado-civil">+20 Score <br> 20.000 Ryos</td>
+                        </tr>
+                        <tr>
+                            <td class="legado-rank" style="color: #4fa5d6;">Rank C</td>
+                            <td class="legado-pts">300 PL</td>
+                            <td class="legado-ninja">+20 Atributos <br> 20.000 Ryos</td>
+                            <td class="legado-civil">+40 Score <br> 40.000 Ryos</td>
+                        </tr>
+                        <tr>
+                            <td class="legado-rank" style="color: #e67e22;">Rank B</td>
+                            <td class="legado-pts">600 PL</td>
+                            <td class="legado-ninja">+40 Atributos <br> 40.000 Ryos</td>
+                            <td class="legado-civil">+80 Score <br> 80.000 Ryos</td>
+                        </tr>
+                        <tr>
+                            <td class="legado-rank" style="color: #d9534f;">Rank A</td>
+                            <td class="legado-pts">1.000 PL</td>
+                            <td class="legado-ninja">+70 Atributos <br> 80.000 Ryos</td>
+                            <td class="legado-civil">+140 Score <br> 160.000 Ryos</td>
+                        </tr>
+                        <tr>
+                            <td class="legado-rank" style="color: #9b59b6;">Rank S</td>
+                            <td class="legado-pts">1.500 PL</td>
+                            <td class="legado-ninja">+100 Atributos <br> 150.000 Ryos</td>
+                            <td class="legado-civil">+200 Score <br> 300.000 Ryos</td>
+                        </tr>
+                        <tr>
+                            <td class="legado-rank" style="color: #f1c40f;">Rank SS+</td>
+                            <td class="legado-pts">2.500 PL</td>
+                            <td class="legado-ninja">+150 Atributos <br> 300.000 Ryos</td>
+                            <td class="legado-civil">+300 Score <br> 600.000 Ryos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <button class="gen-btn" onclick="toggle('plc-container')">
+                <span>🏅 RANKS DE CONQUISTA NARRATIVA (PLC)</span>
+                <span id="seta-plc-container">▼</span>
+            </button>
+
+            <div class="expand-content" id="plc-container">
+                <div class="item-text" style="margin-bottom: 20px;">
+                    Os feitos heroicos ou trágicos do seu personagem morto permitem que você inicie a próxima jornada com uma hierarquia de poder elevada, poupando-o de começar como recruta.
+                </div>
+
                 <div class="item-list">
                     <span class="item-title">🟡 Rank C | Identidade e Respeito</span>
                     <div class="item-text">
-                        <strong>Ação:</strong> Virar Chūnin ou abrir uma loja de sucesso.<br>
-                        <strong>Premiação Conquista:</strong> [A DEFINIR] | <strong>Premiação Legado:</strong> [A DEFINIR]
+                        <strong>Feito Necessário:</strong> Cumpriu com excelência sua função base (Ex: Virou um ninja famoso regionalmente ou um ótimo ferreiro).<br>
+                        <strong>Patente do Próximo Char:</strong> Retorna como <strong>Chūnin</strong>, <strong>Cabo Samurai</strong> ou Comerciante Local estabelecido.
                     </div>
                 </div>
                 <div class="item-list">
                     <span class="item-title">🟠 Rank B | Fama Regional</span>
                     <div class="item-text">
-                        <strong>Ação:</strong> Caçar Nukenins famosos ou ser o mestre de uma família nobre.<br>
-                        <strong>Premiação Conquista:</strong> [A DEFINIR] | <strong>Premiação Legado:</strong> [A DEFINIR]
+                        <strong>Feito Necessário:</strong> Participou ativamente do rumo da vila. Caçou criminosos notórios ou se tornou mestre de uma família.<br>
+                        <strong>Patente do Próximo Char:</strong> Retorna como <strong>Tokubetsu Jōnin</strong>, <strong>Sargento Samurai</strong> ou Nobre de Prestígio. <br>
+                        <span style="color: var(--accent); font-weight: bold;">(Desbloqueia os bônus de Reconhecimento e Glória para o personagem morto).</span>
                     </div>
                 </div>
                 <div class="item-list">
                     <span class="item-title">🔴 Rank A | Pilar Político e Tático</span>
                     <div class="item-text">
-                        <strong>Ação:</strong> Tornar-se Jōnin, General Militar ou Líder de Clã.<br>
-                        <strong>Premiação Conquista:</strong> [A DEFINIR] | <strong>Premiação Legado:</strong> [A DEFINIR]
+                        <strong>Feito Necessário:</strong> Comandou grandes tropas, evitou desastres ou derrotou ameaças de nível S em ON.<br>
+                        <strong>Patente do Próximo Char:</strong> Retorna como <strong>Jōnin Experiente</strong>, <strong>Tenente Samurai</strong> ou Conselheiro da Vila.
                     </div>
                 </div>
                 <div class="item-list">
                     <span class="item-title">⚫ Rank S | Lenda Histórica</span>
                     <div class="item-text">
-                        <strong>Ação:</strong> Assumir como Kage ou criar um estilo de combate que outros players usem.<br>
-                        <strong>Premiação Conquista:</strong> [A DEFINIR] | <strong>Premiação Legado:</strong> [A DEFINIR]
+                        <strong>Feito Necessário:</strong> Assumiu como Kage/Mifune ou criou técnicas/organizações que mudaram a estrutura do RPG.<br>
+                        <strong>Patente do Próximo Char:</strong> Retorna como <strong>Elite ANBU / Capitão</strong>, <strong>General</strong> ou Líder de um Grande Clã/Família.
                     </div>
                 </div>
                 <div class="item-list">
                     <span class="item-title">👑 Rank SS+ | Nível Divino</span>
                     <div class="item-text">
-                        <strong>Ação:</strong> Tornar-se Jinchūriki do Jūbi ou controlar as 5 Nações.<br>
-                        <strong>Premiação Conquista:</strong> [A DEFINIR] | <strong>Premiação Legado:</strong> [A DEFINIR]
+                        <strong>Feito Necessário:</strong> Unificou os continentes, controlou Bijūs como arma de guerra global ou moldou a existência do mundo.<br>
+                        <strong>Patente do Próximo Char:</strong> Direito de iniciar como <strong>Kage, Mifune ou Daimyō</strong> (caso os cargos estejam vagos ou disponíveis mediante aprovação da staff).
                     </div>
                 </div>
             </div>
@@ -459,19 +509,23 @@
             </button>
 
             <div class="expand-content" id="gloria-container">
-                <div class="item-list"><span class="item-title">Hall dos Eternizados (Rank S+):</span><div class="item-text">Uma biografia completa no site/docs do RPG detalhando seus feitos.</div></div>
-                <div class="item-list"><span class="item-title">Edição Especial do Jornal (Rank S+):</span><div class="item-text">Uma página inteira dedicada à história da sua morte ou aposentadoria.</div></div>
-                <div class="item-list"><span class="item-title">Monumentos (Rank S+):</span><div class="item-text">Estátuas em praças centrais ou seu rosto esculpido em montanhas (estilo Hokage).</div></div>
-                <div class="item-list"><span class="item-title">Geografia Nomeada (Rank C+):</span><div class="item-text">Seu nome batizando bairros, florestas, pontes ou rios (ex: Floresta de [Nome]).</div></div>
-                <div class="item-list"><span class="item-title">Eventos Históricos (Rank S+):</span><div class="item-text">Um feriado no calendário do RPG em sua homenagem ou um torneio com seu nome.</div></div>
-                <div class="item-list"><span class="item-title">Leis e Decretos com o Nome (Rank B+):</span><div class="item-text">Se a lei criada pelo personagem continua valendo no RPG. Ex: "A Lei de Anderson: Proibido o uso de armas de fogo em solo sagrado".</div></div>
-                <div class="item-list"><span class="item-title">Criptas e Masmorras Pessoais (Rank A+):</span><div class="item-text">O túmulo do personagem vira um local explorável no mapa (um novo chat). Pode conter armadilhas baseadas nos jutsus usados e tesouros.</div></div>
-                <div class="item-list"><span class="item-title">Técnica de Academia (Rank A+):</span><div class="item-text">O jutsu assinatura do personagem vira parte da grade curricular da vila. O nome dele será citado toda vez que for ensinado.</div></div>
-                <div class="item-list"><span class="item-title">Estilo de Vida "Culto" (Rank SS+):</span><div class="item-text">Criar uma pequena religião ou filosofia baseada nos ideais do morto. NPCs e players podem se tornar seguidores dessa doutrina.</div></div>
-                <div class="item-list"><span class="item-title">A "Linha de Demarcação" [Nome] (Rank C+):</span><div class="item-text">A fronteira entre duas nações é alterada e batizada com o nome do player que venceu a última batalha ali.</div></div>
-                <div class="item-list"><span class="item-title">Indústrias e Invenções (Rank C):</span><div class="item-text">Se foi Cientista, uma invenção dele passa a ser vendida com o selo: "Tecnologia Original das Indústrias [Nome]".</div></div>
+                
+                <div class="system-box">
+                    Para que um personagem falecido/aposentado tenha seu nome cravado na história física da vila, ele deve alcançar <strong>no mínimo o Rank B de Conquista (PLC)</strong>. Membros a partir do Rank B são oficialmente adicionados à <strong>Lista de Membros Notáveis</strong> do Kigen Shinobi, desbloqueando privilégios narrativos.
+                </div>
+
+                <div class="item-list"><span class="item-title">Geografia Nomeada (Rank B+):</span><div class="item-text">Seu nome batizando bairros, praças, pontes ou rios (ex: Floresta de [Nome]).</div></div>
+                <div class="item-list"><span class="item-title">Leis e Decretos com o Nome (Rank B+):</span><div class="item-text">Se a lei criada pelo personagem continua valendo no RPG. Ex: "A Lei de Anderson: Proibido o uso de armas de fogo".</div></div>
+                <div class="item-list"><span class="item-title">Indústrias e Invenções (Rank B+):</span><div class="item-text">Se foi Cientista, uma invenção dele passa a ser vendida com o selo: "Tecnologia Original das Indústrias [Nome]".</div></div>
+                <div class="item-list"><span class="item-title">Criptas e Masmorras Pessoais (Rank A+):</span><div class="item-text">O túmulo do personagem vira um local explorável no mapa (um novo chat). Pode conter armadilhas e tesouros.</div></div>
+                <div class="item-list"><span class="item-title">Técnica de Academia (Rank A+):</span><div class="item-text">O jutsu assinatura do morto vira parte da grade curricular da vila. Seu nome será citado toda vez que for ensinado.</div></div>
                 <div class="item-list"><span class="item-title">Feriado de Luto ou Vitória (Rank A+):</span><div class="item-text">Um dia específico no calendário real onde o comércio fecha ou certos jutsus ficam mais fortes em homenagem.</div></div>
-                <div class="item-list"><span class="item-title">Maldição de Solo (Rank S+):</span><div class="item-text">Se foi vilão, o local da morte fica "Amaldiçoado". O chat ganha filtro escuro e causa perda de HP por rodada.</div></div>
+                <div class="item-list"><span class="item-title">Hall dos Eternizados (Rank S+):</span><div class="item-text">Uma biografia completa no site/docs do RPG detalhando todos os seus feitos.</div></div>
+                <div class="item-list"><span class="item-title">Edição Especial do Jornal (Rank S+):</span><div class="item-text">Uma página inteira dedicada à história da sua morte ou aposentadoria no jornal interno do servidor.</div></div>
+                <div class="item-list"><span class="item-title">Monumentos (Rank S+):</span><div class="item-text">Estátuas em praças centrais ou seu rosto esculpido em montanhas (estilo Hokage).</div></div>
+                <div class="item-list"><span class="item-title">Eventos Históricos (Rank S+):</span><div class="item-text">Um feriado oficial no calendário do RPG ou um torneio batizado com seu nome.</div></div>
+                <div class="item-list"><span class="item-title">Maldição de Solo (Rank S+):</span><div class="item-text">Se foi vilão, o local da morte fica "Amaldiçoado". O chat ganha filtro escuro e causa perda de HP por rodada a quem entrar.</div></div>
+                <div class="item-list"><span class="item-title">Estilo de Vida "Culto" (Rank SS+):</span><div class="item-text">Criar uma pequena religião ou filosofia baseada nos ideais do morto. NPCs e players podem se tornar seguidores dessa doutrina.</div></div>
             </div>
 
         </div>
