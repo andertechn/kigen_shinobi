@@ -213,6 +213,48 @@
     }
     [data-theme="light"] .card-large .card-text { color: #111; }
 
+    /* ======= BOTÃO DE VOLTAR ======= */
+    .back-btn-wrapper {
+      margin-top: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .btn-return {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 30px;
+      background: var(--surface-inner);
+      color: var(--text);
+      border: 2px solid var(--accent2);
+      border-radius: 8px;
+      font-family: 'Russo One', sans-serif;
+      font-size: 1rem;
+      text-transform: uppercase;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    }
+    .btn-return svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+      transition: transform 0.3s ease;
+    }
+    .btn-return:hover {
+      background: var(--accent2);
+      color: #fff;
+      box-shadow: 0 0 25px var(--glow);
+      transform: translateY(-3px);
+    }
+    .btn-return:hover svg {
+      transform: translateX(-6px);
+    }
+    [data-theme="light"] .btn-return { background: #fff; border-color: var(--accent); color: var(--accent); }
+    [data-theme="light"] .btn-return:hover { background: var(--accent); color: #fff; }
+
     /* Responsividade da Grade */
     @media (max-width: 600px) {
       #page-container { padding-top: 90px; }
@@ -221,6 +263,7 @@
       .bento-grid { grid-template-columns: 1fr; }
       .card-large, .card-small { grid-column: span 1; }
       .bento-card { padding: 18px 20px; }
+      .btn-return { padding: 12px 20px; font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -254,10 +297,25 @@
   <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
-      <a class="nav-link" href="#">Início</a>
-      <a class="nav-link" href="#">Civil</a>
-      <a class="nav-link" href="#">Sistemas</a>
-      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="5.0_shinobi.html">Shinobi</a>
+      <a class="nav-link" href="5.1_clas_shinobi.html">Clãs</a>
+      <a class="nav-link" href="5.7_patentes.html">Patentes</a>
+      <a class="nav-link" href="5.7_tecnicas.html">Aprendizagem de Técnicas</a>
+      <a class="nav-link" href="5.7_atributos.html">Atributos</a>
+      <a class="nav-link" href="5.7_chakra e hp.html">Chakra/HP</a>
+      <a class="nav-link" href="5.2_elementos.html">Elementos</a>
+      <a class="nav-link" href="5.5_missoes.html">Missões</a>
+      <a class="nav-link" href="5.4_especializações.html">Especializações</a>
+      <a class="nav-link" href="5.7_bijuus.html">Bijuus</a>
+      <a class="nav-link" href="5.7_ao e gatilho.html">A.O/Gatilho</a>
+      <a class="nav-link" href="5.7_bingo_book.html">BingoBook</a>
+      <a class="nav-link" href="5.7_doujutsu e kekkei genkai.html">Linhagem Sanguínea</a>
+      <a class="nav-link" href="5.7_espadas da nevoa_.html">Espadas da Névoa</a>
+      <a class="nav-link" href="5.7_loja ninja.html">Loja Ninja</a>
+      <a class="nav-link" href="5.7_nukkenins.html">Nukkenin</a>
+      <a class="nav-link" href="5.6_ficha.html">Pesos</a>
+      <a class="nav-link" href="5.7_kages.html">Kages</a>
+      <a class="nav-link" href="5.6_ficha.html">Fichas</a>
     </nav>
   </div>
 
@@ -319,6 +377,17 @@
         </p>
       </div>
 
+    </div>
+
+    <!-- BOTÃO DE VOLTAR ADICIONADO AQUI -->
+    <div class="back-btn-wrapper">
+      <a href="LINK_DA_PAGINA_DOS_SISTEMAS.html" class="btn-return">
+        <!-- Ícone de seta para a esquerda -->
+        <svg viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Voltar aos Sistemas do RPG
+      </a>
     </div>
 
   </main>
