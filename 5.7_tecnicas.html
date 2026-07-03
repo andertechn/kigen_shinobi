@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aprendizagem de Técnicas — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #f0f0f0;
+      --text-sub:#999999;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text); font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden; transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover;
+      filter: blur(3px) brightness(0.38) saturate(0.55); transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+      transition: background 0.5s;
+    }
+    [data-theme="light"] .hero-overlay {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed; top: 20px; right: 22px; z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px; border-radius: 50%; background: #000;
+      border: 2.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow); transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 26px; height: 26px; transition: transform 0.35s; }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+      background: #000; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 8px var(--glow); transition: box-shadow 0.3s, transform 0.2s; padding: 0;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0; transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer;
+    }
+    #nav-panel {
+      position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px; gap: 4px;
+      transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow); overflow-y: auto; 
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--text);
+      text-decoration: none; padding: 13px 0; border-bottom: 1px solid rgba(204,0,0,0.18);
+      position: relative; transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link::before {
+      content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 2px; background: var(--accent); transition: width 0.25s;
+    }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+    .nav-link:hover::before { width: 20px; }
+
+    /* ======= ESTRUTURA DA PÁGINA ======= */
+    #sistemas-page {
+      min-height: 100vh; padding: 140px 24px 80px; transition: background 0.4s;
+    }
+
+    .historia-header {
+      max-width: 860px; margin: 0 auto 32px; border-radius: 12px;
+      overflow: hidden; border: 1.5px solid rgba(204,0,0,0.25);
+    }
+    .historia-header-red {
+      background: #cc0000; padding: 20px 36px; display: flex; align-items: center; gap: 18px;
+    }
+    .historia-header-red h1 {
+      font-family: 'Bangers', cursive; font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1; margin: 0;
+    }
+    .historia-header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
+    
+    /* Espaço para Imagem no Header (Opcional, se quiser usar) */
+    .header-img-wrapper {
+      width: 100%; height: 250px; background: #000; border-bottom: 2px solid rgba(204,0,0,0.2);
+    }
+    .header-img-wrapper img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center 20%;
+    }
+
+    .historia-header-body {
+      background: var(--surface); padding: 26px 36px; font-size: 1.05rem;
+      line-height: 1.75; color: var(--text-sub); text-align: justify;
+    }
+
+    .regras-box {
+      max-width: 860px; margin: 0 auto; border-radius: 12px;
+      border: 1.5px solid rgba(204,0,0,0.25); background: var(--surface);
+      padding: 40px; display: flex; flex-direction: column; gap: 40px;
+      transition: background 0.4s;
+    }
+
+    /* Estilos dos textos de Regras */
+    .regras-section-title {
+      font-family: 'Bangers', cursive; font-size: 2.2rem; color: var(--accent); 
+      letter-spacing: 0.08em; margin-bottom: 20px; text-transform: uppercase;
+    }
+    .regras-sub-title {
+      color: var(--text); font-size: 1.2rem; margin-bottom: 12px; 
+      border-left: 3px solid var(--accent); padding-left: 10px; font-weight: bold;
+    }
+    
+    .regras-list {
+      list-style: none; color: var(--text-sub); margin-bottom: 25px; 
+      padding-left: 0; font-size: 1.05rem; line-height: 1.7;
+    }
+    .regras-list li {
+      margin-bottom: 12px; background: rgba(0,0,0,0.2); padding: 12px 15px; 
+      border-radius: 6px; border-left: 3px solid var(--accent);
+    }
+    .regras-list strong { color: var(--text); }
+    
+    .regras-text {
+      font-size: 1.05rem; color: var(--text-sub); line-height: 1.7; text-align: justify; margin-bottom: 15px;
+    }
+
+    .highlight-box {
+      background: rgba(204,0,0,0.06); border: 1.5px solid rgba(204,0,0,0.25); 
+      padding: 20px; border-radius: 8px; color: var(--text-sub); font-size: 1.05rem; line-height: 1.8;
+    }
+    .highlight-box strong { color: var(--text); font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; }
+
+    /* Tabela de Criação */
+    .regras-table {
+      width: 100%; text-align: center; border-collapse: collapse; margin-top: 10px; 
+      font-size: 1.05rem; background: rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden;
+    }
+    .regras-table th {
+      background: var(--accent); color: #fff; padding: 15px 10px; 
+      font-family: 'Russo One', sans-serif; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .regras-table td {
+      padding: 12px 10px; border-bottom: 1px solid rgba(204,0,0,0.15); color: var(--text-sub);
+    }
+    .regras-table tr:hover { background: rgba(204,0,0,0.05); }
+    .regras-table tr:last-child td { border-bottom: none; }
+    
+    .rank-val { font-weight: bold; color: var(--text); }
+
+    /* Divisória */
+    .divider {
+      width: 100%; height: 2px; 
+      background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.4;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    @media (max-width: 580px) {
+      #sistemas-page { padding-top: 140px; padding-left: 16px; padding-right: 16px; }
+      .historia-header-red { padding: 16px 20px; }
+      .historia-header-body { padding: 18px 20px; }
+      .regras-box { padding: 20px; }
+      .regras-table th, .regras-table td { padding: 10px 5px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fundo -->
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- Botões Flutuantes -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+    </button>
+  </div>
+
+  <!-- Menu de Navegação -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="index.html">Início</a>
+      <a class="nav-link" href="1.2_historia.html">História</a>
+      <a class="nav-link" href="1.18_regras.html">Regras</a>
+    </nav>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main id="sistemas-page">
+
+    <!-- Cabeçalho Principal -->
+    <div class="historia-header">
+      <div class="historia-header-red">
+        <h1>APRENDIZAGEM DE TÉCNICAS</h1>
+        <div class="historia-header-deco"></div>
+      </div>
+      
+      <!-- Se quiser uma imagem no topo, substitua o src. Se não, pode apagar a div abaixo -->
+      <div class="header-img-wrapper">
+        <img src="link_imagem_treinamento.jpg" alt="Treinamento Shinobi">
+      </div>
+
+      <div class="historia-header-body">
+        Entenda as regras para dominar novos jutsus em combate e saiba como forjar suas próprias técnicas exclusivas. O crescimento de um shinobi exige tempo, atributos e muita inteligência.
+      </div>
+    </div>
+
+    <!-- Container das Regras -->
+    <div class="regras-box">
+      
+      <!-- APRENDIZAGEM GERAL -->
+      <div>
+        <h2 class="regras-section-title">REGRAS DE APRENDIZAGEM</h2>
+        
+        <h3 class="regras-sub-title">Como Aprender um Jutsu</h3>
+        <p class="regras-text">
+          Você pode aprender jutsus através de outros personagens do RPG. A capacidade de aprender determinada técnica depende exclusivamente da quantidade de atributos na área correspondente (Ninjutsu, Taijutsu, Genjutsu, etc).
+        </p>
+
+        <ul class="regras-list">
+          <li>
+            <strong>Independência:</strong> Técnicas de Kekkei Genkai e Hiden podem ser aprendidas de forma independente, respeitando a capacidade do personagem de acordo com sua pontuação de atributos.
+          </li>
+          <li>
+            <strong>Restrição Acadêmica:</strong> Acadêmicos só podem aprender técnicas até Rank E e D, pois ainda estão desenvolvendo seu controle de chakra.
+          </li>
+          <li>
+            <strong>Experiência:</strong> Com 4 anos de experiência como shinobi, é possível criar qualquer rank de jutsu, desde que possua os requisitos necessários e que alguém ensine ou acompanhe o processo.
+          </li>
+          <li>
+            <strong>Limite Semanal:</strong> É possível fazer no máximo <strong>5 treinos</strong> de técnicas por semana.
+          </li>
+        </ul>
+      </div>
+
+      <!-- REDUÇÃO POR INTELIGÊNCIA -->
+      <div>
+        <h3 class="regras-sub-title">Redução de Tempo com Inteligência</h3>
+        <div class="highlight-box">
+          A cada <strong>100 pontos no atributo Inteligência</strong>, é possível reduzir <strong>1 dia</strong> de treino. 
+          <br><br>
+          <em>(Nota: Respeite sempre os limites mínimos estipulados para a aprendizagem de cada técnica).</em>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- CRIAÇÃO DE TÉCNICAS -->
+      <div>
+        <h2 class="regras-section-title">CRIAÇÃO DE TÉCNICAS</h2>
+        
+        <p class="regras-text">
+          O sistema de criação de técnicas foi desenvolvido para permitir que cada jogador desenvolva habilidades <strong>únicas e originais</strong>, com base em ideias próprias ou influências criativas externas, desde que não sejam cópias de habilidades oficiais do universo de Naruto. 
+        </p>
+        <p class="regras-text">
+          O objetivo é valorizar a criatividade, individualidade e personalização do seu personagem dentro do RPG. <strong>Não é permitido</strong> criar técnicas oficiais da obra (como Rasengan, Chidori, Edo Tensei, entre outras).
+        </p>
+
+        <ul class="regras-list">
+          <li>
+            <strong>Limite por Saga:</strong> Cada personagem pode criar no máximo <strong>2 técnicas originais por saga</strong> (as sagas são categorizadas pelo timeskip). Não há acúmulo de técnicas entre sagas (se não criou em uma, perdeu a chance).
+          </li>
+          <li>
+            <strong>Requisitos Duplos:</strong> Além dos pontos de maestria (Ninjutsu, Elemental, etc.), é necessário um número mínimo de pontos em <strong>Inteligência</strong> conforme o rank da técnica.
+          </li>
+          <li>
+            <strong>Treino Simultâneo:</strong> Durante o processo de criação, você pode continuar com outras atividades normalmente. A criação pode ser pausada e retomada.
+          </li>
+        </ul>
+
+        <div class="highlight-box" style="margin-bottom: 25px;">
+          <strong>Exemplo Prático:</strong> Para criar uma técnica Rank A baseada no Elemento Fogo, seu personagem deve possuir no mínimo <em>400 pontos em Katon</em> e <em>150 pontos em Inteligência</em>.
+        </div>
+
+        <h3 class="regras-sub-title">Passo a Passo para Criar</h3>
+        <ul class="regras-list" style="margin-bottom: 30px;">
+          <li><strong>1.</strong> Solicite a ficha de criação de técnicas a um Administrador.</li>
+          <li><strong>2.</strong> Preencha com as informações detalhadas da sua técnica.</li>
+          <li><strong>3.</strong> Envie a ficha para avaliação. A equipe fará a análise com base na coerência e equilíbrio.</li>
+          <li><strong>4.</strong> Após aprovação, inicie o treinamento seguindo o tempo e as linhas exigidas.</li>
+        </ul>
+
+        <!-- TABELA DE CRIAÇÃO -->
+        <h3 class="regras-sub-title">Requisitos de Criação por Rank</h3>
+        <table class="regras-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Inteligência Necessária</th>
+              <th>Cenas</th>
+              <th>Linhas por Cena</th>
+              <th>Atributo Necessário</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rank-val" style="color: #76c7c0;">Rank C</td>
+              <td>50</td>
+              <td>2</td>
+              <td>20</td>
+              <td>200</td>
+            </tr>
+            <tr>
+              <td class="rank-val" style="color: #4fa5d6;">Rank B</td>
+              <td>100</td>
+              <td>4</td>
+              <td>30</td>
+              <td>300</td>
+            </tr>
+            <tr>
+              <td class="rank-val" style="color: #d9534f;">Rank A</td>
+              <td>150</td>
+              <td>5</td>
+              <td>50</td>
+              <td>400</td>
+            </tr>
+            <tr>
+              <td class="rank-val" style="color: #ff3333;">Rank S</td>
+              <td>200</td>
+              <td>7</td>
+              <td>80</td>
+              <td>500</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    /* ---- MENU E TEMA ---- */
+    const menuBtn    = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); } });
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    const root  = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+  </script>
+</body>
+</html>

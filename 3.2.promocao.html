@@ -76,7 +76,7 @@
     #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
     #nav-overlay.open { pointer-events: all; opacity: 1; }
     .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
-    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow);overflow-y: auto;  }
     #nav-overlay.open #nav-panel { transform: translateX(0); }
     .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
     .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
@@ -329,13 +329,21 @@
   <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
-      <a class="nav-link" href="#">Início</a>
-      <a class="nav-link" href="#">Civil</a>
-      <a class="nav-link" href="geografia.html">Geografia</a>
-      <a class="nav-link" href="#">Wiki</a>
-      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="3.0_samurai.html">Samurai</a>
+      <a class="nav-link" href="3.1_hierarquia.html">Hierarquia</a>
+      <a class="nav-link" href="3.2.promocao.html">Promoção</a>
+      <a class="nav-link" href="3.3.codigo_aco.html">Código do Aço</a>
+      <a class="nav-link" href="3.5_circulo_giz.html">Círculo de Giz</a>
+      <a class="nav-link" href="3.6_forcas_especiais.html">Forças Especiais</a>
+      <a class="nav-link" href="3.7_elo_aço.html">Elo de Aço</a>
+      <a class="nav-link" href="3.8_carcere_ferro.html">Carcere de Ferro</a>
+      <a class="nav-link" href="3.9_equipamento.html">Equipamento</a>
+      <a class="nav-link" href="3.10_atributos.html">Atributos</a>
+      <a class="nav-link" href="3.10_mifune.html">Mifune</a>
+      <a class="nav-link" href="3.10_técnicas.html">Técnicas</a>
+      <a class="nav-link" href="3.11_contratos.html">Contratos</a>
+      <a class="nav-link" href="3.0_samurai.html">Samurais</a>
     </nav>
-  </div>
 
   <main id="page-container">
 

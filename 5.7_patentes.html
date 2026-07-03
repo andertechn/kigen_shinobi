@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patentes e Hierarquia — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #f0f0f0;
+      --text-sub:#999999;
+      --rank-c:  #cc0000;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text); font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden; transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover;
+      filter: blur(3px) brightness(0.38) saturate(0.55); transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+      transition: background 0.5s;
+    }
+    [data-theme="light"] .hero-overlay {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed; top: 20px; right: 22px; z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px; border-radius: 50%; background: #000;
+      border: 2.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow); transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 26px; height: 26px; transition: transform 0.35s; }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+      background: #000; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 8px var(--glow); transition: box-shadow 0.3s, transform 0.2s; padding: 0;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0; transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer;
+    }
+    #nav-panel {
+      position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px; gap: 4px;
+      transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow); overflow-y: auto; 
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--text);
+      text-decoration: none; padding: 13px 0; border-bottom: 1px solid rgba(204,0,0,0.18);
+      position: relative; transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+
+    /* ======= ESTRUTURA DA PÁGINA ======= */
+    #hierarquia-page {
+      min-height: 100vh; padding: 140px 24px 80px; transition: background 0.4s;
+    }
+
+    .historia-header {
+      max-width: 860px; margin: 0 auto 50px; border-radius: 12px;
+      overflow: hidden; border: 1.5px solid rgba(204,0,0,0.25);
+    }
+    .historia-header-red {
+      background: #cc0000; padding: 20px 36px; display: flex; align-items: center; gap: 18px;
+    }
+    .historia-header-red h1 {
+      font-family: 'Bangers', cursive; font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1; margin: 0;
+    }
+    .historia-header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
+
+    /* ======= TIMELINE DE PATENTES ======= */
+    .timeline-wrap {
+      max-width: 860px; margin: 0 auto 60px; position: relative;
+    }
+    /* Linha central */
+    .timeline-wrap::before {
+      content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
+      width: 4px; background: linear-gradient(to bottom, transparent, var(--accent), var(--accent), transparent);
+      transform: translateX(-50%); opacity: 0.5;
+    }
+
+    .tl-node {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 60px; position: relative; width: 100%;
+    }
+    .tl-node:last-child { margin-bottom: 0; }
+
+    /* Alternar lados */
+    .tl-node:nth-child(odd) { flex-direction: row-reverse; }
+    
+    .tl-content {
+      width: 45%; background: var(--surface); border: 1.5px solid rgba(204,0,0,0.3);
+      padding: 24px; border-radius: 12px; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      cursor: pointer; text-align: center; position: relative;
+    }
+    .tl-content:hover {
+      transform: translateY(-5px); border-color: var(--accent);
+      box-shadow: 0 10px 30px var(--shadow); background: rgba(204,0,0,0.05);
+    }
+
+    .tl-content h3 {
+      font-family: 'Bangers', cursive; font-size: 2.2rem; color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px;
+    }
+    .tl-content p {
+      font-family: 'Russo One', sans-serif; font-size: 0.85rem; color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    
+    /* Círculo do meio */
+    .tl-circle {
+      width: 60px; height: 60px; background: var(--surface);
+      border: 4px solid var(--accent); border-radius: 50%;
+      position: absolute; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 15px var(--glow); z-index: 2;
+    }
+    .tl-circle svg { width: 24px; height: 24px; fill: var(--text); }
+
+    /* ======= ESTADO MAIOR / CONSELHEIROS ======= */
+    .special-section {
+      max-width: 860px; margin: 80px auto 0;
+    }
+    .special-title {
+      font-family: 'Bangers', cursive; font-size: 2.5rem; color: var(--text);
+      text-align: center; letter-spacing: 0.1em; margin-bottom: 30px;
+      border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 10px;
+    }
+    
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+    }
+    .role-card {
+      background: rgba(0,0,0,0.4); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 30px; text-align: center; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .role-card:hover {
+      background: rgba(204,0,0,0.1); border-color: var(--accent);
+      transform: translateY(-5px); box-shadow: 0 10px 30px var(--shadow);
+    }
+    .role-card h3 {
+      font-family: 'Russo One', sans-serif; font-size: 1.5rem; color: #fff;
+      margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+
+    /* ======= MODAL DE DETALHES ======= */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      z-index: 2000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    
+    .modal-box {
+      background: var(--surface); border: 2px solid var(--accent); border-radius: 12px;
+      width: 100%; max-width: 600px; padding: 40px; position: relative;
+      transform: translateY(30px) scale(0.95); transition: all 0.3s;
+      box-shadow: 0 0 50px var(--shadow); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+    
+    .modal-close {
+      position: absolute; top: 15px; right: 20px; background: none; border: none;
+      color: var(--text-sub); font-size: 2rem; cursor: pointer; transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--accent); }
+    
+    .modal-title {
+      font-family: 'Bangers', cursive; font-size: 3rem; color: var(--accent);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid rgba(204,0,0,0.2); padding-bottom: 10px;
+    }
+    .modal-desc {
+      font-size: 1.1rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 25px; text-align: justify;
+    }
+    
+    .modal-reqs h4 {
+      font-family: 'Russo One', sans-serif; font-size: 1.2rem; color: var(--text);
+      margin-bottom: 15px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .modal-reqs ul { list-style: none; padding: 0; }
+    .modal-reqs li {
+      font-size: 1.05rem; color: var(--text-sub); margin-bottom: 10px;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .modal-reqs li::before { content: '✔'; color: var(--accent); font-weight: bold; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    @media (max-width: 768px) {
+      .timeline-wrap::before { left: 30px; }
+      .tl-node { justify-content: flex-end; }
+      .tl-node:nth-child(odd) { flex-direction: row; }
+      .tl-content { width: calc(100% - 80px); text-align: left; }
+      .tl-circle { left: 30px; }
+    }
+    @media (max-width: 580px) {
+      #hierarquia-page { padding: 140px 16px 80px; }
+      .historia-header-red { padding: 16px 20px; }
+      .modal-box { padding: 30px 20px; }
+      .modal-title { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fundo -->
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- Botões Flutuantes -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+    </button>
+  </div>
+
+  <!-- Menu de Navegação -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="index.html">Início</a>
+      <a class="nav-link" href="1.2_historia.html">História</a>
+      <a class="nav-link" href="1.18_regras.html">Regras</a>
+    </nav>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main id="hierarquia-page">
+
+    <div class="historia-header">
+      <div class="historia-header-red">
+        <h1>HIERARQUIA NINJA</h1>
+        <div class="historia-header-deco"></div>
+      </div>
+    </div>
+
+    <!-- TIMELINE PRINCIPAL -->
+    <div class="timeline-wrap">
+      
+      <!-- NÓ 1: GENNIN -->
+      <div class="tl-node">
+        <div class="tl-circle">
+          <!-- Ícone Folha ou Shuriken simples -->
+          <svg viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z"/><path d="M12 22L9 16H15L12 22Z"/><path d="M2 12L8 9V15L2 12Z"/><path d="M22 12L16 15V9L22 12Z"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <div class="tl-content" onclick="openModal('gennin')">
+          <h3>Gennin</h3>
+          <p>Clique para ver detalhes e requisitos</p>
+        </div>
+      </div>
+
+      <!-- NÓ 2: CHUNNIN -->
+      <div class="tl-node">
+        <div class="tl-circle">
+          <svg viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z"/><path d="M12 22L9 16H15L12 22Z"/><path d="M2 12L8 9V15L2 12Z"/><path d="M22 12L16 15V9L22 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="tl-content" onclick="openModal('chunnin')">
+          <h3>Chūnnin</h3>
+          <p>Clique para ver detalhes e requisitos</p>
+        </div>
+      </div>
+
+      <!-- NÓ 3: JOUNNIN -->
+      <div class="tl-node">
+        <div class="tl-circle">
+          <svg viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z"/><path d="M12 22L9 16H15L12 22Z"/><path d="M2 12L8 9V15L2 12Z"/><path d="M22 12L16 15V9L22 12Z"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <div class="tl-content" onclick="openModal('jounnin')">
+          <h3>Jōnnin</h3>
+          <p>Clique para ver detalhes e requisitos</p>
+        </div>
+      </div>
+
+      <!-- NÓ 4: ANBU -->
+      <div class="tl-node">
+        <div class="tl-circle">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5ZM12 18.5C9.5 18.5 7.33 17.06 6.18 15C6.73 13.56 9.17 12.8 12 12.8C14.83 12.8 17.27 13.56 17.82 15C16.67 17.06 14.5 18.5 12 18.5Z"/></svg>
+        </div>
+        <div class="tl-content" onclick="openModal('anbu')">
+          <h3>ANBU</h3>
+          <p>Clique para ver detalhes e requisitos</p>
+        </div>
+      </div>
+
+      <!-- NÓ 5: KAGE -->
+      <div class="tl-node">
+        <div class="tl-circle">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7L12 12L22 7L12 2Z"/><path d="M2 17L12 22L22 17V9.5L12 14.5L2 9.5V17Z"/></svg>
+        </div>
+        <div class="tl-content" onclick="openModal('kage')">
+          <h3>Kage</h3>
+          <p>Clique para ver detalhes e requisitos</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SEÇÃO SEPARADA: ADMINISTRAÇÃO DA VILA -->
+    <div class="special-section">
+      <h2 class="special-title">Administração & Política</h2>
+      <div class="cards-grid">
+        
+        <div class="role-card" onclick="openModal('conselheiro')">
+          <h3>Conselheiro</h3>
+          <p style="color: var(--text-sub); font-size: 0.95rem;">Clique para ver as funções e requisitos.</p>
+        </div>
+
+        <div class="role-card" onclick="openModal('estadomaior')">
+          <h3>Estado Maior</h3>
+          <p style="color: var(--text-sub); font-size: 0.95rem;">Clique para ver as funções e requisitos.</p>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE INFORMAÇÕES -->
+  <div class="modal-overlay" id="rankModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <h2 class="modal-title" id="m-title">Título</h2>
+      <div class="modal-desc" id="m-desc">Descrição do cargo.</div>
+      <div class="modal-reqs">
+        <h4>Requisitos Necessários:</h4>
+        <ul id="m-reqs">
+          <!-- Requisitos gerados pelo JS -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---- MENU E TEMA ---- */
+    const menuBtn    = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); closeModal(); } });
+    function closeNav() { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); }
+
+    const root  = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    /* ---- BANCO DE DADOS DAS PATENTES (TEXTOS PARA VOCÊ EDITAR) ---- */
+    const rankData = {
+      'gennin': {
+        title: 'Gennin',
+        desc: 'O nível mais baixo de um ninja. Os Gennins são agrupados em esquadrões de três sob o comando de um Jōnnin. É a fase de aprendizado prático em missões de baixo risco (Rank D e C).',
+        reqs: [
+          'Aprovação formal na Academia Ninja.',
+          'Ter sua Ficha aprovada pela administração do RPG.',
+          'Passar no teste do sino (ou equivalente) com seu respectivo sensei.'
+        ]
+      },
+      'chunnin': {
+        title: 'Chūnnin',
+        desc: 'Ninjas qualificados que demonstraram maturidade, liderança e habilidades estratégicas. Eles podem liderar grupos em missões de Rank C ou B e atuar como professores na academia.',
+        reqs: [
+          'Ser um Gennin ativo no RPG por no mínimo X tempo.',
+          'Passar com sucesso no Exame Chūnnin realizado pelas vilas.',
+          'Recomendação formal do seu Jōnnin instrutor.'
+        ]
+      },
+      'jounnin': {
+        title: 'Jōnnin',
+        desc: 'A elite militar da vila. Ninjas excepcionalmente experientes e altamente qualificados que servem como generais e conselheiros de guerra. Capazes de utilizar pelo menos duas naturezas de chakra.',
+        reqs: [
+          'Possuir um histórico impecável de missões Rank A e S.',
+          'Indicação direta do Kage ou do Conselho da Vila.',
+          'Concluir uma trama de avaliação de alto risco imposta pela staff.'
+        ]
+      },
+      'anbu': {
+        title: 'ANBU',
+        desc: 'Esquadrão Especial de Assassinato e Tática. Operam nas sombras usando máscaras para esconder suas identidades. Recebem ordens diretas do Kage para missões de extermínio e espionagem.',
+        reqs: [
+          'Ser escolhido diretamente (convite) pelo Kage ou Comandante ANBU.',
+          'Abandono temporário do seu nome e laços durante o serviço.',
+          'Aprovação no teste prático de eliminação (cenário restrito da Staff).'
+        ]
+      },
+      'kage': {
+        title: 'Kage',
+        desc: 'O pináculo do poder militar e político. O líder supremo de uma das Cinco Grandes Nações Shinobi. Suas decisões ditam o destino de toda a sua vila.',
+        reqs: [
+          'Ser reconhecido como o ninja mais forte ou mais apto da vila.',
+          'Aprovação total do conselho do país e do Daimyō.',
+          'Ter participação ativa e impacto real na história global do RPG.'
+        ]
+      },
+      'conselheiro': {
+        title: 'Conselheiro',
+        desc: 'Estrategistas políticos e sábios veteranos. Não precisam necessariamente ir para a guerra, pois sua arma é a inteligência. Suas vozes têm peso igual ou similar ao do Kage em decisões de Estado.',
+        reqs: [
+          'Histórico de excelente interpretação (RP) e maturidade.',
+          'Idade de personagem avançada ou histórico diplomático sólido.',
+          'Votação ou nomeação direta pelo Kage vigente.'
+        ]
+      },
+      'estadomaior': {
+        title: 'Estado Maior',
+        desc: 'A cúpula tática que auxilia o Kage a distribuir missões, fiscalizar as forças armadas e gerenciar as divisões internas da vila (Inteligência, Defesa, Saúde).',
+        reqs: [
+          'Rank mínimo: Jōnnin.',
+          'Conhecimento total das regras e sistemas do Kigen Shinobi.',
+          'Confiança absoluta do Kage e dos administradores do RPG.'
+        ]
+      }
+    };
+
+    /* ---- LÓGICA DO MODAL ---- */
+    const modal = document.getElementById('rankModal');
+    const mTitle = document.getElementById('m-title');
+    const mDesc = document.getElementById('m-desc');
+    const mReqs = document.getElementById('m-reqs');
+
+    function openModal(rankId) {
+      const data = rankData[rankId];
+      if(!data) return;
+
+      mTitle.innerText = data.title;
+      mDesc.innerText = data.desc;
+      
+      // Limpa os requisitos anteriores e cria os novos
+      mReqs.innerHTML = '';
+      data.reqs.forEach(req => {
+        const li = document.createElement('li');
+        li.innerText = req;
+        mReqs.appendChild(li);
+      });
+
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+  </script>
+</body>
+</html>

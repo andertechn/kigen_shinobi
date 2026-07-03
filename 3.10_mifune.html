@@ -76,184 +76,145 @@
     #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
     #nav-overlay.open { pointer-events: all; opacity: 1; }
     .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
-    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow);overflow-y: auto;  }
     #nav-overlay.open #nav-panel { transform: translateX(0); }
     .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
     .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
     .nav-link:hover { color: var(--accent2); padding-left: 10px; }
     .nav-link:hover::before { width: 16px; }
 
-    /* ======= PÁGINA ESPECÍFICA ======= */
-    #page-container { min-height: 100vh; padding: 145px 20px 80px; max-width: 900px; margin: 0 auto; display: flex; justify-content: center; }
+    /* ======= ESTRUTURA DA PÁGINA ======= */
+    #page-container { min-height: 100vh; padding: 140px 24px 80px; max-width: 1000px; margin: 0 auto; transition: background 0.4s; }
 
-    .main-card {
-      background: var(--surface);
-      width: 100%;
-      border-radius: 8px;
-      box-shadow: 0 15px 40px var(--shadow);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid rgba(183, 28, 28, 0.2);
+    .historia-header {
+      width: 100%; border-radius: 12px; overflow: hidden;
+      border: 1.5px solid rgba(183, 28, 28, 0.25); margin-bottom: 30px;
     }
-
-    /* CABEÇALHO COM LINHA */
     .header-red {
-      background: var(--accent);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      background: var(--accent); padding: 20px 36px;
+      display: flex; align-items: center; gap: 18px;
     }
     .header-red h1 { 
-      font-family: 'Bangers', cursive; 
-      font-size: 2.2rem; 
-      letter-spacing: 0.1em; 
-      color: #fff; 
-      text-transform: uppercase; 
-      margin: 0; 
-      font-style: italic;
+      font-family: 'Bangers', cursive; font-size: clamp(2rem, 5vw, 3rem); 
+      letter-spacing: 0.1em; color: #fff; text-transform: uppercase; margin: 0; 
     }
-    .header-deco { flex: 1; height: 1px; background: rgba(255,255,255,0.5); }
-
-    /* SEÇÃO INTRO */
+    .header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
     .intro-section {
-      padding: 40px;
-      background: var(--surface);
-      border-bottom: 1px solid rgba(255,255,255,0.03);
+      background: var(--surface); padding: 26px 36px; font-size: 1.05rem;
+      line-height: 1.75; color: var(--text-sub); text-align: justify;
     }
-    .intro-text { font-size: 1.1rem; color: var(--text); margin-bottom: 15px; }
-    .intro-text:last-child { margin-bottom: 0; }
-    .intro-text strong { color: var(--accent); font-weight: 700; }
 
-    /* ======= SEÇÃO DO CARROSSEL ANIMADO ======= */
-    .mifunes-showcase-section {
-      padding: 40px;
-      background: var(--surface);
+    /* ======= CARROSSEL GIGANTE DE MIFUNES ======= */
+    .slider-wrapper {
+      position: relative; background: var(--surface);
+      border: 1.5px solid rgba(183, 28, 28, 0.3); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6); padding: 50px 0;
     }
-    .carousel-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 20px;
+
+    /* Setas de Navegação */
+    .nav-arrow {
+      position: absolute; top: 40%; transform: translateY(-50%);
+      background: rgba(183, 28, 28, 0.15); border: 2px solid var(--accent);
+      color: var(--accent); font-size: 2rem; width: 60px; height: 60px;
+      border-radius: 50%; cursor: pointer; z-index: 10; display: flex;
+      align-items: center; justify-content: center; transition: all 0.3s;
+      backdrop-filter: blur(4px); font-family: 'Russo One', sans-serif; padding-bottom: 4px;
     }
-    .carousel-track-container {
-      flex: 1;
-      overflow: hidden;
-      border: 1px solid rgba(183, 28, 28, 0.25);
-      background: var(--surface-inner);
-      border-radius: 6px;
+    .nav-arrow:hover {
+      background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--glow); transform: translateY(-50%) scale(1.1);
     }
-    .carousel-slide {
-      display: none;
-      padding: 30px;
+    .arrow-prev { left: 20px; }
+    .arrow-next { right: 20px; }
+
+    /* Track do Slider */
+    .slider-window {
+      width: 100%; overflow: hidden; position: relative;
     }
-    .carousel-slide.active {
-      display: block;
-      animation: slide-anim 0.4s ease-in-out;
+    .slider-track {
+      display: flex; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     }
-    @keyframes slide-anim {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    /* Slide Individual */
+    .mifune-slide {
+      min-width: 100%; display: flex; flex-direction: column; align-items: center;
+      position: relative; padding: 0 60px;
     }
-    .mifune-card-inner {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 30px;
-      align-items: center;
+
+    /* Marca D'Água Fundo */
+    .watermark-text {
+      position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
+      font-family: 'Bangers', cursive; font-size: clamp(5rem, 15vw, 11rem);
+      color: rgba(255,255,255,0.03); z-index: 0; white-space: nowrap; user-select: none;
+      letter-spacing: 0.1em; pointer-events: none;
     }
-    .mifune-portrait {
-      width: 100%;
-      height: 310px;
-      background: var(--surface);
-      border: 1px dashed rgba(183, 28, 28, 0.4);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
+
+    /* Arte do Personagem */
+    .mifune-art {
+      height: 550px; /* Imagem Gigante! */
+      object-fit: contain; z-index: 2; position: relative;
+      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8));
+      transition: transform 0.3s;
     }
-    .mifune-portrait span {
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      opacity: 0.6;
-      text-align: center;
-      padding: 10px;
+    .mifune-art:hover { transform: scale(1.02); }
+
+    /* Caixa de Informações Avançada */
+    .mifune-info {
+      z-index: 3; text-align: center; margin-top: -40px;
+      background: rgba(0,0,0,0.75); padding: 25px 40px; border-radius: 8px;
+      border: 1px solid rgba(183, 28, 28, 0.3); backdrop-filter: blur(8px);
+      max-width: 700px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    .mifune-portrait img {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    
+    .mifune-rank {
+      font-family: 'Russo One', sans-serif; font-size: 1rem; color: var(--accent2);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 5px;
+      display: inline-block; border-bottom: 1px solid rgba(183, 28, 28, 0.3); padding-bottom: 5px;
     }
-    .mifune-details h2 {
-      font-family: 'Bangers', cursive;
-      font-size: 2rem;
-      color: var(--accent2);
-      margin-bottom: 15px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(183, 28, 28, 0.2);
-      padding-bottom: 6px;
+    
+    .mifune-name {
+      font-family: 'Bangers', cursive; font-size: 3rem; color: #fff;
+      letter-spacing: 0.08em; margin: 0 0 10px 0; text-transform: uppercase; line-height: 1;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
     }
-    .mifune-details p {
-      margin-bottom: 12px;
-      font-size: 1.05rem;
+
+    .mifune-player {
+      font-family: 'Russo One', sans-serif; font-size: 0.95rem; color: var(--text);
+      background: rgba(255,255,255,0.05); padding: 6px 16px; border-radius: 20px;
+      display: inline-block; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);
     }
-    .mifune-details p strong {
-      color: var(--text);
-      font-family: 'Russo One', sans-serif;
-      font-weight: normal;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      display: block;
-      margin-bottom: 4px;
-      letter-spacing: 0.03em;
-    }
-    .carousel-btn {
-      background: #000;
-      border: 2px solid var(--accent);
-      color: var(--text);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.2rem;
-      box-shadow: 0 0 10px var(--glow);
-      transition: background 0.2s, transform 0.2s, color 0.2s;
-      user-select: none;
-    }
-    .carousel-btn:hover {
-      background: var(--accent);
-      color: #fff;
-      transform: scale(1.05);
+    
+    .mifune-feats {
+      font-size: 1.05rem; color: var(--text-sub); text-align: justify;
+      line-height: 1.6; border-left: 3px solid var(--accent); padding-left: 15px; margin: 0;
     }
 
     /* Responsividade */
     @media (max-width: 768px) {
-      #page-container { padding-top: 120px; padding-left: 15px; padding-right: 15px; }
-      .header-red h1 { font-size: 1.8rem; }
-      .intro-section { padding: 30px 20px; }
-      .mifunes-showcase-section { padding: 20px; }
-      .mifune-card-inner { grid-template-columns: 1fr; gap: 20px; }
-      .mifune-portrait { height: 260px; }
-      .carousel-btn { width: 36px; height: 46px; }
+      .mifune-art { height: 400px; }
+      .nav-arrow { width: 45px; height: 45px; font-size: 1.5rem; }
+      .arrow-prev { left: 10px; }
+      .arrow-next { right: 10px; }
+      .mifune-slide { padding: 0 20px; }
+      .mifune-info { padding: 20px; margin-top: -20px; }
+      .mifune-name { font-size: 2.2rem; }
+    }
+    @media (max-width: 580px) {
+      #page-container { padding: 140px 16px 80px; }
+      .header-red { padding: 16px 20px; }
+      .intro-section { padding: 18px 20px; }
+      .mifune-art { height: 300px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Fundo -->
   <div id="fixed-background">
     <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
     <div class="hero-overlay"></div>
   </div>
 
+  <!-- Botões Flutuantes -->
   <div id="floating-ui">
     <button id="menu-btn" aria-label="Abrir menu">
       <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -276,18 +237,26 @@
   <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
-      <a class="nav-link" href="#">Início</a>
-      <a class="nav-link" href="#">Civil</a>
-      <a class="nav-link" href="geografia.html">Geografia</a>
-      <a class="nav-link" href="#">Wiki</a>
-      <a class="nav-link" href="#">Personagens</a>
+      <a class="nav-link" href="3.0_samurai.html">Samurai</a>
+      <a class="nav-link" href="3.1_hierarquia.html">Hierarquia</a>
+      <a class="nav-link" href="3.2.promocao.html">Promoção</a>
+      <a class="nav-link" href="3.3.codigo_aco.html">Código do Aço</a>
+      <a class="nav-link" href="3.5_circulo_giz.html">Círculo de Giz</a>
+      <a class="nav-link" href="3.6_forcas_especiais.html">Forças Especiais</a>
+      <a class="nav-link" href="3.7_elo_aço.html">Elo de Aço</a>
+      <a class="nav-link" href="3.8_carcere_ferro.html">Carcere de Ferro</a>
+      <a class="nav-link" href="3.9_equipamento.html">Equipamento</a>
+      <a class="nav-link" href="3.10_atributos.html">Atributos</a>
+      <a class="nav-link" href="3.10_mifune.html">Mifune</a>
+      <a class="nav-link" href="3.10_técnicas.html">Técnicas</a>
+      <a class="nav-link" href="3.11_contratos.html">Contratos</a>
+      <a class="nav-link" href="3.0_samurai.html">Samurais</a>
     </nav>
-  </div>
 
+  <!-- CONTEÚDO PRINCIPAL -->
   <main id="page-container">
 
-    <div class="main-card">
-      
+    <div class="historia-header">
       <div class="header-red">
         <h1>MIFUNES DO PAÍS DO FERRO</h1>
         <div class="header-deco"></div>
@@ -298,62 +267,59 @@
           O título de Mifune representa o comando absoluto e a liderança militar suprema de todos os Samurais do País do Ferro. Ele é o guardião máximo do Código de Aço e o pilar da neutralidade política do continente.
         </p>
       </div>
+    </div>
 
-      <div class="mifunes-showcase-section">
-        <div class="carousel-container">
-          <button class="carousel-btn prev-btn" aria-label="Anterior">&lt;</button>
+    <!-- CARROSSEL DE MIFUNES -->
+    <div class="slider-wrapper">
+      <button class="nav-arrow arrow-prev" onclick="moveSlide(-1)">&lt;</button>
+      
+      <div class="slider-window">
+        <div class="slider-track" id="track-mifune">
           
-          <div class="carousel-track-container">
-            <div class="carousel-slide active">
-              <div class="mifune-card-inner">
-                <div class="mifune-portrait">
-                  <img src="00_mifune_1.png" alt="Primeiro Mifune" onerror="this.style.display='none'" />
-                  <span>00_mifune_1.png</span>
-                </div>
-                <div class="mifune-details">
-                  <h2>O Primeiro Mifune</h2>
-                  <p><strong>Nome do Líder</strong>Nome_Do_Player_1</p>
-                  <p><strong>Período de Governo</strong>Temporada 1</p>
-                  <p><strong>Feitos Notáveis</strong>Responsável pela unificação dos primeiros Dōjōs e pela criação do Código de Aço original do servidor, estabelecendo o tratado de neutralidade absoluta perante as Vilas Ocultas.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="carousel-slide">
-              <div class="mifune-card-inner">
-                <div class="mifune-portrait">
-                  <img src="00_mifune_2.png" alt="Segundo Mifune" onerror="this.style.display='none'" />
-                  <span>00_mifune_2.png</span>
-                </div>
-                <div class="mifune-details">
-                  <h2>O Segundo Mifune</h2>
-                  <p><strong>Nome do Líder</strong>Nome_Do_Player_2</p>
-                  <p><strong>Período de Governo</strong>Temporada 2</p>
-                  <p><strong>Feitos Notáveis</strong>Expandiu as defesas do Pico do Desespero e oficializou a estrutura das Forças Especiais (FE), liderando os samurais durante o período de maior tensão fronteiriça do continente.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="carousel-slide">
-              <div class="mifune-card-inner">
-                <div class="mifune-portrait">
-                  <img src="00_mifune_3.png" alt="Terceiro Mifune" onerror="this.style.display='none'" />
-                  <span>00_mifune_3.png</span>
-                </div>
-                <div class="mifune-details">
-                  <h2>O Terceiro Mifune</h2>
-                  <p><strong>Nome do Líder</strong>Nome_Do_Player_3</p>
-                  <p><strong>Período de Governo</strong>Temporada 3</p>
-                  <p><strong>Feitos Notáveis</strong>Modernizou os sistemas de mineração das prisões de gelo e consolidou os bônus de Sinergia de Combate e do sistema de Elo de Aço entre os mestres e discípulos.</p>
-                </div>
-              </div>
+          <!-- Slide 1 (Primeiro Mifune) -->
+          <div class="mifune-slide">
+            <div class="watermark-text">MIFUNE</div>
+            <!-- IMAGEM COM FUNDO TRANSPARENTE (PNG) -->
+            <img src="00_mifune_1.png" alt="Primeiro Mifune" class="mifune-art">
+            
+            <div class="mifune-info">
+              <div class="mifune-rank">Temporada 1</div>
+              <h3 class="mifune-name">O Primeiro Mifune</h3>
+              <div class="mifune-player">👤 Líder: Nome_Do_Player_1</div>
+              <p class="mifune-feats">Responsável pela unificação dos primeiros Dōjōs e pela criação do Código de Aço original do servidor, estabelecendo o tratado de neutralidade absoluta perante as Vilas Ocultas.</p>
             </div>
           </div>
 
-          <button class="carousel-btn next-btn" aria-label="Próximo">&gt;</button>
+          <!-- Slide 2 (Segundo Mifune) -->
+          <div class="mifune-slide">
+            <div class="watermark-text">MIFUNE</div>
+            <img src="00_mifune_2.png" alt="Segundo Mifune" class="mifune-art">
+            
+            <div class="mifune-info">
+              <div class="mifune-rank">Temporada 2</div>
+              <h3 class="mifune-name">O Segundo Mifune</h3>
+              <div class="mifune-player">👤 Líder: Nome_Do_Player_2</div>
+              <p class="mifune-feats">Expandiu as defesas do Pico do Desespero e oficializou a estrutura das Forças Especiais (FE), liderando os samurais durante o período de maior tensão fronteiriça do continente.</p>
+            </div>
+          </div>
+
+          <!-- Slide 3 (Terceiro Mifune) -->
+          <div class="mifune-slide">
+            <div class="watermark-text">MIFUNE</div>
+            <img src="00_mifune_3.png" alt="Terceiro Mifune" class="mifune-art">
+            
+            <div class="mifune-info">
+              <div class="mifune-rank">Temporada 3</div>
+              <h3 class="mifune-name">O Terceiro Mifune</h3>
+              <div class="mifune-player">👤 Líder: Nome_Do_Player_3</div>
+              <p class="mifune-feats">Modernizou os sistemas de mineração das prisões de gelo e consolidou os bônus de Sinergia de Combate e do sistema de Elo de Aço entre os mestres e discípulos.</p>
+            </div>
+          </div>
+
         </div>
       </div>
 
+      <button class="nav-arrow arrow-next" onclick="moveSlide(1)">&gt;</button>
     </div>
 
   </main>
@@ -388,21 +354,21 @@
       localStorage.setItem('ks-theme', next);
     });
 
-    // Lógica do Carrossel Animado de Mifunes
-    const slides = document.querySelectorAll('.carousel-slide');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
+    // Lógica do Carrossel Animado do Mifune (Slider Deslizante)
     let currentSlide = 0;
+    const track = document.getElementById('track-mifune');
+    const slides = track.querySelectorAll('.mifune-slide');
+    const totalSlides = slides.length;
 
-    function showSlide(index) {
-      slides[currentSlide].classList.remove('active');
-      currentSlide = (index + slides.length) % slides.length;
-      slides[currentSlide].classList.add('active');
-    }
+    function moveSlide(direction) {
+      currentSlide += direction;
 
-    if (prevBtn && nextBtn && slides.length > 0) {
-      prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
-      nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+      // Loop infinito
+      if (currentSlide >= totalSlides) currentSlide = 0;
+      if (currentSlide < 0) currentSlide = totalSlides - 1;
+
+      // Move a trilha visualmente (100% de largura por vez)
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
     }
   </script>
 </body>

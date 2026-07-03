@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loja de Itens — Kigen Shinobi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:      #0a0a0a;
+      --surface: #161616;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #ff4444;
+      --glow:    rgba(204,0,0,0.6);
+      --shadow:  rgba(204,0,0,0.38);
+      --text:    #f0f0f0;
+      --text-sub:#999999;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: #ffffff;
+      --border:  #cc0000;
+      --accent:  #cc0000;
+      --accent2: #dd0000;
+      --glow:    rgba(204,0,0,0.30);
+      --shadow:  rgba(204,0,0,0.18);
+      --text:    #111111;
+      --text-sub:#555555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text); font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden; transition: color 0.4s;
+    }
+
+    /* ======= FUNDO FIXO ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover;
+      filter: blur(3px) brightness(0.38) saturate(0.55); transition: filter 0.4s ease;
+    }
+    [data-theme="light"] .hero-bg { filter: blur(3px) brightness(0.78) saturate(0.65); }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.60) 100%);
+      transition: background 0.5s;
+    }
+    [data-theme="light"] .hero-overlay {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.30) 100%);
+    }
+
+    /* ======= FLOATING UI ======= */
+    #floating-ui {
+      position: fixed; top: 20px; right: 22px; z-index: 1000;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    #menu-btn {
+      width: 54px; height: 54px; border-radius: 50%; background: #000;
+      border: 2.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--glow); transition: box-shadow 0.25s, transform 0.2s;
+    }
+    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 26px; height: 26px; transition: transform 0.35s; }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    #theme-toggle {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
+      background: #000; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 8px var(--glow); transition: box-shadow 0.3s, transform 0.2s; padding: 0;
+    }
+    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle svg { width: 15px; height: 15px; }
+    #theme-toggle .icon-sun  { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay {
+      position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end;
+      pointer-events: none; opacity: 0; transition: opacity 0.35s;
+    }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer;
+    }
+    #nav-panel {
+      position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
+      width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px; gap: 4px;
+      transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: -10px 0 60px var(--shadow); overflow-y: auto; 
+    }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link {
+      display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--text);
+      text-decoration: none; padding: 13px 0; border-bottom: 1px solid rgba(204,0,0,0.18);
+      position: relative; transition: color 0.2s, padding-left 0.2s;
+    }
+    .nav-link::before {
+      content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 2px; background: var(--accent); transition: width 0.25s;
+    }
+    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
+    .nav-link:hover::before { width: 20px; }
+
+    /* ======= PÁGINA LOJA ======= */
+    #loja-page {
+      min-height: 100vh; padding: 140px 24px 80px; transition: background 0.4s;
+    }
+
+    .loja-header {
+      max-width: 1000px; margin: 0 auto 40px; border-radius: 12px;
+      overflow: hidden; border: 1.5px solid rgba(204,0,0,0.25);
+    }
+    .loja-header-red {
+      background: #cc0000; padding: 20px 36px; display: flex; align-items: center; gap: 18px;
+    }
+    .loja-header-red h1 {
+      font-family: 'Bangers', cursive; font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1; margin: 0;
+    }
+    .loja-header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
+
+    .loja-header-body {
+      background: var(--surface); padding: 24px 36px; font-size: 1rem;
+      line-height: 1.65; color: var(--text-sub); text-align: justify;
+    }
+
+    /* ======= FILTROS DE CATEGORIA ======= */
+    .categoria-filters {
+      max-width: 1000px; margin: 0 auto 40px; display: flex; gap: 10px; flex-wrap: wrap;
+      justify-content: center;
+    }
+    .categoria-btn {
+      padding: 10px 24px; border-radius: 6px; border: 2px solid var(--border);
+      background: transparent; color: var(--text); font-family: 'Russo One', sans-serif;
+      font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.25s; box-shadow: 0 0 8px var(--shadow);
+    }
+    .categoria-btn:hover {
+      background: var(--accent); color: #fff; box-shadow: 0 0 16px var(--glow);
+    }
+    .categoria-btn.active {
+      background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--glow);
+    }
+
+    /* ======= GRID DE ITENS ======= */
+    .itens-container {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .item-card {
+      background: var(--surface); border: 1.5px solid rgba(204,0,0,0.2);
+      border-radius: 10px; overflow: hidden; transition: all 0.3s;
+      display: flex; flex-direction: column; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .item-card:hover {
+      border-color: var(--accent); box-shadow: 0 0 20px var(--glow), 0 4px 12px rgba(0,0,0,0.3);
+      transform: translateY(-4px);
+    }
+
+    .item-image {
+      width: 100%; height: 200px; background: #000; display: flex;
+      align-items: center; justify-content: center; overflow: hidden;
+      border-bottom: 1.5px solid rgba(204,0,0,0.2);
+    }
+    .item-image img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center;
+      transition: transform 0.3s;
+    }
+    .item-card:hover .item-image img { transform: scale(1.08); }
+
+    .item-info {
+      padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1;
+    }
+    .item-name {
+      font-family: 'Russo One', sans-serif; font-size: 1.05rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text);
+      line-height: 1.3;
+    }
+    .item-desc {
+      font-size: 0.9rem; color: var(--text-sub); line-height: 1.5; flex: 1;
+    }
+    .item-price {
+      font-family: 'Russo One', sans-serif; font-size: 1.3rem; color: var(--accent);
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .item-price-label {
+      font-size: 0.75rem; color: var(--text-sub); text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 4px;
+    }
+    .btn-comprar {
+      width: 100%; padding: 10px; background: var(--accent); color: #fff;
+      border: none; border-radius: 6px; font-family: 'Russo One', sans-serif;
+      font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.25s;
+      box-shadow: 0 0 10px var(--shadow);
+    }
+    .btn-comprar:hover {
+      background: var(--accent2); box-shadow: 0 0 18px var(--glow);
+      transform: scale(1.05);
+    }
+
+    /* HIDDEN STATE */
+    .item-card { display: none; }
+    .item-card.visible { display: flex; }
+
+    /* ======= RESPONSIVO ======= */
+    @media (max-width: 768px) {
+      #loja-page { padding-top: 140px; padding-left: 16px; padding-right: 16px; }
+      .loja-header-red { padding: 16px 20px; }
+      .loja-header-body { padding: 18px 20px; }
+      .categoria-filters { gap: 8px; }
+      .categoria-btn { padding: 8px 16px; font-size: 0.85rem; }
+      .itens-container { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+      .item-image { height: 160px; }
+      .item-info { padding: 12px; gap: 8px; }
+      .item-name { font-size: 0.95rem; }
+      .item-desc { font-size: 0.85rem; }
+    }
+
+    /* ======= MODAL COMPRA ======= */
+    #modal-compra {
+      position: fixed; inset: 0; z-index: 950; display: flex; align-items: center;
+      justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+    }
+    #modal-compra.open { pointer-events: all; opacity: 1; }
+    .modal-bg-compra {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    .modal-content-compra {
+      position: relative; z-index: 1; background: var(--surface); border: 2px solid var(--border);
+      border-radius: 12px; padding: 40px; width: min(420px, 90vw); max-height: 80vh;
+      box-shadow: 0 0 40px var(--glow); display: flex; flex-direction: column; gap: 20px;
+      overflow-y: auto;
+    }
+
+    .modal-header-compra {
+      font-family: 'Bangers', cursive; font-size: 1.8rem; color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
+    }
+
+    .item-resumo {
+      background: rgba(204,0,0,0.08); border: 1px solid rgba(204,0,0,0.2);
+      padding: 16px; border-radius: 8px; display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    .item-resumo-nome {
+      font-family: 'Russo One', sans-serif; font-size: 1.05rem; color: var(--text);
+      letter-spacing: 0.05em;
+    }
+    .item-resumo-preco {
+      font-family: 'Russo One', sans-serif; font-size: 1.2rem; color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+
+    .form-group {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .form-label {
+      font-family: 'Russo One', sans-serif; font-size: 0.9rem; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .form-input {
+      padding: 12px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(204,0,0,0.3);
+      border-radius: 6px; color: var(--text); font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; transition: border 0.25s;
+    }
+    .form-input:focus {
+      outline: none; border-color: var(--accent); box-shadow: 0 0 10px var(--shadow);
+    }
+
+    .modal-buttons {
+      display: flex; gap: 12px; margin-top: 12px;
+    }
+    .btn-modal {
+      flex: 1; padding: 12px; border: none; border-radius: 6px;
+      font-family: 'Russo One', sans-serif; font-size: 0.95rem;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-confirmar {
+      background: var(--accent); color: #fff; box-shadow: 0 0 12px var(--shadow);
+    }
+    .btn-confirmar:hover {
+      background: var(--accent2); box-shadow: 0 0 20px var(--glow);
+    }
+    .btn-cancelar {
+      background: rgba(204,0,0,0.1); color: var(--text); border: 1px solid rgba(204,0,0,0.3);
+    }
+    .btn-cancelar:hover {
+      background: rgba(204,0,0,0.2); border-color: var(--accent);
+    }
+
+    .alert-message {
+      padding: 12px 14px; border-radius: 6px; font-size: 0.95rem; text-align: center;
+      display: none;
+    }
+    .alert-success {
+      background: rgba(76,175,80,0.2); border: 1px solid rgba(76,175,80,0.4);
+      color: #76c7c0; display: block;
+    }
+    .alert-error {
+      background: rgba(244,67,54,0.2); border: 1px solid rgba(244,67,54,0.4);
+      color: #ff6b6b; display: block;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Fundo -->
+  <div id="fixed-background">
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- Botões Flutuantes -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+    </button>
+  </div>
+
+  <!-- Menu de Navegação -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="index.html">Início</a>
+      <a class="nav-link" href="1.2_historia.html">História</a>
+      <a class="nav-link" href="1.18_regras.html">Regras</a>
+      <a class="nav-link" href="loja.html">Loja</a>
+    </nav>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main id="loja-page">
+
+    <!-- Cabeçalho Principal -->
+    <div class="loja-header">
+      <div class="loja-header-red">
+        <h1>LOJA DE ITENS</h1>
+        <div class="loja-header-deco"></div>
+      </div>
+      <div class="loja-header-body">
+        Equipamentos, armas e itens essenciais para o treinamento shinobi. Esta loja funciona como um cartaz de exposição de itens básicos disponíveis para todas as aldeias. Itens que ainda não estão listados aqui não foram construídos ou disponibilizados oficialmente. Ao encontrar o item desejado, envie no grupo de atualizações sua ficha ninja com o dinheiro descontado do valor do item que você comprou, mas não diga qual item você comprou; isso deve estar presente apenas no seu próprio inventário privado.
+      </div>
+    </div>
+
+    <!-- Filtros de Categoria -->
+    <div class="categoria-filters" id="filtros">
+      <button class="categoria-btn active" data-categoria="todas">Todas</button>
+      <button class="categoria-btn" data-categoria="armamento">Armamento</button>
+      <button class="categoria-btn" data-categoria="roupas">Roupas</button>
+      <button class="categoria-btn" data-categoria="acessorios">Acessórios</button>
+      <button class="categoria-btn" data-categoria="consumiveis">Consumíveis</button>
+    </div>
+
+    <!-- Grid de Itens -->
+    <div class="itens-container" id="itens">
+      <!-- ARMAMENTO -->
+      <div class="item-card visible" data-categoria="armamento">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&h=200&fit=crop" alt="Kunai">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Kunai</div>
+          <div class="item-desc">Lâmina curva de ataque rápido</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">500 Ryō</div>
+          <button class="btn-comprar" data-item="Kunai" data-preco="500">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="armamento">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1608720880949-fb6f52064580?w=300&h=200&fit=crop" alt="Shuriken">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Shuriken</div>
+          <div class="item-desc">Arma arremessável de precisão</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">300 Ryō</div>
+          <button class="btn-comprar" data-item="Shuriken" data-preco="300">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="armamento">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1590577331354-32e5ea69f81f?w=300&h=200&fit=crop" alt="Espada Curta">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Espada Curta</div>
+          <div class="item-desc">Lâmina para combate corpo a corpo</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">2.500 Ryō</div>
+          <button class="btn-comprar" data-item="Espada Curta" data-preco="2500">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="armamento">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1579121584952-95e6e8b20056?w=300&h=200&fit=crop" alt="Shuriken Explodente">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Shuriken Explodente</div>
+          <div class="item-desc">Arma com mecanismo de explosão</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">1.200 Ryō</div>
+          <button class="btn-comprar" data-item="Shuriken Explodente" data-preco="1200">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="armamento">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1624526267942-ab67cb1ef04a?w=300&h=200&fit=crop" alt="Katana">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Katana</div>
+          <div class="item-desc">Grande espada de um shinobi</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">5.000 Ryō</div>
+          <button class="btn-comprar" data-item="Katana" data-preco="5000">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="armamento">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1608720880949-fb6f52064580?w=300&h=200&fit=crop" alt="Kit de Arremesso">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Kit de Arremesso</div>
+          <div class="item-desc">10 kunais + 10 shurikens</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">7.000 Ryō</div>
+          <button class="btn-comprar" data-item="Kit de Arremesso" data-preco="7000">Comprar</button>
+        </div>
+      </div>
+
+      <!-- ROUPAS -->
+      <div class="item-card visible" data-categoria="roupas">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=300&h=200&fit=crop" alt="Uniforme de Genin">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Uniforme de Genin</div>
+          <div class="item-desc">Traje padrão para ninjas em treinamento</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">3.000 Ryō</div>
+          <button class="btn-comprar" data-item="Uniforme de Genin" data-preco="3000">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="roupas">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop" alt="Armadura de Chumbo">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Armadura de Chumbo</div>
+          <div class="item-desc">Proteção reforçada contra ataques</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">8.500 Ryō</div>
+          <button class="btn-comprar" data-item="Armadura de Chumbo" data-preco="8500">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="roupas">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1578348482759-24f3d9ed4a57?w=300&h=200&fit=crop" alt="Manto Shinobi">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Manto Shinobi</div>
+          <div class="item-desc">Tecido especial que camufla movimento</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">4.500 Ryō</div>
+          <button class="btn-comprar" data-item="Manto Shinobi" data-preco="4500">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="roupas">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1530268729831-4ca8d468e675?w=300&h=200&fit=crop" alt="Proteção de Antebraço">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Proteção de Antebraço</div>
+          <div class="item-desc">Guardião para defesa de golpes</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">1.500 Ryō</div>
+          <button class="btn-comprar" data-item="Proteção de Antebraço" data-preco="1500">Comprar</button>
+        </div>
+      </div>
+
+      <!-- ACESSÓRIOS -->
+      <div class="item-card visible" data-categoria="acessorios">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&h=200&fit=crop" alt="Bandana Shinobi">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Bandana Shinobi</div>
+          <div class="item-desc">Insígnia de aldeia no tecido</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">2.000 Ryō</div>
+          <button class="btn-comprar" data-item="Bandana Shinobi" data-preco="2000">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="acessorios">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=300&h=200&fit=crop" alt="Bolsa de Itens">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Bolsa de Itens</div>
+          <div class="item-desc">Armazenamento para equipamentos</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">1.800 Ryō</div>
+          <button class="btn-comprar" data-item="Bolsa de Itens" data-preco="1800">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="acessorios">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1506630183385-4234b732a02e?w=300&h=200&fit=crop" alt="Cordão de Ataque">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Cordão de Ataque</div>
+          <div class="item-desc">Corrente para armas amarradas</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">1.200 Ryō</div>
+          <button class="btn-comprar" data-item="Cordão de Ataque" data-preco="1200">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="acessorios">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&h=200&fit=crop" alt="Rosário Ninja">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Rosário Ninja</div>
+          <div class="item-desc">Aumenta concentração em jutsus</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">3.500 Ryō</div>
+          <button class="btn-comprar" data-item="Rosário Ninja" data-preco="3500">Comprar</button>
+        </div>
+      </div>
+
+      <!-- CONSUMÍVEIS -->
+      <div class="item-card visible" data-categoria="consumiveis">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1544265521-c8c93228cecf?w=300&h=200&fit=crop" alt="Pílula de Chakra">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Pílula de Chakra</div>
+          <div class="item-desc">Restaura energia de chakra</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">800 Ryō</div>
+          <button class="btn-comprar" data-item="Pílula de Chakra" data-preco="800">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="consumiveis">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1585518419759-63b0952d95d5?w=300&h=200&fit=crop" alt="Antídoto">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Antídoto</div>
+          <div class="item-desc">Neutraliza venenos e toxinas</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">1.000 Ryō</div>
+          <button class="btn-comprar" data-item="Antídoto" data-preco="1000">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="consumiveis">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1599599810694-2a5b0c2259b0?w=300&h=200&fit=crop" alt="Ração de Viagem">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Ração de Viagem</div>
+          <div class="item-desc">Mantimento para jornadas longas</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">400 Ryō</div>
+          <button class="btn-comprar" data-item="Ração de Viagem" data-preco="400">Comprar</button>
+        </div>
+      </div>
+
+      <div class="item-card visible" data-categoria="consumiveis">
+        <div class="item-image">
+          <img src="https://images.unsplash.com/photo-1608270861620-7300cc586d0d?w=300&h=200&fit=crop" alt="Elixir de Cura">
+        </div>
+        <div class="item-info">
+          <div class="item-name">Elixir de Cura</div>
+          <div class="item-desc">Ferimento cicatriza com magia</div>
+          <div class="item-price-label">Preço</div>
+          <div class="item-price">2.200 Ryō</div>
+          <button class="btn-comprar" data-item="Elixir de Cura" data-preco="2200">Comprar</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE COMPRA -->
+  <div id="modal-compra" role="dialog" aria-modal="true">
+    <div class="modal-bg-compra" id="modal-bg-close"></div>
+    <div class="modal-content-compra">
+      <div class="modal-header-compra">CONFIRMAR COMPRA</div>
+      
+      <div class="item-resumo">
+        <div class="item-resumo-nome" id="modal-item-nome">Kunai</div>
+        <div class="item-resumo-preco" id="modal-item-preco">500 Ryō</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ID do Ninja</label>
+        <input type="text" class="form-input" id="modal-player-id" placeholder="Ex: NINJA_001" maxlength="30">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Dinheiro Disponível (Ryō)</label>
+        <input type="number" class="form-input" id="modal-player-dinero" placeholder="Digite seu dinheiro total" min="0">
+      </div>
+
+      <div class="alert-message" id="modal-alerta"></div>
+
+      <div class="modal-buttons">
+        <button class="btn-modal btn-confirmar" id="modal-btn-confirmar">Comprar</button>
+        <button class="btn-modal btn-cancelar" id="modal-btn-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---- MENU E TEMA ---- */
+    const menuBtn    = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); } });
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    const root  = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    /* ---- FILTRO DE CATEGORIAS ---- */
+    const filtrosBtns = document.querySelectorAll('.categoria-btn');
+    const itensCards = document.querySelectorAll('.item-card');
+
+    filtrosBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const categoria = btn.getAttribute('data-categoria');
+        
+        filtrosBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        itensCards.forEach(card => {
+          if(categoria === 'todas' || card.getAttribute('data-categoria') === categoria) {
+            card.classList.add('visible');
+          } else {
+            card.classList.remove('visible');
+          }
+        });
+      });
+    });
+
+    /* ---- MODAL COMPRA ---- */
+    const modalCompra = document.getElementById('modal-compra');
+    const modalBgClose = document.getElementById('modal-bg-close');
+    const modalBtnConfirmar = document.getElementById('modal-btn-confirmar');
+    const modalBtnCancelar = document.getElementById('modal-btn-cancelar');
+    const modalItemNome = document.getElementById('modal-item-nome');
+    const modalItemPreco = document.getElementById('modal-item-preco');
+    const modalPlayerId = document.getElementById('modal-player-id');
+    const modalPlayerDinero = document.getElementById('modal-player-dinero');
+    const modalAlerta = document.getElementById('modal-alerta');
+    
+    let itemAtual = { nome: '', preco: 0 };
+
+    function abrirModal(nome, preco) {
+      itemAtual = { nome, preco };
+      modalItemNome.textContent = nome;
+      modalItemPreco.textContent = preco + ' Ryō';
+      modalPlayerId.value = '';
+      modalPlayerDinero.value = '';
+      modalAlerta.textContent = '';
+      modalAlerta.className = 'alert-message';
+      modalCompra.classList.add('open');
+      modalPlayerId.focus();
+    }
+
+    function fecharModal() {
+      modalCompra.classList.remove('open');
+      modalAlerta.textContent = '';
+      modalAlerta.className = 'alert-message';
+    }
+
+    document.querySelectorAll('.btn-comprar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.getAttribute('data-item');
+        const preco = parseInt(btn.getAttribute('data-preco'));
+        abrirModal(item, preco);
+      });
+    });
+
+    modalBgClose.addEventListener('click', fecharModal);
+    modalBtnCancelar.addEventListener('click', fecharModal);
+
+    modalBtnConfirmar.addEventListener('click', () => {
+      const playerId = modalPlayerId.value.trim();
+      const dinero = parseInt(modalPlayerDinero.value);
+
+      if(!playerId) {
+        mostrarAlerta('Por favor, insira seu ID de ninja.', 'error');
+        return;
+      }
+
+      if(isNaN(dinero) || dinero < 0) {
+        mostrarAlerta('Insira um valor válido de dinheiro.', 'error');
+        return;
+      }
+
+      if(dinero < itemAtual.preco) {
+        mostrarAlerta(`Dinheiro insuficiente! Você tem ${dinero} Ryō, mas o item custa ${itemAtual.preco} Ryō.`, 'error');
+        return;
+      }
+
+      const dineroRestante = dinero - itemAtual.preco;
+      mostrarAlerta(`✓ Compra realizada com sucesso! Você comprou "${itemAtual.nome}" por ${itemAtual.preco} Ryō. Seu novo saldo: ${dineroRestante} Ryō. ID: ${playerId}`, 'success');
+      
+      setTimeout(() => {
+        fecharModal();
+      }, 2500);
+    });
+
+    function mostrarAlerta(msg, tipo) {
+      modalAlerta.textContent = msg;
+      modalAlerta.className = 'alert-message alert-' + tipo;
+    }
+
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Escape' && modalCompra.classList.contains('open')) {
+        fecharModal();
+      }
+    });
+  </script>
+</body>
+</html>
