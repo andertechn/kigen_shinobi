@@ -354,7 +354,7 @@
                 </svg>
             </button>
             <div class="dropdown-content">
-                <a href="4.0_daymo.html">Daymo/a>
+                <a href="4.0_daymo.html">Daymo</a>
                 <a href="4.1_dinastia.html">Dinastias</a>
                 <a href="4.2_hierarquia.html">Hierarquia</a>
                 <a href="4.3_reputação.html">Reputação</a>
@@ -399,16 +399,16 @@
         <div class="dash-header">
             <h1 class="main-title" id="dash-title">PAÍS DO FOGO</h1>
             
-            <img src="https://via.placeholder.com/500x500/222/666?text=FOTO+DA+VILA+OU+MAPA" class="square-photo" alt="Foto do País">
+            <img src="00_logo_fogo.png" class="square-photo" id="dash-img" alt="Foto do País">
             
             <div class="dash-leaders">
                 <div class="leader-box" id="leader-color-1">
                     <span>👑 Daimyō Soberano</span>
-                    <strong>Tokugawa Ieyasu</strong>
+                    <strong id="dash-daimyo">Tokugawa Ieyasu</strong>
                 </div>
                 <div class="leader-box" id="leader-color-2">
                     <span>⛩️ Kage Atual</span>
-                    <strong>[Nome do Player]</strong>
+                    <strong id="dash-kage">Nenhum</strong>
                 </div>
             </div>
         </div>
@@ -418,40 +418,41 @@
             <button class="tab-btn" onclick="openTab(event, 'tab-economia')">Economia & Zonas</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-militar')">Forças & Clãs</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-diplomacia')">Diplomacia & Leis</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-hierarquia')">Hierarquia do Poder</button> </div>
+            <button class="tab-btn" onclick="openTab(event, 'tab-hierarquia')">Hierarquia do Poder</button> 
+        </div>
 
         <div id="tab-visao" class="tab-content active">
-            <div class="section-title">📊 Status Nacional (KPIs)</div>
+            <div class="section-title">📊 Status Nacional</div>
             <div class="grid-4">
                 <div class="data-card blue">
-                    <div class="data-label">Densidade Pop.</div>
-                    <div class="data-value">Alta</div>
-                    <div class="stars">★★★★☆</div>
+                    <div class="data-label">População</div>
+                    <div class="data-value" id="status-populacao">Em crise</div>
+                    <div class="stars">★☆☆☆☆</div>
                 </div>
                 <div class="data-card red">
-                    <div class="data-label">Poderio Militar</div>
-                    <div class="data-value">Supremo</div>
-                    <div class="stars">★★★★★</div>
+                    <div class="data-label">Militar</div>
+                    <div class="data-value" id="status-militar">Em crise</div>
+                    <div class="stars">★☆☆☆☆</div>
                 </div>
                 <div class="data-card gold">
                     <div class="data-label">Saúde Econômica</div>
-                    <div class="data-value">Em Crise</div>
-                    <div class="stars">★★☆☆☆</div>
+                    <div class="data-value" id="status-economia">Em crise</div>
+                    <div class="stars">★☆☆☆☆</div>
                 </div>
                 <div class="data-card green">
                     <div class="data-label">Segurança Interna</div>
-                    <div class="data-value">Média</div>
-                    <div class="stars">★★★☆☆</div>
+                    <div class="data-value" id="status-seguranca">Em crise</div>
+                    <div class="stars">★☆☆☆☆</div>
                 </div>
             </div>
 
             <div class="section-title" style="margin-top: 40px;">⚖️ Reputação do Governo</div>
             <div class="data-card gold" style="display: flex; justify-content: space-between; align-items: center; max-width: 600px;">
                 <div>
-                    <div class="data-value" style="color: #fbc02d; font-size: 24px;">O Rei Justo</div>
-                    <div class="data-label" style="margin-top: 5px;">Prestígio Alto (+450 PP)</div>
+                    <div class="data-value" style="color: #fbc02d; font-size: 24px;" id="rep-titulo">O Rei Justo</div>
+                    <div class="data-label" style="margin-top: 5px;" id="rep-pontos">Prestígio Alto (+450 PP)</div>
                 </div>
-                <div style="font-size: 40px;">🕊️</div>
+                <div style="font-size: 40px;" id="rep-icone">🕊️</div>
             </div>
         </div>
 
@@ -459,11 +460,11 @@
             <div class="grid-2" style="margin-bottom: 40px;">
                 <div class="data-card gold">
                     <div class="data-label">Tesouro Nacional</div>
-                    <div class="data-value" style="font-size: 32px; color: #fbc02d;">1.500.000 Ryōs</div>
+                    <div class="data-value" id="dash-tesouro" style="font-size: 32px; color: #fbc02d;">1.500.000 Ryōs</div>
                 </div>
                 <div class="data-card blue">
                     <div class="data-label">Imposto Atual</div>
-                    <div class="data-value" style="font-size: 32px;">15%</div>
+                    <div class="data-value" id="dash-imposto" style="font-size: 32px;">15%</div>
                 </div>
             </div>
 
@@ -543,13 +544,13 @@
                 <div class="data-card green" style="text-align: center;">
                     <div style="font-size: 28px; margin-bottom: 10px;">🤝</div>
                     <div class="data-label">Aliados</div>
-                    <div class="data-value" style="font-size: 16px;">País da Terra</div>
+                    <div class="data-value" style="font-size: 16px;" id="diplo-aliados">País da Terra</div>
                     <div style="font-size: 12px; color: #888; margin-top: 5px;">Livre Comércio</div>
                 </div>
                 <div class="data-card red" style="text-align: center;">
                     <div style="font-size: 28px; margin-bottom: 10px;">⚔️</div>
                     <div class="data-label">Inimigos</div>
-                    <div class="data-value" style="font-size: 16px;">País do Raio</div>
+                    <div class="data-value" style="font-size: 16px;" id="diplo-inimigos">País do Raio</div>
                     <div style="font-size: 12px; color: #888; margin-top: 5px;">Guerra Declarada</div>
                 </div>
             </div>
@@ -562,10 +563,10 @@
                     <div class="tier-title">👑 O Topo (Poder Absoluto)</div>
                     <div class="tier-cards">
                         <div class="person-card soberano">
-                            <img src="https://via.placeholder.com/100/111/fbc02d?text=FOTO" class="person-img">
+                            <img src="https://via.placeholder.com/100/111/fbc02d?text=FOTO" class="person-img" id="hier-soberano-img">
                             <div class="person-role">Daimyō Soberano</div>
-                            <div class="person-name">Tokugawa Ieyasu</div>
-                            <div class="person-house">Casa Tokugawa</div>
+                            <div class="person-name" id="hier-soberano-nome">Tokugawa Ieyasu</div>
+                            <div class="person-house" id="hier-soberano-casa">Casa Tokugawa</div>
                             <div class="person-domain">Estado Soberano</div>
                         </div>
                     </div>
@@ -624,6 +625,96 @@
     </div>
 
     <script>
+        // === BANCO DE DADOS DOS PAÍSES ===
+        // Edite os dados aqui para cada país!
+        const dadosPaises = {
+            'PAÍS DO FOGO': {
+                imagem: '00_logo_fogo.png',
+                daimyo: 'Tokugawa Ieyasu',
+                kage: 'Nenhum',
+                tesouro: '1.500.000 Ryōs',
+                imposto: '15%',
+                statusPopulacao: 'Em crise',
+                statusMilitar: 'Estável',
+                statusEconomia: 'Crescente',
+                statusSeguranca: 'Alerta',
+                repTitulo: 'O Rei Justo',
+                repPontos: 'Prestígio Alto (+450 PP)',
+                repIcone: '🕊️',
+                aliados: 'País da Terra',
+                inimigos: 'País do Raio',
+                casaSoberana: 'Casa Tokugawa'
+            },
+            'PAÍS DA ÁGUA': {
+                imagem: '00_logo_agua.png',
+                daimyo: 'Senhor Fujiwara',
+                kage: 'Mizukage',
+                tesouro: '2.100.000 Ryōs',
+                imposto: '10%',
+                statusPopulacao: 'Estável',
+                statusMilitar: 'Forte',
+                statusEconomia: 'Próspera',
+                statusSeguranca: 'Pacífica',
+                repTitulo: 'O Comerciante',
+                repPontos: 'Prestígio Médio (+200 PP)',
+                repIcone: '⚖️',
+                aliados: 'Nenhum',
+                inimigos: 'País do Vento',
+                casaSoberana: 'Casa Fujiwara'
+            },
+            'PAÍS DA TERRA': {
+                imagem: '00_logo_terra.png',
+                daimyo: 'Senhor Kitabatake',
+                kage: 'Tsuchikage',
+                tesouro: '800.000 Ryōs',
+                imposto: '25%',
+                statusPopulacao: 'Trabalho Forçado',
+                statusMilitar: 'Militarizada',
+                statusEconomia: 'Estagnada',
+                statusSeguranca: 'Controle Total',
+                repTitulo: 'O Tirano',
+                repPontos: 'Infâmia Alta (+500 PI)',
+                repIcone: '💀',
+                aliados: 'País do Fogo',
+                inimigos: 'Nenhum',
+                casaSoberana: 'Casa Kitabatake'
+            },
+            'PAÍS DO RELÂMPAGO': {
+                imagem: '00_logo_raio.png',
+                daimyo: 'Senhor Hosokawa',
+                kage: 'Raikage',
+                tesouro: '3.500.000 Ryōs',
+                imposto: '12%',
+                statusPopulacao: 'Tecnológica',
+                statusMilitar: 'Avançada',
+                statusEconomia: 'Monopólio',
+                statusSeguranca: 'Vigiada',
+                repTitulo: 'O Visionário',
+                repPontos: 'Prestígio Alto (+400 PP)',
+                repIcone: '⚡',
+                aliados: 'País do Vento',
+                inimigos: 'País do Fogo',
+                casaSoberana: 'Casa Hosokawa'
+            },
+            'PAÍS DO VENTO': {
+                imagem: '00_logo_vento.png',
+                daimyo: 'Senhor Toyotomi',
+                kage: 'Kazekage',
+                tesouro: '5.000.000 Ryōs',
+                imposto: '30%',
+                statusPopulacao: 'Rica',
+                statusMilitar: 'Mercenária',
+                statusEconomia: 'Inflacionada',
+                statusSeguranca: 'Instável',
+                repTitulo: 'O Magnata',
+                repPontos: 'Infâmia Baixa (+100 PI)',
+                repIcone: '💰',
+                aliados: 'País do Raio',
+                inimigos: 'País da Água',
+                casaSoberana: 'Casa Toyotomi'
+            }
+        };
+
         function toggleMenu() {
             document.getElementById("dropdownMenu").classList.toggle("active");
         }
@@ -632,11 +723,42 @@
             document.getElementById('selection-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'flex';
             
+            // Atualiza Título e Cores
             document.getElementById('dash-title').innerText = nationName;
-            
             document.getElementById('leader-color-1').style.borderLeftColor = themeColor;
             document.getElementById('leader-color-2').style.borderLeftColor = themeColor;
             
+            // Puxa os Dados do JS
+            const dados = dadosPaises[nationName];
+            
+            if(dados) {
+                // Header
+                document.getElementById('dash-img').src = dados.imagem;
+                document.getElementById('dash-daimyo').innerText = dados.daimyo;
+                document.getElementById('dash-kage').innerText = dados.kage;
+                
+                // Aba Visão Geral
+                document.getElementById('status-populacao').innerText = dados.statusPopulacao;
+                document.getElementById('status-militar').innerText = dados.statusMilitar;
+                document.getElementById('status-economia').innerText = dados.statusEconomia;
+                document.getElementById('status-seguranca').innerText = dados.statusSeguranca;
+                document.getElementById('rep-titulo').innerText = dados.repTitulo;
+                document.getElementById('rep-pontos').innerText = dados.repPontos;
+                document.getElementById('rep-icone').innerText = dados.repIcone;
+
+                // Aba Economia
+                document.getElementById('dash-tesouro').innerText = dados.tesouro;
+                document.getElementById('dash-imposto').innerText = dados.imposto;
+
+                // Aba Diplomacia
+                document.getElementById('diplo-aliados').innerText = dados.aliados;
+                document.getElementById('diplo-inimigos').innerText = dados.inimigos;
+
+                // Aba Hierarquia (Atualiza a parte do Soberano como Exemplo)
+                document.getElementById('hier-soberano-nome').innerText = dados.daimyo;
+                document.getElementById('hier-soberano-casa').innerText = dados.casaSoberana;
+            }
+
             document.getElementById('btn-visao').click();
             window.scrollTo(0, 0);
         }
