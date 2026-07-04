@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ministérios — Kigen Shinobi</title>
+  <title>Sistemas Governamentais — Kigen Shinobi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -115,13 +115,25 @@
     }
     .header-deco { flex: 1; height: 1px; background: rgba(0,0,0,0.3); }
 
-    /* SEÇÃO INTRO */
+    /* SEÇÕES DE INFORMAÇÃO */
     .intro-section {
       padding: 30px 40px; background: var(--surface); border-bottom: 1px solid rgba(255,255,255,0.03);
     }
     .intro-text { font-size: 1.1rem; color: var(--text); margin-bottom: 15px; }
     .intro-text:last-child { margin-bottom: 0; }
     .intro-text strong { color: var(--accent); font-weight: 700; }
+
+    .stats-section {
+      padding: 30px 40px; background: var(--surface-inner); border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .stats-title {
+      font-family: 'Russo One', sans-serif; font-size: 1.2rem; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px;
+    }
+    .stats-image {
+      width: 100%; max-width: 400px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.3);
+      margin: 15px 0; display: block;
+    }
 
     /* ======= SISTEMA DE SANFONAS (ACCORDIONS) ======= */
     .accordion-container {
@@ -166,14 +178,19 @@
     .acc-list li { padding-left: 15px; border-left: 2px solid rgba(255, 215, 0, 0.3); position: relative; }
     .acc-list li strong { color: var(--accent); display: inline-block; font-family: 'Russo One', sans-serif; margin-bottom: 5px; font-weight: normal; letter-spacing: 0.05em; }
     
-    /* Tag [NOVA] estilizada */
+    /* Tags Estilizadas */
     .tag-nova {
       background: var(--accent); color: #000; font-family: 'Russo One', sans-serif;
       font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;
       margin-right: 8px; vertical-align: middle; display: inline-block;
     }
+    .tag-rank {
+      background: rgba(255, 215, 0, 0.1); border: 1px solid var(--accent); color: var(--accent);
+      font-family: 'Russo One', sans-serif; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px;
+      letter-spacing: 0.05em; margin-right: 8px; vertical-align: middle; display: inline-block;
+    }
 
-    /* Sub-listas de níveis (ex: Níveis de Infiltração) */
+    /* Sub-listas de níveis */
     .inner-list {
       margin-top: 10px; padding-left: 15px; list-style: circle; color: var(--text-sub); font-size: 0.95rem;
     }
@@ -183,7 +200,7 @@
     @media (max-width: 768px) {
       #page-container { padding-top: 100px; padding-left: 15px; padding-right: 15px; }
       .header-red h1 { font-size: 1.8rem; }
-      .intro-section { padding: 20px; }
+      .intro-section, .stats-section { padding: 20px; }
       .accordion-container { padding: 25px 20px; }
     }
   </style>
@@ -234,18 +251,48 @@
       
       <!-- Cabeçalho Amarelo -->
       <div class="header-red">
-        <h1>OS TRÊS MINISTÉRIOS</h1>
+        <h1>SISTEMA GOVERNAMENTAL</h1>
         <div class="header-deco"></div>
       </div>
 
-      <!-- Introdução (Sem imagem) -->
+      <!-- Introdução GERAL -->
       <div class="intro-section">
         <p class="intro-text">
-          O governo é dividido em três pilares fundamentais, onde cada Ministro atua como um braço direto do Daimyō. Explore as competências exclusivas de cada gabinete.
+          O verdadeiro poder não reside em atirar uma Kunai, mas em decidir quem tem dinheiro para forjá-la. O Sistema Governamental dita a força de um país inteiro através de <strong>Estatísticas Nacionais (Shurikens)</strong> e <strong>Decretos Soberanos</strong> controlados pelos Três Ministérios.
         </p>
       </div>
 
-      <!-- SISTEMA DE SANFONAS (ACCORDIONS) -->
+      <!-- SEÇÃO DAS SHURIKENS E PROGRESSÃO -->
+      <div class="stats-section">
+        <h2 class="stats-title">AS QUATRO ESTATÍSTICAS NACIONAIS</h2>
+        <p class="intro-text">
+          A força do seu país é medida de 0 a 5 Shurikens (Estrelas) em quatro pilares. Essas métricas definem o orçamento do país e a dimensão dos Decretos que o governo consegue aprovar.
+        </p>
+        
+        <img src="image_f31c95.png" alt="Estatísticas Shurikens" class="stats-image" onerror="this.style.display='none'">
+
+        <ul class="inner-list" style="margin-bottom: 25px;">
+          <li><strong>👥 Populacional (Interior):</strong> Lealdade civil, tamanho da força de trabalho e imunidade a greves.</li>
+          <li><strong>💰 Econômica (Tesouro):</strong> Fluxo de Ryōs, Tesouro Nacional e controle do comércio.</li>
+          <li><strong>⚔️ Militar (Defesa):</strong> Força das tropas de defesa, Forças Especiais e submissão da Vila Oculta.</li>
+          <li><strong>⚙️ Tecnológica (Obras):</strong> Inovações de Engenheiros, fortificações e rotas.</li>
+        </ul>
+
+        <h2 class="stats-title">SISTEMA DE PROGRESSÃO (O RANK DO PAÍS)</h2>
+        <p class="intro-text">
+          O país não evolui sozinho. O Daimyō e os Ministros precisam investir Ryōs e concluir Editais em ON para destrancar Shurikens e poderes maiores.
+        </p>
+        <ul class="inner-list">
+          <li><strong>0 Shurikens (Em Crise):</strong> País quebrado. Custo de itens nas lojas dobra. Sem recursos.</li>
+          <li><strong>1 Shuriken (Rank D - Extremamente Baixa):</strong> Estado de sobrevivência. Libera decretos locais.</li>
+          <li><strong>2 Shurikens (Rank C - Baixa):</strong> Em desenvolvimento. <em>Requisito:</em> Concluir 3 Editais Básicos (ex: hospital, 1 rota comercial, recrutar NPCs).</li>
+          <li><strong>3 Shurikens (Rank B - Média - Potência Regional):</strong> <em>Requisito:</em> 1 Base Estruturada (Rank B), realizar 1 Festival Nacional e 2 Clãs Shinobis leais.</li>
+          <li><strong>4 Shurikens (Rank A - Alta - Superpotência):</strong> <em>Requisito:</em> 1 Invenção Patenteada, dominar 2 Zonas Neutras, manter 1M Ryōs no cofre por uma semana.</li>
+          <li><strong>5 Shurikens (Rank S - Altíssima - Hegemonia):</strong> O Endgame. <em>Requisito:</em> Fortaleza Murada Rank S e vitória em uma Guerra Oficial de Expansão.</li>
+        </ul>
+      </div>
+
+      <!-- SISTEMA DE SANFONAS (MINISTÉRIOS) -->
       <div class="accordion-container">
         
         <!-- MINISTÉRIO 1 -->
@@ -253,35 +300,36 @@
           <summary>MINISTÉRIO DO TESOURO E OBRAS</summary>
           <div class="accordion-content">
             <div class="focus-text">
-              <strong>Foco:</strong> O Motor do Progresso e o Controle Econômico.
+              <strong>Foco:</strong> Manipulação de mercado, infraestrutura e asfixia financeira.
             </div>
 
-            <div class="subcat-title">Gestão de Projetos (Sistema de Editais)</div>
             <ul class="acc-list">
               <li>
-                <strong>Licitação de Obras:</strong> O Daimyō abre um Edital (ex: Muralha de Ferro, Porto Comercial). Ferreiros e Engenheiros apresentam propostas em RP.
+                <strong>Inquisição Fiscal (Taxa de Sangue):</strong> Decreta que todos os portadores de Kekkei Genkai ou usuários de Jutsus Rank A+ paguem tributo. Clãs que sonegarem perdem direito à Forja estatal e viram alvos no Bingo Book.
               </li>
               <li>
-                <strong>O Impacto Permanente:</strong> A Staff valida a conclusão da obra em ON e altera o mapa globalmente.
+                <strong>A "Corrida Armamentista":</strong> Financia uma nova tecnologia. Ao ser criada, o país a patenteia e licencia seu uso para outras nações, cobrando taxas absurdas.
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>R&D (Pesquisa e Desenvolvimento):</strong> Licitar a criação de tecnologias exclusivas (ex: sistemas de comunicação, novos métodos de extração mineral) que darão vantagem competitiva à sua nação.
-              </li>
-            </ul>
-
-            <div class="subcat-title">Política Econômica</div>
-            <ul class="acc-list">
-              <li>
-                <strong>Orçamento Nacional:</strong> Controle dos cofres reais e taxação.
+                <strong>Anexação por Infraestrutura:</strong> Contrata Engenheiros para construir hospitais/aquedutos em vilarejos neutros. Em seguida, cobra pedágios altíssimos. Se não pagarem, a água é cortada, forçando o local a jurar lealdade (anexação econômica).
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>Tributação Seletiva:</strong> Decretar impostos sobre serviços específicos (taxa por uso de Kekkei Genkai, imposto sobre ninjutsu de classe S, pedágios reais).
+                <strong>Inflação Artificial:</strong> Retém propositalmente recursos vitais nos cofres. O preço explode no mercado (+300%). O Tesouro lucra com a crise, mas sobe o risco de motim.
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>Monopólio Estatal:</strong> Nacionalizar recursos vitais (ex: minas de ferro, reservas de papel de selo), proibindo a venda por privados sem licença do Estado.
+                <strong>Monopólio de Guerra:</strong> O Estado compra as minas de ferro ou estaleiros do país. O preço das espadas e navios passa a ser ditado pelo Ministério.
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>Agiotagem de Estado:</strong> Financiar clãs ou vilas vizinhas em crise em troca de juros, podendo exigir portos, terras ou minas como garantia de pagamento.
+                <span class="tag-rank">4 SHURIKENS</span><strong>Embargo da Fome:</strong> Bloqueia rotas de suprimentos para o país inimigo. Shinobis inimigos sofrem debuff de -30% de HP e Chakra base em combates devido à má nutrição.
+              </li>
+              <li>
+                <span class="tag-rank">5 SHURIKENS</span><strong>Agiotagem de Estado:</strong> Empresta Kigens (Ryōs) para uma nação perdendo a guerra. Quando falharem em pagar, cobra a dívida tomando posse de portos ou terras.
+              </li>
+              <li>
+                <strong>Concursos Tecnológicos:</strong> Patrocina um torneio, oferecendo ouro para atrair e monopolizar os melhores Engenheiros e Cientistas do servidor.
+              </li>
+              <li>
+                <strong>Cofres Impenetráveis:</strong> Financia abrigos subterrâneos imunes a espionagem e ataques diretos (até nível Bijuudama).
               </li>
             </ul>
           </div>
@@ -292,37 +340,29 @@
           <summary>MINISTÉRIO DA DEFESA E INTELIGÊNCIA</summary>
           <div class="accordion-content">
             <div class="focus-text">
-              <strong>Foco:</strong> A Proteção das Fronteiras e o Olho do Estado.
+              <strong>Foco:</strong> Forças Especiais, espionagem, fechamento de fronteiras e guerras sujas.
             </div>
 
-            <div class="subcat-title">Sistema de Sussurros (Inteligência)</div>
             <ul class="acc-list">
               <li>
-                <strong>Como Contratar:</strong> NPCs (baratos/arriscados) vs Players (caros/precisos).
-              </li>
-              <li>
-                <strong>Níveis de Infiltração:</strong>
+                <strong>Sistema de Sussurros (Rede de Espionagem):</strong> Compra de inteligência.
                 <ul class="inner-list">
-                  <li><em>Nível 1 (Ruído):</em> Clima social e tropas visíveis.</li>
-                  <li><em>Nível 2 (Intendência):</em> Registros de suprimentos e missões em curso.</li>
-                  <li><em>Nível 3 (Sombra):</em> Acesso a chats de estratégia, planos de Kages e traidores.</li>
+                  <li><em>Nível 1 (10k Ryōs):</em> Alertas de movimentação de tropas inimigas.</li>
+                  <li><em>Nível 2 (50k Ryōs):</em> Descobre o objetivo de missões A ou S postadas em vilas inimigas.</li>
+                  <li><em>Nível 3 (150k Ryōs):</em> Acesso a prints/informações validadas pela Staff de reuniões de Kages inimigos.</li>
                 </ul>
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>Contra-Espionagem (Engodo):</strong> Criar e espalhar "informações falsas" para que o inimigo tome decisões baseadas em dados mentirosos.
-              </li>
-            </ul>
-
-            <div class="subcat-title">Gestão Ninja & Crises</div>
-            <ul class="acc-list">
-              <li>
-                <span class="tag-nova">NOVO</span><strong>Contrato de Proteção Nacional:</strong> Negociar o orçamento anual com a Vila Oculta. Se o Kage desobedecer, você corta verbas de suprimentos médicos ou armas.
+                <span class="tag-rank">3 SHURIKENS</span><strong>Fechamento de Fronteiras (Estado de Sítio):</strong> Impede 100% a entrada de estrangeiros. Permissão para matar (livre PK) invasores. Trava o comércio, mas blinda contra espiões nível 1 e 2.
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>Auditoria de Missões:</strong> Exigir que a Vila relate quais missões está aceitando. Se uma missão for contra o Estado, o Kage é multado.
+                <strong>Chantagem Soberana:</strong> Usa os Sussurros para descobrir segredos e transformar líderes de outras organizações em fantoches do Ministério.
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>Protocolo Bijuu:</strong> Em caso de emergência (ameaça S-Rank/Bijuu), o Daimyō decide: "Evacuação Civil" (Prestígio) ou "Captura Militar" (Ganho bélico).
+                <strong>Guerra por Procuração (False Flag):</strong> Financia rebeldes anonimamente para destruir um país aliado. Em seguida, oferece "ajuda militar" cobrando terras como pagamento.
+              </li>
+              <li>
+                <strong>Contratos de Extermínio:</strong> Usa o Mercado Negro para contratar Nukenins Rank-S anonimamente contra um herdeiro rival, mantendo as mãos limpas.
               </li>
             </ul>
           </div>
@@ -333,38 +373,21 @@
           <summary>MINISTÉRIO DO INTERIOR E DIPLOMACIA</summary>
           <div class="accordion-content">
             <div class="focus-text">
-              <strong>Foco:</strong> Estabilidade Social e Geopolítica.
+              <strong>Foco:</strong> Relações públicas, alianças geopolíticas e o controle sobre a Vila Oculta.
             </div>
 
-            <div class="subcat-title">Estabilidade e Suprimentos</div>
             <ul class="acc-list">
               <li>
-                <strong>Cota Semanal (Banquete Real):</strong> Bônus de regeneração para clãs leais.
+                <strong>Sufocamento de Kages:</strong> Se o Kage tomar decisão diplomática contrária à Dinastia, o Ministério corta 50% de todas as recompensas em Ryōs de TODAS as missões ninjas (Rank D ao S) da Vila Oculta, forçando submissão.
               </li>
               <li>
-                <strong>Embargo da Fome:</strong> Debuff de 30% em atributos físicos para clãs rebeldes.
+                <strong>Festivais de Ostentação:</strong> Obriga a Vila Oculta a organizar torneios para o entretenimento dos nobres. Sobe a estatística Populacional e o Prestígio (PP) absurdamente.
               </li>
               <li>
-                <span class="tag-nova">NOVO</span><strong>Festivais de Ostentação:</strong> Gastar verba para promover eventos nacionais, subindo a Aprovação Popular (evita golpes).
-              </li>
-            </ul>
-
-            <div class="subcat-title">Justiça e Geopolítica</div>
-            <ul class="acc-list">
-              <li>
-                <strong>Pactos Comerciais:</strong> Aumento de 20% no ganho passivo de Ryos entre nações aliadas.
+                <strong>Casamentos Políticos (Reféns de Honra):</strong> Ao firmar uma aliança, exige que um membro inimigo venha morar no castelo. Se o tratado for quebrado, a execução do refém é legitimada sem Infâmia.
               </li>
               <li>
-                <strong>Sistema de Reféns (Hóspedes de Honra):</strong> Manter membros de clãs aliados no castelo. Traição = Execução/Cárcere (Motivo legítimo de guerra).
-              </li>
-              <li>
-                <span class="tag-nova">NOVO</span><strong>Inquisição de Sangue (Registro de Kekkei Genkai):</strong> Registro obrigatório de clãs com linhagens raras. Você pode cobrar "Imposto de Linhagem" ou oferecer proteção estatal em troca de servidão militar.
-              </li>
-              <li>
-                <span class="tag-nova">NOVO</span><strong>Jurisdição Especial:</strong> O Daimyō decide se ninjas que cometeram crimes contra civis serão julgados pela Vila (brando) ou pelo Estado (pena severa/trabalhos forçados).
-              </li>
-              <li>
-                <span class="tag-nova">NOVO</span><strong>Vistos Diplomáticos:</strong> Exigir "Vistos" para ninjas estrangeiros, podendo banir indivíduos indesejados da entrada no país.
+                <strong>Leilão Proibido:</strong> Organiza, via laranjas no Mercado Negro, o leilão de Kinjutsus ou Artefatos roubados. O Tesouro Nacional absorve secretamente 80% dos lucros.
               </li>
             </ul>
           </div>
