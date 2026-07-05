@@ -24,15 +24,15 @@
       --card-top:#ffffff;
 
       /* Cores das Bijuus */
-      --b1: #D4E157; /* Shukaku (Areia) */
-      --b2: #29B6F6; /* Matatabi (Fogo Azul) */
-      --b3: #78909C; /* Isobu (Coral/Cinza) */
-      --b4: #EF5350; /* Son Goku (Lava/Vermelho) */
-      --b5: #FFFFFF; /* Kokuo (Branco/Fervura) */
-      --b6: #81D4FA; /* Saiken (Ácido/Azul Claro) */
-      --b7: #66BB6A; /* Chomei (Verde/Inseto) */
-      --b8: #AB47BC; /* Gyuki (Roxo/Polvo) */
-      --b9: #FF9800; /* Kurama (Laranja/Fogo) */
+      --b1: #D4E157;
+      --b2: #29B6F6;
+      --b3: #78909C;
+      --b4: #EF5350;
+      --b5: #FFFFFF;
+      --b6: #81D4FA;
+      --b7: #66BB6A;
+      --b8: #AB47BC;
+      --b9: #FF9800;
     }
 
     [data-theme="light"] {
@@ -48,7 +48,7 @@
       --text-sub:#555555;
       --card-top:#111111;
       
-      --b5: #9E9E9E; /* Kokuo (Ajuste para tema claro) */
+      --b5: #9E9E9E;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -164,7 +164,7 @@
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      min-height: 140px;
+      min-height: 200px;
       position: relative;
       overflow: hidden;
     }
@@ -197,11 +197,12 @@
       flex-direction: column;
       align-items: center;
       gap: 12px;
+      width: 100%;
     }
 
     .bijuu-image-box {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       border-radius: 6px;
       background: rgba(0,0,0,0.4);
       border: 2px solid var(--b-color, var(--accent));
@@ -223,10 +224,11 @@
 
     .bijuu-image-placeholder {
       font-family: 'Russo One', sans-serif;
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       color: var(--text-sub);
       text-align: center;
       padding: 5px;
+      position: absolute;
     }
 
     .bijuu-name {
@@ -273,6 +275,7 @@
       backdrop-filter: blur(8px);
       animation: fadeInModal 0.3s ease;
       padding: 20px;
+      overflow-y: auto;
     }
 
     #bijuu-modal.open {
@@ -351,7 +354,7 @@
     .modal-image-section {
       position: relative;
       width: 100%;
-      height: 300px;
+      height: 350px;
       background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.9) 100%);
       display: flex;
       align-items: center;
@@ -364,14 +367,18 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      filter: saturate(1.1) brightness(1.05);
     }
 
     .modal-img-placeholder {
       font-family: 'Russo One', sans-serif;
       color: var(--text-sub);
-      font-size: 1rem;
+      font-size: 1.2rem;
       letter-spacing: 0.05em;
       z-index: 1;
+      text-align: center;
+      padding: 20px;
+      position: absolute;
     }
 
     .modal-body {
@@ -620,7 +627,7 @@
       color: var(--accent2);
     }
 
-    /* ======= REGRAS DE JINCHUURIKI (TABELAS E ACORDEONS) ======= */
+    /* ======= REGRAS DE JINCHUURIKI ======= */
     .rules-grid {
       display: flex; 
       flex-direction: column; 
@@ -805,11 +812,12 @@
 
       .bijuu-card {
         padding: 15px 10px;
-        min-height: 110px;
+        min-height: 150px;
       }
 
-      .bijuu-number {
-        font-size: 2.5rem;
+      .bijuu-image-box {
+        width: 80px;
+        height: 80px;
       }
 
       .modal-header {
@@ -818,7 +826,7 @@
       }
 
       .modal-image-section {
-        height: 200px;
+        height: 250px;
       }
 
       .modal-body {
@@ -833,13 +841,11 @@
 </head>
 <body>
 
-  <!-- FUNDO BLINDADO -->
   <div id="fixed-background">
     <img src="00_fundo_1_kigen.jpg" class="hero-bg" alt="Fundo" onerror="this.style.display='none'">
     <div class="hero-overlay"></div>
   </div>
 
-  <!-- UI FLUTUANTE -->
   <div id="floating-ui">
     <button id="menu-btn" aria-label="Abrir menu">
       <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -859,7 +865,6 @@
     </button>
   </div>
 
-  <!-- NAV OVERLAY -->
   <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
@@ -885,7 +890,6 @@
     </nav>
   </div>
 
-  <!-- MODAL BIJUU -->
   <div id="bijuu-modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -897,7 +901,7 @@
       </div>
       
       <div class="modal-image-section">
-        <img id="bijuu-modal-img" src="" alt="Bijuu" style="display: none;">
+        <img id="bijuu-modal-img" src="" alt="Bijuu">
         <span class="modal-img-placeholder" id="bijuu-modal-placeholder">Imagem da Bijū</span>
       </div>
 
@@ -910,15 +914,13 @@
         <div class="modal-section">
           <div class="modal-section-title">Características</div>
           <div class="modal-stats" id="modal-stats">
-            <!-- Preenchido dinamicamente -->
-          </div>
+            </div>
         </div>
 
         <div class="modal-section">
           <div class="modal-section-title">Habilidades & Elementos</div>
           <div class="traits-grid" id="modal-traits">
-            <!-- Preenchido dinamicamente -->
-          </div>
+            </div>
         </div>
 
         <div class="modal-section" id="modal-kekkei-section" style="display: none;">
@@ -929,8 +931,7 @@
         <div class="modal-section">
           <div class="modal-section-title">Dificuldade para Domar</div>
           <div class="modal-stats" id="modal-dificulty">
-            <!-- Preenchido dinamicamente -->
-          </div>
+            </div>
         </div>
       </div>
     </div>
@@ -952,16 +953,12 @@
 
         <h2 class="section-title">Selecione uma Besta</h2>
         
-        <!-- SELEÇÃO (GRID DE CARTÕES) -->
         <div class="bijuu-selector" id="bijuu-selector">
-          <!-- Preenchido dinamicamente -->
-        </div>
+          </div>
 
-        <!-- CLASSIFICAÇÃO E MODOS INTEGRADOS -->
         <div class="section-container">
           <h2 class="section-title">Classificação dos Jinchūriki & Modos</h2>
           
-          <!-- IMPERFEITO + MANTO DE CHAKRA -->
           <div class="modo-card">
             <div class="modo-header">
               <div class="modo-info">
@@ -969,8 +966,8 @@
                 <div class="modo-subtitle">Primeira Transformação — Manto de Chakra</div>
               </div>
               <div class="modo-image-box">
-                <img src="modo_manto_chakra.png" alt="Manto de Chakra" onerror="this.style.display='none'">
-                <span class="modo-image-placeholder">Manto de<br>Chakra</span>
+                <img src="00_modo_manto_chakra.png" alt="Manto de Chakra" onerror="this.style.display='none'">
+                <span class="modo-image-placeholder"></span>
               </div>
             </div>
             <p class="modo-desc"><strong>Estado Inicial:</strong> O chakra da besta vaza apenas sob estresse extremo (perigo de morte ou fúria). O corpo é envolvido por uma aura borbulhante e densa de chakra vermelho/colorido. Olhos ganham fendas e o corpo ganha uma camada protetora.</p>
@@ -986,7 +983,6 @@
             </div>
           </div>
 
-          <!-- SEMI-PERFEITO + MODO BIJUU -->
           <div class="modo-card">
             <div class="modo-header">
               <div class="modo-info">
@@ -994,8 +990,8 @@
                 <div class="modo-subtitle">Segunda Transformação — Modo Bijuu (Forma Colossal)</div>
               </div>
               <div class="modo-image-box">
-                <img src="modo_bijuu.png" alt="Modo Bijuu" onerror="this.style.display='none'">
-                <span class="modo-image-placeholder">Modo<br>Bijuu Completo</span>
+                <img src="00_modo_bijuu.jpg" alt="Modo Bijuu" onerror="this.style.display='none'">
+                <span class="modo-image-placeholder"></span>
               </div>
             </div>
             <p class="modo-desc"><strong>Laço de Confiança:</strong> Hospedeiros que criaram sintonia com a besta sem treinamento da Ilha Genbu. O ninja assume a forma física completa da besta (tamanho colossal). O chakra se solidifica em pele, garras, presas, asas (se houver) e caudas.</p>
@@ -1012,7 +1008,6 @@
             </div>
           </div>
 
-          <!-- PERFEITO + MODO CHAKRA -->
           <div class="modo-card">
             <div class="modo-header">
               <div class="modo-info">
@@ -1020,8 +1015,8 @@
                 <div class="modo-subtitle">Terceira Transformação — Modo Chakra (Sincronização Total)</div>
               </div>
               <div class="modo-image-box">
-                <img src="modo_chakra.png" alt="Modo Chakra" onerror="this.style.display='none'">
-                <span class="modo-image-placeholder">Modo<br>Chakra</span>
+                <img src="00_modo_chakra.png" alt="Modo Chakra" onerror="this.style.display='none'">
+                <span class="modo-image-placeholder"></span>
               </div>
             </div>
             <p class="modo-desc"><strong>Sintonia Espiritual Total:</strong> O ninja e a besta agem como um só. O corpo brilha intensamente com a energia da besta. Padrões de selo místicos aparecem na pele e roupa, mantos de chakra flutuam ao redor do corpo. É o ápice do controle e poder combinado.</p>
@@ -1040,7 +1035,6 @@
 
         </div>
 
-        <!-- TABELA DE CHAKRA -->
         <div class="section-container">
           <h2 class="section-title">Bônus de Chakra e Kekkei Genkai</h2>
           
@@ -1121,7 +1115,6 @@
         </p>
         </div>
 
-        <!-- VIDA DE UM JINCHUURIKI -->
         <div class="section-container">
           <h2 class="section-title">Vida de um Jinchūriki: Fardo e Risco</h2>
           
@@ -1177,164 +1170,92 @@
       if(e.key === 'Escape') { closeNav(); closeBijuuModal(); }
     });
 
-    // Banco de Dados Bijuus (Expandido)
+    // Banco de Dados Bijuus - AGORA COM LINKS DE IMAGENS SEPARADOS E PADRONIZADOS
     const bijuuData = {
       1: { 
-        name: 'Shukaku', 
-        tails: 'Uma Cauda (Ichibi)',
-        number: '1',
+        name: 'Shukaku', tails: 'Uma Cauda (Ichibi)', number: '1',
+        imgSmall: '00_uma_caudas.png', 
+        imgLarge: '00_uma_cauda.jpg',
         desc: 'Uma besta rabugenta formada de areia, conhecida por sua defesa absoluta. Odiando visceralmente a Kyūbi, Shukaku é capaz de manipular o magnetismo para selar os movimentos de seus oponentes e esmagá-los sob dunas impenetráveis.',
-        elem: 'Jiton (Magnetismo)',
-        skill: 'Controle de Areia',
-        kekkei: 'Liberação de Areia (Suna)',
-        difficulty: 'Moderado',
-        chakraBonus: '15.000',
-        color: 'var(--b1)',
-        stats: [
-          { label: 'Dificuldade', value: '6/10' },
-          { label: 'Poder', value: '8/10' },
-          { label: 'Controle', value: '7/10' }
-        ]
+        elem: 'Jiton (Magnetismo)', skill: 'Controle de Areia', kekkei: 'Liberação de Areia (Suna)',
+        difficulty: 'Moderado', chakraBonus: '15.000', color: 'var(--b1)',
+        stats: [{ label: 'Dificuldade', value: '6/10' }, { label: 'Poder', value: '8/10' }, { label: 'Controle', value: '7/10' }]
       },
       2: { 
-        name: 'Matatabi', 
-        tails: 'Duas Caudas (Nibi)',
-        number: '2',
+        name: 'Matatabi', tails: 'Duas Caudas (Nibi)', number: '2',
+        imgSmall: '00_duas_caudas.png',
+        imgLarge: '00_duas_caudas.jpg',
         desc: 'Um bakeneko envolto em chamas azuis ardentes. Possui músculos extremamente flexíveis que lhe garantem uma velocidade absurda, além de poder incinerar qualquer inimigo transformando tudo ao redor em um mar de chamas fantasmagóricas.',
-        elem: 'Katon (Fogo)',
-        skill: 'Chamas Azuis',
-        kekkei: 'Nenhum',
-        difficulty: 'Moderado',
-        chakraBonus: '22.000',
-        color: 'var(--b2)',
-        stats: [
-          { label: 'Dificuldade', value: '5/10' },
-          { label: 'Velocidade', value: '9/10' },
-          { label: 'Poder', value: '7/10' }
-        ]
+        elem: 'Katon (Fogo)', skill: 'Chamas Azuis', kekkei: 'Nenhum',
+        difficulty: 'Moderado', chakraBonus: '22.000', color: 'var(--b2)',
+        stats: [{ label: 'Dificuldade', value: '5/10' }, { label: 'Velocidade', value: '9/10' }, { label: 'Poder', value: '7/10' }]
       },
       3: { 
-        name: 'Isobu', 
-        tails: 'Três Caudas (Sanbi)',
-        number: '3',
+        name: 'Isobu', tails: 'Três Caudas (Sanbi)', number: '3',
+        imgSmall: '00_tres_caudas.png',
+        imgLarge: '00_tres_caudas.jpg',
         desc: 'Assemelhando-se a uma tartaruga gigante e encouraçada, Isobu domina o elemento água. Ele pode nadar em altíssimas velocidades, criar corais que petrificam oponentes e cuspir névoas alucinógenas.',
-        elem: 'Suiton (Água)',
-        skill: 'Criação de Coral',
-        kekkei: 'Nenhum',
-        difficulty: 'Fácil',
-        chakraBonus: '25.000',
-        color: 'var(--b3)',
-        stats: [
-          { label: 'Dificuldade', value: '3/10' },
-          { label: 'Defesa', value: '9/10' },
-          { label: 'Versatilidade', value: '8/10' }
-        ]
+        elem: 'Suiton (Água)', skill: 'Criação de Coral', kekkei: 'Nenhum',
+        difficulty: 'Fácil', chakraBonus: '25.000', color: 'var(--b3)',
+        stats: [{ label: 'Dificuldade', value: '3/10' }, { label: 'Defesa', value: '9/10' }, { label: 'Versatilidade', value: '8/10' }]
       },
       4: { 
-        name: 'Son Gokū', 
-        tails: 'Quatro Caudas (Yonbi)',
-        number: '4',
+        name: 'Son Gokū', tails: 'Quatro Caudas (Yonbi)', number: '4',
+        imgSmall: '00_quatro_caudas.png',
+        imgLarge: '00_quatro_caudas.jpg',
         desc: 'O Rei Macaco Sábio. Um gigante orgulhoso e muito inteligente, mestre da força bruta e da Liberação de Lava. Ele consegue derreter a terra, criando vulcões que cospem pedras flamejantes do núcleo do planeta.',
-        elem: 'Yōton (Lava)',
-        skill: 'Taijutsu Colossal',
-        kekkei: 'Liberação de Lava (Yōton)',
-        difficulty: 'Extremo',
-        chakraBonus: '40.000',
-        color: 'var(--b4)',
-        stats: [
-          { label: 'Dificuldade', value: '9/10' },
-          { label: 'Força', value: '10/10' },
-          { label: 'Poder', value: '9/10' }
-        ]
+        elem: 'Yōton (Lava)', skill: 'Taijutsu Colossal', kekkei: 'Liberação de Lava (Yōton)',
+        difficulty: 'Extremo', chakraBonus: '40.000', color: 'var(--b4)',
+        stats: [{ label: 'Dificuldade', value: '9/10' }, { label: 'Força', value: '10/10' }, { label: 'Poder', value: '9/10' }]
       },
       5: { 
-        name: 'Kokuō', 
-        tails: 'Cinco Caudas (Gobi)',
-        number: '5',
+        name: 'Kokuō', tails: 'Cinco Caudas (Gobi)', number: '5',
+        imgSmall: '00_cinco_caudas.png',
+        imgLarge: '00_cinco_caudas.jpg',
         desc: 'Uma besta híbrida e pacífica, mas com chifres que podem perfurar qualquer defesa. Ao fundir água e fogo no próprio corpo, cria a Liberação de Fervura (Futton), elevando sua força de investida a níveis avassaladores.',
-        elem: 'Futton (Fervura)',
-        skill: 'Investida Insuperável',
-        kekkei: 'Liberação de Fervura (Futton)',
-        difficulty: 'Muito Difícil',
-        chakraBonus: '30.000',
-        color: 'var(--b5)',
-        stats: [
-          { label: 'Dificuldade', value: '8/10' },
-          { label: 'Hibridismo', value: '9/10' },
-          { label: 'Poder', value: '8/10' }
-        ]
+        elem: 'Futton (Fervura)', skill: 'Investida Insuperável', kekkei: 'Liberação de Fervura (Futton)',
+        difficulty: 'Muito Difícil', chakraBonus: '30.000', color: 'var(--b5)',
+        stats: [{ label: 'Dificuldade', value: '8/10' }, { label: 'Hibridismo', value: '9/10' }, { label: 'Poder', value: '8/10' }]
       },
       6: { 
-        name: 'Saiken', 
-        tails: 'Seis Caudas (Rokubi)',
-        number: '6',
+        name: 'Saiken', tails: 'Seis Caudas (Rokubi)', number: '6',
+        imgSmall: '00_seis_caudas.png',
+        imgLarge: '00_seis_caudas.jpg',
         desc: 'Um grande lesma dócil, mas letal. Capaz de emitir gases extremamente corrosivos e secretar fluidos ácidos fortes o suficiente para derreter carne, rochas e até mesmo as defesas mais rígidas do mundo shinobi.',
-        elem: 'Suiton (Água) / Ácido',
-        skill: 'Gás Corrosivo',
-        kekkei: 'Nenhum',
-        difficulty: 'Moderado',
-        chakraBonus: '18.000',
-        color: 'var(--b6)',
-        stats: [
-          { label: 'Dificuldade', value: '5/10' },
-          { label: 'Defesa Química', value: '8/10' },
-          { label: 'Versatilidade', value: '7/10' }
-        ]
+        elem: 'Suiton (Água) / Ácido', skill: 'Gás Corrosivo', kekkei: 'Nenhum',
+        difficulty: 'Moderado', chakraBonus: '18.000', color: 'var(--b6)',
+        stats: [{ label: 'Dificuldade', value: '5/10' }, { label: 'Defesa Química', value: '8/10' }, { label: 'Versatilidade', value: '7/10' }]
       },
       7: { 
-        name: 'Chōmei', 
-        tails: 'Sete Caudas (Nanabi)',
-        number: '7',
+        name: 'Chōmei', tails: 'Sete Caudas (Nanabi)', number: '7',
+        imgSmall: '00_sete_caudas.png',
+        imgLarge: '00_sete_caudas.jpg',
         desc: 'O besouro-rinoceronte blindado. É a única Bijū com habilidade natural de voo constante. Ela ataca com picadas brutais e emana pós de escama paralisantes ou cegantes de suas asas durante a batalha.',
-        elem: 'Fūton (Vento)',
-        skill: 'Voo / Pó Cegante',
-        kekkei: 'Nenhum',
-        difficulty: 'Fácil',
-        chakraBonus: '20.000',
-        color: 'var(--b7)',
-        stats: [
-          { label: 'Dificuldade', value: '4/10' },
-          { label: 'Mobilidade', value: '10/10' },
-          { label: 'Versatilidade', value: '7/10' }
-        ]
+        elem: 'Fūton (Vento)', skill: 'Voo / Pó Cegante', kekkei: 'Nenhum',
+        difficulty: 'Fácil', chakraBonus: '20.000', color: 'var(--b7)',
+        stats: [{ label: 'Dificuldade', value: '4/10' }, { label: 'Mobilidade', value: '10/10' }, { label: 'Versatilidade', value: '7/10' }]
       },
       8: { 
-        name: 'Gyūki', 
-        tails: 'Oito Caudas (Hachibi)',
-        number: '8',
+        name: 'Gyūki', tails: 'Oito Caudas (Hachibi)', number: '8',
+        imgSmall: '00_oito_caudas.png',
+        imgLarge: '00_oito_caudas.jpg',
         desc: 'Um monstro com corpo de touro e tentáculos de polvo. Extremamente poderoso, lógico e experiente em batalha. É capaz de lançar tufões de tinta para cegar ou selar oponentes e destruir montanhas com a força de seus tentáculos.',
-        elem: 'Taijutsu Bruto',
-        skill: 'Tinta Cegante / Cortes',
-        kekkei: 'Nenhum',
-        difficulty: 'Muito Difícil',
-        chakraBonus: '50.000',
-        color: 'var(--b8)',
-        stats: [
-          { label: 'Dificuldade', value: '8/10' },
-          { label: 'Poder', value: '9/10' },
-          { label: 'Inteligência', value: '9/10' }
-        ]
+        elem: 'Taijutsu Bruto', skill: 'Tinta Cegante / Cortes', kekkei: 'Nenhum',
+        difficulty: 'Muito Difícil', chakraBonus: '50.000', color: 'var(--b8)',
+        stats: [{ label: 'Dificuldade', value: '8/10' }, { label: 'Poder', value: '9/10' }, { label: 'Inteligência', value: '9/10' }]
       },
       9: { 
-        name: 'Kurama', 
-        tails: 'Nove Caudas (Kyūbi)',
-        number: '9',
+        name: 'Kurama', tails: 'Nove Caudas (Kyūbi)', number: '9',
+        imgSmall: '00_nove_caudas.png',
+        imgLarge: '00_nove_caudas.jpg',
         desc: 'A mais poderosa e odiosa das bestas. Possui uma reserva de chakra tão colossal que beira o infinito. É incrivelmente sagaz, sendo capaz de criar ataques em grande escala e obliterar exércitos apenas com o movimento de suas caudas e Bijuudamas perfeitamente concentradas.',
-        elem: 'Chakra Massivo',
-        skill: 'Detecção de Emoções Negativas',
-        kekkei: 'Nenhum',
-        difficulty: 'Impossível',
-        chakraBonus: '80.000',
-        color: 'var(--b9)',
-        stats: [
-          { label: 'Dificuldade', value: '10/10' },
-          { label: 'Poder', value: '10/10' },
-          { label: 'Chakra', value: '10/10' }
-        ]
+        elem: 'Chakra Massivo', skill: 'Detecção de Emoções Negativas', kekkei: 'Nenhum',
+        difficulty: 'Impossível', chakraBonus: '80.000', color: 'var(--b9)',
+        stats: [{ label: 'Dificuldade', value: '10/10' }, { label: 'Poder', value: '10/10' }, { label: 'Chakra', value: '10/10' }]
       }
     };
 
-    // Renderizar os cartões das bijuus
+    // Renderizar cartões
     function renderBijuuCards() {
       const selector = document.getElementById('bijuu-selector');
       selector.innerHTML = '';
@@ -1344,13 +1265,11 @@
         const card = document.createElement('div');
         card.className = 'bijuu-card';
         card.style.setProperty('--b-color', data.color);
-        card.style.setProperty('--b-glow', `rgba(${data.color === 'var(--b1)' ? '212,225,87' : data.color === 'var(--b2)' ? '41,182,246' : data.color === 'var(--b3)' ? '120,144,156' : data.color === 'var(--b4)' ? '239,83,80' : data.color === 'var(--b5)' ? '255,255,255' : data.color === 'var(--b6)' ? '129,212,250' : data.color === 'var(--b7)' ? '102,187,106' : data.color === 'var(--b8)' ? '171,71,188' : '255,152,0'}, 0.4)`);
         
-        card.innerHTML = `
+      card.innerHTML = `
           <div class="bijuu-card-content">
             <div class="bijuu-image-box">
-              <img src="bijuu_${data.number}.png" alt="${data.name}" onerror="this.style.display='none'">
-              <span class="bijuu-image-placeholder" id="placeholder-${data.number}">Imagem<br>${data.name}</span>
+              <img src="${data.imgSmall}" alt="${data.name}">
             </div>
             <div class="bijuu-name">${data.name}</div>
             <div class="bijuu-tail">${data.tails}</div>
@@ -1363,13 +1282,30 @@
       }
     }
 
-    // Abrir Modal
+    // ABRIR MODAL COM IMAGEM GRANDE
     function openBijuuModal(id, data) {
       const modal = document.getElementById('bijuu-modal');
       document.getElementById('modal-title').textContent = data.name;
       document.getElementById('modal-subtitle').textContent = data.tails;
       document.getElementById('modal-desc').textContent = data.desc;
-      document.getElementById('bijuu-modal-placeholder').textContent = `Imagem: ${data.name}`;
+      
+      const modalImg = document.getElementById('bijuu-modal-img');
+      const modalPlaceholder = document.getElementById('bijuu-modal-placeholder');
+      
+      // Puxando a foto grande pro modal (imgLarge)
+      modalImg.src = data.imgLarge;
+      modalImg.alt = data.name;
+      
+      // Gerenciar visibilidade
+      modalImg.onload = () => {
+        modalImg.style.display = 'block';
+        modalPlaceholder.style.display = 'none';
+      };
+      
+      modalImg.onerror = () => {
+        modalImg.style.display = 'none';
+        modalPlaceholder.style.display = 'block';
+      };
       
       // Cores do modal
       modal.style.setProperty('--modal-color', data.color);
@@ -1390,7 +1326,7 @@
       `;
       document.getElementById('modal-traits').innerHTML = traitsHtml;
 
-      // Kekkei Genkai
+      // Kekkei
       if (data.kekkei && data.kekkei !== 'Nenhum') {
         document.getElementById('modal-kekkei-section').style.display = 'block';
         document.getElementById('modal-kekkei').textContent = data.kekkei;
@@ -1427,7 +1363,7 @@
       document.body.style.overflow = 'auto';
     }
 
-    // Fechar modal ao clicar fora
+    // Fechar ao clicar fora
     document.getElementById('bijuu-modal').addEventListener('click', (e) => {
       if (e.target.id === 'bijuu-modal') {
         closeBijuuModal();
