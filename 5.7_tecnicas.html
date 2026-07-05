@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
     :root {
       --bg:      #0a0a0a;
       --surface: #161616;
@@ -37,6 +38,8 @@
     body {
       color: var(--text); font-family: 'Rajdhani', sans-serif;
       overflow-x: hidden; transition: color 0.4s;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 140px 20px 80px 20px;
     }
 
     /* ======= FUNDO FIXO ======= */
@@ -88,9 +91,7 @@
       pointer-events: none; opacity: 0; transition: opacity 0.35s;
     }
     #nav-overlay.open { pointer-events: all; opacity: 1; }
-    .overlay-bg {
-      position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer;
-    }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
     #nav-panel {
       position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
       width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px; gap: 4px;
@@ -111,106 +112,112 @@
     .nav-link:hover { color: var(--accent2); padding-left: 12px; }
     .nav-link:hover::before { width: 20px; }
 
-    /* ======= ESTRUTURA DA PÁGINA ======= */
-    #sistemas-page {
-      min-height: 100vh; padding: 140px 24px 80px; transition: background 0.4s;
+    /* ======= ESTRUTURA DOS CARDS ======= */
+    .history-card {
+      width: 100%; max-width: 900px; background: var(--surface); border-radius: 12px; 
+      overflow: hidden; border: 1.5px solid rgba(204,0,0,0.25); box-shadow: 0 15px 40px var(--shadow);
+      margin-bottom: 40px; transition: background 0.4s, box-shadow 0.4s;
     }
 
-    .historia-header {
-      max-width: 860px; margin: 0 auto 32px; border-radius: 12px;
-      overflow: hidden; border: 1.5px solid rgba(204,0,0,0.25);
+    .card-header {
+      background-color: var(--accent); color: white; padding: 20px 36px;
+      display: flex; align-items: center; gap: 15px; font-family: 'Bangers', cursive;
+      font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: 0.15em; 
+      text-transform: uppercase; font-style: italic; 
     }
-    .historia-header-red {
-      background: #cc0000; padding: 20px 36px; display: flex; align-items: center; gap: 18px;
-    }
-    .historia-header-red h1 {
-      font-family: 'Bangers', cursive; font-size: clamp(2rem, 5vw, 3rem);
-      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1; margin: 0;
-    }
-    .historia-header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
-    
-    /* Espaço para Imagem no Header (Opcional, se quiser usar) */
-    .header-img-wrapper {
-      width: 100%; height: 250px; background: #000; border-bottom: 2px solid rgba(204,0,0,0.2);
-    }
-    .header-img-wrapper img {
-      width: 100%; height: 100%; object-fit: cover; object-position: center 20%;
-    }
+    .header-title { white-space: nowrap; }
+    .header-stripe { flex-grow: 1; height: 3px; background-color: #ffffff; margin: 0 20px; border-radius: 2px; opacity: 0.8; }
+    .card-body { padding: 30px 36px; }
 
-    .historia-header-body {
-      background: var(--surface); padding: 26px 36px; font-size: 1.05rem;
-      line-height: 1.75; color: var(--text-sub); text-align: justify;
-    }
-
-    .regras-box {
-      max-width: 860px; margin: 0 auto; border-radius: 12px;
-      border: 1.5px solid rgba(204,0,0,0.25); background: var(--surface);
-      padding: 40px; display: flex; flex-direction: column; gap: 40px;
-      transition: background 0.4s;
-    }
-
-    /* Estilos dos textos de Regras */
-    .regras-section-title {
-      font-family: 'Bangers', cursive; font-size: 2.2rem; color: var(--accent); 
-      letter-spacing: 0.08em; margin-bottom: 20px; text-transform: uppercase;
-    }
-    .regras-sub-title {
-      color: var(--text); font-size: 1.2rem; margin-bottom: 12px; 
-      border-left: 3px solid var(--accent); padding-left: 10px; font-weight: bold;
-    }
-    
-    .regras-list {
-      list-style: none; color: var(--text-sub); margin-bottom: 25px; 
-      padding-left: 0; font-size: 1.05rem; line-height: 1.7;
-    }
-    .regras-list li {
-      margin-bottom: 12px; background: rgba(0,0,0,0.2); padding: 12px 15px; 
-      border-radius: 6px; border-left: 3px solid var(--accent);
-    }
-    .regras-list strong { color: var(--text); }
-    
+    /* Textos Genéricos */
     .regras-text {
       font-size: 1.05rem; color: var(--text-sub); line-height: 1.7; text-align: justify; margin-bottom: 15px;
     }
+    .regras-text strong { color: var(--text); font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; font-weight: normal; }
 
-    .highlight-box {
-      background: rgba(204,0,0,0.06); border: 1.5px solid rgba(204,0,0,0.25); 
-      padding: 20px; border-radius: 8px; color: var(--text-sub); font-size: 1.05rem; line-height: 1.8;
+    /* Caixas de Destaque */
+    .system-box, .highlight-box {
+      background-color: rgba(204,0,0,0.08); border-left: 5px solid var(--accent);
+      padding: 18px; border-radius: 5px; margin-bottom: 25px; font-size: 1.05rem;
+      color: var(--text-sub); line-height: 1.75; text-align: justify; transition: color 0.4s, background-color 0.4s;
     }
-    .highlight-box strong { color: var(--text); font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; }
+    .system-box strong, .highlight-box strong { color: var(--text); font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; font-weight: normal; }
 
-    /* Tabela de Criação */
+    /* Listas */
+    .regras-list { list-style: none; color: var(--text-sub); margin-bottom: 25px; padding-left: 0; font-size: 1.05rem; line-height: 1.7; }
+    .regras-list li { margin-bottom: 12px; background: rgba(0,0,0,0.2); padding: 12px 15px; border-radius: 6px; border-left: 3px solid var(--accent); }
+    .regras-list strong { color: var(--text); }
+    
+    .simple-list { list-style-type: disc; margin-left: 20px; margin-bottom: 15px; color: var(--text-sub); line-height: 1.6; }
+    .simple-list li { margin-bottom: 5px; }
+
+    /* ======= GAVETAS (ACCORDIONS) ======= */
+    .gen-btn {
+      background-color: var(--bg); color: var(--text); width: 100%; padding: 15px 20px;
+      border-radius: 10px; border: 1px solid rgba(204,0,0,0.2); cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: 'Russo One', sans-serif; font-size: 0.95rem; letter-spacing: 0.05em;
+      margin-top: 15px; border-left: 5px solid var(--accent); 
+      transition: background-color 0.2s ease, box-shadow 0.2s; outline: none;
+    }
+    .gen-btn:hover { background-color: rgba(204,0,0,0.05); box-shadow: 0 4px 10px var(--shadow); }
+    
+    .expand-content {
+      display: none; padding: 25px 20px; border: 1px solid rgba(204,0,0,0.1); border-top: none;
+      background: var(--bg); border-radius: 0 0 10px 10px; transition: background 0.4s;
+    }
+    .expand-content.active { display: block; }
+
+    /* Espaço de Imagem para Jutsus */
+    .jutsu-img-placeholder {
+      width: 100%; height: 200px; background: rgba(0,0,0,0.5);
+      border: 2px dashed var(--accent); border-radius: 8px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-sub); font-family: 'Russo One', sans-serif; font-size: 0.9rem;
+      position: relative; overflow: hidden;
+    }
+    .jutsu-img-placeholder img {
+      width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;
+    }
+
+    /* Subtítulos Internos */
+    .inner-subtitle {
+      font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: var(--accent);
+      margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+
+    /* === SEPARADORES DE CONTEÚDO (.item-list) === */
+    .item-list {
+        margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed rgba(204,0,0,0.2);
+    }
+    .item-list:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .item-title {
+        font-family: 'Russo One', sans-serif; font-size: 1.1rem; margin-bottom: 8px; color: var(--accent);
+        letter-spacing: 0.05em; display: block; text-transform: uppercase;
+    }
+
+    /* ======= TABELAS ======= */
     .regras-table {
-      width: 100%; text-align: center; border-collapse: collapse; margin-top: 10px; 
-      font-size: 1.05rem; background: rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden;
+      width: 100%; text-align: left; border-collapse: collapse; margin-top: 15px; margin-bottom: 20px;
+      font-size: 1rem; background: rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden;
     }
     .regras-table th {
-      background: var(--accent); color: #fff; padding: 15px 10px; 
-      font-family: 'Russo One', sans-serif; letter-spacing: 0.1em; text-transform: uppercase;
+      background: var(--accent); color: #fff; padding: 15px 12px; 
+      font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.9rem;
     }
     .regras-table td {
-      padding: 12px 10px; border-bottom: 1px solid rgba(204,0,0,0.15); color: var(--text-sub);
+      padding: 15px 12px; border-bottom: 1px solid rgba(204,0,0,0.15); color: var(--text-sub); vertical-align: middle;
     }
     .regras-table tr:hover { background: rgba(204,0,0,0.05); }
     .regras-table tr:last-child td { border-bottom: none; }
-    
-    .rank-val { font-weight: bold; color: var(--text); }
+    .rank-val { font-weight: bold; color: var(--text); font-family: 'Russo One', sans-serif; letter-spacing: 0.05em; }
 
-    /* Divisória */
-    .divider {
-      width: 100%; height: 2px; 
-      background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.4;
+    @media (max-width: 768px) {
+      .regras-table { display: block; overflow-x: auto; white-space: nowrap; }
     }
-
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
-
     @media (max-width: 580px) {
-      #sistemas-page { padding-top: 140px; padding-left: 16px; padding-right: 16px; }
-      .historia-header-red { padding: 16px 20px; }
-      .historia-header-body { padding: 18px 20px; }
-      .regras-box { padding: 20px; }
+      .card-header { padding: 16px 20px; font-size: 1.5rem; }
+      .card-body { padding: 20px; }
       .regras-table th, .regras-table td { padding: 10px 5px; font-size: 0.9rem; }
     }
   </style>
@@ -265,150 +272,347 @@
     </nav>
   </div>
 
-  <!-- CONTEÚDO PRINCIPAL -->
-  <main id="sistemas-page">
-
-    <!-- Cabeçalho Principal -->
-    <div class="historia-header">
-      <div class="historia-header-red">
-        <h1>APRENDIZAGEM DE TÉCNICAS</h1>
-        <div class="historia-header-deco"></div>
-      </div>
-      
-      <!-- Se quiser uma imagem no topo, substitua o src. Se não, pode apagar a div abaixo -->
-      <div class="header-img-wrapper">
-        <img src="link_imagem_treinamento.jpg" alt="Treinamento Shinobi">
-      </div>
-
-      <div class="historia-header-body">
-        Entenda as regras para dominar novos jutsus em combate e saiba como forjar suas próprias técnicas exclusivas. O crescimento de um shinobi exige tempo, atributos e muita inteligência.
-      </div>
+  <!-- ==============================================
+       BLOCO 1: INTRODUÇÃO E SISTEMA
+  =============================================== -->
+  <div class="history-card">
+    <div class="card-header">
+      <span class="header-title">SISTEMA DE JUTSUS</span>
+      <div class="header-stripe"></div>
     </div>
+    
+    <div class="card-body">
+      <p class="regras-text">
+        Este sistema foi desenvolvido para valorizar o mérito interpretativo, a criatividade e a gestão de tempo dos jogadores, dividindo-se entre o aprendizado de técnicas do cânon e a criação de habilidades originais.
+      </p>
+    </div>
+  </div>
 
-    <!-- Container das Regras -->
-    <div class="regras-box">
-      
-      <!-- APRENDIZAGEM GERAL -->
-      <div>
-        <h2 class="regras-section-title">REGRAS DE APRENDIZAGEM</h2>
-        
-        <h3 class="regras-sub-title">Como Aprender um Jutsu</h3>
-        <p class="regras-text">
-          Você pode aprender jutsus através de outros personagens do RPG. A capacidade de aprender determinada técnica depende exclusivamente da quantidade de atributos na área correspondente (Ninjutsu, Taijutsu, Genjutsu, etc).
-        </p>
 
-        <ul class="regras-list">
-          <li>
-            <strong>Independência:</strong> Técnicas de Kekkei Genkai e Hiden podem ser aprendidas de forma independente, respeitando a capacidade do personagem de acordo com sua pontuação de atributos.
-          </li>
-          <li>
-            <strong>Restrição Acadêmica:</strong> Acadêmicos só podem aprender técnicas até Rank E e D, pois ainda estão desenvolvendo seu controle de chakra.
-          </li>
-          <li>
-            <strong>Experiência:</strong> Com 4 anos de experiência como shinobi, é possível criar qualquer rank de jutsu, desde que possua os requisitos necessários e que alguém ensine ou acompanhe o processo.
-          </li>
-          <li>
-            <strong>Limite Semanal:</strong> É possível fazer no máximo <strong>5 treinos</strong> de técnicas por semana.
-          </li>
+  <!-- ==============================================
+       BLOCO 2: TÉCNICAS BÁSICAS E MECÂNICAS
+  =============================================== -->
+  <div class="history-card">
+    <div class="card-header">
+      <span class="header-title">TÉCNICAS BÁSICAS E MECÂNICAS</span>
+      <div class="header-stripe"></div>
+    </div>
+    
+    <div class="card-body">
+
+      <h3 class="inner-subtitle">Técnicas Básicas (Iniciais)</h3>
+      <div class="system-box">
+        As técnicas básicas são ensinadas na Academia Ninja. Todo personagem já as possui desde que seja no mínimo Genin. Para liberá-las oficialmente para uso em combate ou interações, é necessário concluir a primeira missão enviada no grupo ON.
+        <br><br>
+        <strong>Universais:</strong>
+        <ul class="simple-list">
+          <li>Bunshin no Jutsu (Clonagem)</li>
+          <li>Henge no Jutsu (Transformação)</li>
+          <li>Kakuremino no Jutsu (Capa da Invisibilidade)</li>
+          <li>Kawarimi no Jutsu (Substituição)</li>
+          <li>Shunshin no Jutsu (Deslocamento Instantâneo)</li>
+        </ul>
+        <strong>Extras Iniciais (Kirigakure - Suiton):</strong>
+        <ul class="simple-list">
+          <li>Kirigakure no Jutsu (Ocultação na Névoa)</li>
         </ul>
       </div>
 
-      <!-- REDUÇÃO POR INTELIGÊNCIA -->
-      <div>
-        <h3 class="regras-sub-title">Redução de Tempo com Inteligência</h3>
+      <h3 class="inner-subtitle" style="margin-top: 30px;">Mecânicas de Jutsus Específicos</h3>
+
+      <!-- KAWARIMI -->
+      <button class="gen-btn" onclick="toggle('kawarimi')">
+        <span>KAWARIMI NO JUTSU (Substituição)</span>
+        <span id="seta-kawarimi">▼</span>
+      </button>
+      <div class="expand-content" id="kawarimi">
+        <div class="jutsu-img-placeholder">
+          Imagem do Kawarimi Aqui (Use tag img)
+        </div>
+        <p class="regras-text">
+          Troca de lugar com um objeto ou clone para evitar dano. Funciona em qualquer local, sem necessidade de lógica de cenário (no anime a madeira apenas "brota").
+        </p>
         <div class="highlight-box">
-          A cada <strong>100 pontos no atributo Inteligência</strong>, é possível reduzir <strong>1 dia</strong> de treino. 
-          <br><br>
-          <em>(Nota: Respeite sempre os limites mínimos estipulados para a aprendizagem de cada técnica).</em>
+          <strong>Regras de Uso:</strong><br>
+          • <strong>Limite Base:</strong> 1 vez por luta. A cada +150 pontos em Inteligência, o usuário ganha +1 uso.<br>
+          • <strong>Preparação (Gatilho):</strong> A técnica deve ser engatilhada/preparada um turno antes do uso (sendo obrigatório usar no turno seguinte, mesmo se não for atacado).
+        </div>
+        <h3 class="inner-subtitle" style="font-size: 1rem;">Modos de Execução:</h3>
+        <ul class="regras-list">
+          <li>
+            <strong>Substituição com Ilusão de Ótica:</strong> O usuário se troca com um tronco de forma proposital para criar a ilusão de que foi atingido. <em>Penalidade:</em> Após a preparação, não é permitido acionar outra transformação de chakra ou atacar diretamente no turno da revelação, pois a ilusão de ótica exige reposicionamento. (Não é aceito trocar por objetos pequenos como kunais).
+          </li>
+          <li>
+            <strong>Substituição com Troca Instantânea:</strong> Troca direta por tronco ou clone. <em>Requisito:</em> Exige que a sua Velocidade seja igual ou superior à Agilidade de quem ataca. A energia psíquica deve ser mantida na defensiva.
+          </li>
+        </ul>
+        <p class="regras-text"><em>Obs: Usuários de Dōjutsu também podem ser surpreendidos por esta técnica, conforme demonstrado na obra.</em></p>
+      </div>
+
+      <!-- KIRIGAKURE -->
+      <button class="gen-btn" onclick="toggle('kirigakure')">
+        <span>KIRIGAKURE NO JUTSU (Névoa)</span>
+        <span id="seta-kirigakure">▼</span>
+      </button>
+      <div class="expand-content" id="kirigakure">
+        <div class="jutsu-img-placeholder">
+          Imagem da Névoa Aqui (Use tag img)
+        </div>
+        <p class="regras-text">
+          A técnica de Ocultação na Névoa cria um ambiente de visibilidade zero. A área de efeito é em cubo (frente, trás, lados e cima), abrangendo a metragem baseada no gasto de chakra e rank utilizado.
+        </p>
+        <ul class="regras-list">
+          <li><strong>Rank D (Padrão):</strong> 10 metros (Curto alcance - caso não cite na ação, este será o padrão).</li>
+          <li><strong>Rank C:</strong> 25 metros (Médio alcance).</li>
+          <li><strong>Rank B:</strong> 50 metros (Longo alcance - limite máximo).</li>
+        </ul>
+      </div>
+
+      <!-- SHUNSHIN -->
+      <button class="gen-btn" onclick="toggle('shunshin')">
+        <span>SHUNSHIN NO JUTSU (Cintilação Corporal)</span>
+        <span id="seta-shunshin">▼</span>
+      </button>
+      <div class="expand-content" id="shunshin">
+        <div class="jutsu-img-placeholder">
+          Imagem do Shunshin Aqui (Use tag img)
+        </div>
+        <p class="regras-text">
+          Técnica de movimento em alta velocidade. Para um observador, aparece como se o usuário tivesse se teletransportado. É realizada usando Chakra para vitalizar temporariamente o corpo. O gasto de chakra depende da distância total: <strong>15 de chakra a cada metro percorrido</strong>. (Caso não cite a distância, será considerado o básico de 1m).
+        </p>
+        <h3 class="inner-subtitle" style="font-size: 1rem;">Multiplicadores de Velocidade:</h3>
+        <ul class="regras-list">
+          <li><strong>1.5x sua vel. base:</strong> Shunshin no Jutsu básico.</li>
+          <li><strong>1.5x sua vel. base:</strong> Suna no Shunshin (Areia).</li>
+          <li><strong>1.2x sua vel. base:</strong> Katon no Shunshin (Fogo).</li>
+          <li><strong>2.0x sua vel. base:</strong> Raiton no Shunshin (Raio).</li>
+          <li><strong>1.5x sua vel. base:</strong> Movimento em Alta Velocidade (Exclusivo para clãs focados em Taijutsu como Lee, Shira ou sem clã puro Taijutsu).</li>
+        </ul>
+        <div class="highlight-box">
+          <strong>A Regra de Ataque:</strong> Ao utilizar o Shunshin no jutsu, o personagem <strong>NÃO PODERÁ ATACAR</strong> de forma alguma durante seu uso. Esta regra somente poderá ser burlada caso o personagem possua uma técnica/meio de aumentar seu reflexo para acompanhar sua própria velocidade (Ex: Sharingan).
         </div>
       </div>
 
-      <div class="divider"></div>
+    </div>
+  </div>
 
-      <!-- CRIAÇÃO DE TÉCNICAS -->
-      <div>
-        <h2 class="regras-section-title">CRIAÇÃO DE TÉCNICAS</h2>
-        
+
+  <!-- ==============================================
+       BLOCO 3: ROTAS DE APRENDIZADO
+  =============================================== -->
+  <div class="history-card">
+    <div class="card-header">
+      <span class="header-title">ROTAS DE APRENDIZADO (JUTSUS OFICIAIS)</span>
+      <div class="header-stripe"></div>
+    </div>
+    
+    <div class="card-body">
+      <p class="regras-text">
+        Regula o aprendizado de técnicas que já existem no cânon de Naruto. Técnicas de clãs (Kekkei Genkai/Hiden) podem ser aprendidas independentemente, desde que o ninja cumpra os requisitos e tenha a herança genética. Acadêmicos só podem aprender até Rank E e D.
+        <br><br>
+        O jogador deve escolher uma das duas rotas de aprendizado e <strong>avisar qual método está utilizando na sua primeira postagem.</strong> É possível fazer no máximo <strong>5 treinos</strong> de técnicas por semana.
+      </p>
+
+      <!-- ROTA 1 -->
+      <button class="gen-btn" onclick="toggle('rota1')">
+        <span>ROTA 1: APRENDIZAGEM POR TEMPO (Foco Passivo)</span>
+        <span id="seta-rota1">▼</span>
+      </button>
+      <div class="expand-content" id="rota1">
         <p class="regras-text">
-          O sistema de criação de técnicas foi desenvolvido para permitir que cada jogador desenvolva habilidades <strong>únicas e originais</strong>, com base em ideias próprias ou influências criativas externas, desde que não sejam cópias de habilidades oficiais do universo de Naruto. 
+          Este método é para quem não quer ou não pode escrever cenas gigantescas. Você envia apenas um aviso de que iniciou o treinamento.
         </p>
-        <p class="regras-text">
-          O objetivo é valorizar a criatividade, individualidade e personalização do seu personagem dentro do RPG. <strong>Não é permitido</strong> criar técnicas oficiais da obra (como Rasengan, Chidori, Edo Tensei, entre outras).
-        </p>
-
-        <ul class="regras-list">
-          <li>
-            <strong>Limite por Saga:</strong> Cada personagem pode criar no máximo <strong>2 técnicas originais por saga</strong> (as sagas são categorizadas pelo timeskip). Não há acúmulo de técnicas entre sagas (se não criou em uma, perdeu a chance).
-          </li>
-          <li>
-            <strong>Requisitos Duplos:</strong> Além dos pontos de maestria (Ninjutsu, Elemental, etc.), é necessário um número mínimo de pontos em <strong>Inteligência</strong> conforme o rank da técnica.
-          </li>
-          <li>
-            <strong>Treino Simultâneo:</strong> Durante o processo de criação, você pode continuar com outras atividades normalmente. A criação pode ser pausada e retomada.
-          </li>
-        </ul>
-
-        <div class="highlight-box" style="margin-bottom: 25px;">
-          <strong>Exemplo Prático:</strong> Para criar uma técnica Rank A baseada no Elemento Fogo, seu personagem deve possuir no mínimo <em>400 pontos em Katon</em> e <em>150 pontos em Inteligência</em>.
+        <div class="system-box">
+          <strong>A Regra do Foco Exclusivo:</strong> Durante todo o período de tempo estipulado, o personagem deve estar focado unicamente no jutsu. Isso significa que ele <strong>está bloqueado para outras ações</strong> (proibido participar de missões, lutas, eventos ou tramas paralelas).
         </div>
-
-        <h3 class="regras-sub-title">Passo a Passo para Criar</h3>
-        <ul class="regras-list" style="margin-bottom: 30px;">
-          <li><strong>1.</strong> Solicite a ficha de criação de técnicas a um Administrador.</li>
-          <li><strong>2.</strong> Preencha com as informações detalhadas da sua técnica.</li>
-          <li><strong>3.</strong> Envie a ficha para avaliação. A equipe fará a análise com base na coerência e equilíbrio.</li>
-          <li><strong>4.</strong> Após aprovação, inicie o treinamento seguindo o tempo e as linhas exigidas.</li>
-        </ul>
-
-        <!-- TABELA DE CRIAÇÃO -->
-        <h3 class="regras-sub-title">Requisitos de Criação por Rank</h3>
+        
         <table class="regras-table">
           <thead>
             <tr>
               <th>Rank</th>
-              <th>Inteligência Necessária</th>
-              <th>Cenas</th>
-              <th>Linhas por Cena</th>
-              <th>Atributo Necessário</th>
+              <th>Cenas Exigidas</th>
+              <th>Limite Mínimo</th>
+              <th>Tempo Conclusão</th>
+              <th>Status do Personagem</th>
             </tr>
           </thead>
           <tbody>
+            <tr><td class="rank-val" style="color:#b3b3b3">D</td><td>1 Cena</td><td>Apenas aviso</td><td>12 horas</td><td style="color:#ff4444">Bloqueado</td></tr>
+            <tr><td class="rank-val" style="color:#76c7c0">C</td><td>1 Cena</td><td>Apenas aviso</td><td>24 horas</td><td style="color:#ff4444">Bloqueado</td></tr>
+            <tr><td class="rank-val" style="color:#4fa5d6">B</td><td>1 Cena</td><td>Apenas aviso</td><td>48 horas</td><td style="color:#ff4444">Bloqueado</td></tr>
+            <tr><td class="rank-val" style="color:#d9534f">A</td><td>1 Cena</td><td>Apenas aviso</td><td>3 Dias</td><td style="color:#ff4444">Bloqueado</td></tr>
+            <tr><td class="rank-val" style="color:#ff3333">S</td><td>1 Cena</td><td>Apenas aviso</td><td>10 Dias</td><td style="color:#ff4444">Bloqueado</td></tr>
+            <tr><td class="rank-val" style="color:#f1c40f">SS</td><td>1 Cena</td><td>Apenas aviso</td><td>12 Dias</td><td style="color:#ff4444">Bloqueado</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ROTA 2 -->
+      <button class="gen-btn" onclick="toggle('rota2')">
+        <span>ROTA 2: APRENDIZAGEM POR CARACTERE (Foco Ativo)</span>
+        <span id="seta-rota2">▼</span>
+      </button>
+      <div class="expand-content" id="rota2">
+        <p class="regras-text">
+          Este método recompensa a interpretação densa. O jogador narra o desenvolvimento do seu controle de chakra com riqueza de detalhes.
+        </p>
+        <div class="system-box">
+          <strong>A Regra da Atividade Contínua:</strong> Por exigir grande esforço, o treino ocorre em segundo plano. Assim que a cena é postada, <strong>o personagem está livre</strong> para voltar às suas atividades normais no mapa. O tempo de conclusão também é ligeiramente menor.
+        </div>
+        
+        <table class="regras-table">
+          <thead>
             <tr>
-              <td class="rank-val" style="color: #76c7c0;">Rank C</td>
-              <td>50</td>
-              <td>2</td>
-              <td>20</td>
-              <td>200</td>
+              <th>Rank</th>
+              <th>Cenas Exigidas</th>
+              <th>Limite Mínimo (Por Cena)</th>
+              <th>Tempo Conclusão</th>
+              <th>Status do Personagem</th>
             </tr>
-            <tr>
-              <td class="rank-val" style="color: #4fa5d6;">Rank B</td>
-              <td>100</td>
-              <td>4</td>
-              <td>30</td>
-              <td>300</td>
-            </tr>
-            <tr>
-              <td class="rank-val" style="color: #d9534f;">Rank A</td>
-              <td>150</td>
-              <td>5</td>
-              <td>50</td>
-              <td>400</td>
-            </tr>
-            <tr>
-              <td class="rank-val" style="color: #ff3333;">Rank S</td>
-              <td>200</td>
-              <td>7</td>
-              <td>80</td>
-              <td>500</td>
-            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="rank-val" style="color:#b3b3b3">D</td><td>1 Cena</td><td>1000 caracteres</td><td>Imediato</td><td style="color:#76c7c0">Livre</td></tr>
+            <tr><td class="rank-val" style="color:#76c7c0">C</td><td>2 Cenas</td><td>1000 caracteres</td><td>12 horas</td><td style="color:#76c7c0">Livre</td></tr>
+            <tr><td class="rank-val" style="color:#4fa5d6">B</td><td>4 Cenas</td><td>500 caracteres</td><td>24 horas</td><td style="color:#76c7c0">Livre</td></tr>
+            <tr><td class="rank-val" style="color:#d9534f">A</td><td>8 Cenas</td><td>500 caracteres</td><td>2 Dias</td><td style="color:#76c7c0">Livre</td></tr>
+            <tr><td class="rank-val" style="color:#ff3333">S</td><td>10 Cenas</td><td>500 caracteres</td><td>8 Dias</td><td style="color:#76c7c0">Livre</td></tr>
+            <tr><td class="rank-val" style="color:#f1c40f">SS</td><td>12 Cenas</td><td>500 caracteres</td><td>10 Dias</td><td style="color:#76c7c0">Livre</td></tr>
           </tbody>
         </table>
       </div>
 
     </div>
+  </div>
+
+
+  <!-- ==============================================
+       BLOCO 4: REDUÇÃO DE TEMPO
+  =============================================== -->
+  <div class="history-card">
+    <div class="card-header">
+      <span class="header-title">REDUÇÃO DE TEMPO E CENAS</span>
+      <div class="header-stripe"></div>
+    </div>
+    <div class="card-body">
+      <p class="regras-text">
+        Existem métodos mecânicos e narrativos para acelerar o processo de aprendizagem de novas técnicas, baseados nos seus atributos atuais e no acompanhamento de tutores.
+      </p>
+
+      <div class="item-list">
+        <span class="item-title">Por Atributo Específico</span>
+        <div class="item-text">
+          Caso o personagem possua o <strong>dobro</strong> de atributos mínimos exigidos para o aprendizado de uma técnica, a quantidade de cenas e dias é considerada como sendo a de <strong>1 rank inferior</strong>. <br>
+          (Exemplo: Uma técnica de Rank B poderia ser aprendida com as exigências de tempo e cenas de uma Rank C). <br>
+          Caso possua o triplo, será considerado como o de dois ranks inferiores, e assim sucessivamente.
+        </div>
+      </div>
+
+      <div class="item-list">
+        <span class="item-title">Por Atributo Inteligência</span>
+        <div class="item-text">
+          Caso o personagem possua a mesma quantidade de pontos exigidos no atributo específico também em Inteligência, a quantidade de cenas e dias é reduzida para a exigência de <strong>um rank inferior</strong>. <br>
+          <em>Nota: Isso só se aplica para diminuir 1 rank no máximo, mesmo que tenha o triplo de pontos exigidos em inteligência.</em> <br><br>
+          <strong>Exemplo:</strong> Um Shinobi com 40 em Raiton e 40 em Inteligência poderia aprender uma técnica Rank B com o tempo e cenas exigidos de uma técnica Rank C.
+        </div>
+      </div>
+
+      <div class="item-list">
+        <span class="item-title">Por Aprendizado com Sensei</span>
+        <div class="item-text">
+          Se o jutsu estiver sendo ensinado por alguém, o tempo de aprendizado do aluno é calculado somando os atributos específicos de ambos (Sensei e Aluno). <br>
+          Como envolve dois personagens, é exigido uma cena de orientação do Sensei e uma cena de resposta do Aprendiz por dia, de acordo com o exigido pela técnica. <br><br>
+          <strong>Exemplo:</strong> Um professor com 40 em Raiton ensina um jutsu Rank B para um Aluno com 40 em Raiton. A soma dos atributos é 80, que é o dobro do exigido para uma técnica Rank B, logo ela exigirá a quantidade de tempo e cenas de uma técnica Rank C.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ==============================================
+       BLOCO 5: CRIAÇÃO DE TÉCNICAS
+  =============================================== -->
+  <div class="history-card">
+    <div class="card-header">
+      <span class="header-title">CRIAÇÃO DE TÉCNICAS</span>
+      <div class="header-stripe"></div>
+    </div>
+    
+    <div class="card-body">
+      <p class="regras-text">
+        Todo jogador pode expandir o arsenal do jogo com a autorização da Staff. Para criar, o método é o mesmo da aprendizagem: <strong>você deve escolher a Rota por Tempo ou Rota por Caractere</strong>. No entanto, a quantidade de tempo ou cenas exigidas da rota escolhida será <strong>dobrada</strong>.
+      </p>
+
+      <ul class="regras-list">
+        <li>
+          <strong>Técnicas Exclusivas:</strong> São técnicas criadas a partir da obra oficial, que demonstraram ser apresentadas por um único usuário e repassadas posteriormente. (Exemplos: Hiraishin, Chidori, Rasengan, Edo Tensei).
+        </li>
+        <li>
+          <strong>Técnicas Inéditas:</strong> Técnicas 100% originais criadas pela imaginação do player. Requerem 4 anos de experiência shinobi em ON.
+        </li>
+      </ul>
+
+      <div class="system-box">
+        <strong>Regras Específicas de Criação:</strong><br>
+        • Ambas as categorias (Exclusivas ou Inéditas) precisam obrigatoriamente de uma <strong>motivação justificável em ON</strong> para serem desenvolvidas.<br>
+        • O limite de criação é de 2 técnicas inéditas por saga.<br>
+        • O treinamento de criação só pode ser iniciado após a aprovação da Ficha de Jutsu pela Administração.
+      </div>
+
+      <h3 class="inner-subtitle" style="margin-top: 25px;">Requisitos Base para Criação</h3>
+      <table class="regras-table">
+        <thead>
+          <tr>
+            <th>Rank da Técnica</th>
+            <th>Atributo Necessário</th>
+            <th>Mecânica de Treinamento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank-val" style="color: #b3b3b3;">Rank E e D</td>
+            <td>40 Pontos</td>
+            <td>Dobro do exigido na Rota escolhida</td>
+          </tr>
+          <tr>
+            <td class="rank-val" style="color: #76c7c0;">Rank C</td>
+            <td>100 Pontos</td>
+            <td>Dobro do exigido na Rota escolhida</td>
+          </tr>
+          <tr>
+            <td class="rank-val" style="color: #4fa5d6;">Rank B</td>
+            <td>200 Pontos</td>
+            <td>Dobro do exigido na Rota escolhida</td>
+          </tr>
+          <tr>
+            <td class="rank-val" style="color: #d9534f;">Rank A</td>
+            <td>300 Pontos</td>
+            <td>Dobro do exigido na Rota escolhida</td>
+          </tr>
+          <tr>
+            <td class="rank-val" style="color: #ff3333;">Rank S</td>
+            <td>400 Pontos</td>
+            <td>Dobro do exigido na Rota escolhida</td>
+          </tr>
+        </tbody>
+      </table>
+      
+    </div>
+  </div>
+
   </main>
 
   <script>
+    /* ---- SCRIPT ORIGINAL (ACCORDION) ---- */
+    function toggle(id) {
+        const content = document.getElementById(id);
+        const seta = document.getElementById('seta-' + id);
+        if(content) {
+            content.classList.toggle("active");
+            seta.innerText = content.classList.contains("active") ? "▲" : "▼";
+        }
+    }
+
     /* ---- MENU E TEMA ---- */
     const menuBtn    = document.getElementById('menu-btn');
     const navOverlay = document.getElementById('nav-overlay');
