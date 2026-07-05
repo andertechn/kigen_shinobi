@@ -118,12 +118,11 @@
 
     /* ======= ESTRUTURA DA PÁGINA ======= */
     #sistemas-page {
-      /* PADDING TOP AUMENTADO PARA 140PX PARA NÃO ENCAVALAR NO BOTÃO DA KUNAI */
       min-height: 100vh; padding: 140px 24px 80px; transition: background 0.4s;
     }
 
     .historia-header {
-      max-width: 860px; margin: 0 auto 32px; border-radius: 12px;
+      max-width: 960px; margin: 0 auto 32px; border-radius: 12px;
       overflow: hidden; border: 1.5px solid rgba(204,0,0,0.25);
     }
     .historia-header-red {
@@ -131,38 +130,76 @@
     }
     .historia-header-red h1 {
       font-family: 'Bangers', cursive; font-size: clamp(2rem, 5vw, 3rem);
-      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1;
+      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1; margin: 0;
     }
     .historia-header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
 
     .regras-box {
-      max-width: 860px; margin: 0 auto; border-radius: 12px;
+      max-width: 960px; margin: 0 auto; border-radius: 12px;
       border: 1.5px solid rgba(204,0,0,0.25); background: var(--surface);
       padding: 40px; transition: background 0.4s;
     }
 
-    /* ======= ABAS (TABS) ======= */
-    .tab-buttons {
-      display: flex; gap: 15px; margin-bottom: 30px;
-      border-bottom: 2px solid rgba(204,0,0,0.2); padding-bottom: 15px;
-      flex-wrap: wrap; justify-content: center;
+    /* ======= QUADRADOS DE CATEGORIA INICIAL ======= */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      margin-bottom: 40px;
     }
-    .tab-btn {
-      background: rgba(0,0,0,0.3); border: 2px solid rgba(204,0,0,0.3);
-      color: var(--text-sub); font-family: 'Russo One', sans-serif;
-      padding: 14px 24px; border-radius: 8px; cursor: pointer;
-      font-size: 1.1rem; letter-spacing: 0.08em; text-transform: uppercase;
-      display: flex; align-items: center; gap: 10px; transition: all 0.3s;
+    .category-card {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 3px solid rgba(204,0,0,0.3);
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
     }
-    .tab-btn:hover { background: rgba(204,0,0,0.1); color: var(--text); border-color: var(--accent); }
-    .tab-btn.active {
-      background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 15px var(--glow);
+    .category-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.6);
+      transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
     }
-    .tab-btn svg { width: 24px; height: 24px; fill: currentColor; }
+    .category-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px var(--glow);
+    }
+    .category-card:hover img {
+      filter: brightness(0.9);
+      transform: scale(1.05);
+    }
+    .category-card h2 {
+      position: relative;
+      z-index: 1;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: 0.1em;
+      color: #fff;
+      text-shadow: 3px 3px 15px rgba(0,0,0,0.9), 0 0 30px var(--accent);
+      pointer-events: none;
+      margin: 0;
+    }
+    .category-card.active {
+      border-color: var(--accent2);
+      box-shadow: 0 0 25px var(--glow);
+    }
+    .category-card.active img {
+      filter: brightness(0.8);
+    }
 
-    .tab-pane { display: none; animation: fadeIn 0.4s ease; }
+    /* ABAS */
+    .tab-pane { display: none; animation: fadeIn 0.4s ease; scroll-margin-top: 100px; }
     .tab-pane.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ======= ÍNDICE (MENU RÁPIDO) ======= */
     .index-list {
@@ -189,28 +226,26 @@
       margin-bottom: 30px; border-left: 4px solid var(--accent); padding-left: 15px;
     }
 
-    /* ======= CARDS COM IMAGEM ======= */
+    /* ======= CARDS DE CONTEÚDO ======= */
     .card-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
     }
     
     .kg-card {
       background: rgba(0,0,0,0.25); border: 1.5px solid rgba(204,0,0,0.15);
       border-radius: 8px; display: flex; flex-direction: column; overflow: hidden;
       transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-      /* Margem de segurança para o scroll suave não cortar o topo do card */
-      scroll-margin-top: 100px;
+      scroll-margin-top: 120px;
     }
     .kg-card:hover {
       transform: translateY(-5px); border-color: var(--accent);
       box-shadow: 0 5px 20px var(--shadow);
     }
     
-    /* Imagem do Card */
     .kg-card-img {
-      width: 100%; height: 160px; object-fit: cover;
+      width: 100%; height: 180px; object-fit: cover;
       border-bottom: 2px solid var(--accent);
-      background: #111; /* Cor de fundo caso a imagem demore a carregar */
+      background: #111; 
     }
 
     .kg-card-body {
@@ -218,39 +253,108 @@
     }
     .kg-card-title {
       font-family: 'Bangers', cursive; font-size: 2.2rem; color: var(--accent);
-      letter-spacing: 0.08em; margin-bottom: 10px; text-transform: uppercase; line-height: 1;
+      letter-spacing: 0.08em; margin-bottom: 5px; text-transform: uppercase; line-height: 1;
+    }
+    .kg-card-subtitle {
+      font-family: 'Russo One', sans-serif; font-size: 0.85rem; color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 15px;
     }
     .kg-card-desc {
-      font-size: 1.05rem; color: var(--text-sub); margin-bottom: 25px; line-height: 1.5; flex: 1;
+      font-size: 1.05rem; color: var(--text); margin-bottom: 25px; line-height: 1.5; flex: 1; text-align: justify;
     }
     
+    .kg-card-reqs {
+      margin-top: auto; font-size: 0.95rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; padding-bottom: 20px;
+    }
+    .kg-card-reqs p { margin-bottom: 8px; line-height: 1.4; }
+    .kg-card-reqs p:last-child { margin-bottom: 0; }
+    .kg-highlight { color: var(--accent); font-family: 'Russo One', sans-serif; font-weight: normal; letter-spacing: 0.05em;}
+
     /* Footer do Card com Botões */
     .kg-card-footer {
       display: flex; justify-content: space-between; align-items: center;
-      border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; gap: 10px; flex-wrap: wrap;
+      border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; gap: 10px; flex-wrap: wrap; margin-top: auto;
     }
     .kg-card-btn {
       font-family: 'Russo One', sans-serif; text-decoration: none; color: #fff;
       background: var(--accent); padding: 8px 16px; border-radius: 4px; font-size: 0.85rem;
       letter-spacing: 0.1em; transition: background 0.3s, box-shadow 0.3s;
+      border: none; cursor: pointer;
     }
     .kg-card-btn:hover { background: var(--accent2); box-shadow: 0 0 10px var(--glow); }
     
     .back-to-top {
       color: var(--text-sub); text-decoration: none; font-size: 0.9rem; font-weight: bold;
-      transition: color 0.3s;
+      transition: color 0.3s; 
     }
     .back-to-top:hover { color: var(--accent); }
+
+    /* ======= MODAL (SISTEMA COMPLETO) ======= */
+    #system-modal {
+      position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center;
+      background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); animation: fadeInModal 0.3s ease; padding: 20px;
+    }
+    #system-modal.open { display: flex; }
+    @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUpModal { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .system-modal-content {
+      background: var(--surface); border-radius: 12px; border: 1px solid rgba(204,0,0,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.9); max-width: 900px; width: 100%; max-height: 85vh;
+      display: flex; flex-direction: column; animation: slideUpModal 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    .system-modal-header {
+      background: linear-gradient(135deg, var(--accent) 0%, rgba(150,0,0,1) 100%);
+      padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; gap: 20px;
+      border-radius: 12px 12px 0 0;
+    }
+    .system-modal-titles { display: flex; flex-direction: column; }
+    .system-modal-titles h2 {
+      font-family: 'Bangers', cursive; font-size: 3rem; color: white; margin: 0; line-height: 1; letter-spacing: 0.05em;
+    }
+    .system-modal-titles span {
+      font-family: 'Russo One', sans-serif; color: rgba(255,255,255,0.8); text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.1em;
+    }
+    .system-modal-close-btn {
+      background: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); color: white;
+      font-family: 'Russo One', sans-serif; padding: 10px 20px; border-radius: 6px;
+      cursor: pointer; font-size: 0.9rem; letter-spacing: 0.1em; transition: all 0.3s;
+    }
+    .system-modal-close-btn:hover { background: rgba(0,0,0,0.6); border-color: white; }
+
+    .system-modal-body {
+      padding: 40px; overflow-y: auto; color: var(--text); font-size: 1.05rem; line-height: 1.6; text-align: justify;
+    }
+    .system-modal-body h4 {
+      font-family: 'Russo One', sans-serif; color: var(--accent); margin: 30px 0 15px; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.2rem;
+      border-bottom: 1px solid rgba(204,0,0,0.2); padding-bottom: 8px;
+    }
+    .system-modal-body h4:first-child { margin-top: 0; }
+    .system-modal-body p { margin-bottom: 15px; }
+    .system-modal-body ul { list-style: none; padding-left: 0; margin-bottom: 20px; }
+    .system-modal-body ul li {
+      margin-bottom: 10px; padding-left: 20px; position: relative;
+    }
+    .system-modal-body ul li::before {
+      content: '▸'; position: absolute; left: 0; color: var(--accent); font-weight: bold;
+    }
+    .system-modal-body .highlight-box {
+      background: rgba(204,0,0,0.08); border-left: 4px solid var(--accent); padding: 15px; margin: 20px 0; border-radius: 4px;
+    }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
-    @media (max-width: 580px) {
+    @media (max-width: 600px) {
       .historia-header-red { padding: 16px 20px; }
       .regras-box { padding: 20px; }
-      .tab-btn { width: 100%; justify-content: center; }
+      .category-grid { grid-template-columns: 1fr; }
+      .category-card { aspect-ratio: 21 / 9; }
       .kg-card-footer { flex-direction: column; align-items: flex-start; }
+      .system-modal-header { flex-direction: column; text-align: center; }
+      .system-modal-body { padding: 20px; }
+      .system-modal-titles h2 { font-size: 2.2rem; }
     }
   </style>
 </head>
@@ -258,7 +362,7 @@
 
   <!-- Fundo -->
   <div id="fixed-background">
-    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
     <div class="hero-overlay"></div>
   </div>
 
@@ -304,6 +408,22 @@
     </nav>
   </div>
 
+  <!-- MODAL DO SISTEMA COMPLETO -->
+  <div id="system-modal">
+    <div class="system-modal-content">
+      <div class="system-modal-header">
+        <div class="system-modal-titles">
+          <span id="modal-category">Categoria</span>
+          <h2 id="modal-title">NOME DO SISTEMA</h2>
+        </div>
+        <button class="system-modal-close-btn" onclick="closeSystemModal()">VOLTAR</button>
+      </div>
+      <div class="system-modal-body" id="modal-body-content">
+        <!-- O conteúdo será injetado aqui pelo JavaScript -->
+      </div>
+    </div>
+  </div>
+
   <!-- CONTEÚDO PRINCIPAL -->
   <main id="sistemas-page">
 
@@ -316,29 +436,25 @@
 
     <div class="regras-box">
       
-      <!-- Botões das Abas -->
-      <div class="tab-buttons">
-        <button class="tab-btn active" data-target="dojutsu">
-          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-          DŌJUTSU
-        </button>
-        <button class="tab-btn" data-target="kekkei">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/></svg>
-          KEKKEI GENKAI
-        </button>
+      <!-- Quadradões de Seleção -->
+      <div class="category-grid">
+        <div class="category-card" data-target="dojutsu">
+          <img src="link_quadrado_dojutsu.jpg" alt="Dōjutsu" onerror="this.style.display='none'">
+          <h2>DŌJUTSU</h2>
+        </div>
+        <div class="category-card" data-target="kekkei">
+          <img src="link_quadrado_kekkei.jpg" alt="Kekkei Genkai" onerror="this.style.display='none'">
+          <h2>KEKKEI GENKAI</h2>
+        </div>
       </div>
 
       <!-- ================= ABA 1: DŌJUTSU ================= -->
-      <div id="dojutsu" class="tab-pane active">
+      <div id="dojutsu" class="tab-pane">
         
-        <!-- Ponto de âncora para voltar ao topo desta aba -->
-        <div id="index-dojutsu"></div> 
-
         <div class="intro-text">
           <strong>Dōjutsu (瞳術)</strong>, conhecidos como "Técnicas Oculares" ou também como "Poder Ocular", são habilidades visuais especiais geralmente manifestadas como kekkei genkai, transmitidas por linhagem sanguínea.
         </div>
 
-        <!-- Índice rápido -->
         <div class="index-list">
           <h4>Pular para:</h4>
           <div class="index-links">
@@ -352,67 +468,62 @@
 
         <div class="card-grid">
           
-          <!-- Card Akagan -->
           <div class="kg-card" id="card-akagan">
-            <img src="link_da_imagem_akagan.jpg" alt="Akagan" class="kg-card-img">
+            <img src="link_da_imagem_akagan.jpg" alt="Akagan" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
               <h3 class="kg-card-title">Akagan</h3>
               <div class="kg-card-desc">Visão penetrante capaz de enxergar fluxo de chakra e criar ilusões baseadas na percepção do alvo.</div>
               <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-dojutsu" class="back-to-top">↑ Voltar ao Índice</a>
+                <button class="kg-card-btn" onclick="openSystemModal('akagan', 'Akagan', 'Dōjutsu')">SISTEMA COMPLETO</button>
+                <a href="#dojutsu" class="back-to-top">↑ Voltar</a>
               </div>
             </div>
           </div>
 
-          <!-- Card Byakugan -->
           <div class="kg-card" id="card-byakugan">
-            <img src="link_da_imagem_byakugan.jpg" alt="Byakugan" class="kg-card-img">
+            <img src="link_da_imagem_byakugan.jpg" alt="Byakugan" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
               <h3 class="kg-card-title">Byakugan</h3>
               <div class="kg-card-desc">Visão de 360 graus, alcance estendido e capacidade impecável de enxergar os tenketsus do sistema de chakra.</div>
               <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-dojutsu" class="back-to-top">↑ Voltar ao Índice</a>
+                <button class="kg-card-btn" onclick="openSystemModal('byakugan', 'Byakugan', 'Dōjutsu')">SISTEMA COMPLETO</button>
+                <a href="#dojutsu" class="back-to-top">↑ Voltar</a>
               </div>
             </div>
           </div>
 
-          <!-- Card Ketsuryūgan -->
           <div class="kg-card" id="card-ketsuryugan">
-            <img src="link_da_imagem_ketsuryugan.jpg" alt="Ketsuryūgan" class="kg-card-img">
+            <img src="link_da_imagem_ketsuryugan.jpg" alt="Ketsuryūgan" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
               <h3 class="kg-card-title">Ketsuryūgan</h3>
               <div class="kg-card-desc">Poder ocular que permite o controle de fluidos ricos em ferro e genjutsus hipnóticos através do sangue.</div>
               <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-dojutsu" class="back-to-top">↑ Voltar ao Índice</a>
+                <button class="kg-card-btn" onclick="openSystemModal('ketsuryugan', 'Ketsuryūgan', 'Dōjutsu')">SISTEMA COMPLETO</button>
+                <a href="#dojutsu" class="back-to-top">↑ Voltar</a>
               </div>
             </div>
           </div>
 
-          <!-- Card Sharingan -->
           <div class="kg-card" id="card-sharingan">
-            <img src="link_da_imagem_sharingan.jpg" alt="Sharingan" class="kg-card-img">
+            <img src="link_da_imagem_sharingan.jpg" alt="Sharingan" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
               <h3 class="kg-card-title">Sharingan</h3>
               <div class="kg-card-desc">O Olho Copiador. Concede extrema percepção de movimento, cópia de jutsus e potentes ilusões visuais.</div>
               <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-dojutsu" class="back-to-top">↑ Voltar ao Índice</a>
+                <button class="kg-card-btn" onclick="openSystemModal('sharingan', 'Sharingan', 'Dōjutsu')">SISTEMA COMPLETO</button>
+                <a href="#dojutsu" class="back-to-top">↑ Voltar</a>
               </div>
             </div>
           </div>
 
-          <!-- Card Yome -->
           <div class="kg-card" id="card-yome">
-            <img src="link_da_imagem_yome.jpg" alt="Yome" class="kg-card-img">
+            <img src="link_da_imagem_yome.jpg" alt="Yome" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
               <h3 class="kg-card-title">Yome</h3>
               <div class="kg-card-desc">Pupilas dilatáveis que refletem a luz e permitem rastrear o inimigo a dezenas de quilômetros de distância.</div>
               <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-dojutsu" class="back-to-top">↑ Voltar ao Índice</a>
+                <button class="kg-card-btn" onclick="openSystemModal('yome', 'Yome', 'Dōjutsu')">SISTEMA COMPLETO</button>
+                <a href="#dojutsu" class="back-to-top">↑ Voltar</a>
               </div>
             </div>
           </div>
@@ -423,60 +534,123 @@
       <!-- ================= ABA 2: KEKKEI GENKAI ================= -->
       <div id="kekkei" class="tab-pane">
         
-        <!-- Ponto de âncora para voltar ao topo desta aba -->
-        <div id="index-kekkei"></div>
-
-        <div class="intro-text">
-          <strong>Kekkei Genkai (血継限界)</strong> são anomalias genéticas que permitem ao usuário fundir duas naturezas elementais de chakra para criar uma terceira e nova natureza.
+        <div style="background: rgba(204,0,0,0.08); border-left: 4px solid var(--accent); padding: 25px; margin-bottom: 30px; border-radius: 4px;">
+          <h3 style="font-family: 'Bangers', cursive; font-size: 2.2rem; color: var(--accent); margin-bottom: 10px; letter-spacing: 0.05em;">SISTEMA DE KEKKEI GENKAI</h3>
+          <p style="margin-bottom: 20px; font-size: 1.05rem; line-height: 1.6;">Kekkei Genkai (Herança Sanguínea) são habilidades genéticas raras, muitas vezes exclusivas de clãs específicos, que conferem vantagens estratégicas imprevisíveis.</p>
+          
+          <h4 style="font-family: 'Russo One', sans-serif; color: var(--text); margin-bottom: 15px; text-transform: uppercase;">Regras Gerais</h4>
+          <ul style="list-style-type: none; padding-left: 0;">
+            <li style="margin-bottom: 12px; padding-left: 25px; position: relative; line-height: 1.5;">
+              <span style="position: absolute; left: 0; color: var(--accent);">▸</span>
+              <strong>Cálculo de Poder:</strong> O valor do atributo da sua Kekkei Genkai é sempre a soma dos pontos dos dois elementos que a compõem (ex: Doton + Katon).
+            </li>
+            <li style="padding-left: 25px; position: relative; line-height: 1.5;">
+              <span style="position: absolute; left: 0; color: var(--accent);">▸</span>
+              <strong>Limite de Geração:</strong> Quando uma Kekkei Genkai possui limite de usuários, se o personagem morrer, nenhum outro da mesma geração poderá despertá-la.
+            </li>
+          </ul>
         </div>
 
-        <!-- Índice rápido -->
         <div class="index-list">
           <h4>Pular para:</h4>
           <div class="index-links">
             <a href="#card-bakuton">Bakuton</a>
+            <a href="#card-deiton">Deiton</a>
             <a href="#card-futton">Futton</a>
-            <a href="#card-hyouton">Hyouton</a>
+            <a href="#card-hyoton">Hyōton</a>
+            <a href="#card-jiton">Jiton</a>
+            <a href="#card-kairyuu">Kairyuu</a>
+            <a href="#card-mokuton">Mokuton</a>
+            <a href="#card-ranton">Ranton</a>
+            <a href="#card-shakuton">Shakuton</a>
+            <a href="#card-shoton">Shōton</a>
+            <a href="#card-taiton">Taiton</a>
+            <a href="#card-yoton">Yoton</a>
+            <a href="#card-youton">Youton</a>
           </div>
         </div>
 
         <div class="card-grid">
           
-          <!-- Card Bakuton -->
           <div class="kg-card" id="card-bakuton">
-            <img src="link_da_imagem_bakuton.jpg" alt="Bakuton" class="kg-card-img">
+            <img src="link_imagem_bakuton.jpg" alt="Bakuton" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
               <h3 class="kg-card-title">Bakuton</h3>
-              <div class="kg-card-desc">Liberação de Explosão. Combinação de Terra e Relâmpago que concede chakra explosivo ao usuário.</div>
-              <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-kekkei" class="back-to-top">↑ Voltar ao Índice</a>
+              <div class="kg-card-subtitle">Liberação de Explosão</div>
+              <div class="kg-card-desc">Combina chakra para criar propriedades explosivas, detonando objetos ou adversários ao toque.</div>
+              <div class="kg-card-reqs">
+                <p><span class="kg-highlight">Acesso:</span> Todos do clã Bakuretsu.</p>
+                <p><span class="kg-highlight">Requisitos:</span> 100 Doton + 100 Katon.</p>
               </div>
             </div>
           </div>
 
-          <!-- Card Futton -->
+          <!-- JITON -->
+          <div class="kg-card" id="card-jiton">
+            <img src="link_imagem_jiton.jpg" alt="Jiton" class="kg-card-img" onerror="this.style.display='none'">
+            <div class="kg-card-body">
+              <h3 class="kg-card-title">Jiton</h3>
+              <div class="kg-card-subtitle">Estilo Magnetismo</div>
+              <div class="kg-card-desc">Kekkei Genkai que combina Doton e Fuuton para gerar forças magnéticas (Jiryoku). Permite ao usuário converter chakra em forças magnéticas.</div>
+              <div class="kg-card-reqs">
+                <p><span class="kg-highlight">Acesso:</span> Clã Kazekage e Clã Toroi.</p>
+                <p><span class="kg-highlight">Requisitos:</span> Doton + Fuuton.</p>
+              </div>
+              <div class="kg-card-footer">
+                <button class="kg-card-btn" onclick="openSystemModal('jiton', 'Jiton', 'Kekkei Genkai')">SISTEMA COMPLETO</button>
+                <a href="#kekkei" class="back-to-top">↑ Voltar</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="kg-card" id="card-deiton">
+            <img src="link_imagem_deiton.jpg" alt="Deiton" class="kg-card-img" onerror="this.style.display='none'">
+            <div class="kg-card-body">
+              <h3 class="kg-card-title">Deiton</h3>
+              <div class="kg-card-subtitle">Estilo Lama</div>
+              <div class="kg-card-desc">Permite converter substâncias terrestres em lama para fins ofensivos, defensivos e alteração de terreno.</div>
+              <div class="kg-card-reqs">
+                <p><span class="kg-highlight">Acesso:</span> Todos do clã Ameyuki.</p>
+                <p><span class="kg-highlight">Requisitos:</span> 100 Doton + 100 Suiton.</p>
+              </div>
+            </div>
+          </div>
+          
           <div class="kg-card" id="card-futton">
-            <img src="link_da_imagem_futton.jpg" alt="Futton" class="kg-card-img">
+            <img src="link_imagem_futton.jpg" alt="Futton" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
               <h3 class="kg-card-title">Futton</h3>
-              <div class="kg-card-desc">Liberação de Fervura. Combinação de Água e Fogo, criando um vapor extremamente corrosivo e letal.</div>
-              <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-kekkei" class="back-to-top">↑ Voltar ao Índice</a>
+              <div class="kg-card-subtitle">Liberação de Fervura</div>
+              <div class="kg-card-desc">Cria um vapor altamente corrosivo capaz de derreter e corroer praticamente qualquer defesa.</div>
+              <div class="kg-card-reqs">
+                <p><span class="kg-highlight">Acesso:</span> Clã Terumi (Vertente Jokikumo). Limite de 3 por geração.</p>
+                <p><span class="kg-highlight">Requisitos:</span> 100 Katon + 100 Suiton.</p>
               </div>
             </div>
           </div>
-
-          <!-- Card Hyouton -->
-          <div class="kg-card" id="card-hyouton">
-            <img src="link_da_imagem_hyouton.jpg" alt="Hyouton" class="kg-card-img">
+          
+          <div class="kg-card" id="card-hyoton">
+            <img src="link_imagem_hyoton.jpg" alt="Hyōton" class="kg-card-img" onerror="this.style.display='none'">
             <div class="kg-card-body">
-              <h3 class="kg-card-title">Hyouton</h3>
-              <div class="kg-card-desc">Liberação de Gelo. Combinação de Água e Vento que permite a manipulação absoluta do gelo e controle térmico.</div>
-              <div class="kg-card-footer">
-                <a href="#" class="kg-card-btn">SISTEMA COMPLETO</a>
-                <a href="#index-kekkei" class="back-to-top">↑ Voltar ao Índice</a>
+              <h3 class="kg-card-title">Hyōton</h3>
+              <div class="kg-card-subtitle">Liberação de Gelo</div>
+              <div class="kg-card-desc">Manipulação da umidade e do vento para criar e moldar gelo em estruturas variadas e letais.</div>
+              <div class="kg-card-reqs">
+                <p><span class="kg-highlight">Acesso:</span> Todos do clã Yuki.</p>
+                <p><span class="kg-highlight">Requisitos:</span> 100 Fuuton + 100 Suiton.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="kg-card" id="card-mokuton">
+            <img src="link_imagem_mokuton.jpg" alt="Mokuton" class="kg-card-img" onerror="this.style.display='none'">
+            <div class="kg-card-body">
+              <h3 class="kg-card-title">Mokuton</h3>
+              <div class="kg-card-subtitle">Liberação de Madeira</div>
+              <div class="kg-card-desc">Permite a criação e controle de vida vegetal, moldando madeira em construções, prisões e ataques.</div>
+              <div class="kg-card-reqs">
+                <p><span class="kg-highlight">Acesso:</span> Clã Senju. Limite de 1 por geração.</p>
+                <p><span class="kg-highlight">Requisitos:</span> 100 Doton + 100 Suiton.</p>
               </div>
             </div>
           </div>
@@ -496,7 +670,7 @@
       const open = navOverlay.classList.toggle('open');
       menuBtn.classList.toggle('open', open);
     });
-    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); } });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeNav(); closeSystemModal(); } });
     function closeNav() { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); }
 
     const root  = document.documentElement;
@@ -508,22 +682,263 @@
       localStorage.setItem('ks-theme', next);
     });
 
-    /* ---- LÓGICA DAS ABAS (TABS) ---- */
-    const tabBtns = document.querySelectorAll('.tab-btn');
+    /* ---- LÓGICA DOS QUADRADOS INICIAIS ---- */
+    const categoryCards = document.querySelectorAll('.category-card');
     const tabPanes = document.querySelectorAll('.tab-pane');
 
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        // Remove a classe ativa de todos os botões e abas
-        tabBtns.forEach(b => b.classList.remove('active'));
+    categoryCards.forEach(card => {
+      card.addEventListener('click', () => {
+        categoryCards.forEach(c => c.classList.remove('active'));
         tabPanes.forEach(p => p.classList.remove('active'));
 
-        // Adiciona a classe ativa no botão clicado e na aba correspondente
-        btn.classList.add('active');
-        const targetId = btn.getAttribute('data-target');
-        document.getElementById(targetId).classList.add('active');
+        card.classList.add('active');
+        const targetId = card.getAttribute('data-target');
+        const targetPane = document.getElementById(targetId);
+        targetPane.classList.add('active');
+
+        setTimeout(() => {
+          targetPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
       });
     });
+
+    /* ---- BANCO DE DADOS DOS SISTEMAS DETALHADOS ---- */
+    const systemsData = {
+      
+      /* =========================================
+                     JITON (MAGNETISMO)
+         ========================================= */
+      jiton: `
+        <div class="highlight-box">
+          <p>O Estilo Magnetismo é uma Kekkei Genkai transmitida entre os membros do Clã Kazekage. Sua composição é baseada nas naturezas Doton e Fuuton, e possui dois estilos únicos, sendo esses a Sakin (Pó de Ouro) e Satetsu (Areia de Ferro).</p>
+          <p>No rpg, para que um membro do Clã Kazekage adquira a Kekkei Genkai, todos os Player do clã já começam com seu domínio, e escolher dentre as duas opções a areia que mais lhe interessa desde que seja sorteado.</p>
+        </div>
+        
+        <h4>Mecânica de Atributos</h4>
+        <p>Para aumentar os pontos em sua Areia, o player deve colocar pontos em Doton e Futon, sendo a soma de ambos a força de seu Kekkei genkai.</p>
+        <ul>
+          <li><strong>Força:</strong> Capacidade de infringir pressão e carregar objetos.</li>
+          <li><strong>Velocidade:</strong> Rapidez que a areia é capaz de atingir.</li>
+          <li><strong>Resistência:</strong> Capacidade de suportar ataques.</li>
+        </ul>
+        <p>Cada tipo de areia possui seus pontos fortes e fracos, traduzidos no sistema em forma de Buffs e Debuffs de porcentagens.</p>
+
+        <h4>SUNA (Areia Comum)</h4>
+        <p>Estilo Magnetismo (Jiton) é uma kekkei genkai de mudança da natureza que combina os elementos terra e vento para produzir e manipular forças magnéticas. A Areia comum tem sua manipulação dada por meio dos poderes do Shukaku. Sua principal qualidade é a sua velocidade.</p>
+        <p><strong>Acesso:</strong> Apenas Jinchurikis do Shukaku (forma total) ou Sorteio para comuns.</p>
+        <ul>
+          <li><strong>Força:</strong> +10% (Padrão pela soma dos elementos)</li>
+          <li><strong>Velocidade:</strong> +30% da velocidade de Ninjutsu do usuário (soma dos elementos)</li>
+          <li><strong>Resistência:</strong> +20% de resistência pela soma dos elementos</li>
+        </ul>
+
+        <h4>SATETSU (Areia de Ferro)</h4>
+        <p>O pó de ferro tem sua manipulação através do estilo magnetismo, manipulando pó de ferro presente no solo, armazenando e manipulando para uso próprio. Esta é a areia mais equilibrada dentre suas variantes, devido seu material resistente e leve, seu principal fator é a resistência junto da velocidade.</p>
+        <ul>
+          <li><strong>Força:</strong> 0% (Padrão pela soma dos elementos)</li>
+          <li><strong>Velocidade:</strong> +20% de Velocidade sobre a soma dos atributos.</li>
+          <li><strong>Resistência:</strong> +30% de Resistência sobre a soma dos atributos.</li>
+        </ul>
+
+        <h4>SAKIN (Pó de Ouro)</h4>
+        <p>Pó de ouro é uma das versões bases do Magnetismo, sua densidade é alta, devido a isso sua velocidade é menor, sendo mais pesada que ambas as outras, porém sua força é o ponto forte, assim como sua resistência.</p>
+        <ul>
+          <li><strong>Força:</strong> +10% de força sobre a soma dos elementos</li>
+          <li><strong>Velocidade:</strong> -25% de velocidade sobre a soma dos elementos</li>
+          <li><strong>Resistência:</strong> +50% de resistência sobre a soma dos elementos</li>
+        </ul>
+
+        <h4>TOROI (Clã Toroi)</h4>
+        <p>Dentre os usuários de Estilo Magnetismo de Kumogakure, Toroi se destacou. Ele se utilizava do Estilo Magnetismo: Lâminas Gêmeas das Vespas Omissas, uma estratégia com shurikenjutsu em que ele fluía seu chakra em múltiplas shuriken e as arremessava. Ao fazerem contato, os corpos eram instantaneamente imantados, gerando um poderoso campo magnético que atraía as próximas lâminas lançadas, impossibilitando a esquiva.</p>
+      `,
+
+      /* =========================================
+                     AKAGAN
+         ========================================= */
+      akagan: `
+        <p>Com a sua Kekkei Genkai, Ranmaru tem a habilidade de ver e ouvir coisas à longas distâncias. Com essa habilidade, ele consegue ver através de paredes, embora o alcance de sua kekkei genkai seja similar ao intervalo do Byakugan, que pode combater e anular essa característica.</p>
+        <p>Suas habilidades também lhe permitem executar um genjutsu irresistível, o que pode enganar até mesmo o Byakugan. A visão permite localizar e rastrear os outros ao sentir chakra a longas distâncias, notando mudanças no chakra de um indivíduo e percebendo quantos estão presentes.</p>
+        <p>A visão acentua a percepção e os poderes analíticos, semelhantes aos do Sharingan. Pode ver a força vital da pessoa para prever movimentos ou dizer se alguém está vivo ou morto. Além disso, é capaz de transferir parte de sua própria força de vida para curar completamente alguém à beira da morte.</p>
+        
+        <h4>Treinamento de Visão</h4>
+        <p>Ao iniciar como Gennin, seu alcance do Akagan é de apenas 50 metros. O sistema abaixo apresenta um treino para estender as capacidades visuais, podendo ser feito <strong>apenas duas vezes por patente</strong>.</p>
+        <div class="highlight-box">
+          <p>Para realizar o treinamento, basta congelar as atividades de seu personagem durante <strong>5 dias</strong>, e nestes dias enviar <strong>1 cena com o total de 30 linhas</strong> descrevendo seus métodos de treinamento e evolução. O treino não mudará por patente. Cada treino de 5 dias aumenta o alcance em <strong>+50 metros</strong>.</p>
+        </div>
+
+        <h4>Gasto de Chakra</h4>
+        <p>Ao ativar o Akagan, o usuário gasta automaticamente <strong>50 de chakra por turno</strong>, mantendo o gasto fixo enquanto estiver ativo.</p>
+        <p>Para estender a visão em uma direção escolhida, deve-se seguir o gasto padrão. A cada 50 metros estendidos, o rank sobe gradativamente:</p>
+        <ul>
+          <li><strong>Rank D:</strong> -20 CK</li>
+          <li><strong>Rank C:</strong> -50 CK</li>
+          <li><strong>Rank B:</strong> -100 CK</li>
+          <li><strong>Rank A:</strong> -200 CK</li>
+          <li><strong>Rank S:</strong> -300 CK</li>
+        </ul>
+      `,
+
+      /* =========================================
+                     BYAKUGAN
+         ========================================= */
+      byakugan: `
+        <p>O Byakugan é uma Kekkei Genkai repassada entre os membros da família Hyūga. Fornece uma visão em um ângulo próximo a 360°, além de poder visualizar através de objetos e a rede de chakra. As habilidades do Byakugan são protegidas por duas famílias (Principal e Secundária).</p>
+
+        <h4>Família Principal</h4>
+        <p>A casa principal é a comandante da família, destinada a proteger o segredo do byakugan e algumas técnicas Hiden passadas unicamente para os membros dessa família.</p>
+        <ul>
+          <li>Hakkeshō Kaiten (Rotação)</li>
+          <li>Jūkenhō: Hakke Rokujūyon Shō (8 trigramas: 64 palmas)</li>
+          <li>Hakke Hyaku Nijuuhachi Shou (8 trigramas: 128 palmas)</li>
+          <li>Kago no Tori no Juin (Selo amaldiçoado do pássaro engaiolado) técnica de Rank A. (Necessário atributos em Fuinjutsu).</li>
+        </ul>
+
+        <h4>Família Secundária</h4>
+        <p>Marcados com um Selo Amaldiçoado. Este selo dá à casa principal controle absoluto, podendo causar grande dor para puni-los e garantir que o segredo fique seguro, vedando o Byakugan após a morte.</p>
+        <ul>
+          <li>Só podem aprender as técnicas da família principal se algum membro principal ensinar.</li>
+          <li>Byakugan limitado em até 1km de visão.</li>
+          <li>Pode aprender até a variante de 36 palmas do 8 trigramas naturalmente.</li>
+        </ul>
+
+        <h4>Treinamento de Visão</h4>
+        <p>Ao iniciar como Gennin, seu alcance é de apenas 100 metros. Pode ser feito <strong>apenas duas vezes por patente</strong>.</p>
+        <div class="highlight-box">
+          <p>Congelar atividades durante <strong>5 dias</strong>, enviar <strong>1 cena com 30 linhas</strong> descrevendo o treino. Cada treino aumenta o alcance em <strong>+500 metros para a família principal</strong> e <strong>+150 metros para a família secundária</strong>.</p>
+        </div>
+
+        <h4>Gasto de Chakra</h4>
+        <p>Para ativar, gasta-se automaticamente <strong>50 de chakra por turno</strong>. Para estender a visão, a cada 500 metros o rank sobe:</p>
+        <ul>
+          <li><strong>Rank D:</strong> -50 CK</li>
+          <li><strong>Rank C:</strong> -100 CK</li>
+          <li><strong>Rank B:</strong> -150 CK</li>
+          <li><strong>Rank A:</strong> -200 CK</li>
+          <li><strong>Rank S:</strong> -350 CK</li>
+        </ul>
+      `,
+
+      /* =========================================
+                     KETSURYUGAN
+         ========================================= */
+      ketsuryugan: `
+        <p>Os membros do clã Chinoike possuíam uma estranha genética: o Ketsuryuugan. Reconhecido pelo seu aspecto avermelhado, conferindo uma aparência de olhos vermelhos como sangue. Confere formidáveis habilidades oculares em genjutsu, que só podem ser combatidas pelo Sharingan.</p>
+        <div class="highlight-box">
+          <p><strong>Gasto Ativo:</strong> 50 de chakra por turno. Buff adicional em reflexo de <strong>60%</strong> ao usuário.</p>
+        </div>
+
+        <h4>Humano Bomba</h4>
+        <p>O usuário libera um chakra estranho que penetra no alvo, fundindo-se e transformando-o em um humano explosivo. Quando o alvo é ferido, o sangue ferve e a pressão aumenta até ele explodir. A única maneira de libertar a vítima é com um Contra-Genjutsu extremamente poderoso (ex: Sharingan).</p>
+        <p><strong>Gasto:</strong> Rank B (-150 por uso).</p>
+
+        <h4>Armadilha Genjutsu</h4>
+        <p>Tática para implantar um genjutsu na mente do alvo. Assim que a mente da pessoa é invadida, o invasor cai em um genjutsu onde se vê afogando em um oceano vermelho e vê o Ketsuryuugan chorando sangue. Pode-se escapar com Contra-Genjutsu.</p>
+        <p><strong>Gasto:</strong> Rank B (-150 por uso).</p>
+
+        <h4>Manipulação Sanguínea</h4>
+        <p>Permite técnicas de manipulação de sangue fazendo uso do ferro presente nele (ex: Dragão de Sangue com 8 cabeças, forte o suficiente para restringir um Susanoo Perfeito).</p>
+        <ul>
+          <li>Ao manipular sangue sem técnica complexa: <strong>100 de chakra por litro</strong>.</li>
+          <li>A Força e Velocidade do Sangue baseiam-se no atributo <strong>Suiton</strong>.</li>
+        </ul>
+        <p><strong>Aviso:</strong> Utilizar sangue demais do próprio corpo permite no máximo <strong>8 cenas de uso</strong>. Exceder o limite em no máximo 2 cenas causa a <strong>morte imediata</strong> por fadiga.</p>
+      `,
+
+      /* =========================================
+                     SHARINGAN
+         ========================================= */
+      sharingan: `
+        <p>O Sharingan (Olho Copiador Giratório) é uma kekkei genkai dos Uchiha, despertado quando o portador experimenta uma condição emocional poderosa. É o "olho que reflete o coração".</p>
+
+        <h4>1° Tomoe</h4>
+        <p>Geralmente despertado primeiro. Permite copiar apenas movimentos corporais básicos e efetuar Genjutsus de baixo nível.</p>
+        <p><strong>Gasto:</strong> 50 de Chakra por turno enquanto ativo.</p>
+
+        <h4>2° Tomoe</h4>
+        <p>Despertado por treino intensivo de 5 dias ou estresse emocional. Pode usar Genjutsus medianos e copiar habilidades/jutsus de baixo nível.</p>
+        <p><strong>Gasto:</strong> 100 para ativar, 50 de Chakra por turno.</p>
+
+        <h4>3° Tomoe</h4>
+        <p>Despertado ao receber um golpe fatal, ficando à beira da morte ou perdendo um ente querido em sua frente. O Shinobi desfruta de todas as habilidades, copia jutsus/genjutsus de alto nível e pode controlar Bestas com Cauda.</p>
+        <p><strong>Gasto:</strong> 150 para ativar, 50 de Chakra por turno.</p>
+
+        <h4>Habilidades Principais</h4>
+        <ul>
+          <li><strong>Olho da Visão:</strong> Vê o chakra em cores, clareza incrível de percepção (lê lábios, prevê movimentos), e copia quase qualquer jutsu (ninjutsu, genjutsu e taijutsu) desde que tenha os requisitos.</li>
+          <li><strong>Olho do Hipnotismo:</strong> Genjutsu poderoso por contato visual, assumindo controle do corpo do alvo. Permite forçar vítimas a agirem ou caírem em ilusões profundas. Inclui os kinjutsus Izanagi e Izanami (ao custo da cegueira).</li>
+        </ul>
+
+        <h4>Mangekyō Sharingan</h4>
+        <p>Despertado através do trauma da morte de uma pessoa muito próxima. O núcleo do olho queima como lava.</p>
+        <ul>
+          <li>Se possuir sem pertencer ao clã, o gasto de chakra é triplicado.</li>
+          <li>A morte presenciada precisa ser de um personagem com no mínimo 3 semanas de vínculo narrativo (não aceitamos NPCs).</li>
+          <li>Após 15 usos a visão deteriora; cegueira ao atingir 20 usos sem transplante.</li>
+          <li><strong>Gasto:</strong> 300 para ativar e 100 por turno.</li>
+        </ul>
+
+        <h4>Mangekyō Sharingan Eterno</h4>
+        <p>Criado através do transplante dos olhos de outro Uchiha com fortes laços de sangue (preferencialmente irmão). Restaura a visão permanentemente e mescla os poderes.</p>
+        <ul>
+          <li>Requer 5 dias focados apenas na ação de adaptação (sem missões ou treino). O sistema de compatibilidade sanguínea é considerado.</li>
+          <li><strong>Gasto:</strong> 200 para ativar e 100 por turno.</li>
+        </ul>
+      `,
+
+      /* =========================================
+                     YOME
+         ========================================= */
+      yome: `
+        <p>Este é um dōjutsu utilizado por Yome para rastrear inimigos através da reflexão de minúsculas gotículas de água, após a dilatação das pupilas. Seu alcance visual chega a dezenas de quilômetros e aumenta habilidades de evasão em combate.</p>
+        <p><strong>Desvantagens:</strong> Evaporação da água pelo sol dificulta a técnica, encurta o tempo e possui extrema sensibilidade a luzes ofuscantes (bombas de luz).</p>
+        
+        <h4>Treinamento de Visão</h4>
+        <p>Ao iniciar como Gennin, o alcance é de apenas 500 metros. Todos do clã Yomi iniciam com ele. Pode ser treinado apenas <strong>três vezes por patente</strong>.</p>
+        <div class="highlight-box">
+          <p>Congelar atividades durante <strong>6 dias</strong>, enviando <strong>1 cena com 30 linhas</strong>. Cada treino aumenta o alcance visual em <strong>+1.000 metros</strong>.</p>
+        </div>
+
+        <h4>Gasto de Chakra</h4>
+        <ul>
+          <li>Gasto fixo de <strong>50 de chakra por turno</strong> enquanto ativo.</li>
+          <li>A cada 1Km estendido, gasta-se +100 de chakra.</li>
+        </ul>
+      `
+    };
+
+    /* ---- FUNÇÕES DO MODAL (SISTEMA COMPLETO) ---- */
+    const modal = document.getElementById('system-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalCategory = document.getElementById('modal-category');
+    const modalBody = document.getElementById('modal-body-content');
+
+    function openSystemModal(systemId, systemName, categoryName) {
+      modalTitle.textContent = systemName;
+      modalCategory.textContent = categoryName;
+      
+      // Injeta o conteúdo no modal com base no ID
+      if(systemsData[systemId]) {
+        modalBody.innerHTML = systemsData[systemId];
+      } else {
+        modalBody.innerHTML = '<p>Sistema ainda não cadastrado no banco de dados.</p>';
+      }
+
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden'; // impede a página de rolar atrás do modal
+    }
+
+    function closeSystemModal() {
+      modal.classList.remove('open');
+      document.body.style.overflow = 'auto'; // restaura rolagem
+    }
+
+    // Fechar o modal ao clicar na área escura (fora da caixa)
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeSystemModal();
+      }
+    });
+
   </script>
 </body>
 </html>
