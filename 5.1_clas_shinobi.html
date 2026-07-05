@@ -408,7 +408,6 @@
 
   <main id="page-container">
 
-    <!-- BLOCO DO CABEÇALHO GRUDADO -->
     <div class="main-header-group">
       <div class="header-image">
         <img src="00_clas.png" alt="Header Clãs" onerror="this.style.display='none'" />
@@ -420,7 +419,6 @@
       </div>
     </div>
 
-    <!-- VIEW 1: GRADE DE VILAS -->
     <div id="view-villages" class="view-section active">
       <div class="village-grid">
         <div class="village-card" onclick="openVillage('konoha', 'Konohagakure')">
@@ -450,26 +448,20 @@
       </div>
     </div>
 
-    <!-- VIEW 2: LISTA DE CLÃS DA VILA SELECIONADA -->
     <div id="view-clans" class="view-section">
       <div class="clan-list-header">
         <button class="btn-back" onclick="backToVillages()">← Voltar</button>
         <h2 class="current-village-title" id="current-village-name">NOME DA VILA</h2>
       </div>
 
-      <!-- RESUMO DOS CLÃS (3 COLUNAS) -->
       <div class="clan-summary active" id="village-summary-box">
         <h3>Resumo dos Clãs</h3>
         <div class="summary-grid" id="village-summary-grid">
-          <!-- Links inseridos via JS dinamicamente -->
-        </div>
+          </div>
       </div>
 
       <div class="clan-list" id="clan-list-container">
         
-        <!-- ========================================================================= -->
-        <!-- KONOHAGAKURE (13 Clãs) -->
-        <!-- ========================================================================= -->
         <div class="clan-card clan-item" id="clan-aburame" data-village="konoha" data-name="Aburame">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Aburame_img</span></div>
           <div class="clan-card-content">
@@ -652,46 +644,57 @@
           </div>
         </div>
 
-        <!-- ========================================================================= -->
-        <!-- SUNAGAKURE (6 Clãs) -->
-        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-kazekage" data-village="suna" data-name="Kazekage">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kazekage_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kazekage</h3>
+            <p class="clan-card-desc">Não apresentam características físicas exóticas, possuindo fisionomias comuns. A realeza de Suna, possuidores do Jiton (Magnetismo) para aniquilação em massa.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +30 em Ninjutsu, +20 em Velocidade, +20 em Inteligência, +10 em Selos, +50 em seu Elemento, +50 de Chakra. (Passiva massiva: +40% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Doton (Estilo Terra) ou Fūton (Estilo Vento).</li>
+              <li><strong>Hiden:</strong> Possuem grande autoridade militar e a Kekkei Genkai: Jiton (Liberação de Magnetismo). Controle de Sakin (Pó de Ouro) ou Satetsu (Areia de Ferro).</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KAZEKAGE', 'A Tempestade do Deserto', '★', '', '', 'Nenhum', 'Nenhum', 'Jiton (Magnetismo). Controle de Sakin ou Satetsu.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
         <div class="clan-card clan-item" id="clan-akasuna" data-village="suna" data-name="Akasuna">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Akasuna_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Akasuna</h3>
-            <p class="clan-card-desc">Mestres das marionetes. Transformam corpos caídos em armas letais e controlam venenos com maestria no campo de batalha. Roupas adaptadas para pergaminhos de marionete.</p>
+            <p class="clan-card-desc">Não possuem mutações genéticas ou físicas aparentes atreladas à linhagem, mas seus membros costumam ter as pontas dos dedos calejadas pelo uso contínuo de fios de chakra, e frequentemente carregam pergaminhos de invocação ou as próprias marionetes consigo.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Controle de Marionetes</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Kugutsu no Jutsu (Técnica de Marionetes). Manipulação de venenos avançada.</li>
+              <li><strong>Atributos:</strong> +20 em Inteligência, +20 em Selos, +20 em Velocidade, +20 em Ninjutsu, +50 em Ningeral, +50 de Chakra. (Passiva: +40% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Famosos pelo domínio sobre marionetes no campo de batalha. Iniciam com o Hiden de Fios de Chakra e o item Marionete Rank-E.</li>
             </ul>
             <button class="btn-open-clan" onclick="openClanModal('AKASUNA', 'Mestres de Marionetes', '★', '', '', 'Nenhum', 'Nenhum', 'Kugutsu no Jutsu (Marionetes). Venenos letais e controle remoto de armas vivas.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
-        <div class="clan-card clan-item" id="clan-kazekage" data-village="suna" data-name="Kazekage">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kazekage_img</span></div>
+        <div class="clan-card clan-item" id="clan-hanzou" data-village="suna" data-name="Hanzou">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hanzou_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Linhagem Kazekage</h3>
-            <p class="clan-card-desc">A realeza de Suna. Possuidores do Jiton (Magnetismo), manipulam Areia de Ouro ou Areia de Ferro para aniquilação em massa. Cabelos com tons exóticos (vermelho, ruivo, castanho escuro).</p>
+            <h3 class="clan-card-title">Clã Hanzou</h3>
+            <p class="clan-card-desc">Seus membros costumam utilizar respiradores ou máscaras cobrindo a parte inferior do rosto. Devido ao contato contínuo com toxinas pesadas desde a infância, desenvolvem uma alta tolerância biológica, o que pode lhes conferir uma pele mais pálida e cicatrizes do rigoroso treinamento de imunização.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Jiton (Magnetismo)</li>
-              <li><strong>Elemento:</strong> Jiton (Magnetismo)</li>
-              <li><strong>Hiden:</strong> Manipulação de Areia de Ouro e Areia de Ferro. Controle de magnetismo absoluto.</li>
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +20 em Velocidade, +20 em Resistência, +20 em Taijutsu, +50 no Elemento inicial, +50 de Chakra.</li>
+              <li><strong>Elemento:</strong> Suiton (Estilo Água).</li>
+              <li><strong>Hiden:</strong> Mestres no uso de venenos mortais em combate e na manipulação de gases tóxicos. O clã também possui o pacto de Invocação (Salamandras), concedido por Mérito.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('KAZEKAGE', 'A Tempestade do Deserto', '★', '', '', 'Nenhum', 'Nenhum', 'Jiton (Magnetismo). Aniquilação em massa com areia magnetizada.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('HANZOU', 'A Morte Silenciosa', '★', '', '', 'Nenhum', 'Nenhum', 'Venenos Mortais. Imunidade pessoal e exalação de gases tóxicos.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
         <div class="clan-card clan-item" id="clan-shakuton" data-village="suna" data-name="Shakuton">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Shakuton_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Linhagem Shakuton</h3>
-            <p class="clan-card-desc">Manifestam a liberação do calor escaldante, evaporando os fluidos corporais de seus inimigos em meros segundos. Temperatura corporal muito elevada.</p>
+            <h3 class="clan-card-title">Clã Shakuton</h3>
+            <p class="clan-card-desc">Devido à natureza ardente de seu chakra, os membros deste clã possuem uma temperatura corporal naturalmente mais alta que o comum. Estão perfeitamente adaptados ao calor extremo do deserto e raramente transpiram.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Shakuton (Calor)</li>
-              <li><strong>Elemento:</strong> Shakuton (Calor extremo)</li>
-              <li><strong>Hiden:</strong> Liberação de Calor incandescente. Evaporação instantânea.</li>
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +20 em Velocidade, +20 em Selos, +20 em Resistência, +50 em seu Elemento, +50 de Chakra.</li>
+              <li><strong>Elemento:</strong> Fūton (Estilo Vento) ou Katon (Estilo Fogo).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Shakuton (Estilo Calor). Possuem um poder bélico terrível, com técnicas capazes de evaporar líquidos e desidratar inimigos instantaneamente.</li>
             </ul>
             <button class="btn-open-clan" onclick="openClanModal('SHAKUTON', 'Sol Implacável', '★', '', '', 'Nenhum', 'Nenhum', 'Shakuton (Calor). Desidratação e incinerar alvos instantaneamente.', [])">ABRIR FICHA</button>
           </div>
@@ -701,13 +704,13 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Shira_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Shira</h3>
-            <p class="clan-card-desc">Sem aptidão para ninjutsu, desenvolveram o Método de Respiração dos Sete Paraísos para se igualarem a feras em combate corpo a corpo. Vigorosos e calmos.</p>
+            <p class="clan-card-desc">Não possuem dōjutsus ou poderes mágicos inerentes, mas exibem um físico extremamente polido e calejado. Seus corpos são treinados especificamente para amortecer impactos e anular os ruídos dos próprios movimentos.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Taijutsu extremo</li>
-              <li><strong>Elemento:</strong> Nenhum (foco em respiração e combate corporal)</li>
-              <li><strong>Hiden:</strong> Sete Respirações Celestiais. Transformação em besta pura.</li>
+              <li><strong>Atributos:</strong> +25 em Força, +25 em Velocidade, +20 em Taijutsu, +10 em Resistência, +50 de Estamina/Chakra. (Passiva gigantesca: +50% adicional em Chakra/Estamina).</li>
+              <li><strong>Elemento:</strong> Nenhuma (Focados 100% no combate físico e controle de energia interna).</li>
+              <li><strong>Hiden:</strong> Muon no Ken (Punho Silencioso). Praticam uma arte marcial letal e imperceptível, além de possuírem métodos próprios de superação de limites corporais (Sete Suspiros).</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('SHIRA', 'O Vento Silencioso', '★', '', '', 'Nenhum', 'Nenhum', 'Sete Respirações Celestiais. Técnica corporal sem ninjutsu.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('SHIRA', 'O Vento Silencioso', '★', '', '', 'Nenhum', 'Nenhum', 'Sete Respirações Celestiais e Punho Silencioso. Técnica corporal sem ninjutsu.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
@@ -715,42 +718,25 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yome_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Yome</h3>
-            <p class="clan-card-desc">Rastreadores natos. Dilatam suas pupilas para captar reflexos da luz em gotículas d'água no ar e observar milhas de distância. Olhos extremamente adaptativos à luz.</p>
+            <p class="clan-card-desc">Possuem olhos singulares, muitas vezes com pupilas incrivelmente dilatadas e reflexivas. Esses olhos se adaptam rapidamente a ambientes escuros e são capazes de captar minúsculas alterações no ambiente (como o reflexo da luz em gotículas de água).</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Percepção Visual</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Rastreamento Ótico. Visão de longa distância através de reflexos de luz.</li>
+              <li><strong>Atributos:</strong> +30 em Velocidade, +20 em Taijutsu, +20 em Selos, +10 em Força, +50 em Ningeral, +50 de Chakra.</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Yome (Olho Noturno). Especialistas incomparáveis em missões de rastreamento, reconhecimento e assassinatos noturnos devido à sua acuidade visual extrema.</li>
             </ul>
             <button class="btn-open-clan" onclick="openClanModal('YOME', 'Olhos do Oásis', '★', '', '', 'Nenhum', 'Nenhum', 'Rastreamento Ótico. Visão de alcance extremo.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
-        <div class="clan-card clan-item" id="clan-hanzou" data-village="suna" data-name="Hanzou">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hanzou_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Herança Hanzou</h3>
-            <p class="clan-card-desc">Implantam veneno puro em seus próprios corpos. Podem exalar gases tóxicos e sobreviver em ambientes contaminados. Máscaras respiratórias, marcas cirúrgicas nos lados do tronco.</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Toxinas</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Venenos Mortais. Resistência a toxinas e produção de gases venenosos.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('HANZOU', 'A Morte Silenciosa', '★', '', '', 'Nenhum', 'Nenhum', 'Venenos Mortais. Imunidade pessoal e exalação de gases tóxicos.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <!-- ========================================================================= -->
-        <!-- KIRIGAKURE (9 Clãs) -->
-        <!-- ========================================================================= -->
         <div class="clan-card clan-item" id="clan-hoshigaki" data-village="kiri" data-name="Hoshigaki">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hoshigaki_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Hoshigaki</h3>
-            <p class="clan-card-desc">Predadores formidáveis. Possuem guelras, pele texturizada e reservas monstruosas de chakra, assemelhando-se a tubarões. Pele cinza/azulada, dentes pontiagudos e guelras no rosto/ombros.</p>
+            <p class="clan-card-desc">Possuem aparência intimidadora com dentes afiados, olhos selvagens e traços corporais que lembram tubarões, incluindo pele com tons azulados ou acinzentados e guelras.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Suiton e absorção de chakra</li>
-              <li><strong>Elemento:</strong> Suiton (Água)</li>
-              <li><strong>Hiden:</strong> Absorção de Chakra. Suiton avançado e operação aquática.</li>
+              <li><strong>Atributos:</strong> +30 em Força, +20 em Ninjutsu, +20 em Resistência, +5 em Inteligência, +5 em Velocidade, +50 no Elemento inicial, +50 de Chakra. (Passiva: +60% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Suiton (Estilo Água).</li>
+              <li><strong>Hiden:</strong> Brutalidade em combate corpo a corpo e pacto de Invocação de Tubarões (por merecimento).</li>
             </ul>
             <button class="btn-open-clan" onclick="openClanModal('HOSHIGAKI', 'O Predador Abissal', '★', '', '', 'Nenhum', 'Nenhum', 'Absorção de Chakra, Suiton avançado. Respiração aquática e regeneração.', [])">ABRIR FICHA</button>
           </div>
@@ -759,14 +745,14 @@
         <div class="clan-card clan-item" id="clan-hozuki" data-village="kiri" data-name="Hozuki">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Hozuki_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Hozuki</h3>
-            <p class="clan-card-desc">Seus corpos podem se dissolver inteiramente em água (Suika no Jutsu), anulando ataques contundentes e armas brancas. Corpo fluido e cabelos geralmente brancos/claros. Precisa se hidratar constantemente.</p>
+            <h3 class="clan-card-title">Clã Hōzuki</h3>
+            <p class="clan-card-desc">Fisionomia comum, mas a maioria possui dentes pontiagudos; precisam de constante hidratação devido à sua natureza corporal que lhes permite anular ataques físicos transformando-se em líquido.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Suika no Jutsu</li>
-              <li><strong>Elemento:</strong> Suiton (Água)</li>
-              <li><strong>Hiden:</strong> Suika no Jutsu (Hidratação). Corpo líquido e invulnerabilidade física.</li>
+              <li><strong>Atributos:</strong> +30 em Ninjutsu, +20 em Velocidade, +10 em Selos, +10 em Força, +10 em Resistência, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Suiton (Estilo Água).</li>
+              <li><strong>Hiden:</strong> Suika no Jutsu (Técnica de Hidratação), que permite transformar o corpo em água.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('HOZUKI', 'Corpo Fluido', '★', '', '', 'Nenhum', 'Nenhum', 'Suika no Jutsu (Hidratação). Transformação em água líquida.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('HŌZUKI', 'Corpo Fluido', '★', '', '', 'Nenhum', 'Nenhum', 'Suika no Jutsu (Hidratação). Transformação em água líquida.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
@@ -774,11 +760,11 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kaguya_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Kaguya</h3>
-            <p class="clan-card-desc">Um clã bárbaro de sede por sangue, portadores do Shikotsumyaku, manipulando o próprio esqueleto para atacar e defender. Marcas circulares na testa, pele pálida.</p>
+            <p class="clan-card-desc">Corpos densos e resistentes, frequentemente com marcas tribais (como dois pontos na testa) e cabelos divididos ao meio. Um clã bárbaro com sede de sangue.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Shikotsumyaku</li>
-              <li><strong>Elemento:</strong> Ninjutsu (foco em ossos)</li>
-              <li><strong>Hiden:</strong> Shikotsumyaku (Ossos). Manipulação esquelética e cristalização óssea.</li>
+              <li><strong>Atributos:</strong> +20 em Força, +20 em Taijutsu, +20 em Resistência, +20 em Inteligência, +50 Ningeral, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Shikotsumyaku (Veia Óssea do Cadáver), permitindo manipular a própria estrutura óssea como arma.</li>
             </ul>
             <button class="btn-open-clan" onclick="openClanModal('KAGUYA', 'Guerreiros de Osso', '★', '', '', 'Nenhum', 'Governo de Kiri (Rebeldia)', 'Shikotsumyaku (Ossos). Armas ósseas retráteis e defesa de esqueleto blindado.', [])">ABRIR FICHA</button>
           </div>
@@ -787,14 +773,14 @@
         <div class="clan-card clan-item" id="clan-terumi" data-village="kiri" data-name="Terumi">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Terumi_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Terumi</h3>
-            <p class="clan-card-desc">Prodígios monstruosos possuidores de não apenas uma, mas duas Kekkei Genkai destrutivas: Yōton (Lava) e Futton (Fervura). Belos traços, cabelos geralmente avermelhados/castanhos.</p>
+            <h3 class="clan-card-title">Clã Terumī</h3>
+            <p class="clan-card-desc">Aparência refinada, elegante e calculista. Prodígios monstruosos possuidores de não apenas uma, mas duas Kekkei Genkai destrutivas na Névoa.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Futton e Youton</li>
-              <li><strong>Elemento:</strong> Futton (Fervura) e Youton (Lava)</li>
-              <li><strong>Hiden:</strong> Futton e Youton. Duas Kekkei Genkai destrutivas combinadas.</li>
+              <li><strong>Atributos:</strong> +20 em Força, +20 em Ninjutsu, +20 em Selos, +20 em Inteligência, +50 no Elemento inicial, +50 de Chakra. (Passiva: +40% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Suiton (Água), Doton (Terra) ou Katon (Fogo).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Yōton (Estilo Dissolução) ou Futton (Estilo Ebulição).</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('TERUMI', 'Fervura e Lava', '★', '', '', 'Nenhum', 'Nenhum', 'Futton e Youton. Fusão de lava e vapor em destruição catastrófica.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('TERUMĪ', 'Fervura e Lava', '★', '', '', 'Nenhum', 'Nenhum', 'Futton e Youton. Fusão de lava e vapor em destruição catastrófica.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
@@ -802,11 +788,11 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yuki_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Yuki</h3>
-            <p class="clan-card-desc">Foram caçados na Névoa por seu poder assustador. Dominam o Hyōton (Gelo), criando espelhos congelados em combate. Pele pálida, traços delicados, andróginos.</p>
+            <p class="clan-card-desc">Traços delicados e pele muito pálida; muitos exibem uma expressão cautelosa ou melancólica. Historicamente caçados por seu poder congelante assustador.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Hyōton</li>
-              <li><strong>Elemento:</strong> Hyōton (Gelo)</li>
-              <li><strong>Hiden:</strong> Hyouton (Gelo). Espelhos de gelo e ambiente congelado.</li>
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +20 em Velocidade, +10 em Força, +20 em Selos, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Suiton (Água) ou Fūton (Vento).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Hyōton (Estilo Gelo), que combina água e vento.</li>
             </ul>
             <button class="btn-open-clan" onclick="openClanModal('YUKI', 'Cristais de Neve', '★', '', '', 'Nenhum', 'Governo Antigo de Kiri', 'Hyouton (Gelo). Espelhos congelados e manipulação de temperatura.', [])">ABRIR FICHA</button>
           </div>
@@ -815,12 +801,12 @@
         <div class="clan-card clan-item" id="clan-utakata" data-village="kiri" data-name="Utakata">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Utakata_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Herança Utakata</h3>
-            <p class="clan-card-desc">Focam no estilo elegante porém letal de Ninjutsu de Bolhas de Sabão, que explodem ou aprisionam alvos. Elegantes, sempre portando tubos/canudos para as bolhas.</p>
+            <h3 class="clan-card-title">Clã Utakata</h3>
+            <p class="clan-card-desc">Aparência serena e reservada, geralmente portando acessórios como a flauta de bolhas. Especialistas em aprisionamento e ataques furtivos belos, mas letais.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Bolhas</li>
-              <li><strong>Elemento:</strong> Suiton (Água)</li>
-              <li><strong>Hiden:</strong> Ninjutsu de Bolhas. Bolhas explosivas e aprisionadoras.</li>
+              <li><strong>Atributos:</strong> +30 em Ninjutsu, +20 em Velocidade, +20 em Selos, +10 em Força, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Suiton (Estilo Água).</li>
+              <li><strong>Hiden:</strong> Especialistas na técnica Suiton: Hōmatsu no Jutsu (Estilo Água: Técnica de Bolhas) e iniciam com o item Flauta de bolhas.</li>
             </ul>
             <button class="btn-open-clan" onclick="openClanModal('UTAKATA', 'Estouro Fugaz', '★', '', '', 'Nenhum', 'Nenhum', 'Ninjutsu de Bolhas. Explosões de bolhas e aprisionamento aquático.', [])">ABRIR FICHA</button>
           </div>
@@ -829,73 +815,42 @@
         <div class="clan-card clan-item" id="clan-akagan" data-village="kiri" data-name="Akagan">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Akagan_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Akagan (Chinoike)</h3>
-            <p class="clan-card-desc">Originários de outra terra mas escondidos na Névoa, portam o Ketsuryūgan, um genjutsu sangrento poderoso. Olhos vermelho-sangue intensos.</p>
+            <h3 class="clan-card-title">Clã Akagan</h3>
+            <p class="clan-card-desc">Posturas contidas e silenciosas; seus olhos tornam-se vermelhos ao ativar sua habilidade ocular incomparável.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Ketsuryūgan</li>
-              <li><strong>Elemento:</strong> Genjutsu (Sangue)</li>
-              <li><strong>Hiden:</strong> Ketsuryugan. Genjutsu de sangue e ilusões sangrentas.</li>
+              <li><strong>Atributos:</strong> +10 em Força, +20 em Velocidade, +10 em Inteligência, +20 em Ninjutsu, +10 em Resistência, +10 em Genjutsu, +50 Ningeral, +50 de Chakra.</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Akagan, que concede visão excepcional, permitindo ver através de obstáculos e rastrear chakra à distância.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('AKAGAN', 'Olho de Sangue', '★', '', '', 'Nenhum', 'Uchiha', 'Ketsuryugan. Genjutsu baseado em sangue e hemomancia.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('AKAGAN', 'Visão Penetrante', '★', '', '', 'Nenhum', 'Nenhum', 'Kekkei Genkai: Akagan. Visão que penetra obstáculos e rastreia chakra.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
         <div class="clan-card clan-item" id="clan-suikasan" data-village="kiri" data-name="Suikasan">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Suikasan_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Suikasan</h3>
-            <p class="clan-card-desc">Focados em brutalidade corporal e táticas covardes usando o ocultamento perfeito e cabelos como arma pontiaguda. Muito altos e robustos, cabelos laranjas/compridos.</p>
+            <h3 class="clan-card-title">Clã Suikazan</h3>
+            <p class="clan-card-desc">Desenvolveram controle preciso sobre fios capilares; seus cabelos são longos, densos e resistentes, funcionando como extensões vivas do corpo e lâminas mortais.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Taijutsu e manipulação capilar</li>
-              <li><strong>Elemento:</strong> Ninjutsu</li>
-              <li><strong>Hiden:</strong> Kenjutsu e Manipulação Capilar. Cabelos como arma letal.</li>
+              <li><strong>Atributos:</strong> +30 em Ninjutsu, +10 em Velocidade, +20 em Força, +20 em Resistência, +50 no Elemento inicial, +50 de Chakra. (Passiva: +35% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Manipulação Capilar (Kamisōjūjutsu), técnica secreta que transforma o cabelo em arma branca.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('SUIKASAN', 'As Agulhas Capilares', '★', '', '', 'Nenhum', 'Nenhum', 'Kenjutsu e Manipulação Capilar. Cabelos duros como aço.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('SUIKAZAN', 'As Agulhas Capilares', '★', '', '', 'Nenhum', 'Nenhum', 'Kenjutsu e Manipulação Capilar. Cabelos duros como aço e táticas ocultas.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
-        <!-- ========================================================================= -->
-        <!-- KUMOGAKURE (8 Clãs) -->
-        <!-- ========================================================================= -->
         <div class="clan-card clan-item" id="clan-yotsuki" data-village="kumo" data-name="Yotsuki">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yotsuki_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Yotsuki</h3>
-            <p class="clan-card-desc">Um dos mais respeitados clãs de Kumo, fiéis aliados do Raikage. Nunca revelam segredos a inimigos, mesmo sob tortura. Pele escura, fortes e musculosos.</p>
+            <h3 class="clan-card-title">Clã Yotsuki (Linhagem Arashi)</h3>
+            <p class="clan-card-desc">Fiéis ao líder da vila, possuem uma postura militar rígida e ocupam tradicionalmente cargos de liderança na força policial. São reconhecidos mundialmente por sua maestria técnica e lealdade imutável.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Raiton</li>
-              <li><strong>Elemento:</strong> Raiton (Relâmpago)</li>
-              <li><strong>Hiden:</strong> Raiton Avançado. Lealdade absoluta ao Raikage.</li>
+              <li><strong>Atributos:</strong> +30 em Ninjutsu, +20 em Força, +20 em Velocidade, +10 em Resistência, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Raiton (Estilo Raio) ou Suiton (Estilo Água).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Ranton (Estilo Tempestade). Famosos também por sua maestria no Kenjutsu.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('YOTSUKI', 'Lealdade Eterna', '★', '', '', 'Clã do Raikage', 'Nenhum', 'Raiton Avançado. Técnicas de relâmpago puro.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-chinoike-kumo" data-village="kumo" data-name="Chinoike">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Chinoike_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Chinoike (Vale do Inferno)</h3>
-            <p class="clan-card-desc">Antigos residentes do País do Relâmpago exilados no Vale do Inferno. Mestres do Ketsuryūgan e ilusões sangrentas. Olhos vermelhos brilhantes, estatura menor.</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Ketsuryūgan</li>
-              <li><strong>Elemento:</strong> Genjutsu (Sangue)</li>
-              <li><strong>Hiden:</strong> Ketsuryūgan. Ilusões sangrentas e genjutsu hemomântico.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('CHINOIKE', 'A Névoa de Sangue', '★', '', '', 'Nenhum', 'Uchiha', 'Ketsuryūgan. Manipulação de sangue e ilusões especializadas.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-jugo" data-village="kumo" data-name="Jugo">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Jugo_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Linhagem Jugo</h3>
-            <p class="clan-card-desc">Aptos a absorver energia natural passivamente. Isso lhes dá força insana (Modo Sábio Imperfeito), mas também fúria assassina. Corpo que sofre mutações monstruosas quando enfurecido.</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Modo Sábio</li>
-              <li><strong>Elemento:</strong> Senjutsu (Energia Natural)</li>
-              <li><strong>Hiden:</strong> Transformação Sábia. Absorção de energia natural.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('JUGO', 'Sábios da Fúria', '★', '', '', 'Nenhum', 'Eles mesmos (quando em fúria)', 'Transformação Sábia. Modo Sábio imperfeito e força bestial.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('YOTSUKI', 'Lealdade Eterna', '★', '', '', 'Clã do Raikage', 'Nenhum', 'Ranton (Tempestade) e Kenjutsu de elite.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
@@ -903,13 +858,41 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kanji_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Kanji</h3>
-            <p class="clan-card-desc">Operadores táticos e seladores, essenciais para o transporte de pergaminhos e tesouros de Kumogakure. Tatuagens de selamento espalhadas pelo corpo.</p>
+            <p class="clan-card-desc">Destacam-se pela força bruta e resistência notável. Possuem uma forte ligação histórica com o comando militar de Purazumagakure (Kumo).</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Selamento</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Fuinjutsu. Selamento de alto nível.</li>
+              <li><strong>Atributos:</strong> +30 em Força, +30 em Resistência, +20 em Velocidade, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Raiton (Estilo Raio).</li>
+              <li><strong>Hiden:</strong> Especialistas em combinar força física com o Estilo Raio, atuando como a vanguarda militar da vila.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('KANJI', 'Selos Eletrizantes', '★', '', '', 'Nenhum', 'Nenhum', 'Fuinjutsu. Selos de poder extremo e armazenamento interdimensional.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('KANJI', 'Vanguarda Eletrizante', '★', '', '', 'Nenhum', 'Nenhum', 'Combinação brutal de força física extrema com Raiton.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-toroi" data-village="kumo" data-name="Toroi">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Toroi_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Toroi</h3>
+            <p class="clan-card-desc">Originados em vilas cercadas por cavernas metálicas, possuem uma estética funcional, muitas vezes carregando equipamentos de metal especializados e grandes shurikens.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +20 em Resistência, +20 em Força, +20 em Velocidade, +20 em Shurikenjutsu, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Doton (Estilo Terra) ou Fūton (Estilo Vento).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Jiton (Liberação de Magnetismo - Foco em Shuriken). Oponentes viram ímãs vivos ao serem atingidos.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('TOROI', 'Atração Mortal', '★', '', '', 'Nenhum', 'Nenhum', 'Jiton aplicado a Shurikens. Alvos magnetizados atraem ataques.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-chinoike-kumo" data-village="kumo" data-name="Chinoike">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Chinoike_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Chinoike</h3>
+            <p class="clan-card-desc">Olhos de um vermelho carmesim intenso, uma mutação que os distingue prontamente de outros clãs. Exilados no passado, trazem consigo manipulações sinistras.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +30 em Genjutsu, +20 em Ninjutsu, +10 em Força, +20 em Velocidade, +50 em seu elemento, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Suiton (Estilo Água).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Ketsuryūgan (Olho do Dragão de Sangue). Permite controlar fluidos ricos em ferro (como o sangue).</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('CHINOIKE', 'A Névoa de Sangue', '★', '', '', 'Nenhum', 'Uchiha', 'Ketsuryūgan. Manipulação de sangue e ilusões hemomânticas.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
@@ -917,41 +900,13 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Karyu_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Karyū</h3>
-            <p class="clan-card-desc">Conseguem materializar o relâmpago de forma tão densa que cria formas de dragões e criaturas, usando o Raiton como armamento ofensivo contínuo. Cabelos espetados, frequentemente azuis ou amarelos.</p>
+            <p class="clan-card-desc">Fisionomia vigorosa, muitas vezes associada à energia ígnea de sua linhagem. Especialistas em manipular as altas temperaturas em formas devastadoras.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Modelagem Raiton</li>
-              <li><strong>Elemento:</strong> Raiton (Relâmpago)</li>
-              <li><strong>Hiden:</strong> Modelagem Raiton. Criação de dragões de relâmpago.</li>
+              <li><strong>Atributos:</strong> +30 em Ninjutsu, +20 em Inteligência, +10 em Resistência, +20 em Velocidade, +50 no Elemento inicial, +50 de Chakra.</li>
+              <li><strong>Elemento:</strong> Katon (Estilo Fogo), Suiton (Estilo Água) ou Doton (Estilo Terra).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Yōton (Estilo Fusão - Borracha/Lava).</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('KARYŪ', 'Dragões do Trovão', '★', '', '', 'Nenhum', 'Nenhum', 'Modelagem Raiton. Invocação de dragões elétricos sólidos.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-kurama-kumo" data-village="kumo" data-name="Kurama">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kurama_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Kurama (Kumo)</h3>
-            <p class="clan-card-desc">Ramo diplomático que emigrou de Konoha. Usam o clarão do Raiton para induzir inimigos instantaneamente em seus Genjutsus. Pálidos, veste padrão de Kumo.</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Genjutsu</li>
-              <li><strong>Elemento:</strong> Raiton (para gatilho de genjutsu)</li>
-              <li><strong>Hiden:</strong> Genjutsu Neural e Ótico. Clarão relâmpago como gatilho.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('KURAMA', 'Clarão Enganoso', '★', '', '', 'Kurama (Konoha)', 'Nenhum', 'Genjutsu Neural e Ótico. Ilusões instantâneas via clarão.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-toroi" data-village="kumo" data-name="Toroi">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Toroi_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Herança Toroi</h3>
-            <p class="clan-card-desc">Guerreiros robustos que portam o Jiton (Magnetismo). Eles magnetizam armas, garantindo que o próximo ataque nunca erre o inimigo marcado. Olhos intensos, geralmente carregam shurikens quadradas enormes.</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Jiton</li>
-              <li><strong>Elemento:</strong> Jiton (Magnetismo)</li>
-              <li><strong>Hiden:</strong> Jiton. Magnetização de armas e controle de metal.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('TOROI', 'Atração Mortal', '★', '', '', 'Nenhum', 'Nenhum', 'Jiton. Magnetismo absoluto e armas homing.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('KARYŪ', 'Fluxo Incandescente', '★', '', '', 'Nenhum', 'Nenhum', 'Yōton (Borracha/Lava). Maestria em jutsus de alta temperatura.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
@@ -959,114 +914,112 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Yomi_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Yomi</h3>
-            <p class="clan-card-desc">Envoltos em mistério, lidam com jutsu médico sombrio e reanimação neural. Suas técnicas manipulam fluidos corporais escuros. Olhos obscuros, marcas roxas abaixo dos olhos.</p>
+            <p class="clan-card-desc">Marcados pela linhagem de seguidores de Mōryō, possuem uma aura sombria e uma conexão profunda com energias proibidas e obscuras.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Jutsu Médico Sombrio</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Jutsu Médico Sombrio. Reanimação e manipulação neural.</li>
+              <li><strong>Limitações:</strong> Reserva máxima de 7.000 de Chakra. Bônus Adicional: +2.000 Vitalidade/patente.</li>
+              <li><strong>Atributos:</strong> +30 Ninjutsu, +50 Taijutsu, +50 Velocidade, +50 Resistência, +20 Fuinjutsu, +80 Chakra, +50 Elemento inicial (+10 em todos 5).</li>
+              <li><strong>Elemento:</strong> Doton, Suiton, Fūton, Katon, Raiton.</li>
+              <li><strong>Hiden:</strong> Chakra Escuro. Demonic Illusion: Permanece vivo com até 2.000 vitalidade negativa. Jutsus impossíveis de copiar pelo Sharingan.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('YOMI', 'Servos da Sombra', '★', '', '', 'Nenhum', 'Nenhum', 'Jutsu Médico Sombrio. Reanimação de cadáveres.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('YOMI', 'Servos da Sombra', '★', '', '', 'Nenhum', 'Nenhum', 'Chakra Escuro e Vitalidade Monstruosa. Imunes à cópia do Sharingan.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
-        <!-- ========================================================================= -->
-        <!-- IWAGAKURE (8 Clãs) -->
-        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-jugo" data-village="kumo" data-name="Jugo">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Jugo_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Jugo</h3>
+            <p class="clan-card-desc">Instáveis e fisicamente robustos; sua pele e estrutura podem alterar-se drasticamente ao ativar sua habilidade, desenvolvendo apêndices, foices ou revestimentos naturais monstruosos.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +30 em Resistência, +30 em Força, +20 em Velocidade, +50 em Ningeral, +50 de Chakra. (Passiva: +60% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Senninka (Transformação Sábia). Absorvem energia natural passivamente para mutações de combate.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('JUGO', 'Sábios da Fúria', '★', '', '', 'Nenhum', 'Eles mesmos (quando em fúria)', 'Transformação Sábia. Absorção constante de energia natural gerando mutações.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-kurama-kumo" data-village="kumo" data-name="Kurama">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kurama_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kurama</h3>
+            <p class="clan-card-desc">Fisionomia comum, porém carregam o peso de uma linhagem marcada pela instabilidade emocional ou física. O despertar de sua Kekkei Genkai ocorre apenas a cada 2 gerações.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +20 em Genjutsu, +20 em Inteligência, +20 em Selos, +20 em Ninjutsu, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional de Chakra).</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Genjutsu de Materialização. Torna Genjutsus reais, causando danos físicos ao corpo real apenas através da mente.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KURAMA', 'Ilusão Materializada', '★', '', '', 'Nenhum', 'Nenhum', 'Genjutsu Neural que materializa danos na mente do alvo refletindo no corpo físico.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
         <div class="clan-card clan-item" id="clan-ameyuki" data-village="iwa" data-name="Ameyuki">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Ameyuki_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Ameyuki</h3>
-            <p class="clan-card-desc">Operários fundamentais da fundação de Iwa, eles endurecem seus corpos como diamantes e manipulam a rocha com as próprias mãos. Corpos brutos, muitas vezes não usam camisas.</p>
+            <p class="clan-card-desc">Aparência constantemente enlameada, vistos como figuras solitárias de estética grotesca. Mestres da lama e detritos que transformam o campo de batalha a seu favor.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Doton e defesa corporal</li>
-              <li><strong>Elemento:</strong> Doton (Terra)</li>
-              <li><strong>Hiden:</strong> Doton Corpo de Aço. Endurecimento diamantino.</li>
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +20 em Selos, +20 em Inteligência, +20 em Resistência, +50 no Elemento Inicial, +50 de Chakra. (Passiva: +20% adicional passivo em Chakra).</li>
+              <li><strong>Elemento:</strong> Doton (Estilo Terra) ou Suiton (Estilo Água).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Deiton (Estilo Lama).</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('AMEYUKI', 'A Muralha Pessoal', '★', '', '', 'Nenhum', 'Nenhum', 'Doton Corpo de Aço. Corpo blindado de diamante.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-katsu" data-village="iwa" data-name="Katsu">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Katsu_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Linhagem Katsu</h3>
-            <p class="clan-card-desc">Mestres do Bakuton (Explosão). Combinam Doton e Raiton para infundir chakra em argila e causar atentados em grande escala. Bocas adicionais nas palmas das mãos e no peito (opcional).</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Bakuton</li>
-              <li><strong>Elemento:</strong> Bakuton (Explosão)</li>
-              <li><strong>Hiden:</strong> Bakuton. Fusão de Doton e Raiton em explosões catastóficas.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('KATSU', 'A Arte é a Explosão', '★', '', '', 'Nenhum', 'Nenhum', 'Bakuton. Explosões de argila e detonação de escala massiva.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-kamizuru" data-village="iwa" data-name="Kamizuru">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kamizuru_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Kamizuru</h3>
-            <p class="clan-card-desc">Especialistas no uso de abelhas gigantes. Já foram rivais do Clã Aburame, buscando restaurar sua glória na Pedra. Roupas amarelas/listradas (padrões de abelha).</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Manipulação de Abelhas</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Manipulação de Abelhas. Enxames ofensivos gigantes.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('KAMIZURU', 'O Enxame da Pedra', '★', '', '', 'Nenhum', 'Aburame', 'Manipulação de Abelhas. Enxames tóxicos gigantes.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('AMEYUKI', 'A Muralha de Lama', '★', '', '', 'Nenhum', 'Nenhum', 'Deiton (Lama). Manipulação versátil de lama para sufocamento e defesa.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
         <div class="clan-card clan-item" id="clan-mu" data-village="iwa" data-name="Mu">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Mu_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Herança Mū</h3>
-            <p class="clan-card-desc">Secreta e letal. Dominam as três naturezas base (Doton, Katon, Futon) para criar a Poeira (Jinton), desintegrando alvos instantaneamente. Costumam usar faixas cobrindo o corpo inteiro (múmias).</p>
+            <h3 class="clan-card-title">Clã Mū</h3>
+            <p class="clan-card-desc">Disciplinados e frios, mantendo certa distância estratégica do restante da vila. Detentores da temível arte de desintegração total que varre exércitos inteiros.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Jinton</li>
-              <li><strong>Elemento:</strong> Jinton (Poeira)</li>
-              <li><strong>Hiden:</strong> Jinton (Poeira). Fusão de três elementos em desintegração.</li>
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +20 em Velocidade, +20 em Resistência, +20 em Inteligência, +50 no Elemento inicial, +50 de Chakra. (Passiva: +20% adicional passivo em Chakra).</li>
+              <li><strong>Elemento:</strong> Doton (Estilo Terra), Fūton (Estilo Vento) ou Katon (Estilo Fogo).</li>
+              <li><strong>Hiden:</strong> Kekkei Tōta: Jinton (Estilo Partícula). Desintegração de nível molecular.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('MŪ', 'A Desintegração', '★', '', '', 'Nenhum', 'Nenhum', 'Jinton (Poeira). Desintegração molecular de matéria.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-origami" data-village="iwa" data-name="Origami">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Origami_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Herança Origami</h3>
-            <p class="clan-card-desc">Podem infundir seu chakra no papel. Esse material, uma vez seco com Doton, ganha rigidez e filo igual a lâminas de metal. Acessórios e dobraduras de papel na roupa.</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Manipulação de Papel</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Shikigami no Mai. Papel como arma letal.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('ORIGAMI', 'Lâminas Brancas', '★', '', '', 'Nenhum', 'Nenhum', 'Shikigami no Mai. Papel de metal e asas voadoras.', [])">ABRIR FICHA</button>
-          </div>
-        </div>
-
-        <div class="clan-card clan-item" id="clan-guren" data-village="iwa" data-name="Guren">
-          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Guren_img</span></div>
-          <div class="clan-card-content">
-            <h3 class="clan-card-title">Herança Guren</h3>
-            <p class="clan-card-desc">Transmutam a matéria ao redor (e o corpo dos inimigos) em Cristal indestrutível (Shōton) através de ninjutsus altamente reflexivos. Visual limpo, geralmente vestem verde e vermelho.</p>
-            <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Shōton</li>
-              <li><strong>Elemento:</strong> Shōton (Cristal)</li>
-              <li><strong>Hiden:</strong> Shōton (Cristal). Transmutação em cristal indestrutível.</li>
-            </ul>
-            <button class="btn-open-clan" onclick="openClanModal('GUREN', 'O Brilho Indestrutível', '★', '', '', 'Nenhum', 'Nenhum', 'Shōton (Cristal). Transformação em cristal e espelhos reflexivos.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('MŪ', 'A Desintegração', '★', '', '', 'Nenhum', 'Nenhum', 'Jinton (Poeira). Elimina a estrutura atômica dos alvos com esferas e cones luminosos.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
         <div class="clan-card clan-item" id="clan-tsushi" data-village="iwa" data-name="Tsushi">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Tsushi_img</span></div>
           <div class="clan-card-content">
-            <h3 class="clan-card-title">Clã Tsushi</h3>
-            <p class="clan-card-desc">Caçadores que se utilizam de Meisaigakure. Controlam as refrações de luz nas pedras para ficar totalmente invisíveis e apagar seus cheiros. Discretos, poucas roupas com metal para não fazer ruído.</p>
+            <h3 class="clan-card-title">Clã Tsuchi</h3>
+            <p class="clan-card-desc">Imprevisíveis e difíceis de conter, originários das terras profundas e secas. Criam nuvens de destruição calcinante com extrema proficiência.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Camuflagem</li>
-              <li><strong>Elemento:</strong> Ningeral</li>
-              <li><strong>Hiden:</strong> Camuflagem Ótica. Invisibilidade perfeita via refração.</li>
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +20 em Inteligência, +20 em Selos, +20 em Velocidade, +50 no Elemento inicial, +50 de Chakra. (Passiva: +25% adicional passivo em Chakra).</li>
+              <li><strong>Elemento:</strong> Doton (Estilo Terra), Suiton (Estilo Água) ou Katon (Estilo Fogo).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Yōton (Estilo Fusão): Pó de Cal e Cinzas.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('TSUSHI', 'Assassinos Invisíveis', '★', '', '', 'Nenhum', 'Nenhum', 'Camuflagem Ótica. Invisibilidade perfeita e ausência de cheiro.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('TSUCHI', 'Pó Corrosivo', '★', '', '', 'Nenhum', 'Nenhum', 'Yōton - Cal e Cinzas. Jutsus expansivos e cáusticos que corroem adversários.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-katsu" data-village="iwa" data-name="Katsu">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Katsu_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Katsu</h3>
+            <p class="clan-card-desc">Mercenários do caos que cultivam um prazer doentio em ver tudo ao redor ruir em estilhaços. A verdadeira arte em suas mentes é o estrondo letal no campo de batalha.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +10 em Força, +10 em Inteligência, +20 em Resistência, +20 em Velocidade, +50 no Elemento inicial, +50 de Chakra. (Passiva: +50% adicional passivo em Chakra).</li>
+              <li><strong>Elemento:</strong> Doton (Estilo Terra) ou Katon (Estilo Fogo).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Bakuton (Estilo Explosão). Infusão de chakra detonante.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KATSU', 'A Arte é a Explosão', '★', '', '', 'Nenhum', 'Nenhum', 'Bakuton. Especialistas em destruição em massa com infusão explosiva.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-origami" data-village="iwa" data-name="Origami">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Origami_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Origami</h3>
+            <p class="clan-card-desc">Grupo discreto, silencioso e de natureza reclusa, com movimentos elegantes no combate. Infundem chakra letal em objetos aparentemente inofensivos e frágeis.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +20 em Inteligência, +20 em Velocidade, +20 em Selos, +20 em Ninjutsu, +50 em Ningeral, +50 de Chakra. (Passiva: +30% adicional passivo em Chakra).</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Shikigami no Mai (Dança do Shikigami). O papel adquire a resistência e capacidade de corte do aço puro.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('ORIGAMI', 'Lâminas Brancas', '★', '', '', 'Nenhum', 'Nenhum', 'Shikigami no Mai. Dança defensiva e ofensiva com folhas manipuladas e explosivas.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
@@ -1074,19 +1027,45 @@
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Iburi_img</span></div>
           <div class="clan-card-content">
             <h3 class="clan-card-title">Clã Iburi</h3>
-            <p class="clan-card-desc">Possuem o trágico dom de converter seus corpos em fumaça pura. São invulneráveis na forma de gás, mas um forte vento pode matá-los acidentalmente. Pele levemente cinzenta, tosse constante ou necessidade de viver em cavernas sem vento.</p>
+            <p class="clan-card-desc">Especialistas com a rara e perigosa capacidade de transformar seus próprios corpos e manipular fumaça, muitas vezes tornando-se fantasmas letais imunes a golpes contundentes.</p>
             <ul class="clan-card-bullets">
-              <li><strong>Atributos:</strong> Atributos especializados em Transformação Gasosa</li>
-              <li><strong>Elemento:</strong> Katon (para geração de fumaça)</li>
-              <li><strong>Hiden:</strong> Transformação em Fumaça. Invulnerabilidade em forma gasosa.</li>
+              <li><strong>Atributos:</strong> 80 pontos livres para distribuir entre os atributos.</li>
+              <li><strong>Passiva:</strong> Não possui.</li>
+              <li><strong>Elemento:</strong> Livre.</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Manipulação de Fumaça. Alteração completa de matéria sólida para forma gasosa.</li>
             </ul>
-            <button class="btn-open-clan" onclick="openClanModal('IBURI', 'Gás Asfixiante', '★', '', '', 'Nenhum', 'Nenhum', 'Transformação em Fumaça. Corpo gasoso e invulnerabilidade.', [])">ABRIR FICHA</button>
+            <button class="btn-open-clan" onclick="openClanModal('IBURI', 'Gás Asfixiante', '★', '', '', 'Nenhum', 'Nenhum', 'Corpo Gasoso e Manipulação de Fumaça. Assombrações intangíveis.', [])">ABRIR FICHA</button>
           </div>
         </div>
 
-        <!-- ========================================================================= -->
-        <!-- UZUSHIOGAKURE (1 Clã) -->
-        <!-- ========================================================================= -->
+        <div class="clan-card clan-item" id="clan-kamizuru" data-village="iwa" data-name="Kamizuru">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Kamizuru_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Kamizuru</h3>
+            <p class="clan-card-desc">Uma força silenciosa, fria e focada em missões de emboscada. Buscam restaurar seu prestígio passado inundando os céus com enxames imensos de insetos aguilhoados.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +20 em Ninjutsu, +20 em Força, +20 em Resistência, +20 em Velocidade, +50 em Ningeral, +50 de Chakra.</li>
+              <li><strong>Elemento:</strong> Ningeral.</li>
+              <li><strong>Hiden:</strong> Manipulação de Abelhas gigantes e venenosas em coordenação massiva.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('KAMIZURU', 'O Enxame da Pedra', '★', '', '', 'Nenhum', 'Aburame', 'Abelhas letais. Táticas de emboscada aérea e picadas tóxicas.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
+        <div class="clan-card clan-item" id="clan-guren" data-village="iwa" data-name="Guren">
+          <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Guren_img</span></div>
+          <div class="clan-card-content">
+            <h3 class="clan-card-title">Clã Guren</h3>
+            <p class="clan-card-desc">Postura firme e devotada, atuando como uma força defensiva impenetrável e protetores leais da vila. Seus monumentos formam fortificações cintilantes no campo de batalha.</p>
+            <ul class="clan-card-bullets">
+              <li><strong>Atributos:</strong> +20 em Força, +20 em Inteligência, +20 em Velocidade, +20 em Ninjutsu, +50 no Elemento inicial, +50 de Chakra. (Passiva: +25% adicional passivo em Chakra).</li>
+              <li><strong>Elemento:</strong> Doton (Estilo Terra).</li>
+              <li><strong>Hiden:</strong> Kekkei Genkai: Shōton (Estilo Cristal). Cristalização absurda de quase toda a matéria.</li>
+            </ul>
+            <button class="btn-open-clan" onclick="openClanModal('GUREN', 'O Brilho Indestrutível', '★', '', '', 'Nenhum', 'Nenhum', 'Shōton (Cristal). Cúpulas perfeitas e lâminas cintilantes que petrificam em cristais.', [])">ABRIR FICHA</button>
+          </div>
+        </div>
+
         <div class="clan-card clan-item" id="clan-uzumaki" data-village="uzochi" data-name="Uzumaki">
           <div class="clan-card-image"><img src="" onerror="this.style.display='none'"><span>Uzumaki_img</span></div>
           <div class="clan-card-content">
@@ -1106,12 +1085,10 @@
 
   </main>
 
-  <!-- ======= MODAL DA FICHA DO CLÃ ======= -->
   <div id="clan-modal">
     <div class="modal-container">
       <button class="close-modal" onclick="closeClanModal()">← Fechar Ficha</button>
       
-      <!-- Banner Modal -->
       <div class="modal-banner">
         <img src="" alt="Banner Clã" class="modal-banner-bg" id="modal-banner-img" onerror="this.style.display='none'">
         <div class="modal-header-content">
@@ -1122,7 +1099,6 @@
         </div>
       </div>
 
-      <!-- SEÇÃO LIDER -->
       <div class="modal-leader-section">
         <div class="leader-avatar">
           <img src="" alt="Líder" id="modal-leader-img" onerror="this.style.display='none'">
@@ -1134,14 +1110,12 @@
         </div>
       </div>
 
-      <!-- Abas -->
       <div class="modal-tabs">
         <button class="modal-tab-btn active" onclick="switchTab(0)">Técnicas / Hiden</button>
         <button class="modal-tab-btn" onclick="switchTab(1)">Membros Notáveis</button>
         <button class="modal-tab-btn" onclick="switchTab(2)">Relações</button>
       </div>
 
-      <!-- Corpo da Ficha -->
       <div class="modal-body">
         
         <div id="tab-content-0">
