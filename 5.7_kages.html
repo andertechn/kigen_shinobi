@@ -155,7 +155,7 @@
     .slider-wrapper {
       position: relative; background: var(--surface);
       border: 1.5px solid rgba(204,0,0,0.3); border-radius: 12px; overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.6); padding: 50px 0;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6); padding: 50px 0 0 0;
     }
 
     /* Setas de Navegação */
@@ -184,7 +184,7 @@
     /* Slide Individual */
     .kage-slide {
       min-width: 100%; display: flex; flex-direction: column; align-items: center;
-      position: relative; padding: 0 80px; /* Espaço para as setas não encostarem */
+      position: relative; padding: 50px 80px 40px; /* Espaço para as setas não encostarem */
     }
 
     /* Marca D'Água Fundo (Ex: SHINOBI, HOKAGE) */
@@ -197,7 +197,7 @@
 
     /* Arte do Personagem */
     .kage-art {
-      height: 550px; /* Imagem Gigante! */
+      height: 450px;
       object-fit: contain; z-index: 2; position: relative;
       filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8));
       transition: transform 0.3s;
@@ -206,7 +206,7 @@
 
     /* Caixa de Título */
     .kage-info {
-      z-index: 3; text-align: center; margin-top: -30px;
+      z-index: 3; text-align: center; margin-top: -10px;
       background: rgba(0,0,0,0.6); padding: 15px 40px; border-radius: 8px;
       border: 1px solid rgba(204,0,0,0.3); backdrop-filter: blur(5px);
     }
@@ -219,18 +219,42 @@
       letter-spacing: 0.08em; margin: 0; text-transform: uppercase; line-height: 1;
     }
 
+    /* ======= FEITOS NOTÁVEIS ======= */
+    .kage-deeds {
+      z-index: 3; margin-top: 30px; background: rgba(0,0,0,0.4); padding: 25px 30px;
+      border-radius: 8px; border: 1px solid rgba(204,0,0,0.25); 
+      backdrop-filter: blur(5px); max-width: 600px; width: 100%;
+    }
+    .deeds-title {
+      font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 15px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .deeds-title::before { content: '⚔️'; }
+    .deeds-list { list-style: none; }
+    .deeds-list li { 
+      font-size: 0.95rem; color: var(--text-sub); margin-bottom: 10px; 
+      line-height: 1.4; display: flex; gap: 10px; padding-left: 0;
+    }
+    .deeds-list li::before { 
+      content: '✦'; color: var(--accent); font-weight: bold; min-width: 20px;
+    }
+    .deeds-list li strong { color: var(--text); }
+
     @media (max-width: 768px) {
-      .kage-art { height: 400px; }
+      .kage-art { height: 350px; }
       .nav-arrow { width: 45px; height: 45px; font-size: 1.5rem; }
       .arrow-prev { left: 10px; }
       .arrow-next { right: 10px; }
-      .kage-slide { padding: 0 40px; }
+      .kage-slide { padding: 40px 40px 30px; }
+      .kage-deeds { padding: 20px 20px; }
     }
     @media (max-width: 580px) {
       #kages-page { padding: 140px 16px 80px; }
       .tab-btn { max-width: calc(50% - 5px); font-size: 0.9rem; padding: 10px; }
-      .kage-art { height: 320px; }
+      .kage-art { height: 280px; }
       .kage-name { font-size: 2rem; }
+      .kage-slide { padding: 30px 20px 20px; }
     }
   </style>
 </head>
@@ -301,7 +325,6 @@
       <button class="tab-btn" data-target="kumo">KUMO</button>
       <button class="tab-btn" data-target="kiri">KIRI</button>
       <button class="tab-btn" data-target="iwa">IWA</button>
-      <button class="tab-btn" data-target="ferro">PAÍS DO FERRO</button>
     </div>
 
     <!-- ==========================================
@@ -317,22 +340,36 @@
             <!-- Slide 1 (1º Hokage) -->
             <div class="kage-slide">
               <div class="watermark-text">HOKAGE</div>
-              <!-- DICA: Use imagens PNG sem fundo e compridas para dar aquele destaque! -->
-              <img src="img_hashirama.png" alt="1º Hokage" class="kage-art">
+              <img src="00_kagesfaltando.png" alt="1º Hokage" class="kage-art">
               <div class="kage-info">
                 <div class="kage-rank">Primeiro Hokage (Shodaime)</div>
-                <h3 class="kage-name">Hashirama Senju</h3>
+                <h3 class="kage-name">NOME DO KAGE</h3>
+              </div>
+              <div class="kage-deeds">
+                <div class="deeds-title">Feitos Notáveis</div>
+                <ul class="deeds-list">
+                  <li><strong>Fundador</strong> da Aldeia da Folha.</li>
+                  <li>Detentor do <strong>Poder Primordial</strong> das florestas.</li>
+                  <li>Derrotou o Uchiha Madara na <strong>Batalha do Vale do Fim</strong>.</li>
+                </ul>
               </div>
             </div>
 
             <!-- Slide 2 (2º Hokage) -->
             <div class="kage-slide">
               <div class="watermark-text">HOKAGE</div>
-              <!-- É aqui que você colocaria a PNG do Tobirama da sua referência -->
-              <img src="img_tobirama.png" alt="2º Hokage" class="kage-art">
+              <img src="00_kagesfaltando.png" alt="2º Hokage" class="kage-art">
               <div class="kage-info">
                 <div class="kage-rank">Segundo Hokage (Nidaime)</div>
-                <h3 class="kage-name">Tobirama Senju</h3>
+                <h3 class="kage-name">NOME DO KAGE</h3>
+              </div>
+              <div class="kage-deeds">
+                <div class="deeds-title">Feitos Notáveis</div>
+                <ul class="deeds-list">
+                  <li>Criador de <strong>Técnicas Revolucionárias</strong> de Genjutsu e Ninjutsu.</li>
+                  <li>Implementou o <strong>Sistema de Patentes</strong> ninja.</li>
+                  <li>Reformulou a estrutura militar e administrativa da aldeia.</li>
+                </ul>
               </div>
             </div>
 
@@ -356,10 +393,18 @@
             <!-- Slide 1 (1º Kazekage) -->
             <div class="kage-slide">
               <div class="watermark-text">KAZEKAGE</div>
-              <img src="img_kazekage.png" alt="1º Kazekage" class="kage-art">
+              <img src="00_kagesfaltando.png" alt="1º Kazekage" class="kage-art">
               <div class="kage-info">
                 <div class="kage-rank">Primeiro Kazekage (Shodaime)</div>
-                <h3 class="kage-name">Reto</h3>
+                <h3 class="kage-name">NOME DO KAGE</h3>
+              </div>
+              <div class="kage-deeds">
+                <div class="deeds-title">Feitos Notáveis</div>
+                <ul class="deeds-list">
+                  <li><strong>Fundador</strong> da Aldeia da Areia.</li>
+                  <li>Controlava a areia com precisão <strong>mortal</strong>.</li>
+                  <li>Expandiu o território do País do Vento através da conquista.</li>
+                </ul>
               </div>
             </div>
 
@@ -378,10 +423,18 @@
           <div class="slider-track" id="track-kumo">
             <div class="kage-slide">
               <div class="watermark-text">RAIKAGE</div>
-              <img src="img_raikage.png" alt="Raikage" class="kage-art">
+              <img src="00_kagesfaltando.png" alt="Raikage" class="kage-art">
               <div class="kage-info">
                 <div class="kage-rank">Primeiro Raikage (Shodaime)</div>
-                <h3 class="kage-name">A (E)</h3>
+                <h3 class="kage-name">NOME DO KAGE</h3>
+              </div>
+              <div class="kage-deeds">
+                <div class="deeds-title">Feitos Notáveis</div>
+                <ul class="deeds-list">
+                  <li><strong>Fundador</strong> da Aldeia da Nuvem.</li>
+                  <li>Domina o <strong>Poder do Raio</strong> com força descomunal.</li>
+                  <li>Legendário em combates corpo a corpo.</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -398,10 +451,18 @@
           <div class="slider-track" id="track-kiri">
             <div class="kage-slide">
               <div class="watermark-text">MIZUKAGE</div>
-              <img src="img_mizukage.png" alt="Mizukage" class="kage-art">
+              <img src="00_kagesfaltando.png" alt="Mizukage" class="kage-art">
               <div class="kage-info">
                 <div class="kage-rank">Primeiro Mizukage (Shodaime)</div>
                 <h3 class="kage-name">Byakuren</h3>
+              </div>
+              <div class="kage-deeds">
+                <div class="deeds-title">Feitos Notáveis</div>
+                <ul class="deeds-list">
+                  <li><strong>Fundador</strong> da Aldeia da Névoa.</li>
+                  <li>Mestra absoluta em <strong>Técnicas Aquáticas</strong>.</li>
+                  <li>Criou a lendária ordem das <strong>Espadas da Névoa</strong>.</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -418,35 +479,23 @@
           <div class="slider-track" id="track-iwa">
             <div class="kage-slide">
               <div class="watermark-text">TSUCHIKAGE</div>
-              <img src="img_tsuchikage.png" alt="Tsuchikage" class="kage-art">
+              <img src="00_kagesfaltando.png" alt="Tsuchikage" class="kage-art">
               <div class="kage-info">
                 <div class="kage-rank">Primeiro Tsuchikage (Shodaime)</div>
                 <h3 class="kage-name">Ishikawa</h3>
+              </div>
+              <div class="kage-deeds">
+                <div class="deeds-title">Feitos Notáveis</div>
+                <ul class="deeds-list">
+                  <li><strong>Fundador</strong> da Aldeia da Pedra.</li>
+                  <li>Wields <strong>Técnicas de Terra</strong> com maestria inabalável.</li>
+                  <li>Consolidou a soberania do País da Terra através de força.</li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
         <button class="nav-arrow arrow-next" onclick="moveSlide('iwa', 1)">❯</button>
-      </div>
-    </div>
-
-    <!-- ABA: PAÍS DO FERRO -->
-    <div id="ferro" class="tab-pane">
-      <div class="slider-wrapper">
-        <button class="nav-arrow arrow-prev" onclick="moveSlide('ferro', -1)">❮</button>
-        <div class="slider-window">
-          <div class="slider-track" id="track-ferro">
-            <div class="kage-slide">
-              <div class="watermark-text">SAMURAI</div>
-              <img src="img_mifune.png" alt="General Samurai" class="kage-art">
-              <div class="kage-info">
-                <div class="kage-rank">General do País do Ferro</div>
-                <h3 class="kage-name">Mifune</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button class="nav-arrow arrow-next" onclick="moveSlide('ferro', 1)">❯</button>
       </div>
     </div>
 
@@ -488,7 +537,7 @@
 
     /* ---- LÓGICA DO CARROSSEL DE KAGES ---- */
     // Guarda a posição atual de cada vila
-    let sliderStates = { konoha: 0, suna: 0, kumo: 0, kiri: 0, iwa: 0, ferro: 0 };
+    let sliderStates = { konoha: 0, suna: 0, kumo: 0, kiri: 0, iwa: 0 };
 
     function moveSlide(vila, direcao) {
       const track = document.getElementById(`track-${vila}`);
