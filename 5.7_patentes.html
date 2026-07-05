@@ -144,7 +144,7 @@
 
     /* Alternar lados */
     .tl-node:nth-child(odd) { flex-direction: row-reverse; }
-    
+      
     .tl-content {
       width: 45%; background: var(--surface); border: 1.5px solid rgba(204,0,0,0.3);
       padding: 24px; border-radius: 12px; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
@@ -174,7 +174,7 @@
     }
     .tl-circle svg { width: 24px; height: 24px; fill: var(--text); }
 
-    /* ======= ESTADO MAIOR / CONSELHEIROS ======= */
+    /* ======= ESTADO MAIOR ======= */
     .special-section {
       max-width: 860px; margin: 80px auto 0;
     }
@@ -211,7 +211,7 @@
     
     .modal-box {
       background: var(--surface); border: 2px solid var(--accent); border-radius: 12px;
-      width: 100%; max-width: 600px; padding: 40px; position: relative;
+      width: 100%; max-width: 700px; padding: 40px; position: relative;
       transform: translateY(30px) scale(0.95); transition: all 0.3s;
       box-shadow: 0 0 50px var(--shadow); max-height: 90vh; overflow-y: auto;
     }
@@ -242,6 +242,25 @@
     }
     .modal-reqs li::before { content: '✔'; color: var(--accent); font-weight: bold; }
 
+    /* ====== ESTILO PARA AS VAGAS DENTRO DO MODAL ====== */
+    .vagas-container {
+      margin-top: 30px; border-top: 2px solid rgba(204,0,0,0.2); padding-top: 20px;
+    }
+    .vagas-container h4 {
+      font-family: 'Russo One', sans-serif; font-size: 1.2rem; color: var(--text);
+      margin-bottom: 15px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .vagas-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+    }
+    .vaga-card {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+      padding: 15px; border-radius: 8px; text-align: left;
+    }
+    .vaga-card strong { color: var(--accent); font-family: 'Russo One', sans-serif; display: block; margin-bottom: 8px; font-size: 1.1rem; }
+    .vaga-card span { display: block; font-size: 0.95rem; color: var(--text-sub); margin-bottom: 6px; }
+    .vaga-membros { margin-top: 10px; font-size: 0.85rem; color: var(--text); font-style: italic; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
@@ -263,13 +282,11 @@
 </head>
 <body>
 
-  <!-- Fundo -->
   <div id="fixed-background">
     <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
     <div class="hero-overlay"></div>
   </div>
 
-  <!-- Botões Flutuantes -->
   <div id="floating-ui">
     <button id="menu-btn" aria-label="Abrir menu">
       <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -285,7 +302,6 @@
     </button>
   </div>
 
-  <!-- Menu de Navegação -->
   <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
@@ -311,7 +327,6 @@
     </nav>
   </div>
 
-  <!-- CONTEÚDO PRINCIPAL -->
   <main id="hierarquia-page">
 
     <div class="historia-header">
@@ -321,13 +336,10 @@
       </div>
     </div>
 
-    <!-- TIMELINE PRINCIPAL -->
     <div class="timeline-wrap">
       
-      <!-- NÓ 1: GENNIN -->
       <div class="tl-node">
         <div class="tl-circle">
-          <!-- Ícone Folha ou Shuriken simples -->
           <svg viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z"/><path d="M12 22L9 16H15L12 22Z"/><path d="M2 12L8 9V15L2 12Z"/><path d="M22 12L16 15V9L22 12Z"/><circle cx="12" cy="12" r="2"/></svg>
         </div>
         <div class="tl-content" onclick="openModal('gennin')">
@@ -336,7 +348,6 @@
         </div>
       </div>
 
-      <!-- NÓ 2: CHUNNIN -->
       <div class="tl-node">
         <div class="tl-circle">
           <svg viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z"/><path d="M12 22L9 16H15L12 22Z"/><path d="M2 12L8 9V15L2 12Z"/><path d="M22 12L16 15V9L22 12Z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -347,7 +358,6 @@
         </div>
       </div>
 
-      <!-- NÓ 3: JOUNNIN -->
       <div class="tl-node">
         <div class="tl-circle">
           <svg viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z"/><path d="M12 22L9 16H15L12 22Z"/><path d="M2 12L8 9V15L2 12Z"/><path d="M22 12L16 15V9L22 12Z"/><circle cx="12" cy="12" r="4"/></svg>
@@ -358,7 +368,6 @@
         </div>
       </div>
 
-      <!-- NÓ 4: ANBU -->
       <div class="tl-node">
         <div class="tl-circle">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5ZM12 18.5C9.5 18.5 7.33 17.06 6.18 15C6.73 13.56 9.17 12.8 12 12.8C14.83 12.8 17.27 13.56 17.82 15C16.67 17.06 14.5 18.5 12 18.5Z"/></svg>
@@ -369,7 +378,6 @@
         </div>
       </div>
 
-      <!-- NÓ 5: KAGE -->
       <div class="tl-node">
         <div class="tl-circle">
           <svg viewBox="0 0 24 24"><path d="M12 2L2 7L12 12L22 7L12 2Z"/><path d="M2 17L12 22L22 17V9.5L12 14.5L2 9.5V17Z"/></svg>
@@ -382,16 +390,10 @@
 
     </div>
 
-    <!-- SEÇÃO SEPARADA: ADMINISTRAÇÃO DA VILA -->
     <div class="special-section">
       <h2 class="special-title">Administração & Política</h2>
       <div class="cards-grid">
         
-        <div class="role-card" onclick="openModal('conselheiro')">
-          <h3>Conselheiro</h3>
-          <p style="color: var(--text-sub); font-size: 0.95rem;">Clique para ver as funções e requisitos.</p>
-        </div>
-
         <div class="role-card" onclick="openModal('estadomaior')">
           <h3>Estado Maior</h3>
           <p style="color: var(--text-sub); font-size: 0.95rem;">Clique para ver as funções e requisitos.</p>
@@ -402,7 +404,6 @@
 
   </main>
 
-  <!-- MODAL DE INFORMAÇÕES -->
   <div class="modal-overlay" id="rankModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeModal()">×</button>
@@ -410,10 +411,9 @@
       <div class="modal-desc" id="m-desc">Descrição do cargo.</div>
       <div class="modal-reqs">
         <h4>Requisitos Necessários:</h4>
-        <ul id="m-reqs">
-          <!-- Requisitos gerados pelo JS -->
-        </ul>
+        <ul id="m-reqs"></ul>
       </div>
+      <div id="m-vagas"></div>
     </div>
   </div>
 
@@ -438,33 +438,28 @@
       localStorage.setItem('ks-theme', next);
     });
 
-    /* ---- BANCO DE DADOS DAS PATENTES (TEXTOS PARA VOCÊ EDITAR) ---- */
+    /* ---- BANCO DE DADOS DAS PATENTES ---- */
     const rankData = {
       'gennin': {
         title: 'Gennin',
         desc: 'O nível mais baixo de um ninja. Os Gennins são agrupados em esquadrões de três sob o comando de um Jōnnin. É a fase de aprendizado prático em missões de baixo risco (Rank D e C).',
         reqs: [
-          'Aprovação formal na Academia Ninja.',
-          'Ter sua Ficha aprovada pela administração do RPG.',
-          'Passar no teste do sino (ou equivalente) com seu respectivo sensei.'
+          'Aprovação da ficha pela administração do RPG',
         ]
       },
       'chunnin': {
         title: 'Chūnnin',
         desc: 'Ninjas qualificados que demonstraram maturidade, liderança e habilidades estratégicas. Eles podem liderar grupos em missões de Rank C ou B e atuar como professores na academia.',
         reqs: [
-          'Ser um Gennin ativo no RPG por no mínimo X tempo.',
-          'Passar com sucesso no Exame Chūnnin realizado pelas vilas.',
-          'Recomendação formal do seu Jōnnin instrutor.'
+          'Aprovação no Exame Chunnin',
         ]
       },
       'jounnin': {
         title: 'Jōnnin',
         desc: 'A elite militar da vila. Ninjas excepcionalmente experientes e altamente qualificados que servem como generais e conselheiros de guerra. Capazes de utilizar pelo menos duas naturezas de chakra.',
         reqs: [
-          'Possuir um histórico impecável de missões Rank A e S.',
-          'Indicação direta do Kage ou do Conselho da Vila.',
-          'Concluir uma trama de avaliação de alto risco imposta pela staff.'
+          'Indicação direta do Kage, Estado-maior ou outros Jounnins.',
+          'Concluir uma avaliação de alto risco imposta pela Kage.'
         ]
       },
       'anbu': {
@@ -473,7 +468,7 @@
         reqs: [
           'Ser escolhido diretamente (convite) pelo Kage ou Comandante ANBU.',
           'Abandono temporário do seu nome e laços durante o serviço.',
-          'Aprovação no teste prático de eliminação (cenário restrito da Staff).'
+          'Aprovação no teste prático de eliminação.'
         ]
       },
       'kage': {
@@ -481,35 +476,64 @@
         desc: 'O pináculo do poder militar e político. O líder supremo de uma das Cinco Grandes Nações Shinobi. Suas decisões ditam o destino de toda a sua vila.',
         reqs: [
           'Ser reconhecido como o ninja mais forte ou mais apto da vila.',
-          'Aprovação total do conselho do país e do Daimyō.',
-          'Ter participação ativa e impacto real na história global do RPG.'
-        ]
-      },
-      'conselheiro': {
-        title: 'Conselheiro',
-        desc: 'Estrategistas políticos e sábios veteranos. Não precisam necessariamente ir para a guerra, pois sua arma é a inteligência. Suas vozes têm peso igual ou similar ao do Kage em decisões de Estado.',
-        reqs: [
-          'Histórico de excelente interpretação (RP) e maturidade.',
-          'Idade de personagem avançada ou histórico diplomático sólido.',
-          'Votação ou nomeação direta pelo Kage vigente.'
+          'Consenso entre a Administração, Daymos e Estado-maior',
         ]
       },
       'estadomaior': {
         title: 'Estado Maior',
-        desc: 'A cúpula tática que auxilia o Kage a distribuir missões, fiscalizar as forças armadas e gerenciar as divisões internas da vila (Inteligência, Defesa, Saúde).',
+        desc: 'A cúpula tática que auxilia o Kage a distribuir missões, fiscalizar as forças armadas e gerenciar as divisões internas da vila (Inteligência, Defesa, Saúde), além de servirem como conselheiros diretos dos Kages.',
         reqs: [
           'Rank mínimo: Jōnnin.',
-          'Conhecimento total das regras e sistemas do Kigen Shinobi.',
-          'Confiança absoluta do Kage e dos administradores do RPG.'
-        ]
+          'Atuação como Jonnin durante no mínimo 5 anos.',
+          'Confiança absoluta do Kage e dos administradores do RPG.',
+          'Possuir um ótimo histórico de sucesso em missões e conduta.',
+        ],
+        vagas: {
+          folha: {
+            vila: 'Konohagakure (Folha)',
+            total: 3,
+            ocupadas: 1,
+            livres: 2,
+            membros: ['Nome do Player 1']
+          },
+          areia: {
+            vila: 'Sunagakure (Areia)',
+            total: 3,
+            ocupadas: 0,
+            livres: 3,
+            membros: []
+          },
+          nevoa: {
+            vila: 'Kirigakure (Névoa)',
+            total: 3,
+            ocupadas: 2,
+            livres: 1,
+            membros: ['Player A', 'Player B']
+          },
+          nuvem: {
+            vila: 'Kumogakure (Nuvem)',
+            total: 3,
+            ocupadas: 3,
+            livres: 0,
+            membros: ['Player X', 'Player Y', 'Player Z']
+          },
+          pedra: {
+            vila: 'Iwagakure (Pedra)',
+            total: 3,
+            ocupadas: 0,
+            livres: 3,
+            membros: []
+          }
+        }
       }
-    };
+    }; // <--- O ERRO ESTAVA AQUI, FALTOU ESSA CHAVE FINAL COM PONTO E VÍRGULA!
 
     /* ---- LÓGICA DO MODAL ---- */
     const modal = document.getElementById('rankModal');
     const mTitle = document.getElementById('m-title');
     const mDesc = document.getElementById('m-desc');
     const mReqs = document.getElementById('m-reqs');
+    const mVagas = document.getElementById('m-vagas'); // Puxa a div de vagas
 
     function openModal(rankId) {
       const data = rankData[rankId];
@@ -525,6 +549,32 @@
         li.innerText = req;
         mReqs.appendChild(li);
       });
+
+      // Lógica para gerar os Cards de Vagas dinamicamente
+      if(data.vagas) {
+        mVagas.style.display = 'block';
+        let htmlVagas = '<div class="vagas-container"><h4>Quadro de Vagas:</h4><div class="vagas-grid">';
+        
+        for(let key in data.vagas) {
+          const v = data.vagas[key];
+          const membrosTexto = v.membros.length > 0 ? v.membros.join(', ') : 'Ninguém (Vago)';
+          
+          htmlVagas += `
+            <div class="vaga-card">
+              <strong>${v.vila}</strong>
+              <span>Capacidade: ${v.total}</span>
+              <span>Ocupadas: ${v.ocupadas} | Livres: ${v.livres}</span>
+              <div class="vaga-membros">Membros: ${membrosTexto}</div>
+            </div>
+          `;
+        }
+        htmlVagas += '</div></div>';
+        mVagas.innerHTML = htmlVagas;
+      } else {
+        // Se a patente não tiver vagas (ex: Gennin, Chunnin), esconde essa parte
+        mVagas.style.display = 'none';
+        mVagas.innerHTML = '';
+      }
 
       modal.classList.add('active');
     }
