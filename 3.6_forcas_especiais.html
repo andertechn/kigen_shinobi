@@ -209,6 +209,30 @@
       letter-spacing: 0.05em;
     }
 
+    /* ======= ESPAÇO PARA IMAGENS DAS FORÇAS ESPECIAIS ======= */
+    .force-image-wrapper {
+      width: 100%;
+      margin-bottom: 20px;
+      overflow: hidden;
+      border-radius: 6px;
+      border: 1px solid rgba(183, 28, 28, 0.3);
+      background: var(--surface-inner);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .force-image-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .force-image-wrapper:hover img {
+      transform: scale(1.05);
+    }
+
     /* Responsividade */
     @media (max-width: 768px) {
       #page-container { padding-top: 120px; padding-left: 15px; padding-right: 15px; }
@@ -262,7 +286,7 @@
       <a class="nav-link" href="3.11_contratos.html">Contratos</a>
       <a class="nav-link" href="3.11_samurais.html">Samurais</a>
     </nav>
-  </div> <main id="page-container">
+  </div> 
 
   <main id="page-container">
 
@@ -298,7 +322,7 @@
                 Cada unidade é limitada a 5 membros, preservando a exclusividade estrutural:<br>
                 • Comandante (1): O líder da divisão. Reporta diretamente ao General/Mifune.<br>
                 • Subcomandante (1): O braço direito, assume em caso de ausência e auxilia na coordenação.<br>
-                • Membro (3): Os especialistas subordinados.
+                • Membros (3): Os especialistas subordinados.
               </li>
               <li>
                 <strong>Promoção de Cargo</strong>
@@ -309,8 +333,13 @@
         </details>
 
         <details class="ks-accordion">
-          <summary>1. ONIWABANSHU (OS OLHOS DO TRONO)</summary>
+          <summary>1. ONIWABANSHU</summary>
           <div class="accordion-content">
+            
+            <div class="force-image-wrapper">
+              <img src="00_oniwabanshu.png" alt="Oniwabanshu" onerror="this.style.display='none'">
+            </div>
+
             <ul class="acc-list">
               <li>
                 <strong>Foco Operacional</strong>
@@ -320,17 +349,18 @@
                 <strong>O que fazem</strong>
                 Eles não apenas coletam dados; eles moldam a política. Infiltram-se em vilas ninjas como conselheiros ou mercadores para plantar discórdia ou obter segredos de Estado.
               </li>
-              <li>
-                <strong>Diferencial Técnico</strong>
-                São os únicos autorizados a usar técnicas de manipulação e disfarce avançado.
-              </li>
             </ul>
           </div>
         </details>
 
         <details class="ks-accordion">
-          <summary>2. KAGE-GARI (OS CEIFADORES)</summary>
+          <summary>2. KAGE-GARI</summary>
           <div class="accordion-content">
+            
+            <div class="force-image-wrapper">
+              <img src="00_kage-gari.png" alt="Kage-Gari" onerror="this.style.display='none'">
+            </div>
+
             <ul class="acc-list">
               <li>
                 <strong>Foco Operacional</strong>
@@ -338,19 +368,20 @@
               </li>
               <li>
                 <strong>O que fazem</strong>
-                Diferente de uma caçada, eles são unidades de choque. Quando um ninja de alto nível ameaça o País do Ferro, os Kage-Gari entram para um duelo direto. Eles são especializados em "anulação de chakra" através de suas Lâminas revestidas em minério especial.
-              </li>
-              <li>
-                <strong>Diferencial Técnico</strong>
-                A lendária Armadura de Ferro Negro, que dissipa genjutsus.
+                Diferente de uma caçada, eles são unidades de choque. Quando um ninja ou samurai de alto nível ameaça o País do Ferro, os Kage-Gari entram para um duelo direto. Eles são especializados em "anulação de chakra" através de suas Lâminas revestidas em minério especial.
               </li>
             </ul>
           </div>
         </details>
 
         <details class="ks-accordion">
-          <summary>3. GOMON-SHI (OS MESTRES DO INTERROGATÓRIO)</summary>
+          <summary>3. GOMON-SHI</summary>
           <div class="accordion-content">
+            
+            <div class="force-image-wrapper">
+              <img src="00_gomo_shi.png" alt="Gomon-Shi" onerror="this.style.display='none'">
+            </div>
+
             <ul class="acc-list">
               <li>
                 <strong>Foco Operacional</strong>
@@ -359,10 +390,6 @@
               <li>
                 <strong>O que fazem</strong>
                 Onde o silêncio não basta, entra o Gomon-shi. Eles não caçam apenas pelo combate; eles caçam para extrair a verdade. Eles operam nas "Câmaras de Gelo" (masmorras subterrâneas). Se um traidor ou espião é capturado, ele é entregue a esta unidade para que suas memórias sejam extraídas através de métodos brutais.
-              </li>
-              <li>
-                <strong>Diferencial Técnico</strong>
-                Utilizam venenos de paralisia e técnicas de privação sensorial que forçam até os ninjas mais treinados a quebrar o silêncio.
               </li>
             </ul>
           </div>
