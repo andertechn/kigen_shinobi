@@ -133,22 +133,7 @@
     .f-tab-btn.active { background: var(--ficha-bg); color: var(--ficha-green); border-color: var(--ficha-border); border-top: 2px solid var(--ficha-green); }
 
     /* ÍCONE FLUTUANTE DA VILA */
-    .vila-floating-icon {
-      position: absolute;
-      right: 25px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 55px;
-      height: 55px;
-      background: rgba(18, 25, 20, 0.95);
-      border: 2px solid rgba(54, 182, 104, 0.6);
-      border-radius: 50%;
-      box-shadow: 0 0 20px rgba(54, 182, 104, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
+    .vila-floating-icon { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); width: 55px; height: 55px; background: rgba(18, 25, 20, 0.95); border: 2px solid rgba(54, 182, 104, 0.6); border-radius: 50%; box-shadow: 0 0 20px rgba(54, 182, 104, 0.4); display: flex; align-items: center; justify-content: center; z-index: 10; }
     .vila-floating-icon svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
     .ficha-body-content { padding: 30px; background: var(--ficha-bg); }
@@ -157,7 +142,7 @@
 
     /* SEÇÕES E GRIDS DETALHADOS */
     .f-section { margin-bottom: 40px; }
-    .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; }
+    .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
     .f-section-title::before { content: ''; display: inline-block; width: 16px; height: 16px; background: var(--ficha-green); border-radius: 50%; }
 
     .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
@@ -186,14 +171,10 @@
     .subattr-label { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
     .subattr-value { font-family: 'Russo One', sans-serif; font-size: 2.2rem; color: var(--ficha-green); text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
 
-    /* =======================================================
-       ========== ESTILOS DA ABA JORNADA (NOVO) ============== 
-       ======================================================= */
+    /* ESTILOS DA ABA JORNADA */
     .jornada-list { display: flex; flex-direction: column; gap: 12px; }
     .jornada-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 15px 20px; display: flex; align-items: center; transition: 0.3s; }
     .jornada-card:hover { border-color: rgba(54, 182, 104, 0.4); }
-    
-    /* Histórico Graduações */
     .grad-icon { width: 40px; height: 40px; background: var(--ficha-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(54, 182, 104, 0.4); }
     .grad-icon svg { width: 22px; height: 22px; fill: #fff; }
     .grad-info { flex: 1; margin-left: 20px; }
@@ -203,18 +184,51 @@
     .grad-link { color: var(--ficha-green); cursor: pointer; transition: 0.3s; }
     .grad-link:hover { color: #fff; transform: scale(1.1); }
     .grad-link svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
-
-    /* Missões Realizadas */
     .missao-badge { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: #fff; flex-shrink: 0; }
     .badge-s { background: #ef5350; }
     .badge-a { background: #ff9800; }
     .badge-b { background: #66bb6a; }
     .badge-c { background: #42a5f5; }
     .badge-d { background: #ab47bc; }
-    
     .missao-info { flex: 1; margin-left: 20px; }
     .missao-label { font-family: 'Rajdhani', sans-serif; color: #888; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
     .missao-value { color: #fff; font-family: 'Russo One', sans-serif; font-size: 1.3rem; margin-top: 2px; }
+
+    /* =======================================================
+       ========== ESTILOS DA ABA RELAÇÕES ==================== 
+       ======================================================= */
+    .relacoes-list { display: flex; flex-direction: column; gap: 15px; }
+    .relacao-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 12px; padding: 20px; transition: 0.3s; }
+    .relacao-card:hover { border-color: rgba(54, 182, 104, 0.4); }
+    .relacao-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+    .relacao-avatar { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 2px solid var(--ficha-green); flex-shrink: 0; }
+    .relacao-info { flex: 1; min-width: 150px; }
+    .relacao-nome { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; }
+    .relacao-tipo { font-family: 'Rajdhani', sans-serif; font-style: italic; color: var(--ficha-green); font-size: 0.95rem; margin-top: 2px; }
+    .relacao-stats { font-size: 0.85rem; font-weight: bold; margin-top: 5px; font-family: 'Rajdhani', sans-serif; }
+    .relacao-stats .pos { color: var(--ficha-green); }
+    .relacao-stats .neg { color: #ff5252; }
+    .relacao-badge { background: #1e3a5f; color: #64b5f6; font-family: 'Russo One', sans-serif; font-size: 0.75rem; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; border: 1px solid #1565c0; white-space: nowrap; }
+    .relacao-desc { color: #ccc; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
+    .relacao-actions { display: flex; gap: 10px; }
+    .btn-icon-green { background: var(--ficha-green-dark); border: 1px solid var(--ficha-green); width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; color: #fff; }
+    .btn-icon-green:hover { background: var(--ficha-green); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(54, 182, 104, 0.3); }
+    .btn-icon-green svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* =======================================================
+       ========== ESTILOS DA ABA RESUMO ====================== 
+       ======================================================= */
+    .resumo-list { display: flex; flex-direction: column; gap: 15px; }
+    .resumo-card { background: var(--ficha-card); border-left: 4px solid var(--ficha-green); border-radius: 8px; padding: 20px; border-top: 1px solid var(--ficha-border); border-right: 1px solid var(--ficha-border); border-bottom: 1px solid var(--ficha-border); }
+    .resumo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .resumo-title { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; }
+    .resumo-date { font-family: 'Rajdhani', sans-serif; color: #888; font-size: 0.85rem; }
+    .resumo-desc { color: #ccc; font-size: 0.95rem; line-height: 1.5; margin-bottom: 15px; }
+    
+    .btn-react { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 20px; color: #aaa; cursor: pointer; transition: 0.3s; font-family: 'Russo One', sans-serif; font-size: 0.8rem; }
+    .btn-react:hover { background: rgba(233, 30, 99, 0.15); color: #e91e63; border-color: #e91e63; }
+    .btn-react.active { background: #e91e63; color: #fff; border-color: #e91e63; }
+    .btn-react svg { width: 14px; height: 14px; fill: currentColor; }
 
     @media (max-width: 768px) {
       #page-container { padding-top: 90px; }
@@ -223,6 +237,8 @@
       .ficha-body-content { padding: 15px; }
       .vila-floating-icon { right: 10px; width: 45px; height: 45px; }
       .vila-floating-icon svg { width: 22px; height: 22px; }
+      .relacao-header { flex-direction: column; align-items: flex-start; }
+      .relacao-badge { align-self: flex-start; }
     }
   </style>
 </head>
@@ -469,16 +485,22 @@
                 
               </div>
             </div>
-            
           </div>
           
           <div id="tabRelacoes" class="f-tab-content">
-            <h2 class="f-section-title">RELAÇÕES</h2>
-            <div class="f-block">Em desenvolvimento...</div>
+            <div class="f-section">
+              <h2 class="f-section-title">JOGADORES</h2>
+              <div class="relacoes-list" id="boxRelacoes">
+                </div>
+            </div>
           </div>
+          
           <div id="tabResumo" class="f-tab-content">
-            <h2 class="f-section-title">RESUMO DE ALTERAÇÕES</h2>
-            <div class="f-block">Nenhuma alteração recente registrada.</div>
+            <div class="f-section">
+              <h2 class="f-section-title">RESUMO DE ALTERAÇÕES</h2>
+              <div class="resumo-list" id="boxResumo">
+                </div>
+            </div>
           </div>
 
         </div> 
@@ -665,9 +687,7 @@
       desenharGraficoRadar(p.ninjutsu||0, p.taijutsu||0, p.genjutsu||0, p.inteligencia||0, p.forca||0, p.velocidade||0, p.resistencia||0, p.selos||0);
       document.getElementById('boxTecnicas').innerHTML = p.lista_tecnicas ? p.lista_tecnicas : "<em>Nenhuma técnica listada para este personagem.</em>";
 
-      // ===========================================
       // JORNADA
-      // ===========================================
       document.getElementById('fMissaoS').textContent = p.missao_s || '0';
       document.getElementById('fMissaoA').textContent = p.missao_a || '0';
       document.getElementById('fMissaoB').textContent = p.missao_b || '0';
@@ -678,32 +698,68 @@
       if (p.historico_graduacoes) {
         boxGraduacoes.innerHTML = p.historico_graduacoes;
       } else {
-        // Exemplo Padrão Estilizado como no Print se não houver registros
         boxGraduacoes.innerHTML = `
           <div class="jornada-card">
-            <div class="grad-icon">
-              <svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
-            </div>
+            <div class="grad-icon"><svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg></div>
             <div class="grad-info">
               <div class="grad-info-title">Genin &rarr; <strong>Chunin</strong></div>
               <div class="grad-info-date">06/01/2026</div>
             </div>
-            <div class="grad-link">
-              <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+            <div class="grad-link"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg></div>
+          </div>
+        `;
+      }
+
+      // ===========================================
+      // RELAÇÕES
+      // ===========================================
+      const boxRelacoes = document.getElementById('boxRelacoes');
+      if (p.lista_relacoes) {
+        boxRelacoes.innerHTML = p.lista_relacoes;
+      } else {
+        // Exemplo Padrão Estilizado (Placeholder)
+        boxRelacoes.innerHTML = `
+          <div class="relacao-card">
+            <div class="relacao-header">
+              <img src="https://ui-avatars.com/api/?name=Rin+Grey&background=36b668&color=fff&size=100" alt="Rin Grey" class="relacao-avatar" />
+              <div class="relacao-info">
+                <div class="relacao-nome">Rin Grey (@Aoyama)</div>
+                <div class="relacao-tipo">Companheiro de Time</div>
+                <div class="relacao-stats"><span class="pos">+15</span> <span class="neg">-0</span></div>
+              </div>
+              <div class="relacao-badge">COMPANHEIROS</div>
+            </div>
+            <div class="relacao-desc">
+              Uma jovem de aura misteriosa, dona de olhos que carregam tanto firmeza quanto melancolia. Seus poderes vão além do convencional: molda e distorce a realidade como quer e carrega em si uma maturidade precoce. Atualmente fazem parte do mesmo time: Shisei.
+            </div>
+            <div class="relacao-actions">
+              <button class="btn-icon-green" title="Acessar Perfil do Personagem"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg></button>
             </div>
           </div>
+        `;
+      }
 
-          <div class="jornada-card">
-            <div class="grad-icon">
-              <svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+      // ===========================================
+      // RESUMO DE ALTERAÇÕES
+      // ===========================================
+      const boxResumo = document.getElementById('boxResumo');
+      if (p.historico_resumo) {
+        boxResumo.innerHTML = p.historico_resumo;
+      } else {
+        // Exemplo Padrão Estilizado (Placeholder)
+        boxResumo.innerHTML = `
+          <div class="resumo-card">
+            <div class="resumo-header">
+              <div class="resumo-title">Atualização de Atributos (Sistema)</div>
+              <div class="resumo-date">10/07/2026</div>
             </div>
-            <div class="grad-info">
-              <div class="grad-info-title">Chunin &rarr; <strong>Tokubetsu Jonin</strong></div>
-              <div class="grad-info-date">10/02/2026</div>
+            <div class="resumo-desc">
+              O personagem recebeu um bônus de <strong>+2 em Força</strong> e <strong>+1 em Velocidade</strong> após completar a missão Rank B "Resgate no Vale das Pedras".
             </div>
-            <div class="grad-link">
-              <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-            </div>
+            <button class="btn-react" onclick="this.classList.toggle('active')">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> 
+              Curtir / Visto
+            </button>
           </div>
         `;
       }
