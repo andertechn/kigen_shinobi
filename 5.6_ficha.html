@@ -1,500 +1,675 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banco de Dados - Personagens</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Banco de Dados - Shinobi</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
-            min-height: 100vh;
-            padding: 20px;
-        }
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.85); 
+      --surface-inner: rgba(18, 18, 20, 0.95);
+      --border:  #cc0000;
+      --accent:  #1a237e; 
+      --accent2: #5c6bc0;
+      --accent-red: #d32f2f;
+      --glow:    rgba(92, 107, 192, 0.4);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+    }
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-inner: #f5f5f7;
+      --border:  #cc0000;
+      --accent:  #283593; 
+      --accent2: #1a237e;
+      --accent-red: #c62828;
+      --glow:    rgba(40, 53, 147, 0.25);
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#6b7280;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      overflow-x: hidden;
+      transition: background-color 0.4s, color 0.4s;
+    }
 
-        /* ===== PÁGINA PRINCIPAL ===== */
-        .page {
-            display: none;
-        }
+    /* ======= FUNDO FIXO COM IMAGEM ======= */
+    #fixed-background { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      z-index: -10; overflow: hidden; background-color: #000;
+    }
+    .hero-bg { 
+      position: absolute; inset: 0; z-index: 0; 
+      width: 100%; height: 100%; object-fit: cover; 
+      filter: brightness(0.35) saturate(0.6); 
+      transition: filter 0.4s ease; 
+    }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { 
+      position: absolute; inset: 0; z-index: 1; pointer-events: none; 
+      background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%); 
+    }
 
-        .page.active {
-            display: block;
-        }
+    /* ======= FLOATING UI ======= */
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(204,0,0,0.5); transition: box-shadow 0.25s, transform 0.2s; }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    #menu-btn:hover, #theme-toggle:hover { box-shadow: 0 0 20px rgba(204,0,0,0.7); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #5c6bc0; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #cc0000; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); overflow-y: auto; }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+    .nav-link:hover::before { width: 16px; }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            color: #4ade80;
-            text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
-        }
+    /* ======= PÁGINA ======= */
+    #page-container { 
+      position: relative; z-index: 10; min-height: 100vh; 
+      padding: 100px 20px 80px; max-width: 1000px; margin: 0 auto; 
+      display: flex; flex-direction: column; gap: 30px;
+    }
 
-        /* ===== BARRA DE PESQUISA ===== */
-        .search-bar {
-            margin-bottom: 30px;
-        }
+    /* ======= CABEÇALHO ======= */
+    .main-header-group {
+      background: var(--surface-inner);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(92, 107, 192, 0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header-image {
+      width: 100%;
+      height: 220px;
+      background: #050505;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .header-image img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      top: 0; left: 0;
+    }
 
-        .search-input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1em;
-            border: 2px solid #4ade80;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            transition: all 0.3s ease;
-        }
+    .header-red {
+      background: var(--accent); 
+      padding: 15px 25px; 
+      display: flex; align-items: center; gap: 15px;
+    }
+    .header-red h1 { 
+      font-family: 'Bangers', cursive; font-size: 2.2rem; letter-spacing: 0.08em; 
+      color: #fff; text-transform: uppercase; margin: 0; font-style: italic;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    }
+    .header-deco { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, transparent 100%); }
 
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
+    /* ======= SEÇÕES POR PATENTE ======= */
+    .patente-section {
+      background: var(--surface-inner);
+      border-radius: 8px;
+      border: 1px solid rgba(92, 107, 192, 0.3);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
 
-        .search-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
-        }
+    .patente-header {
+      background: var(--accent);
+      padding: 15px 25px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        /* ===== TABELA ===== */
-        .table-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #4ade80;
-            border-radius: 10px;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
+    .patente-header h2 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.5rem;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    .patente-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.9rem;
+    }
 
-        thead {
-            background: rgba(74, 222, 128, 0.1);
-            border-bottom: 2px solid #4ade80;
-        }
+    .personagens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      padding: 20px;
+    }
 
-        th {
-            padding: 15px 20px;
-            text-align: left;
-            font-weight: 600;
-            color: #4ade80;
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
+    .personagem-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(92, 107, 192, 0.2);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
 
-        td {
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(74, 222, 128, 0.2);
-        }
+    .personagem-card:hover {
+      background: rgba(92, 107, 192, 0.1);
+      border-color: var(--accent2);
+      box-shadow: 0 0 20px var(--glow);
+      transform: translateY(-3px);
+    }
 
-        tbody tr {
-            transition: background 0.2s ease;
-        }
+    .personagem-avatar {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
 
-        tbody tr:hover {
-            background: rgba(74, 222, 128, 0.1);
-        }
+    .personagem-info h3 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 1.1rem;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
 
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
+    .personagem-info p {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin: 4px 0 0 0;
+    }
 
-        /* ===== BOTÃO ABRIR FICHA ===== */
-        .btn-ficha {
-            padding: 8px 16px;
-            background: #4ade80;
-            color: #1a1a2e;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            font-size: 0.9em;
-        }
+    .btn-ficha {
+      padding: 8px 16px;
+      background: var(--accent2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
-        .btn-ficha:hover {
-            background: #22c55e;
-            transform: scale(1.05);
-        }
+    .btn-ficha:hover {
+      background: var(--accent);
+      box-shadow: 0 0 15px var(--glow);
+      transform: scale(1.05);
+    }
 
-        .btn-ficha:active {
-            transform: scale(0.95);
-        }
+    .empty-patente {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-sub);
+      font-style: italic;
+    }
 
-        /* ===== PÁGINA FICHA ===== */
-        .ficha-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #4ade80;
-            border-radius: 15px;
-            padding: 40px;
-            backdrop-filter: blur(10px);
-            max-width: 800px;
-            margin: 0 auto;
-        }
+    .loading {
+      padding: 40px;
+      text-align: center;
+      color: var(--accent2);
+      font-size: 1.1rem;
+    }
 
-        .ficha-header {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #4ade80;
-        }
+    /* ======= PÁGINA FICHA ======= */
+    .page {
+      display: none;
+    }
 
-        .ficha-avatar {
-            width: 150px;
-            height: 150px;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3em;
-            flex-shrink: 0;
-        }
+    .page.active {
+      display: block;
+    }
 
-        .ficha-info h1 {
-            font-size: 2.2em;
-            color: #4ade80;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
-        }
+    .ficha-container {
+      background: var(--surface-inner);
+      border: 2px solid var(--accent2);
+      border-radius: 15px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
 
-        .ficha-info p {
-            font-size: 1.2em;
-            color: #ccc;
-            margin: 5px 0;
-        }
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      color: var(--accent2);
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.2s ease;
+    }
 
-        .ficha-label {
-            color: #4ade80;
-            font-weight: 600;
-        }
+    .back-button:hover {
+      gap: 12px;
+    }
 
-        .ficha-content {
-            margin-top: 30px;
-        }
+    .ficha-header {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--accent2);
+    }
 
-        .ficha-section {
-            margin-bottom: 30px;
-        }
+    .ficha-avatar {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3em;
+      flex-shrink: 0;
+    }
 
-        .ficha-section h2 {
-            color: #4ade80;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .ficha-info h1 {
+      font-family: 'Russo One', sans-serif;
+      font-size: 2.2em;
+      color: var(--accent2);
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(92, 107, 192, 0.3);
+      text-transform: uppercase;
+    }
 
-        .ficha-section p {
-            color: #ddd;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
+    .ficha-info p {
+      font-size: 1.2em;
+      color: #ccc;
+      margin: 5px 0;
+    }
 
-        .btn-voltar {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #4ade80;
-            color: #1a1a2e;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            margin-top: 30px;
-            font-size: 1em;
-        }
+    .ficha-label {
+      color: var(--accent2);
+      font-weight: 600;
+    }
 
-        .btn-voltar:hover {
-            background: #22c55e;
-            transform: translateX(-5px);
-        }
+    .ficha-content {
+      margin-top: 30px;
+    }
 
-        /* ===== MENSAGENS ===== */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #4ade80;
-            font-size: 1.1em;
-        }
+    .ficha-section {
+      margin-bottom: 30px;
+    }
 
-        .empty-message {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-            font-size: 1.1em;
-        }
+    .ficha-section h2 {
+      color: var(--accent2);
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-transform: uppercase;
+    }
 
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-            color: #4ade80;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.2s ease;
-        }
+    .ficha-section p {
+      color: #ddd;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
 
-        .back-button:hover {
-            gap: 12px;
-        }
+    .btn-voltar {
+      display: inline-block;
+      padding: 12px 24px;
+      background: var(--accent2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      margin-top: 30px;
+      font-size: 1em;
+      text-transform: uppercase;
+    }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8em;
-            }
+    .btn-voltar:hover {
+      background: var(--accent);
+      transform: translateX(-5px);
+      box-shadow: 0 0 15px var(--glow);
+    }
 
-            .ficha-header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .ficha-avatar {
-                width: 120px;
-                height: 120px;
-            }
-
-            .ficha-container {
-                padding: 20px;
-            }
-
-            th, td {
-                padding: 12px 10px;
-                font-size: 0.9em;
-            }
-        }
-    </style>
+    @media (max-width: 768px) {
+      #page-container { padding-top: 90px; }
+      .header-image { height: 150px; }
+      .header-red h1 { font-size: 1.8rem; }
+      .personagens-grid { grid-template-columns: 1fr; }
+      .ficha-header { flex-direction: column; text-align: center; }
+      .ficha-avatar { width: 120px; height: 120px; }
+      .ficha-container { padding: 20px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- ===== PÁGINA PRINCIPAL ===== -->
-        <div id="paginaPrincipal" class="page active">
-            <div class="header">
-                <h1>📚 Banco de Dados</h1>
-                <p style="color: #aaa; margin-top: 10px;">Pesquise e abra as fichas dos personagens</p>
-            </div>
 
-            <div class="search-bar">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input" 
-                    placeholder="🔍 Pesquise por nome ou patente..."
-                >
-            </div>
+  <!-- FUNDO BLINDADO -->
+  <div id="fixed-background">
+    <img src="seu-fundo-aqui.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
+    <div class="hero-overlay"></div>
+  </div>
 
-            <div id="tabelaContainer">
-                <div class="loading">⏳ Carregando dados...</div>
-            </div>
-        </div>
+  <!-- FLOATING UI -->
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
 
-        <!-- ===== PÁGINA FICHA ===== -->
-        <div id="paginaFicha" class="page">
-            <div class="back-button" onclick="voltarParaPrincipal()">
-                ← Voltar
-            </div>
+  <!-- NAV OVERLAY -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="5.0_shinobi.html">Shinobi</a>
+      <a class="nav-link" href="5.1_clas_shinobi.html">Clãs</a>
+      <a class="nav-link" href="5.7_patentes.html">Patentes</a>
+      <a class="nav-link" href="5.7_tecnicas.html">Aprendizagem de Técnicas</a>
+      <a class="nav-link" href="5.7_atributos.html">Atributos</a>
+      <a class="nav-link" href="5.7_chakra e hp.html">Chakra/HP</a>
+      <a class="nav-link" href="5.2_elementos.html">Elementos</a>
+      <a class="nav-link" href="5.5_missoes.html">Missões</a>
+      <a class="nav-link" href="5.4_especializações.html">Especializações</a>
+      <a class="nav-link" href="5.7_bijuus.html">Bijuus</a>
+      <a class="nav-link" href="5.7_ao e gatilho.html">A.O/Gatilho</a>
+      <a class="nav-link" href="5.7_bingo_book.html">BingoBook</a>
+      <a class="nav-link" href="5.7_doujutsu e kekkei genkai.html">Linhagem Sanguínea</a>
+      <a class="nav-link" href="5.7_espadas da nevoa_.html">Espadas da Névoa</a>
+      <a class="nav-link" href="5.7_loja ninja.html">Loja Ninja</a>
+      <a class="nav-link" href="5.7_nukkenins.html">Nukkenin</a>
+      <a class="nav-link" href="5.7_pesos.html">Pesos</a>
+      <a class="nav-link" href="5.7_kages.html">Kages</a>
+      <a class="nav-link" href="5.6_ficha.html">Fichas</a>
+    </nav>
+  </div>
 
-            <div class="ficha-container">
-                <div class="ficha-header">
-                    <div class="ficha-avatar" id="fichaAvatar">👤</div>
-                    <div class="ficha-info">
-                        <h1 id="fichaNome">Nome</h1>
-                        <p><span class="ficha-label">Patente:</span> <span id="fichaPatente">-</span></p>
-                    </div>
-                </div>
-
-                <div class="ficha-content">
-                    <div class="ficha-section">
-                        <h2>ℹ️ Informações Básicas</h2>
-                        <p><strong>ID:</strong> <span id="fichaId">-</span></p>
-                        <p><strong>Status:</strong> Ativo</p>
-                        <p><strong>Data de Cadastro:</strong> 
-                            <span id="fichaData">-</span>
-                        </p>
-                    </div>
-
-                    <div class="ficha-section">
-                        <h2>📋 Descrição</h2>
-                        <p id="fichaDescricao">Preencha os dados desejados aqui. Esta seção é apenas visual e não sincroniza com o banco de dados.</p>
-                    </div>
-
-                    <div class="ficha-section">
-                        <h2>⚡ Habilidades</h2>
-                        <p>• Primeira habilidade</p>
-                        <p>• Segunda habilidade</p>
-                        <p>• Terceira habilidade</p>
-                    </div>
-
-                    <div class="ficha-section">
-                        <h2>📊 Estatísticas</h2>
-                        <p>Força: ████████░░ 80%</p>
-                        <p>Velocidade: ██████░░░░ 60%</p>
-                        <p>Inteligência: █████████░ 90%</p>
-                    </div>
-                </div>
-
-                <button class="btn-voltar" onclick="voltarParaPrincipal()">← Voltar à Página Principal</button>
-            </div>
-        </div>
+  <!-- PÁGINA PRINCIPAL -->
+  <main id="page-container">
+    <div class="main-header-group">
+      <div class="header-image">
+        <img src="seu-header-aqui.png" alt="Header" onerror="this.style.display='none'" />
+      </div>
+      <div class="header-red">
+        <h1>Banco de Dados Shinobi</h1>
+        <div class="header-deco"></div>
+      </div>
     </div>
 
-    <script>
-        // ===== CONFIGURAÇÃO DO SUPABASE =====
-        // SUBSTITUA COM SEUS DADOS DO SUPABASE
-        const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
+    <div id="paginaPrincipal" class="page active">
+      <div id="secoesPorPatente"></div>
+      <div class="loading" id="loadingIndicator">⏳ Carregando personagens...</div>
+    </div>
 
-        let supabaseClient;
-        let todassPessoas = [];
+    <!-- PÁGINA FICHA -->
+    <div id="paginaFicha" class="page">
+      <div class="back-button" onclick="voltarParaPrincipal()">
+        ← Voltar
+      </div>
 
-        // Inicializa o Supabase
-        function inicializarSupabase() {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      <div class="ficha-container">
+        <div class="ficha-header">
+          <div class="ficha-avatar" id="fichaAvatar">👤</div>
+          <div class="ficha-info">
+            <h1 id="fichaNome">Nome</h1>
+            <p><span class="ficha-label">Patente:</span> <span id="fichaPatente">-</span></p>
+          </div>
+        </div>
+
+        <div class="ficha-content">
+          <div class="ficha-section">
+            <h2>ℹ️ Informações Básicas</h2>
+            <p><strong>ID:</strong> <span id="fichaId">-</span></p>
+            <p><strong>Status:</strong> Ativo</p>
+            <p><strong>Data de Cadastro:</strong> <span id="fichaData">-</span></p>
+          </div>
+
+          <div class="ficha-section">
+            <h2>📋 Descrição</h2>
+            <p id="fichaDescricao">Preencha os dados desejados aqui. Esta seção é apenas visual e não sincroniza com o banco de dados.</p>
+          </div>
+
+          <div class="ficha-section">
+            <h2>⚡ Habilidades</h2>
+            <p>• Primeira habilidade</p>
+            <p>• Segunda habilidade</p>
+            <p>• Terceira habilidade</p>
+          </div>
+
+          <div class="ficha-section">
+            <h2>📊 Estatísticas</h2>
+            <p>Força: ████████░░ 80%</p>
+            <p>Velocidade: ██████░░░░ 60%</p>
+            <p>Inteligência: █████████░ 90%</p>
+          </div>
+        </div>
+
+        <button class="btn-voltar" onclick="voltarParaPrincipal()">← Voltar à Página Principal</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ===== CONFIGURAÇÃO DO SUPABASE =====
+    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
+
+    let supabaseClient;
+    let todassPessoas = [];
+
+    // Ordem das patentes
+    const ordemPatentes = ['Kage', 'Estado-maior', 'ANBU', 'Jounin', 'Chunin', 'Genin'];
+
+    // Inicializa Supabase
+    function inicializarSupabase() {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+
+    // Carrega dados
+    async function carregarDados() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('personagens')
+          .select('*');
+
+        if (error) {
+          console.error('Erro ao carregar:', error);
+          document.getElementById('loadingIndicator').innerHTML = '⚠️ Erro ao carregar dados';
+          return;
         }
 
-        // Carrega os dados do banco
-        async function carregarDados() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('personagens')
-                    .select('*');
+        todassPessoas = data || [];
+        renderizarPorPatente();
+      } catch (err) {
+        console.error('Erro:', err);
+        document.getElementById('loadingIndicator').innerHTML = '⚠️ Erro ao carregar dados';
+      }
+    }
 
-                if (error) {
-                    console.error('Erro ao carregar:', error);
-                    mostrarTabelavazia();
-                    return;
-                }
+    // Renderiza seções por patente
+    function renderizarPorPatente() {
+      const container = document.getElementById('secoesPorPatente');
+      const loadingDiv = document.getElementById('loadingIndicador');
+      
+      if (loadingDiv) loadingDiv.style.display = 'none';
 
-                todassPessoas = data || [];
-                renderizarTabela(todassPessoas);
-            } catch (err) {
-                console.error('Erro:', err);
-                mostrarTabelavazia();
-            }
-        }
+      let html = '';
 
-        // Renderiza a tabela
-        function renderizarTabela(dados) {
-            const container = document.getElementById('tabelaContainer');
+      // Cria seção para cada patente
+      ordemPatentes.forEach(patente => {
+        const personagensPatente = todassPessoas.filter(p => p.patente === patente);
+        const quantidade = personagensPatente.length;
 
-            if (dados.length === 0) {
-                container.innerHTML = '<div class="empty-message">❌ Nenhum personagem encontrado</div>';
-                return;
-            }
+        html += `
+          <div class="patente-section">
+            <div class="patente-header">
+              <h2>${patente}</h2>
+              <div class="patente-count">${quantidade}</div>
+            </div>
+            <div class="personagens-grid" id="grid-${patente}">
+        `;
 
-            let html = `
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Patente</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            dados.forEach(pessoa => {
-                html += `
-                    <tr>
-                        <td>${pessoa.nome}</td>
-                        <td>${pessoa.patente}</td>
-                        <td>
-                            <button class="btn-ficha" onclick="abrirFicha(${pessoa.id})">
-                                Abrir Ficha
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            container.innerHTML = html;
-        }
-
-        // Pesquisa na tabela
-        function pesquisar(termo) {
-            const termoBuscaLower = termo.toLowerCase();
-            const resultados = todassPessoas.filter(pessoa => 
-                pessoa.nome.toLowerCase().includes(termoBuscaLower) ||
-                pessoa.patente.toLowerCase().includes(termoBuscaLower)
-            );
-            renderizarTabela(resultados);
-        }
-
-        // Abre a ficha
-        function abrirFicha(id) {
-            const pessoa = todassPessoas.find(p => p.id === id);
-            if (!pessoa) return;
-
-            document.getElementById('fichaNome').textContent = pessoa.nome;
-            document.getElementById('fichaPatente').textContent = pessoa.patente;
-            document.getElementById('fichaId').textContent = id;
-            document.getElementById('fichaData').textContent = new Date().toLocaleDateString('pt-BR');
-            
-            // Avatar com primeira letra do nome
+        if (personagensPatente.length === 0) {
+          html += '<div class="empty-patente">Nenhum personagem nesta patente</div>';
+        } else {
+          personagensPatente.forEach(pessoa => {
             const primeiraLetra = pessoa.nome.charAt(0).toUpperCase();
-            document.getElementById('fichaAvatar').textContent = primeiraLetra;
-
-            mostrarPagina('paginaFicha');
+            html += `
+              <div class="personagem-card" onclick="abrirFicha(${pessoa.id})">
+                <div class="personagem-avatar">${primeiraLetra}</div>
+                <div class="personagem-info">
+                  <h3>${pessoa.nome}</h3>
+                  <p>${pessoa.patente}</p>
+                </div>
+                <button class="btn-ficha" onclick="event.stopPropagation(); abrirFicha(${pessoa.id})">
+                  Abrir Ficha
+                </button>
+              </div>
+            `;
+          });
         }
 
-        // Volta para principal
-        function voltarParaPrincipal() {
-            mostrarPagina('paginaPrincipal');
-            document.getElementById('searchInput').value = '';
-            renderizarTabela(todassPessoas);
-        }
+        html += `
+            </div>
+          </div>
+        `;
+      });
 
-        // Mostra/esconde páginas
-        function mostrarPagina(paginaId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(paginaId).classList.add('active');
-        }
+      container.innerHTML = html;
+    }
 
-        function mostrarTabelavazia() {
-            document.getElementById('tabelaContainer').innerHTML = 
-                '<div class="empty-message">⚠️ Erro ao carregar dados. Verifique suas credenciais do Supabase.</div>';
-        }
+    // Abre ficha
+    function abrirFicha(id) {
+      const pessoa = todassPessoas.find(p => p.id === id);
+      if (!pessoa) return;
 
-        // Event listener da barra de pesquisa
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            pesquisar(e.target.value);
-        });
+      document.getElementById('fichaNome').textContent = pessoa.nome;
+      document.getElementById('fichaPatente').textContent = pessoa.patente;
+      document.getElementById('fichaId').textContent = id;
+      document.getElementById('fichaData').textContent = new Date().toLocaleDateString('pt-BR');
+      
+      const primeiraLetra = pessoa.nome.charAt(0).toUpperCase();
+      document.getElementById('fichaAvatar').textContent = primeiraLetra;
 
-        // Inicializa ao carregar a página
-        document.addEventListener('DOMContentLoaded', () => {
-            inicializarSupabase();
-            carregarDados();
-        });
-    </script>
+      mostrarPagina('paginaFicha');
+    }
+
+    // Volta
+    function voltarParaPrincipal() {
+      mostrarPagina('paginaPrincipal');
+    }
+
+    // Mostra/esconde páginas
+    function mostrarPagina(paginaId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(paginaId).classList.add('active');
+    }
+
+    // Menu
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    
+    document.getElementById('overlay-close').addEventListener('click', closeNav);
+    
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+    
+    function closeNav() { 
+      navOverlay.classList.remove('open'); 
+      menuBtn.classList.remove('open'); 
+    }
+
+    // Tema
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    // ESC para fechar menu
+    document.addEventListener('keydown', e => { 
+      if(e.key === 'Escape') closeNav(); 
+    });
+
+    // Inicializa
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarSupabase();
+      carregarDados();
+    });
+  </script>
 </body>
 </html>
