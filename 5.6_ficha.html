@@ -1,434 +1,500 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personagens - Kigen Shinobi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Dados - Personagens</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-    :root {
-      --bg: #0a0a0a;
-      --surface: #161616;
-      --surface2: #1a1a1a;
-      --border: #cc0000;
-      --accent: #cc0000;
-      --accent2: #ff4444;
-      --glow: rgba(204,0,0,0.6);
-      --shadow: rgba(204,0,0,0.38);
-      --text: #f0f0f0;
-      --text-sub: #999999;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-    [data-theme="light"] {
-      --bg: #efefef;
-      --surface: #ffffff;
-      --surface2: #f5f5f5;
-      --border: #cc0000;
-      --accent: #cc0000;
-      --accent2: #dd0000;
-      --glow: rgba(204,0,0,0.30);
-      --shadow: rgba(204,0,0,0.18);
-      --text: #111111;
-      --text-sub: #555555;
-    }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      background: var(--bg);
-      transition: color 0.4s, background 0.4s;
-      padding-top: 60px;
-    }
+        /* ===== PÁGINA PRINCIPAL ===== */
+        .page {
+            display: none;
+        }
 
-    /* FLOATING UI (igual às outras páginas) */
-    #floating-ui {
-      position: fixed; top: 20px; right: 22px; z-index: 1000;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-    }
-    #menu-btn {
-      width: 54px; height: 54px; border-radius: 50%; background: #000;
-      border: 2.5px solid var(--border); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 14px var(--glow); transition: box-shadow 0.25s, transform 0.2s;
-    }
-    #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
-    #menu-btn svg.kunai { width: 26px; height: 26px; transition: transform 0.35s; }
-    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+        .page.active {
+            display: block;
+        }
 
-    #theme-toggle {
-      width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
-      background: #000; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; box-shadow: 0 0 8px var(--glow); transition: box-shadow 0.3s, transform 0.2s;
-    }
-    #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
-    #theme-toggle svg { width: 15px; height: 15px; }
-    #theme-toggle .icon-sun { display: none; }
-    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
-    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
-    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-    #nav-overlay {
-      position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end;
-      pointer-events: none; opacity: 0; transition: opacity 0.35s;
-    }
-    #nav-overlay.open { pointer-events: all; opacity: 1; }
-    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #4ade80;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
 
-    #nav-panel {
-      position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
-      width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px;
-      gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
-      box-shadow: -10px 0 60px var(--shadow); overflow-y: auto;
-    }
-    #nav-panel::-webkit-scrollbar { width: 6px; }
-    #nav-panel::-webkit-scrollbar-track { background: transparent; }
-    #nav-panel::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-    #nav-overlay.open #nav-panel { transform: translateX(0); }
+        /* ===== BARRA DE PESQUISA ===== */
+        .search-bar {
+            margin-bottom: 30px;
+        }
 
-    .nav-link {
-      display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--text); text-decoration: none; padding: 13px 0;
-      border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s;
-      flex-shrink: 0;
-    }
-    .nav-link::before { content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.25s; }
-    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
-    .nav-link:hover::before { width: 20px; }
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1em;
+            border: 2px solid #4ade80;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
 
-    .container {
-      max-width: 1100px; margin: 0 auto; width: 100%; padding: 0 24px 60px;
-    }
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
 
-    /* TÍTULO DA PÁGINA */
-    .page-title {
-      font-family: 'Russo One', sans-serif;
-      font-size: 2rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text);
-      text-align: center;
-      margin-bottom: 6px;
-    }
-    .page-subtitle {
-      text-align: center;
-      color: var(--text-sub);
-      margin-bottom: 40px;
-      font-size: 0.95rem;
-    }
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
 
-    /* BUSCA */
-    .search-bar {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 40px;
-    }
-    .search-bar input {
-      width: 100%;
-      max-width: 420px;
-      background: var(--surface2);
-      border: 1.5px solid rgba(204,0,0,0.3);
-      border-radius: 30px;
-      padding: 12px 20px;
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 1rem;
-    }
-    .search-bar input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 12px rgba(204,0,0,0.3);
-    }
+        /* ===== TABELA ===== */
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #4ade80;
+            border-radius: 10px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
 
-    /* GRUPOS POR PATENTE */
-    .patente-group {
-      margin-bottom: 48px;
-    }
-    .patente-heading {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .patente-heading .line {
-      flex: 1;
-      height: 1px;
-      background: rgba(204,0,0,0.35);
-    }
-    .patente-heading h2 {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.2rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent);
-      white-space: nowrap;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    .char-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 20px;
-    }
+        thead {
+            background: rgba(74, 222, 128, 0.1);
+            border-bottom: 2px solid #4ade80;
+        }
 
-    .char-card {
-      background: var(--surface);
-      border: 2px solid rgba(204,0,0,0.3);
-      border-radius: 16px;
-      padding: 18px;
-      text-align: center;
-      cursor: pointer;
-      text-decoration: none;
-      color: var(--text);
-      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-      display: block;
-    }
-    .char-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent);
-      box-shadow: 0 8px 24px var(--shadow);
-    }
+        th {
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #4ade80;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
 
-    .char-card img {
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2.5px solid var(--accent);
-      margin-bottom: 12px;
-    }
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+        }
 
-    .char-card .char-name {
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.95rem;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
+        tbody tr {
+            transition: background 0.2s ease;
+        }
 
-    .char-card .char-vila {
-      display: inline-block;
-      font-size: 0.72rem;
-      color: var(--accent);
-      background: rgba(204,0,0,0.15);
-      border: 1px solid rgba(204,0,0,0.4);
-      border-radius: 6px;
-      padding: 3px 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+        tbody tr:hover {
+            background: rgba(74, 222, 128, 0.1);
+        }
 
-    .loading, .empty {
-      text-align: center;
-      padding: 60px 24px;
-      color: var(--text-sub);
-    }
-    .error {
-      background: rgba(255,68,68,0.1);
-      border: 2px solid #ff4444;
-      border-radius: 12px;
-      padding: 24px;
-      color: #ff4444;
-    }
-  </style>
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ===== BOTÃO ABRIR FICHA ===== */
+        .btn-ficha {
+            padding: 8px 16px;
+            background: #4ade80;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+
+        .btn-ficha:hover {
+            background: #22c55e;
+            transform: scale(1.05);
+        }
+
+        .btn-ficha:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== PÁGINA FICHA ===== */
+        .ficha-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #4ade80;
+            border-radius: 15px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .ficha-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4ade80;
+        }
+
+        .ficha-avatar {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            flex-shrink: 0;
+        }
+
+        .ficha-info h1 {
+            font-size: 2.2em;
+            color: #4ade80;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        }
+
+        .ficha-info p {
+            font-size: 1.2em;
+            color: #ccc;
+            margin: 5px 0;
+        }
+
+        .ficha-label {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .ficha-content {
+            margin-top: 30px;
+        }
+
+        .ficha-section {
+            margin-bottom: 30px;
+        }
+
+        .ficha-section h2 {
+            color: #4ade80;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ficha-section p {
+            color: #ddd;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .btn-voltar {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4ade80;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            margin-top: 30px;
+            font-size: 1em;
+        }
+
+        .btn-voltar:hover {
+            background: #22c55e;
+            transform: translateX(-5px);
+        }
+
+        /* ===== MENSAGENS ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #4ade80;
+            font-size: 1.1em;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            color: #4ade80;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s ease;
+        }
+
+        .back-button:hover {
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .ficha-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ficha-avatar {
+                width: 120px;
+                height: 120px;
+            }
+
+            .ficha-container {
+                padding: 20px;
+            }
+
+            th, td {
+                padding: 12px 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <!-- ===== PÁGINA PRINCIPAL ===== -->
+        <div id="paginaPrincipal" class="page active">
+            <div class="header">
+                <h1>📚 Banco de Dados</h1>
+                <p style="color: #aaa; margin-top: 10px;">Pesquise e abra as fichas dos personagens</p>
+            </div>
 
-  <div id="floating-ui">
-    <button id="menu-btn" aria-label="Abrir menu">
-      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
-        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
-        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
-        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
-      </svg>
-    </button>
-    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
-      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="12" cy="12" r="5"/>
-        <line x1="12" y1="2"  x2="12" y2="5"/>
-        <line x1="12" y1="19" x2="12" y2="22"/>
-        <line x1="2"  y1="12" x2="5"  y2="12"/>
-        <line x1="19" y1="12" x2="22" y2="12"/>
-        <line x1="4.22" y1="4.22"   x2="6.34" y2="6.34"/>
-        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
-        <line x1="4.22" y1="19.78"  x2="6.34" y2="17.66"/>
-        <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
-      </svg>
-      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
-      </svg>
-    </button>
-  </div>
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="🔍 Pesquise por nome ou patente..."
+                >
+            </div>
 
-  <div id="nav-overlay" role="dialog" aria-modal="true">
-    <div class="overlay-bg" id="overlay-close"></div>
-    <nav id="nav-panel">
-      <a class="nav-link" href="index.html">Início</a>
-      <a class="nav-link" href="personagens_lista.html">Personagens</a>
-      <a class="nav-link" href="1.2_historia.html">História</a>
-      <a class="nav-link" href="1.3_geografia.html">Geografia</a>
-      <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de vida</a>
-      <a class="nav-link" href="1.5_calendario.html">Calendário</a>
-      <a class="nav-link" href="1.6_jornal.html">Jornal</a>
-      <a class="nav-link" href="1.7_administracao.html">Administração</a>
-      <a class="nav-link" href="1.8_sangue.html">Sangue</a>
-      <a class="nav-link" href="1.9_eternizados.html">Eternizados</a>
-      <a class="nav-link" href="1.10_organizacoes.html">Organizações</a>
-      <a class="nav-link" href="1.11_religioes.html">Religiões</a>
-      <a class="nav-link" href="1.12_tag.html">TAGS</a>
-      <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
-      <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
-      <a class="nav-link" href="1.15_hall_da_fama.html">Hall da Fama</a>
-      <a class="nav-link" href="1.16_alcunhas.html">Alcunhas</a>
-      <a class="nav-link" href="1.17_legado.html">Legado</a>
-      <a class="nav-link" href="#">Loja</a>
-      <a class="nav-link" href="1.18_regras.html">Regras</a>
-    </nav>
-  </div>
+            <div id="tabelaContainer">
+                <div class="loading">⏳ Carregando dados...</div>
+            </div>
+        </div>
 
-  <div class="container">
-    <h1 class="page-title">Shinobis da Vila</h1>
-    <p class="page-subtitle" id="contador">Carregando...</p>
+        <!-- ===== PÁGINA FICHA ===== -->
+        <div id="paginaFicha" class="page">
+            <div class="back-button" onclick="voltarParaPrincipal()">
+                ← Voltar
+            </div>
 
-    <div class="search-bar">
-      <input type="text" id="busca" placeholder="Buscar personagem pelo nome...">
+            <div class="ficha-container">
+                <div class="ficha-header">
+                    <div class="ficha-avatar" id="fichaAvatar">👤</div>
+                    <div class="ficha-info">
+                        <h1 id="fichaNome">Nome</h1>
+                        <p><span class="ficha-label">Patente:</span> <span id="fichaPatente">-</span></p>
+                    </div>
+                </div>
+
+                <div class="ficha-content">
+                    <div class="ficha-section">
+                        <h2>ℹ️ Informações Básicas</h2>
+                        <p><strong>ID:</strong> <span id="fichaId">-</span></p>
+                        <p><strong>Status:</strong> Ativo</p>
+                        <p><strong>Data de Cadastro:</strong> 
+                            <span id="fichaData">-</span>
+                        </p>
+                    </div>
+
+                    <div class="ficha-section">
+                        <h2>📋 Descrição</h2>
+                        <p id="fichaDescricao">Preencha os dados desejados aqui. Esta seção é apenas visual e não sincroniza com o banco de dados.</p>
+                    </div>
+
+                    <div class="ficha-section">
+                        <h2>⚡ Habilidades</h2>
+                        <p>• Primeira habilidade</p>
+                        <p>• Segunda habilidade</p>
+                        <p>• Terceira habilidade</p>
+                    </div>
+
+                    <div class="ficha-section">
+                        <h2>📊 Estatísticas</h2>
+                        <p>Força: ████████░░ 80%</p>
+                        <p>Velocidade: ██████░░░░ 60%</p>
+                        <p>Inteligência: █████████░ 90%</p>
+                    </div>
+                </div>
+
+                <button class="btn-voltar" onclick="voltarParaPrincipal()">← Voltar à Página Principal</button>
+            </div>
+        </div>
     </div>
 
-    <div id="loading" class="loading">Carregando personagens...</div>
-    <div id="error" class="error" style="display:none;"></div>
-    <div id="lista" style="display:none;"></div>
-  </div>
+    <script>
+        // ===== CONFIGURAÇÃO DO SUPABASE =====
+        // SUBSTITUA COM SEUS DADOS DO SUPABASE
+        const SUPABASE_URL = 'https://seu-projeto.supabase.co';
+        const SUPABASE_KEY = 'sua-chave-publica-aqui';
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // ======= CONFIG SUPABASE (mesma config da ficha) =======
-    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
+        let supabase;
+        let todassPessoas = [];
 
-    const supabase = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    window.supabaseClient = supabase;
+        // Inicializa o Supabase
+        function inicializarSupabase() {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
 
-    // Ordem de exibição das patentes. Ajuste os nomes exatamente
-    // como estão salvos na coluna "patente" no seu Supabase.
-    const ORDEM_PATENTES = ['Hokage', 'Sannin', 'Anbu', 'Jonin', 'Chunin', 'Genin', 'Academico'];
+        // Carrega os dados do banco
+        async function carregarDados() {
+            try {
+                const { data, error } = await supabase
+                    .from('personagens')
+                    .select('*');
 
-    // Para onde a ficha deve levar ao clicar (o arquivo da ficha que você já tem)
-    const FICHA_URL = '5.6_ficha.html';
+                if (error) {
+                    console.error('Erro ao carregar:', error);
+                    mostrarTabelavazia();
+                    return;
+                }
 
-    let todosPersonagens = [];
+                todassPessoas = data || [];
+                renderizarTabela(todassPessoas);
+            } catch (err) {
+                console.error('Erro:', err);
+                mostrarTabelavazia();
+            }
+        }
 
-    // ======= MENU E TEMA (igual às outras páginas) =======
-    const menuBtn = document.getElementById('menu-btn');
-    const navOverlay = document.getElementById('nav-overlay');
-    document.getElementById('overlay-close').addEventListener('click', closeMenu);
-    menuBtn.addEventListener('click', () => {
-      const open = navOverlay.classList.toggle('open');
-      menuBtn.classList.toggle('open', open);
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
-    function closeMenu() {
-      navOverlay.classList.remove('open');
-      menuBtn.classList.remove('open');
-    }
+        // Renderiza a tabela
+        function renderizarTabela(dados) {
+            const container = document.getElementById('tabelaContainer');
 
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
-    root.setAttribute('data-theme', savedTheme);
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('ks-theme', next);
-    });
+            if (dados.length === 0) {
+                container.innerHTML = '<div class="empty-message">❌ Nenhum personagem encontrado</div>';
+                return;
+            }
 
-    // ======= CARREGAR PERSONAGENS =======
-    async function carregarPersonagens() {
-      try {
-        const { data, error } = await supabase
-          .from('personagens_public')
-          .select('id, nome, patente, vila, status, foto_url')
-          .eq('status', 'vivo')
-          .order('nome', { ascending: true });
+            let html = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Patente</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
 
-        if (error) throw error;
+            dados.forEach(pessoa => {
+                html += `
+                    <tr>
+                        <td>${pessoa.nome}</td>
+                        <td>${pessoa.patente}</td>
+                        <td>
+                            <button class="btn-ficha" onclick="abrirFicha(${pessoa.id})">
+                                Abrir Ficha
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
 
-        todosPersonagens = data || [];
-        document.getElementById('contador').textContent = `${todosPersonagens.length} personagens ativos`;
-        renderLista(todosPersonagens);
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
 
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('lista').style.display = 'block';
-      } catch (err) {
-        console.error('Erro ao carregar personagens:', err);
-        document.getElementById('error').textContent = `Erro ao carregar personagens: ${err.message}`;
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('loading').style.display = 'none';
-      }
-    }
+            container.innerHTML = html;
+        }
 
-    // ======= RENDERIZAR AGRUPADO POR PATENTE =======
-    function renderLista(personagens) {
-      const lista = document.getElementById('lista');
-      lista.innerHTML = '';
+        // Pesquisa na tabela
+        function pesquisar(termo) {
+            const termoBuscaLower = termo.toLowerCase();
+            const resultados = todassPessoas.filter(pessoa => 
+                pessoa.nome.toLowerCase().includes(termoBuscaLower) ||
+                pessoa.patente.toLowerCase().includes(termoBuscaLower)
+            );
+            renderizarTabela(resultados);
+        }
 
-      if (personagens.length === 0) {
-        lista.innerHTML = '<p class="empty">Nenhum personagem encontrado.</p>';
-        return;
-      }
+        // Abre a ficha
+        function abrirFicha(id) {
+            const pessoa = todassPessoas.find(p => p.id === id);
+            if (!pessoa) return;
 
-      // agrupa por patente
-      const grupos = {};
-      personagens.forEach(p => {
-        const patente = p.patente || 'Sem Patente';
-        if (!grupos[patente]) grupos[patente] = [];
-        grupos[patente].push(p);
-      });
+            document.getElementById('fichaNome').textContent = pessoa.nome;
+            document.getElementById('fichaPatente').textContent = pessoa.patente;
+            document.getElementById('fichaId').textContent = id;
+            document.getElementById('fichaData').textContent = new Date().toLocaleDateString('pt-BR');
+            
+            // Avatar com primeira letra do nome
+            const primeiraLetra = pessoa.nome.charAt(0).toUpperCase();
+            document.getElementById('fichaAvatar').textContent = primeiraLetra;
 
-      // monta a ordem final: patentes conhecidas primeiro, depois o resto
-      const extras = Object.keys(grupos).filter(p => !ORDEM_PATENTES.includes(p));
-      const ordemFinal = [...ORDEM_PATENTES, ...extras].filter(p => grupos[p]?.length);
+            mostrarPagina('paginaFicha');
+        }
 
-      ordemFinal.forEach(patente => {
-        const grupoDiv = document.createElement('div');
-        grupoDiv.className = 'patente-group';
+        // Volta para principal
+        function voltarParaPrincipal() {
+            mostrarPagina('paginaPrincipal');
+            document.getElementById('searchInput').value = '';
+            renderizarTabela(todassPessoas);
+        }
 
-        grupoDiv.innerHTML = `
-          <div class="patente-heading">
-            <div class="line"></div>
-            <h2>${patente}</h2>
-            <div class="line"></div>
-          </div>
-          <div class="char-grid"></div>
-        `;
+        // Mostra/esconde páginas
+        function mostrarPagina(paginaId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(paginaId).classList.add('active');
+        }
 
-        const grid = grupoDiv.querySelector('.char-grid');
-        grupos[patente].forEach(p => {
-          const card = document.createElement('a');
-          card.className = 'char-card';
-          card.href = `${FICHA_URL}?id=${p.id}`;
-          card.innerHTML = `
-            <img src="${p.foto_url || 'https://via.placeholder.com/84'}" alt="${p.nome}">
-            <div class="char-name">${p.nome}</div>
-            ${p.vila ? `<span class="char-vila">${p.vila}</span>` : ''}
-          `;
-          grid.appendChild(card);
+        function mostrarTabelavazia() {
+            document.getElementById('tabelaContainer').innerHTML = 
+                '<div class="empty-message">⚠️ Erro ao carregar dados. Verifique suas credenciais do Supabase.</div>';
+        }
+
+        // Event listener da barra de pesquisa
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            pesquisar(e.target.value);
         });
 
-        lista.appendChild(grupoDiv);
-      });
-    }
-
-    // ======= BUSCA =======
-    document.getElementById('busca').addEventListener('input', (e) => {
-      const termo = e.target.value.toLowerCase().trim();
-      const filtrados = todosPersonagens.filter(p => p.nome.toLowerCase().includes(termo));
-      renderLista(filtrados);
-    });
-
-    carregarPersonagens();
-  </script>
+        // Inicializa ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarSupabase();
+            carregarDados();
+        });
+    </script>
 </body>
 </html>
