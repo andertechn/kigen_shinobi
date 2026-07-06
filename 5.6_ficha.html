@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ficha - Kigen Shinobi</title>
+  <title>Personagens - Kigen Shinobi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
   <style>
     :root {
@@ -46,7 +45,7 @@
       padding-top: 60px;
     }
 
-    /* FLOATING UI */
+    /* FLOATING UI (igual às outras páginas) */
     #floating-ui {
       position: fixed; top: 20px; right: 22px; z-index: 1000;
       display: flex; flex-direction: column; align-items: center; gap: 10px;
@@ -73,7 +72,6 @@
     [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
     [data-theme="light"] #theme-toggle .icon-moon { display: none; }
 
-    /* NAV OVERLAY */
     #nav-overlay {
       position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end;
       pointer-events: none; opacity: 0; transition: opacity 0.35s;
@@ -87,11 +85,9 @@
       gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
       box-shadow: -10px 0 60px var(--shadow); overflow-y: auto;
     }
-
     #nav-panel::-webkit-scrollbar { width: 6px; }
     #nav-panel::-webkit-scrollbar-track { background: transparent; }
     #nav-panel::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-
     #nav-overlay.open #nav-panel { transform: translateX(0); }
 
     .nav-link {
@@ -105,514 +101,138 @@
     .nav-link:hover::before { width: 20px; }
 
     .container {
-      max-width: 1000px; margin: 0 auto; width: 100%; padding: 0 24px 60px;
+      max-width: 1100px; margin: 0 auto; width: 100%; padding: 0 24px 60px;
     }
 
-    /* HEADER */
-    .char-header {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      margin-bottom: 40px;
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 30px;
-      align-items: flex-start;
-    }
-
-    .char-avatar {
-      width: 160px;
-      height: 160px;
-      border-radius: 16px;
-      border: 3px solid var(--accent);
-      object-fit: cover;
-    }
-
-    .char-details h1 {
+    /* TÍTULO DA PÁGINA */
+    .page-title {
       font-family: 'Russo One', sans-serif;
       font-size: 2rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text);
-      margin-bottom: 12px;
+      text-align: center;
+      margin-bottom: 6px;
     }
-
-    .char-titles {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .char-title {
-      background: rgba(204,0,0,0.2);
-      border: 1.5px solid var(--accent);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      color: var(--accent);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .char-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(204,0,0,0.2);
-    }
-
-    .meta-item {
+    .page-subtitle {
+      text-align: center;
+      color: var(--text-sub);
+      margin-bottom: 40px;
       font-size: 0.95rem;
     }
 
-    .meta-label {
-      color: var(--accent);
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .meta-value {
-      color: var(--text);
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .status-vivo { color: #00cc00; }
-    .status-morto { color: #ff4444; }
-
-    /* TOOLBAR */
-    .toolbar {
+    /* BUSCA */
+    .search-bar {
       display: flex;
-      gap: 16px;
+      justify-content: center;
       margin-bottom: 40px;
-      flex-wrap: wrap;
     }
-
-    .btn {
-      padding: 12px 24px;
-      border: 2px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.9rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      border-radius: 8px;
-      transition: all 0.3s;
-    }
-
-    .btn:hover {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 0 20px var(--glow);
-    }
-
-    .btn.primary {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn.hidden { display: none; }
-
-    /* ABAS */
-    .tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 40px;
-      border-bottom: 2px solid var(--border);
-      overflow-x: auto;
-    }
-
-    .tab {
-      padding: 16px 24px;
-      background: transparent;
-      border: none;
-      color: var(--text-sub);
-      cursor: pointer;
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.9rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      transition: all 0.3s;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-    }
-
-    .tab:hover {
-      color: var(--accent);
-    }
-
-    .tab.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* SEÇÕES */
-    .section {
-      background: var(--surface);
-      border: 2px solid rgba(204,0,0,0.3);
-      border-radius: 16px;
-      padding: 32px;
-      margin-bottom: 24px;
-    }
-
-    .section h2 {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .section h3 {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.1rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text);
-      margin-bottom: 16px;
-      margin-top: 20px;
-    }
-
-    .section h3:first-child { margin-top: 0; }
-
-    /* GRID DE CAMPOS */
-    .field-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 24px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .field label {
-      color: var(--accent);
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-    }
-
-    .field input, .field textarea, .field select {
+    .search-bar input {
+      width: 100%;
+      max-width: 420px;
       background: var(--surface2);
       border: 1.5px solid rgba(204,0,0,0.3);
-      border-radius: 8px;
-      padding: 12px;
+      border-radius: 30px;
+      padding: 12px 20px;
       color: var(--text);
       font-family: 'Rajdhani', sans-serif;
       font-size: 1rem;
-      transition: border-color 0.3s;
     }
-
-    .field input:focus, .field textarea:focus, .field select:focus {
+    .search-bar input:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 12px rgba(204,0,0,0.3);
     }
 
-    .field input:disabled, .field textarea:disabled, .field select:disabled {
-      background: rgba(204,0,0,0.05);
-      color: var(--text-sub);
-      cursor: not-allowed;
+    /* GRUPOS POR PATENTE */
+    .patente-group {
+      margin-bottom: 48px;
     }
-
-    .field textarea {
-      resize: vertical;
-      min-height: 120px;
-      grid-column: 1 / -1;
-    }
-
-    /* ATRIBUTOS */
-    .attributes-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .attribute {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .attr-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .attr-label {
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      color: var(--text);
-    }
-
-    .attr-value {
-      font-size: 1.2rem;
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .attr-controls {
-      display: flex;
-      gap: 8px;
-    }
-
-    .attr-btn {
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--accent);
-      background: transparent;
-      color: var(--accent);
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
+    .patente-heading {
       display: flex;
       align-items: center;
-      justify-content: center;
-    }
-
-    .attr-btn:hover {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .attr-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .toggle-btn {
-      width: 32px;
-      height: 32px;
-      border: 1px solid rgba(204,0,0,0.5);
-      background: transparent;
-      color: var(--text-sub);
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.3s;
-    }
-
-    .toggle-btn.hidden {
-      background: rgba(204,0,0,0.2);
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    /* DIAGRAM */
-    #radarChart {
-      max-width: 400px;
-      margin: 24px auto;
-    }
-
-    /* VITAL STATUS */
-    .vital {
+      gap: 16px;
       margin-bottom: 20px;
     }
-
-    .vital-label {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .vital-bar {
-      width: 100%;
-      height: 24px;
-      background: var(--surface2);
-      border: 1px solid rgba(204,0,0,0.3);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .vital-fill {
-      height: 100%;
-      transition: width 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 8px;
-      color: #fff;
-      font-weight: 600;
-      font-size: 0.8rem;
-    }
-
-    .hp-fill { background: linear-gradient(90deg, #ff4444, #ff8888); }
-    .chakra-fill { background: linear-gradient(90deg, #4499ff, #88ccff); }
-
-    /* NATUREZAS */
-    .natures-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px;
-    }
-
-    .nature-item {
-      background: var(--surface2);
-      border: 1.5px solid rgba(204,0,0,0.3);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .nature-label {
-      color: var(--accent);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-    }
-
-    .nature-value {
-      color: var(--text);
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    /* TÉCNICAS */
-    .techniques-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .technique-item {
-      background: var(--surface2);
-      border: 1.5px solid rgba(204,0,0,0.3);
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .technique-name {
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .technique-remove {
-      width: 32px;
-      height: 32px;
-      border: 1px solid #ff4444;
-      background: transparent;
-      color: #ff4444;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-
-    .technique-remove:hover {
-      background: #ff4444;
-      color: #fff;
-    }
-
-    /* MODAL */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
-
-    .modal.show { display: flex; }
-
-    .modal-content {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      padding: 40px;
-      max-width: 400px;
-      width: 90%;
-    }
-
-    .modal-content h2 {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.5rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 24px;
-    }
-
-    .modal-content input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      background: var(--surface2);
-      border: 1.5px solid rgba(204,0,0,0.3);
-      border-radius: 8px;
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 12px;
-    }
-
-    .modal-buttons button {
+    .patente-heading .line {
       flex: 1;
-      padding: 12px;
-      border: 1.5px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      border-radius: 8px;
-      cursor: pointer;
+      height: 1px;
+      background: rgba(204,0,0,0.35);
+    }
+    .patente-heading h2 {
       font-family: 'Russo One', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      transition: all 0.3s;
+      color: var(--accent);
+      white-space: nowrap;
     }
 
-    .modal-buttons button:first-child {
-      background: var(--accent);
-      color: #fff;
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
     }
 
-    .modal-buttons button:first-child:hover {
-      box-shadow: 0 0 20px var(--glow);
+    .char-card {
+      background: var(--surface);
+      border: 2px solid rgba(204,0,0,0.3);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      display: block;
+    }
+    .char-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px var(--shadow);
     }
 
-    .loading { text-align: center; padding: 60px 24px; }
-    .error { background: rgba(255,68,68,0.1); border: 2px solid #ff4444; border-radius: 12px; padding: 24px; color: #ff4444; }
+    .char-card img {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2.5px solid var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .char-card .char-name {
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .char-card .char-vila {
+      display: inline-block;
+      font-size: 0.72rem;
+      color: var(--accent);
+      background: rgba(204,0,0,0.15);
+      border: 1px solid rgba(204,0,0,0.4);
+      border-radius: 6px;
+      padding: 3px 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .loading, .empty {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-sub);
+    }
+    .error {
+      background: rgba(255,68,68,0.1);
+      border: 2px solid #ff4444;
+      border-radius: 12px;
+      padding: 24px;
+      color: #ff4444;
+    }
   </style>
 </head>
 <body>
@@ -671,276 +291,37 @@
   </div>
 
   <div class="container">
-    <div id="loading" class="loading">Carregando personagem...</div>
+    <h1 class="page-title">Shinobis da Vila</h1>
+    <p class="page-subtitle" id="contador">Carregando...</p>
+
+    <div class="search-bar">
+      <input type="text" id="busca" placeholder="Buscar personagem pelo nome...">
+    </div>
+
+    <div id="loading" class="loading">Carregando personagens...</div>
     <div id="error" class="error" style="display:none;"></div>
-
-    <div id="content" style="display:none;">
-      <div class="char-header">
-        <img id="char-avatar" src="" alt="Avatar" class="char-avatar">
-        <div class="char-details">
-          <h1 id="char-name"></h1>
-          <div class="char-titles" id="char-titles"></div>
-          <div class="char-meta">
-            <div class="meta-item">
-              <span class="meta-label">Patente</span>
-              <span class="meta-value" id="char-patente">---</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Vila</span>
-              <span class="meta-value" id="char-vila">---</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Status</span>
-              <span class="meta-value" id="char-status">---</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Fama</span>
-              <span class="meta-value" id="char-fama">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="toolbar">
-        <button class="btn primary" id="btn-edit">Editar</button>
-        <button class="btn hidden" id="btn-save">Salvar</button>
-        <button class="btn hidden" id="btn-cancel">Cancelar</button>
-        <a href="personagens_lista.html" class="btn">Voltar</a>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" data-tab="perfil">Perfil</button>
-        <button class="tab" data-tab="combate">Combate</button>
-        <button class="tab" data-tab="jornada">Jornada</button>
-        <button class="tab" data-tab="extras">Extras</button>
-        <button class="tab" data-tab="colecoes">Colecionáveis</button>
-      </div>
-
-      <div id="perfil" class="tab-content active">
-        <div class="section">
-          <h2>📋 Informações Básicas</h2>
-          <div class="field-grid">
-            <div class="field">
-              <label>Gênero</label>
-              <input type="text" id="genero" disabled>
-            </div>
-            <div class="field">
-              <label>Sexualidade</label>
-              <input type="text" id="sexualidade" disabled>
-            </div>
-            <div class="field">
-              <label>Idade</label>
-              <input type="number" id="idade" disabled>
-            </div>
-            <div class="field">
-              <label>Aniversário</label>
-              <input type="text" id="aniversario" disabled>
-            </div>
-            <div class="field">
-              <label>Clã</label>
-              <input type="text" id="clan" disabled>
-            </div>
-            <div class="field">
-              <label>Tipo Sanguíneo</label>
-              <input type="text" id="tipo_sanguineo" disabled>
-            </div>
-            <div class="field">
-              <label>Religião</label>
-              <input type="text" id="religiao" disabled>
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <h2>🎨 Descrição Física</h2>
-          <h3>Aparência</h3>
-          <div class="field" style="grid-column: 1 / -1;">
-            <label>Descrição</label>
-            <textarea id="descricao_aparencia" disabled></textarea>
-          </div>
-          <div class="field-grid" style="margin-top: 20px;">
-            <div class="field">
-              <label>Altura</label>
-              <input type="text" id="altura" disabled>
-            </div>
-            <div class="field">
-              <label>Peso</label>
-              <input type="text" id="peso" disabled>
-            </div>
-            <div class="field">
-              <label>Cabelos</label>
-              <input type="text" id="cabelos" disabled>
-            </div>
-            <div class="field">
-              <label>Olhos</label>
-              <input type="text" id="olhos" disabled>
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <h2>🖼️ Preferências (Fotos)</h2>
-          <div id="fotos-container" class="field-grid"></div>
-        </div>
-
-        <div class="section">
-          <h2>📖 História</h2>
-          <div class="field">
-            <label>Histórico do Personagem</label>
-            <textarea id="historia" disabled></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div id="combate" class="tab-content">
-        <div class="section">
-          <h2>⚔️ Atributos</h2>
-          <div class="attributes-container" id="attributes-container"></div>
-        </div>
-
-        <div class="section">
-          <h2>📊 Radar de Atributos</h2>
-          <canvas id="radarChart"></canvas>
-        </div>
-
-        <div class="section">
-          <h2>❤️ Status Vitais</h2>
-          <div class="vital">
-            <div class="vital-label">
-              <span>HP</span>
-              <span id="hp-display">0 / 0</span>
-            </div>
-            <div class="vital-bar">
-              <div class="vital-fill hp-fill" id="hp-fill" style="width: 100%;"></div>
-            </div>
-          </div>
-          <div class="vital">
-            <div class="vital-label">
-              <span>Chakra</span>
-              <span id="chakra-display">0 / 0</span>
-            </div>
-            <div class="vital-bar">
-              <div class="vital-fill chakra-fill" id="chakra-fill" style="width: 100%;"></div>
-            </div>
-          </div>
-          <div class="field-grid" style="margin-top: 20px;">
-            <div class="field">
-              <label>HP Atual</label>
-              <input type="number" id="hp_atual" disabled min="0">
-            </div>
-            <div class="field">
-              <label>HP Máximo</label>
-              <input type="number" id="hp_maximo" disabled min="0">
-            </div>
-            <div class="field">
-              <label>Chakra Atual</label>
-              <input type="number" id="chakra_atual" disabled min="0">
-            </div>
-            <div class="field">
-              <label>Chakra Máximo</label>
-              <input type="number" id="chakra_maximo" disabled min="0">
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <h2>🌊 Naturezas Elementais</h2>
-          <div class="natures-grid" id="natures-grid">
-            <div class="nature-item">
-              <div class="nature-label">1ª Natureza</div>
-              <input type="text" id="natureza1" placeholder="Raiton" disabled style="width: 100%; text-align: center;">
-            </div>
-            <div class="nature-item">
-              <div class="nature-label">2ª Natureza</div>
-              <input type="text" id="natureza2" placeholder="Futon" disabled style="width: 100%; text-align: center;">
-            </div>
-            <div class="nature-item">
-              <div class="nature-label">3ª Natureza</div>
-              <input type="text" id="natureza3" placeholder="---" disabled style="width: 100%; text-align: center;">
-            </div>
-            <div class="nature-item">
-              <div class="nature-label">Kekei Elemental</div>
-              <input type="text" id="kekei_elemental" placeholder="---" disabled style="width: 100%; text-align: center;">
-            </div>
-            <div class="nature-item">
-              <div class="nature-label">Dojutsu</div>
-              <input type="text" id="dojutsu" placeholder="---" disabled style="width: 100%; text-align: center;">
-            </div>
-            <div class="nature-item">
-              <div class="nature-label">Afinidade Elemental</div>
-              <input type="text" id="afinidade_elemental" placeholder="Raiton, Futon, Jinton" disabled style="width: 100%; text-align: center;">
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <h2>🥋 Técnicas</h2>
-          <div class="techniques-list" id="techniques-list"></div>
-          <button class="btn" id="btn-add-technique" style="display:none;">+ Adicionar Técnica</button>
-        </div>
-      </div>
-
-      <div id="jornada" class="tab-content">
-        <div class="section">
-          <h2>📜 Eventos e Jornadas</h2>
-          <p style="color: var(--text-sub);">Conteúdo em desenvolvimento...</p>
-        </div>
-      </div>
-
-      <div id="extras" class="tab-content">
-        <div class="section">
-          <h2>⭐ Extras</h2>
-          <p style="color: var(--text-sub);">Conteúdo em desenvolvimento...</p>
-        </div>
-      </div>
-
-      <div id="colecoes" class="tab-content">
-        <div class="section">
-          <h2>🏆 Colecionáveis</h2>
-          <p style="color: var(--text-sub);">Conteúdo em desenvolvimento...</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="edit-modal">
-    <div class="modal-content">
-      <h2>Código de Edição</h2>
-      <input type="password" id="edit-code" placeholder="Digite seu código">
-      <div class="modal-buttons">
-        <button onclick="confirmEdit()">Confirmar</button>
-        <button onclick="cancelEdit()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="technique-modal">
-    <div class="modal-content">
-      <h2>Nova Técnica</h2>
-      <input type="text" id="technique-name" placeholder="Nome da técnica">
-      <div class="modal-buttons">
-        <button onclick="addTechnique()">Adicionar</button>
-        <button onclick="closeTechniqueModal()">Cancelar</button>
-      </div>
-    </div>
+    <div id="lista" style="display:none;"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ======= CONFIG SUPABASE =======
+    // ======= CONFIG SUPABASE (mesma config da ficha) =======
     const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
 
     const supabase = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     window.supabaseClient = supabase;
 
-    // ======= VARIÁVEIS GLOBAIS =======
-    let currentCharacter = null;
-    let isEditMode = false;
-    let radarChart = null;
-    let pendingEditCode = null;
+    // Ordem de exibição das patentes. Ajuste os nomes exatamente
+    // como estão salvos na coluna "patente" no seu Supabase.
+    const ORDEM_PATENTES = ['Hokage', 'Sannin', 'Anbu', 'Jonin', 'Chunin', 'Genin', 'Academico'];
 
-    // ======= MENU E TEMA =======
+    // Para onde a ficha deve levar ao clicar (o arquivo da ficha que você já tem)
+    const FICHA_URL = '5.6_ficha.html';
+
+    let todosPersonagens = [];
+
+    // ======= MENU E TEMA (igual às outras páginas) =======
     const menuBtn = document.getElementById('menu-btn');
     const navOverlay = document.getElementById('nav-overlay');
     document.getElementById('overlay-close').addEventListener('click', closeMenu);
@@ -955,446 +336,99 @@
     }
 
     const root = document.documentElement;
-    const saved = localStorage.getItem('ks-theme') || 'dark';
-    root.setAttribute('data-theme', saved);
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
     document.getElementById('theme-toggle').addEventListener('click', () => {
       const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
       localStorage.setItem('ks-theme', next);
     });
 
-    // ======= CARREGAMENTO DO PERSONAGEM =======
-    async function loadCharacter() {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-
-      if (!id) {
-        document.getElementById('error').textContent = 'ID do personagem não fornecido';
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('loading').style.display = 'none';
-        return;
-      }
-
+    // ======= CARREGAR PERSONAGENS =======
+    async function carregarPersonagens() {
       try {
         const { data, error } = await supabase
           .from('personagens_public')
-          .select('*')
-          .eq('id', id)
-          .single();
+          .select('id, nome, patente, vila, status, foto_url')
+          .eq('status', 'vivo')
+          .order('nome', { ascending: true });
 
         if (error) throw error;
 
-        currentCharacter = data;
-        renderCharacter();
+        todosPersonagens = data || [];
+        document.getElementById('contador').textContent = `${todosPersonagens.length} personagens ativos`;
+        renderLista(todosPersonagens);
+
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
-      } catch (error) {
-        console.error('Erro ao carregar:', error);
-        document.getElementById('error').textContent = `Erro: ${error.message}`;
+        document.getElementById('lista').style.display = 'block';
+      } catch (err) {
+        console.error('Erro ao carregar personagens:', err);
+        document.getElementById('error').textContent = `Erro ao carregar personagens: ${err.message}`;
         document.getElementById('error').style.display = 'block';
         document.getElementById('loading').style.display = 'none';
       }
     }
 
-    function renderCharacter() {
-      const char = currentCharacter;
+    // ======= RENDERIZAR AGRUPADO POR PATENTE =======
+    function renderLista(personagens) {
+      const lista = document.getElementById('lista');
+      lista.innerHTML = '';
 
-      document.getElementById('char-avatar').src = char.foto_url || 'https://via.placeholder.com/160';
-      document.getElementById('char-name').textContent = char.nome;
-      document.getElementById('char-patente').textContent = char.patente || '---';
-      document.getElementById('char-vila').textContent = char.vila || '---';
-      document.getElementById('char-status').innerHTML = `<span class="status-${char.status}">${char.status.toUpperCase()}</span>`;
-      document.getElementById('char-fama').textContent = char.fama || '0';
-
-      const titlesContainer = document.getElementById('char-titles');
-      titlesContainer.innerHTML = '';
-      if (char.titulos) {
-        char.titulos.split(',').forEach(title => {
-          const badge = document.createElement('div');
-          badge.className = 'char-title';
-          badge.textContent = title.trim();
-          titlesContainer.appendChild(badge);
-        });
-      }
-
-      document.getElementById('genero').value = char.genero || '';
-      document.getElementById('sexualidade').value = char.sexualidade || '';
-      document.getElementById('idade').value = char.idade || '';
-      document.getElementById('aniversario').value = char.aniversario || '';
-      document.getElementById('clan').value = char.clan || '';
-      document.getElementById('tipo_sanguineo').value = char.tipo_sanguineo || '';
-      document.getElementById('religiao').value = char.religiao || '';
-
-      document.getElementById('descricao_aparencia').value = char.descricao_aparencia || '';
-      document.getElementById('altura').value = char.altura || '';
-      document.getElementById('peso').value = char.peso || '';
-      document.getElementById('cabelos').value = char.cabelos || '';
-      document.getElementById('olhos').value = char.olhos || '';
-
-      const fotosContainer = document.getElementById('fotos-container');
-      fotosContainer.innerHTML = '';
-      for (let i = 1; i <= 5; i++) {
-        const field = document.createElement('div');
-        field.className = 'field';
-        field.innerHTML = `
-          <label>Foto ${i}</label>
-          <input type="text" id="foto${i}" placeholder="URL da imagem" disabled value="${char[`foto${i}_url`] || ''}">
-        `;
-        fotosContainer.appendChild(field);
-      }
-
-      document.getElementById('historia').value = char.historia || '';
-
-      const attributes = ['ninjutsu', 'genjutsu', 'inteligencia', 'resistencia', 'forca', 'velocidade', 'selos'];
-      const subAttributes = ['fuinjutsu', 'combate', 'ninjutsu_geral', 'elementos', 'kenjutsu', 'shurikenjutsu'];
-
-      const attrContainer = document.getElementById('attributes-container');
-      attrContainer.innerHTML = '';
-
-      attributes.forEach(attr => {
-        const value = char[attr] || 0;
-        const hidden = char[`${attr}_hidden`] || false;
-
-        const div = document.createElement('div');
-        div.className = 'attribute';
-        div.innerHTML = `
-          <div class="attr-header">
-            <label class="attr-label">${attr.toUpperCase()}</label>
-            <span class="attr-value" id="${attr}-value">${value}</span>
-          </div>
-          <div class="attr-controls">
-            <button class="attr-btn" id="${attr}-minus" onclick="decreaseAttr('${attr}')">−</button>
-            <button class="attr-btn" id="${attr}-plus" onclick="increaseAttr('${attr}')">+</button>
-            <button class="toggle-btn ${hidden ? 'hidden' : ''}" id="${attr}-toggle" onclick="toggleHide('${attr}')" title="Ocultar">👁</button>
-          </div>
-        `;
-        attrContainer.appendChild(div);
-      });
-
-      subAttributes.forEach(attr => {
-        const value = char[attr] || 0;
-        const hidden = char[`${attr}_hidden`] || false;
-
-        const div = document.createElement('div');
-        div.className = 'attribute';
-        const label = attr.replace(/_/g, ' ').toUpperCase();
-        div.innerHTML = `
-          <div class="attr-header">
-            <label class="attr-label">${label}</label>
-            <span class="attr-value" id="${attr}-value">${value}</span>
-          </div>
-          <div class="attr-controls">
-            <button class="attr-btn" id="${attr}-minus" onclick="decreaseAttr('${attr}')">−</button>
-            <button class="attr-btn" id="${attr}-plus" onclick="increaseAttr('${attr}')">+</button>
-            <button class="toggle-btn ${hidden ? 'hidden' : ''}" id="${attr}-toggle" onclick="toggleHide('${attr}')" title="Ocultar">👁</button>
-          </div>
-        `;
-        attrContainer.appendChild(div);
-      });
-
-      document.getElementById('hp_atual').value = char.hp_atual || 0;
-      document.getElementById('hp_maximo').value = char.hp_maximo || 1550;
-      document.getElementById('chakra_atual').value = char.chakra_atual || 0;
-      document.getElementById('chakra_maximo').value = char.chakra_maximo || 3250;
-
-      updateVitalBars();
-
-      document.getElementById('natureza1').value = char.natureza1 || '';
-      document.getElementById('natureza2').value = char.natureza2 || '';
-      document.getElementById('natureza3').value = char.natureza3 || '';
-      document.getElementById('kekei_elemental').value = char.kekei_elemental || '';
-      document.getElementById('dojutsu').value = char.dojutsu || '';
-      document.getElementById('afinidade_elemental').value = char.afinidade_elemental || '';
-
-      renderTechniques();
-      updateRadarChart();
-    }
-
-    // ======= ATRIBUTOS =======
-    function increaseAttr(attr) {
-      const current = parseInt(document.getElementById(`${attr}-value`).textContent) || 0;
-      document.getElementById(`${attr}-value`).textContent = current + 1;
-      if (currentCharacter[attr] === undefined) currentCharacter[attr] = 0;
-      currentCharacter[attr] = current + 1;
-      updateRadarChart();
-    }
-
-    function decreaseAttr(attr) {
-      const current = parseInt(document.getElementById(`${attr}-value`).textContent) || 0;
-      if (current > 0) {
-        document.getElementById(`${attr}-value`).textContent = current - 1;
-        currentCharacter[attr] = current - 1;
-        updateRadarChart();
-      }
-    }
-
-    function toggleHide(attr) {
-      const btn = document.getElementById(`${attr}-toggle`);
-      btn.classList.toggle('hidden');
-      currentCharacter[`${attr}_hidden`] = btn.classList.contains('hidden');
-    }
-
-    // ======= STATUS VITAIS =======
-    function updateVitalBars() {
-      const hpAtual = parseInt(document.getElementById('hp_atual').value) || 0;
-      const hpMaximo = parseInt(document.getElementById('hp_maximo').value) || 1;
-      const chakraAtual = parseInt(document.getElementById('chakra_atual').value) || 0;
-      const chakraMaximo = parseInt(document.getElementById('chakra_maximo').value) || 1;
-
-      const hpPercent = (hpAtual / hpMaximo) * 100;
-      const chakraPercent = (chakraAtual / chakraMaximo) * 100;
-
-      document.getElementById('hp-fill').style.width = hpPercent + '%';
-      document.getElementById('chakra-fill').style.width = chakraPercent + '%';
-
-      document.getElementById('hp-display').textContent = `${hpAtual}/${hpMaximo}`;
-      document.getElementById('chakra-display').textContent = `${chakraAtual}/${chakraMaximo}`;
-    }
-
-    // ======= RADAR CHART =======
-    function updateRadarChart() {
-      const attributes = ['ninjutsu', 'genjutsu', 'inteligencia', 'resistencia', 'forca', 'velocidade', 'selos'];
-      const values = attributes.map(attr => parseInt(document.getElementById(`${attr}-value`).textContent) || 0);
-
-      const ctx = document.getElementById('radarChart').getContext('2d');
-
-      if (radarChart) {
-        radarChart.data.datasets[0].data = values;
-        radarChart.update();
-      } else {
-        radarChart = new Chart(ctx, {
-          type: 'radar',
-          data: {
-            labels: attributes.map(a => a.toUpperCase()),
-            datasets: [{
-              label: 'Atributos',
-              data: values,
-              borderColor: 'rgba(204, 0, 0, 1)',
-              backgroundColor: 'rgba(204, 0, 0, 0.2)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(204, 0, 0, 1)',
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-              pointRadius: 5,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              r: {
-                beginAtZero: true,
-                max: 100,
-                ticks: { color: 'rgba(240, 240, 240, 0.7)' },
-                grid: { color: 'rgba(204, 0, 0, 0.2)' },
-                angleLines: { color: 'rgba(204, 0, 0, 0.2)' }
-              }
-            },
-            plugins: {
-              legend: { labels: { color: 'rgba(240, 240, 240, 0.9)' } }
-            }
-          }
-        });
-      }
-    }
-
-    // ======= TÉCNICAS =======
-    function renderTechniques() {
-      const techniques = currentCharacter.tecnicas || [];
-      const list = document.getElementById('techniques-list');
-      list.innerHTML = '';
-
-      techniques.forEach((tech, idx) => {
-        const div = document.createElement('div');
-        div.className = 'technique-item';
-        div.innerHTML = `
-          <span class="technique-name">${tech}</span>
-          <button class="technique-remove" onclick="removeTechnique(${idx})">−</button>
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    function openTechniqueModal() {
-      document.getElementById('technique-modal').classList.add('show');
-    }
-
-    function closeTechniqueModal() {
-      document.getElementById('technique-modal').classList.remove('show');
-    }
-
-    function addTechnique() {
-      const name = document.getElementById('technique-name').value.trim();
-      if (!name) return;
-
-      if (!currentCharacter.tecnicas) currentCharacter.tecnicas = [];
-      currentCharacter.tecnicas.push(name);
-      document.getElementById('technique-name').value = '';
-      closeTechniqueModal();
-      renderTechniques();
-    }
-
-    function removeTechnique(idx) {
-      currentCharacter.tecnicas.splice(idx, 1);
-      renderTechniques();
-    }
-
-    // ======= EDIÇÃO =======
-    document.getElementById('btn-edit').addEventListener('click', () => {
-      document.getElementById('edit-modal').classList.add('show');
-    });
-
-    function confirmEdit() {
-      const code = document.getElementById('edit-code').value;
-
-      if (!code) {
-        alert('Digite um código!');
+      if (personagens.length === 0) {
+        lista.innerHTML = '<p class="empty">Nenhum personagem encontrado.</p>';
         return;
       }
 
-      pendingEditCode = code;
-      enableEditMode();
-      document.getElementById('edit-modal').classList.remove('show');
-      document.getElementById('edit-code').value = '';
-    }
+      // agrupa por patente
+      const grupos = {};
+      personagens.forEach(p => {
+        const patente = p.patente || 'Sem Patente';
+        if (!grupos[patente]) grupos[patente] = [];
+        grupos[patente].push(p);
+      });
 
-    function cancelEdit() {
-      document.getElementById('edit-modal').classList.remove('show');
-      document.getElementById('edit-code').value = '';
-    }
+      // monta a ordem final: patentes conhecidas primeiro, depois o resto
+      const extras = Object.keys(grupos).filter(p => !ORDEM_PATENTES.includes(p));
+      const ordemFinal = [...ORDEM_PATENTES, ...extras].filter(p => grupos[p]?.length);
 
-    function enableEditMode() {
-      isEditMode = true;
-      document.getElementById('btn-edit').classList.add('hidden');
-      document.getElementById('btn-save').classList.remove('hidden');
-      document.getElementById('btn-cancel').classList.remove('hidden');
-      document.getElementById('btn-add-technique').style.display = 'block';
+      ordemFinal.forEach(patente => {
+        const grupoDiv = document.createElement('div');
+        grupoDiv.className = 'patente-group';
 
-      document.querySelectorAll('input, textarea, select').forEach(el => {
-        if (!el.id.includes('edit-code') && !el.id.includes('technique')) {
-          el.disabled = false;
-        }
+        grupoDiv.innerHTML = `
+          <div class="patente-heading">
+            <div class="line"></div>
+            <h2>${patente}</h2>
+            <div class="line"></div>
+          </div>
+          <div class="char-grid"></div>
+        `;
+
+        const grid = grupoDiv.querySelector('.char-grid');
+        grupos[patente].forEach(p => {
+          const card = document.createElement('a');
+          card.className = 'char-card';
+          card.href = `${FICHA_URL}?id=${p.id}`;
+          card.innerHTML = `
+            <img src="${p.foto_url || 'https://via.placeholder.com/84'}" alt="${p.nome}">
+            <div class="char-name">${p.nome}</div>
+            ${p.vila ? `<span class="char-vila">${p.vila}</span>` : ''}
+          `;
+          grid.appendChild(card);
+        });
+
+        lista.appendChild(grupoDiv);
       });
     }
 
-    document.getElementById('btn-cancel').addEventListener('click', () => {
-      isEditMode = false;
-      pendingEditCode = null;
-      renderCharacter();
-      document.getElementById('btn-edit').classList.remove('hidden');
-      document.getElementById('btn-save').classList.add('hidden');
-      document.getElementById('btn-cancel').classList.add('hidden');
-      document.getElementById('btn-add-technique').style.display = 'none';
-
-      document.querySelectorAll('input, textarea, select').forEach(el => {
-        if (!el.id.includes('edit-code') && !el.id.includes('technique')) {
-          el.disabled = true;
-        }
-      });
+    // ======= BUSCA =======
+    document.getElementById('busca').addEventListener('input', (e) => {
+      const termo = e.target.value.toLowerCase().trim();
+      const filtrados = todosPersonagens.filter(p => p.nome.toLowerCase().includes(termo));
+      renderLista(filtrados);
     });
 
-    document.getElementById('btn-save').addEventListener('click', async () => {
-      if (!isEditMode) return;
-
-      if (!pendingEditCode) {
-        alert('Sessão de edição inválida. Clique em Editar novamente.');
-        return;
-      }
-
-      try {
-        const updates = {
-          nome: document.getElementById('char-name').textContent,
-          genero: document.getElementById('genero').value,
-          sexualidade: document.getElementById('sexualidade').value,
-          idade: parseInt(document.getElementById('idade').value) || null,
-          aniversario: document.getElementById('aniversario').value,
-          clan: document.getElementById('clan').value,
-          tipo_sanguineo: document.getElementById('tipo_sanguineo').value,
-          religiao: document.getElementById('religiao').value,
-          descricao_aparencia: document.getElementById('descricao_aparencia').value,
-          altura: document.getElementById('altura').value,
-          peso: document.getElementById('peso').value,
-          cabelos: document.getElementById('cabelos').value,
-          olhos: document.getElementById('olhos').value,
-          historia: document.getElementById('historia').value,
-          natureza1: document.getElementById('natureza1').value,
-          natureza2: document.getElementById('natureza2').value,
-          natureza3: document.getElementById('natureza3').value,
-          kekei_elemental: document.getElementById('kekei_elemental').value,
-          dojutsu: document.getElementById('dojutsu').value,
-          afinidade_elemental: document.getElementById('afinidade_elemental').value,
-          hp_atual: parseInt(document.getElementById('hp_atual').value) || 0,
-          hp_maximo: parseInt(document.getElementById('hp_maximo').value) || 0,
-          chakra_atual: parseInt(document.getElementById('chakra_atual').value) || 0,
-          chakra_maximo: parseInt(document.getElementById('chakra_maximo').value) || 0,
-          tecnicas: currentCharacter.tecnicas || []
-        };
-
-        ['ninjutsu', 'genjutsu', 'inteligencia', 'resistencia', 'forca', 'velocidade', 'selos'].forEach(attr => {
-          updates[attr] = parseInt(document.getElementById(`${attr}-value`).textContent) || 0;
-        });
-
-        ['fuinjutsu', 'combate', 'ninjutsu_geral', 'elementos', 'kenjutsu', 'shurikenjutsu'].forEach(attr => {
-          updates[attr] = parseInt(document.getElementById(`${attr}-value`).textContent) || 0;
-        });
-
-        for (let i = 1; i <= 5; i++) {
-          updates[`foto${i}_url`] = document.getElementById(`foto${i}`).value;
-        }
-
-        const { data: ok, error } = await supabase.rpc('editar_personagem', {
-          p_id: currentCharacter.id,
-          p_codigo: pendingEditCode,
-          p_updates: updates
-        });
-
-        if (error) throw error;
-
-        if (ok === false) {
-          alert('Código de edição incorreto! Nada foi salvo.');
-          return;
-        }
-
-        alert('Personagem salvo com sucesso!');
-        isEditMode = false;
-        pendingEditCode = null;
-        Object.assign(currentCharacter, updates);
-        document.getElementById('btn-edit').classList.remove('hidden');
-        document.getElementById('btn-save').classList.add('hidden');
-        document.getElementById('btn-cancel').classList.add('hidden');
-        document.getElementById('btn-add-technique').style.display = 'none';
-
-        document.querySelectorAll('input, textarea, select').forEach(el => {
-          if (!el.id.includes('edit-code') && !el.id.includes('technique')) {
-            el.disabled = true;
-          }
-        });
-      } catch (error) {
-        alert('Erro ao salvar: ' + error.message);
-      }
-    });
-
-    // ======= ABAS =======
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const tabName = tab.dataset.tab;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(tabName).classList.add('active');
-
-        if (tabName === 'combate') {
-          setTimeout(() => updateRadarChart(), 100);
-        }
-      });
-    });
-
-    document.getElementById('btn-add-technique').addEventListener('click', openTechniqueModal);
-
-    ['hp_atual', 'hp_maximo', 'chakra_atual', 'chakra_maximo'].forEach(id => {
-      document.getElementById(id).addEventListener('input', updateVitalBars);
-    });
-
-    loadCharacter();
+    carregarPersonagens();
   </script>
 </body>
 </html>
