@@ -131,7 +131,7 @@
     }
     .historia-header-red h1 {
       font-family: 'Bangers', cursive; font-size: clamp(2rem, 5vw, 3rem);
-      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1;
+      letter-spacing: 0.22em; color: #fff; text-transform: uppercase; line-height: 1; margin: 0;
     }
     .historia-header-deco { flex: 1; height: 2px; background: rgba(255,255,255,0.3); }
     .historia-header-body {
@@ -234,7 +234,7 @@
       font-size: 1rem; color: #ccc; margin-bottom: 10px; line-height: 1.6;
     }
     .sword-system ul {
-      list-style: none; padding-left: 0;
+      list-style: none; padding-left: 0; margin: 0;
     }
     .sword-system li {
       font-size: 0.95rem; margin-bottom: 8px; color: var(--text-sub);
@@ -272,7 +272,7 @@
 
   <!-- Fundo -->
   <div id="fixed-background">
-    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" />
+    <img src="00_fundo_1_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
     <div class="hero-overlay"></div>
   </div>
 
@@ -338,7 +338,10 @@
         <a href="#kubikiribocho">Kubikiribōchō</a>
         <a href="#samehada">Samehada</a>
         <a href="#hiramekarei">Hiramekarei</a>
-        <!-- Adicione as outras aqui se quiser -->
+        <a href="#kiba">Kiba</a>
+        <a href="#kabutowari">Kabutowari</a>
+        <a href="#nuibari">Nuibari</a>
+        <a href="#shibuki">Shibuki</a>
       </div>
     </div>
 
@@ -352,8 +355,7 @@
       </div>
       
       <div class="sword-img-wrapper">
-        <!-- Substitua o src pela sua imagem gigante da espada -->
-        <img src="link_imagem_kubikiribocho.jpg" alt="Kubikiribōchō">
+        <img src="00_kubikiribocho.png" alt="Kubikiribōchō" onerror="this.style.display='none'">
       </div>
 
       <div class="sword-body">
@@ -392,11 +394,11 @@
     <div class="sword-container" id="samehada">
       <div class="sword-header">
         <h2 class="sword-title">Samehada</h2>
-        <div class="sword-owner">Dono Atual: Jogador_Exemplo</div>
+        <div class="sword-owner">Dono Atual: Vago (Livre)</div>
       </div>
       
       <div class="sword-img-wrapper">
-        <img src="link_imagem_samehada.jpg" alt="Samehada">
+        <img src="00_samehada.png" alt="Samehada" onerror="this.style.display='none'">
       </div>
 
       <div class="sword-body">
@@ -437,7 +439,7 @@
       </div>
       
       <div class="sword-img-wrapper">
-        <img src="link_imagem_hiramekarei.jpg" alt="Hiramekarei">
+        <img src="00_hiramekarei.png" alt="Hiramekarei" onerror="this.style.display='none'">
       </div>
 
       <div class="sword-body">
@@ -467,7 +469,165 @@
       </div>
     </div>
 
-    <!-- Pode copiar e colar o bloco da "ESPADA 3" para criar as outras 4 espadas faltantes! -->
+    <!-- ==============================================
+         ESPADA 4: KIBA
+    =============================================== -->
+    <div class="sword-container" id="kiba">
+      <div class="sword-header">
+        <h2 class="sword-title">Kiba</h2>
+        <div class="sword-owner">Dono Atual: Vago (Livre)</div>
+      </div>
+      
+      <div class="sword-img-wrapper">
+        <img src="00_kiba.png" alt="Kiba" onerror="this.style.display='none'">
+      </div>
+
+      <div class="sword-body">
+        <div class="sword-lore">
+          <h4>As Espadas do Trovão</h4>
+          <p>
+            Duas lâminas gêmeas imbuídas com relâmpago, aumentando drasticamente sua capacidade de corte e perfuração. São reconhecidas e temidas como as mais afiadas dentre as sete espadas.
+          </p>
+          <p>
+            Ao canalizar chakra do estilo Raiton, as lâminas se tornam capazes de fatiar praticamente qualquer material, e quem for ferido sofrerá com os efeitos paralisantes da eletricidade percorrendo o corpo.
+          </p>
+        </div>
+
+        <div class="sword-system">
+          <h4>Sisteminas de Combate</h4>
+          <p><strong>Rank da Arma:</strong> S</p>
+          <ul>
+            <li><strong>Eletrificação:</strong> Cada golpe bem sucedido causa uma leve paralisia (reduz esquiva por 1 turno).</li>
+            <li><strong>Corte Supremo:</strong> +20% na velocidade de ataque devido à leveza e fio da lâmina elétrica.</li>
+            <li><strong>Integração Elemental:</strong> Aumenta o dano de Jutsus Raiton canalizados através da espada em 30%.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sword-footer">
+        <a href="#topo-pagina" class="back-to-top">↑ Voltar ao Arsenal</a>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         ESPADA 5: KABUTOWARI
+    =============================================== -->
+    <div class="sword-container" id="kabutowari">
+      <div class="sword-header">
+        <h2 class="sword-title">Kabutowari</h2>
+        <div class="sword-owner">Dono Atual: Vago (Livre)</div>
+      </div>
+      
+      <div class="sword-img-wrapper">
+        <img src="00_kabutowari.png" alt="Kabutowari" onerror="this.style.display='none'">
+      </div>
+
+      <div class="sword-body">
+        <div class="sword-lore">
+          <h4>O Rachador de Elmos</h4>
+          <p>
+            Diferente das espadas convencionais, Kabutowari é composta por um machado de um lado e um martelo gigante conectado por uma tira de couro do outro. 
+          </p>
+          <p>
+            Foi projetada especificamente para quebrar qualquer defesa, por mais sólida que seja. O usuário ataca primeiro com o machado e, em seguida, golpeia as costas do machado com o martelo, garantindo que o impacto destrua escudos, barreiras ou ossos.
+          </p>
+        </div>
+
+        <div class="sword-system">
+          <h4>Sisteminas de Combate</h4>
+          <p><strong>Rank da Arma:</strong> S</p>
+          <ul>
+            <li><strong>Quebra-Defesa:</strong> Ignora totalmente 50% de qualquer bônus de resistência ou defesa física do oponente.</li>
+            <li><strong>Impacto Massivo:</strong> Se o golpe for defendido por um escudo/barreira, há 70% de chance do equipamento inimigo quebrar.</li>
+            <li><strong>Desvantagem:</strong> Requer 1 turno de preparação se errar o golpe devido à inércia do peso do martelo.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sword-footer">
+        <a href="#topo-pagina" class="back-to-top">↑ Voltar ao Arsenal</a>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         ESPADA 6: NUIBARI
+    =============================================== -->
+    <div class="sword-container" id="nuibari">
+      <div class="sword-header">
+        <h2 class="sword-title">Nuibari</h2>
+        <div class="sword-owner">Dono Atual: Vago (Livre)</div>
+      </div>
+      
+      <div class="sword-img-wrapper">
+        <img src="00_nuibari.png" alt="Nuibari" onerror="this.style.display='none'">
+      </div>
+
+      <div class="sword-body">
+        <div class="sword-lore">
+          <h4>A Agulha de Costura</h4>
+          <p>
+            Uma lâmina incrivelmente fina e longa, acompanhada por um longo fio de aço na base do cabo. Ela não foi feita para cortar, mas sim para perfurar.
+          </p>
+          <p>
+            Sua natureza permite que o usuário perfure múltiplos inimigos de uma só vez, "costurando-os" juntos e deixando-os imobilizados e à mercê do assassino, assemelhando-se ao trabalho cruel de uma aranha tecendo a presa.
+          </p>
+        </div>
+
+        <div class="sword-system">
+          <h4>Sisteminas de Combate</h4>
+          <p><strong>Rank da Arma:</strong> S</p>
+          <ul>
+            <li><strong>Costura Fatal:</strong> Capaz de imobilizar até 3 alvos simultâneos se conseguir alinhar o golpe perfurante.</li>
+            <li><strong>Alcance Oculto:</strong> O fio de aço possui 20 metros, permitindo recolher a lâmina ou prender inimigos à distância.</li>
+            <li><strong>Furtividade:</strong> Por ser extremamente fina, tem 20% a mais de chance de não ser percebida ou bloqueada em ataques surpresa.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sword-footer">
+        <a href="#topo-pagina" class="back-to-top">↑ Voltar ao Arsenal</a>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         ESPADA 7: SHIBUKI
+    =============================================== -->
+    <div class="sword-container" id="shibuki">
+      <div class="sword-header">
+        <h2 class="sword-title">Shibuki</h2>
+        <div class="sword-owner">Dono Atual: Vago (Livre)</div>
+      </div>
+      
+      <div class="sword-img-wrapper">
+        <img src="00_shibuki.png" alt="Shibuki" onerror="this.style.display='none'">
+      </div>
+
+      <div class="sword-body">
+        <div class="sword-lore">
+          <h4>A Lâmina Explosiva</h4>
+          <p>
+            Uma espada larga e assustadora que incorpora um enorme pergaminho cilíndrico de selos explosivos diretamente em sua lâmina. Une o poder de corte físico ao poder destrutivo da pólvora.
+          </p>
+          <p>
+            Conforme a espada entra em contato com o inimigo, os papéis desenrolam e detonam instantaneamente, causando dano explosivo no impacto antes que o pergaminho se recarregue com mais selos.
+          </p>
+        </div>
+
+        <div class="sword-system">
+          <h4>Sisteminas de Combate</h4>
+          <p><strong>Rank da Arma:</strong> S</p>
+          <ul>
+            <li><strong>Detonação Imediata:</strong> Todo golpe direto ou defendido ativa a detonação, causando dano adicional em área.</li>
+            <li><strong>Dano de Área:</strong> A explosão afeta todos em um raio de 3 metros do impacto.</li>
+            <li><strong>Fator Surpresa:</strong> Bloquear a espada não anula o dano explosivo (queima as mãos e defesas do inimigo).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sword-footer">
+        <a href="#topo-pagina" class="back-to-top">↑ Voltar ao Arsenal</a>
+      </div>
+    </div>
 
   </main>
 
