@@ -925,23 +925,19 @@
     </div>
   </div>
 
-      script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-      <script>
-       // ======= CONFIG SUPABASE =======
-       const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
-      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
-  
-      const supabase = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      window.supabaseClient = supabase;
-      </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ======= CONFIG SUPABASE =======
+    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
+
+    const supabase = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.supabaseClient = supabase;
 
     // ======= VARIÁVEIS GLOBAIS =======
     let currentCharacter = null;
     let isEditMode = false;
     let radarChart = null;
-    // Guarda temporariamente o código digitado pelo usuário nesta sessão,
-    // só para reenviar ao Supabase na hora de salvar. NUNCA é comparado
-    // no navegador -- quem valida é a função editar_personagem no banco.
     let pendingEditCode = null;
 
     // ======= MENU E TEMA =======
@@ -968,7 +964,6 @@
     });
 
     // ======= CARREGAMENTO DO PERSONAGEM =======
-    // Lê da VIEW pública (personagens_public), que nunca expõe codigo_edicao.
     async function loadCharacter() {
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
@@ -1004,7 +999,6 @@
     function renderCharacter() {
       const char = currentCharacter;
 
-      // Header
       document.getElementById('char-avatar').src = char.foto_url || 'https://via.placeholder.com/160';
       document.getElementById('char-name').textContent = char.nome;
       document.getElementById('char-patente').textContent = char.patente || '---';
@@ -1012,7 +1006,6 @@
       document.getElementById('char-status').innerHTML = `<span class="status-${char.status}">${char.status.toUpperCase()}</span>`;
       document.getElementById('char-fama').textContent = char.fama || '0';
 
-      // Títulos
       const titlesContainer = document.getElementById('char-titles');
       titlesContainer.innerHTML = '';
       if (char.titulos) {
@@ -1024,7 +1017,6 @@
         });
       }
 
-      // Perfil
       document.getElementById('genero').value = char.genero || '';
       document.getElementById('sexualidade').value = char.sexualidade || '';
       document.getElementById('idade').value = char.idade || '';
@@ -1033,14 +1025,12 @@
       document.getElementById('tipo_sanguineo').value = char.tipo_sanguineo || '';
       document.getElementById('religiao').value = char.religiao || '';
 
-      // Descrição Física
       document.getElementById('descricao_aparencia').value = char.descricao_aparencia || '';
       document.getElementById('altura').value = char.altura || '';
       document.getElementById('peso').value = char.peso || '';
       document.getElementById('cabelos').value = char.cabelos || '';
       document.getElementById('olhos').value = char.olhos || '';
 
-      // Fotos
       const fotosContainer = document.getElementById('fotos-container');
       fotosContainer.innerHTML = '';
       for (let i = 1; i <= 5; i++) {
@@ -1053,17 +1043,14 @@
         fotosContainer.appendChild(field);
       }
 
-      // História
       document.getElementById('historia').value = char.historia || '';
 
-      // Combate - Atributos
       const attributes = ['ninjutsu', 'genjutsu', 'inteligencia', 'resistencia', 'forca', 'velocidade', 'selos'];
       const subAttributes = ['fuinjutsu', 'combate', 'ninjutsu_geral', 'elementos', 'kenjutsu', 'shurikenjutsu'];
 
       const attrContainer = document.getElementById('attributes-container');
       attrContainer.innerHTML = '';
 
-      // Atributos principais
       attributes.forEach(attr => {
         const value = char[attr] || 0;
         const hidden = char[`${attr}_hidden`] || false;
@@ -1084,7 +1071,6 @@
         attrContainer.appendChild(div);
       });
 
-      // Sub-atributos
       subAttributes.forEach(attr => {
         const value = char[attr] || 0;
         const hidden = char[`${attr}_hidden`] || false;
@@ -1106,7 +1092,6 @@
         attrContainer.appendChild(div);
       });
 
-      // Status Vitais
       document.getElementById('hp_atual').value = char.hp_atual || 0;
       document.getElementById('hp_maximo').value = char.hp_maximo || 1550;
       document.getElementById('chakra_atual').value = char.chakra_atual || 0;
@@ -1114,7 +1099,6 @@
 
       updateVitalBars();
 
-      // Naturezas
       document.getElementById('natureza1').value = char.natureza1 || '';
       document.getElementById('natureza2').value = char.natureza2 || '';
       document.getElementById('natureza3').value = char.natureza3 || '';
@@ -1122,10 +1106,7 @@
       document.getElementById('dojutsu').value = char.dojutsu || '';
       document.getElementById('afinidade_elemental').value = char.afinidade_elemental || '';
 
-      // Técnicas
       renderTechniques();
-
-      // Radar chart
       updateRadarChart();
     }
 
@@ -1258,8 +1239,6 @@
     }
 
     // ======= EDIÇÃO =======
-    // O modal só COLETA o código digitado. A verificação de verdade
-    // acontece no banco (função editar_personagem), no momento de Salvar.
     document.getElementById('btn-edit').addEventListener('click', () => {
       document.getElementById('edit-modal').classList.add('show');
     });
@@ -1290,7 +1269,6 @@
       document.getElementById('btn-cancel').classList.remove('hidden');
       document.getElementById('btn-add-technique').style.display = 'block';
 
-      // Habilitar todos os campos
       document.querySelectorAll('input, textarea, select').forEach(el => {
         if (!el.id.includes('edit-code') && !el.id.includes('technique')) {
           el.disabled = false;
@@ -1351,7 +1329,6 @@
           tecnicas: currentCharacter.tecnicas || []
         };
 
-        // Atributos
         ['ninjutsu', 'genjutsu', 'inteligencia', 'resistencia', 'forca', 'velocidade', 'selos'].forEach(attr => {
           updates[attr] = parseInt(document.getElementById(`${attr}-value`).textContent) || 0;
         });
@@ -1360,14 +1337,10 @@
           updates[attr] = parseInt(document.getElementById(`${attr}-value`).textContent) || 0;
         });
 
-        // Fotos
         for (let i = 1; i <= 5; i++) {
           updates[`foto${i}_url`] = document.getElementById(`foto${i}`).value;
         }
 
-        // Chama a função do banco: ela mesma confere o código de edição
-        // e só aplica as mudanças se ele bater. O front-end nunca sabe
-        // se o código está certo, então não dá pra "burlar" via DevTools.
         const { data: ok, error } = await supabase.rpc('editar_personagem', {
           p_id: currentCharacter.id,
           p_codigo: pendingEditCode,
@@ -1417,12 +1390,10 @@
 
     document.getElementById('btn-add-technique').addEventListener('click', openTechniqueModal);
 
-    // Monitora inputs de vitais
     ['hp_atual', 'hp_maximo', 'chakra_atual', 'chakra_maximo'].forEach(id => {
       document.getElementById(id).addEventListener('input', updateVitalBars);
     });
 
-    // Carregar ao iniciar
     loadCharacter();
   </script>
 </body>
