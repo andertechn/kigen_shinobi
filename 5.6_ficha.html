@@ -366,18 +366,18 @@
         const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co/rest/v1/';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
 
-        let supabase;
+        let supabaseClient;
         let todassPessoas = [];
 
         // Inicializa o Supabase
         function inicializarSupabase() {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         }
 
         // Carrega os dados do banco
         async function carregarDados() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('personagens')
                     .select('*');
 
