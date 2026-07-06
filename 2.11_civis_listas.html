@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Banco de Dados - Civis</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.85); 
+      --surface-inner: rgba(18, 18, 20, 0.95);
+      --border:  #cc0000;
+      --accent:  #1a237e; 
+      --accent2: #5c6bc0;
+      --accent-red: #d32f2f;
+      --glow:    rgba(92, 107, 192, 0.4);
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+
+      /* Cores do Layout de Ficha */
+      --ficha-bg: #0d1c0a;
+      --ficha-card: #141f11;
+      --ficha-border: #1a2616;
+      --ficha-gold: #d4a574;
+      --ficha-gold-dark: #8b6f47;
+    }
+    
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-inner: #f5f5f7;
+      --border:  #cc0000;
+      --accent:  #283593; 
+      --accent2: #1a237e;
+      --accent-red: #c62828;
+      --glow:    rgba(40, 53, 147, 0.25);
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#6b7280;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background-color: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; overflow-x: hidden; transition: background-color 0.4s, color 0.4s; }
+
+    /* ======= FUNDO E FLOATING UI ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; background-color: #000; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) saturate(0.6); transition: filter 0.4s ease; }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%); }
+
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(204,0,0,0.5); transition: box-shadow 0.25s, transform 0.2s; }
+    #menu-btn:hover { box-shadow: 0 0 20px rgba(204,0,0,0.7); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); overflow-y: auto; }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
+
+    /* ======= ESTRUTURA GERAL DA PÁGINA ======= */
+    #page-container { position: relative; z-index: 10; min-height: 100vh; padding: 100px 20px 80px; max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+    .main-header-group { background: var(--surface-inner); border-radius: 8px; overflow: hidden; border: 1px solid rgba(92, 107, 192, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; }
+    .header-image { width: 100%; height: 220px; background: #050505; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .header-image img { position: absolute; width: 100%; height: 100%; object-fit: cover; top: 0; left: 0; }
+    .header-red { background: var(--accent); padding: 15px 25px; display: flex; align-items: center; gap: 15px; }
+    .header-red h1 { font-family: 'Bangers', cursive; font-size: 2.2rem; letter-spacing: 0.08em; color: #fff; text-transform: uppercase; margin: 0; font-style: italic; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
+
+    /* ======= SEÇÕES DA HOME ======= */
+    .classe-section { background: var(--surface-inner); border-radius: 8px; border: 1px solid rgba(92, 107, 192, 0.3); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-bottom: 30px; }
+    .classe-header { background: var(--accent); padding: 15px 25px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .classe-header h2 { font-family: 'Russo One', sans-serif; font-size: 1.5rem; color: #fff; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+    .classe-count { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; font-weight: 700; color: #fff; font-size: 0.9rem; }
+    .civis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 20px; }
+    .civil-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(92, 107, 192, 0.2); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; cursor: pointer; }
+    .civil-card:hover { background: rgba(92, 107, 192, 0.1); border-color: var(--accent2); box-shadow: 0 0 20px var(--glow); transform: translateY(-3px); }
+    .civil-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent2), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .civil-info h3 { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: var(--text); text-transform: uppercase; margin: 0; }
+    .btn-ficha { padding: 8px 16px; background: var(--accent2); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; font-size: 0.85rem; text-transform: uppercase; }
+    .empty-classe { padding: 40px 20px; text-align: center; color: var(--text-sub); font-style: italic; }
+    .loading { padding: 40px; text-align: center; color: var(--accent2); font-size: 1.1rem; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ======= FICHA LAYOUT ======= */
+    .back-btn-top { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; color: #fff; font-family: 'Russo One', sans-serif; font-size: 0.85rem; margin-bottom: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; }
+    .back-btn-top:hover { background: var(--ficha-gold-dark); border-color: var(--ficha-gold); }
+
+    .ficha-layout { background: var(--ficha-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.7); position: relative; }
+
+    /* CAPA BANNER */
+    .ficha-capa-banner { background: linear-gradient(135deg, var(--ficha-gold) 0%, var(--ficha-gold-dark) 100%); position: relative; padding: 50px 20px 30px; text-align: center; color: #fff; }
+    .ficha-capa-overlay { position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>'); opacity: 0.6; pointer-events: none; }
+    .ficha-avatar-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; border: 4px solid var(--ficha-bg); background: #000; overflow: hidden; z-index: 2; }
+    .ficha-avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+    .ficha-nome-txt { font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; margin: 0 0 5px 0; position: relative; z-index: 2; text-transform: uppercase; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+    .ficha-subtitulo-txt { font-size: 1.1rem; font-style: italic; color: rgba(255,255,255,0.9); margin-bottom: 20px; position: relative; z-index: 2; }
+
+    .ficha-badges-row { display: flex; gap: 10px; justify-content: center; position: relative; z-index: 2; flex-wrap: wrap; }
+    .badge-f { padding: 5px 15px; border-radius: 20px; font-family: 'Russo One', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+    .badge-f.white { background: #fff; color: var(--ficha-gold-dark); }
+    .badge-f.dark { background: #202722; color: #fff; }
+    .badge-f.gold { background: var(--ficha-gold); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+
+    /* NAV ABAS */
+    .ficha-nav-tabs { display: flex; background: #0b0e0c; padding: 15px 20px 0; gap: 5px; border-bottom: 2px solid var(--ficha-border); overflow-x: auto; position: relative; }
+    .f-tab-btn { background: var(--ficha-card); color: #717d75; border: 1px solid transparent; border-bottom: none; padding: 12px 20px; border-radius: 8px 8px 0 0; font-family: 'Russo One', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+    .f-tab-btn:hover { background: #1e2421; color: #fff; }
+    .f-tab-btn.active { background: var(--ficha-bg); color: var(--ficha-gold); border-color: var(--ficha-border); border-top: 2px solid var(--ficha-gold); }
+
+    /* ÍCONE FLUTUANTE DA VILA */
+    .vila-floating-icon { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); width: 55px; height: 55px; background: rgba(18, 25, 20, 0.95); border: 2px solid rgba(212, 165, 116, 0.6); border-radius: 50%; box-shadow: 0 0 20px rgba(212, 165, 116, 0.4); display: flex; align-items: center; justify-content: center; z-index: 10; }
+    .vila-floating-icon svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .ficha-body-content { padding: 30px; background: var(--ficha-bg); }
+    .f-tab-content { display: none; }
+    .f-tab-content.active { display: block; }
+
+    /* SEÇÕES E GRIDS DETALHADOS */
+    .f-section { margin-bottom: 40px; }
+    .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .f-section-title::before { content: ''; display: inline-block; width: 16px; height: 16px; background: var(--ficha-gold); border-radius: 50%; }
+
+    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-gold); border-radius: 8px; padding: 15px; }
+    .f-card-label { color: var(--ficha-gold); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .f-card-value { color: #e0e0e0; font-size: 1.05rem; font-weight: 500; }
+
+    .f-block { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-gold); border-radius: 8px; padding: 20px; color: #e0e0e0; line-height: 1.6; }
+    .f-block-destaque { background: var(--ficha-card); border: 1px solid var(--ficha-border); padding: 25px; border-radius: 8px; margin-bottom: 20px; color: #d0d0d0; line-height: 1.7; }
+    .f-block-destaque .label-top { font-family: 'Russo One', sans-serif; color: var(--ficha-gold); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; text-align: center; display: block; }
+
+    /* ESTILOS DA ABA JORNADA */
+    .jornada-list { display: flex; flex-direction: column; gap: 12px; }
+    .jornada-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 15px 20px; display: flex; align-items: center; transition: 0.3s; }
+    .jornada-card:hover { border-color: rgba(212, 165, 116, 0.4); }
+    .grad-icon { width: 40px; height: 40px; background: var(--ficha-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4); }
+    .grad-icon svg { width: 22px; height: 22px; fill: #fff; }
+    .grad-info { flex: 1; margin-left: 20px; }
+    .grad-info-title { color: #aaa; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; }
+    .grad-info-title strong { color: var(--ficha-gold); font-weight: 600; }
+    .grad-info-date { color: #666; font-size: 0.85rem; margin-top: 4px; }
+
+    /* =======================================================
+       ========== ESTILOS DA ABA RELAÇÕES ==================== 
+       ======================================================= */
+    .relacoes-list { display: flex; flex-direction: column; gap: 15px; }
+    .relacao-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 12px; padding: 20px; transition: 0.3s; }
+    .relacao-card:hover { border-color: rgba(212, 165, 116, 0.4); }
+    .relacao-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+    .relacao-avatar { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 2px solid var(--ficha-gold); flex-shrink: 0; }
+    .relacao-info { flex: 1; min-width: 150px; }
+    .relacao-nome { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; }
+    .relacao-tipo { font-family: 'Rajdhani', sans-serif; font-style: italic; color: var(--ficha-gold); font-size: 0.95rem; margin-top: 2px; }
+    .relacao-badge { background: #3a2d1a; color: #d4a574; font-family: 'Russo One', sans-serif; font-size: 0.75rem; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; border: 1px solid #5c4a2f; white-space: nowrap; }
+    .relacao-desc { color: #ccc; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
+
+    /* =======================================================
+       ========== ESTILOS DA ABA RESUMO ====================== 
+       ======================================================= */
+    .resumo-list { display: flex; flex-direction: column; gap: 15px; }
+    .resumo-card { background: var(--ficha-card); border-left: 4px solid var(--ficha-gold); border-radius: 8px; padding: 20px; border-top: 1px solid var(--ficha-border); border-right: 1px solid var(--ficha-border); border-bottom: 1px solid var(--ficha-border); }
+    .resumo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .resumo-title { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; }
+    .resumo-date { font-family: 'Rajdhani', sans-serif; color: #888; font-size: 0.85rem; }
+    .resumo-desc { color: #ccc; font-size: 0.95rem; line-height: 1.5; margin-bottom: 15px; }
+
+    @media (max-width: 768px) {
+      #page-container { padding-top: 90px; }
+      .header-image { height: 150px; }
+      .civis-grid, .f-grid { grid-template-columns: 1fr; }
+      .ficha-body-content { padding: 15px; }
+      .vila-floating-icon { right: 10px; width: 45px; height: 45px; }
+      .vila-floating-icon svg { width: 22px; height: 22px; }
+      .relacao-header { flex-direction: column; align-items: flex-start; }
+      .relacao-badge { align-self: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fixed-background">
+    <img src="00_fundo_2_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="2.0_Civil.html">Civil</a>
+      <a class="nav-link" href="2.1.civil_comum.html">Civil Comum</a>
+      <a class="nav-link" href="2.2_engenheiro.html">Engenheiro</a>
+      <a class="nav-link" href="2.3_ferreiro.html">Ferreiro</a>
+      <a class="nav-link" href="2.4_idolo.html">Ídolo</a>
+      <a class="nav-link" href="2.5_mafioso.html">Mafioso</a>
+      <a class="nav-link" href="2.8_redes_sociais.html">Redes sociais</a>
+      <a class="nav-link" href="2.6_jornalista.html">Jornalista</a>
+      <a class="nav-link" href="2.9_graves_e_motim.html">Greves/Motins</a>
+      <a class="nav-link" href="2.10_passaporte.html">Passaporte</a>
+      <a class="nav-link" href="2.11_civis_listas.html">Civis</a>
+    </nav>
+  </div>
+
+  <main id="page-container">
+    <div id="paginaPrincipal" class="page active">
+      <div class="main-header-group">
+        <div class="header-image">
+          <img src="00_banco_civil.jpg" alt="Header" onerror="this.style.display='none'" />
+        </div>
+        <div class="header-red">
+          <h1>Banco de Dados de Civis</h1>
+        </div>
+      </div>
+      <br>
+      <div id="secoesParClasse"></div>
+      <div class="loading" id="loadingIndicator">⏳ Carregando civis...</div>
+    </div>
+
+    <div id="paginaFicha" class="page">
+      
+      <button class="back-btn-top" onclick="voltarParaPrincipal()">
+        ← Voltar ao Painel
+      </button>
+
+      <div class="ficha-layout">
+        
+        <div class="ficha-capa-banner" id="fichaBannerCapa">
+          <div class="ficha-capa-overlay"></div>
+          <div class="ficha-avatar-wrapper">
+            <img id="fichaFotoPerfil" src="" alt="Avatar" />
+          </div>
+          <h1 class="ficha-nome-txt" id="fichaNome">NOME DO CIVIL</h1>
+          <p class="ficha-subtitulo-txt" id="fichaTitulo">"Profissão"</p>
+          <div class="ficha-badges-row">
+            <span class="badge-f white" id="badgeClasse">PATENTE</span>
+            <span class="badge-f dark" id="badgeVila">-</span>
+            <span class="badge-f gold" id="badgeStatus">-</span>
+          </div>
+        </div>
+
+        <div class="ficha-nav-tabs">
+          <button class="f-tab-btn active" onclick="trocarAba(event, 'tabPerfil')">PERFIL</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabJornada')">ATIVIDADES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabRelacoes')">RELAÇÕES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo')">RESUMO DE ALTERAÇÕES</button>
+
+          <div class="vila-floating-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 21c-4-4-7-8-7-12a7 7 0 0 1 14 0c0 4-3 8-7 12z"/>
+              <path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+              <path d="M12 10l3 3"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="ficha-body-content">
+          
+          <div id="tabPerfil" class="f-tab-content active">
+            
+            <div class="f-section">
+              <h2 class="f-section-title">INFORMAÇÕES BÁSICAS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Gênero</div><div class="f-card-value" id="fGenero">-</div></div>
+                <div class="f-card"><div class="f-card-label">Idade</div><div class="f-card-value" id="fIdade">-</div></div>
+                <div class="f-card"><div class="f-card-label">Aniversário</div><div class="f-card-value" id="fAniversario">-</div></div>
+                <div class="f-card"><div class="f-card-label">Fama</div><div class="f-card-value" id="fFama">-</div></div>
+                <div class="f-card"><div class="f-card-label">Origem de Nasc.</div><div class="f-card-value" id="fOrigem">-</div></div>
+                <div class="f-card"><div class="f-card-label">Local onde Reside</div><div class="f-card-value" id="fReside">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">RECURSOS & REPUTAÇÃO</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">💰 Ryōs (Dinheiro)</div><div class="f-card-value" id="fRyos">0</div></div>
+                <div class="f-card"><div class="f-card-label">⭐ Score / Reputação</div><div class="f-card-value" id="fScore">0</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
+              <div class="f-block-destaque">
+                <span class="label-top">Aparência</span>
+                <p id="fAparencia">-</p>
+              </div>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Altura</div><div class="f-card-value" id="fAltura">-</div></div>
+                <div class="f-card"><div class="f-card-label">Peso</div><div class="f-card-value" id="fPeso">-</div></div>
+                <div class="f-card"><div class="f-card-label">Cabelos</div><div class="f-card-value" id="fCabelos">-</div></div>
+                <div class="f-card"><div class="f-card-label">Olhos</div><div class="f-card-value" id="fOlhos">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRIA & BIOGRAFIA</h2>
+              <div class="f-block-destaque">
+                <p id="fHistoria">Nenhum registro histórico informado.</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PREFERÊNCIAS & PROPÓSITOS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">👍 Gosta De</div><div class="f-card-value" id="fGosta">-</div></div>
+                <div class="f-card"><div class="f-card-label">👎 Não Gosta De</div><div class="f-card-value" id="fNaoGosta">-</div></div>
+                <div class="f-card"><div class="f-card-label">Propósito / Meta</div><div class="f-card-value" id="fProposito">-</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tabJornada" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title" id="atividades-titulo">HISTÓRICO DE ATIVIDADES</h2>
+              <div class="jornada-list" id="boxAtividades">
+                <div style="color: #888; font-style: italic; padding: 20px;">Nenhuma atividade registrada.</div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="tabRelacoes" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">RELACIONAMENTOS</h2>
+              <div class="relacoes-list" id="boxRelacoes">
+                </div>
+            </div>
+          </div>
+          
+          <div id="tabResumo" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">RESUMO DE ALTERAÇÕES</h2>
+              <div class="resumo-list" id="boxResumo">
+                </div>
+            </div>
+          </div>
+
+        </div> 
+      </div> 
+    </div> 
+  </main>
+
+  <script>
+    // ===== CONFIGURAÇÃO DO SUPABASE =====
+    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
+
+    let supabaseClient;
+    let todosCivis = [];
+
+    const ordemClasses = ['Mifune', 'General', 'ANBU', 'Genin', 'Engenheiro', 'Comum'];
+
+    const iconesPorClasse = {
+      'Mifune': '👑',
+      'General': '🎖️',
+      'ANBU': '🐺',
+      'Genin': '👤',
+      'Engenheiro': '⚙️',
+      'Comum': '👨‍🌾'
+    };
+
+    function inicializarSupabase() {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+
+    async function carregarDados() {
+      try {
+        const { data, error } = await supabaseClient.from('personagens').select('*');
+        if (error) throw error;
+        todosCivis = data || [];
+        renderizarPorClasse();
+      } catch (err) {
+        console.error('Erro:', err);
+        document.getElementById('loadingIndicator').innerHTML = '⚠️ Erro ao carregar dados';
+      }
+    }
+
+    function renderizarPorClasse() {
+      const container = document.getElementById('secoesParClasse');
+      document.getElementById('loadingIndicator').style.display = 'none';
+      let html = '';
+
+      ordemClasses.forEach(classe => {
+        const civisDaClasse = todosCivis.filter(c => c.patente === classe);
+        const icone = iconesPorClasse[classe] || '👤';
+        
+        html += `
+          <div class="classe-section">
+            <div class="classe-header">
+              <span style="font-size: 1.5rem; margin-right: 10px;">${icone}</span>
+              <h2>${classe}</h2>
+              <div class="classe-count">${civisDaClasse.length}</div>
+            </div>
+            <div class="civis-grid">
+        `;
+        if (civisDaClasse.length === 0) {
+          html += '<div class="empty-classe">Nenhum civil nesta classe</div>';
+        } else {
+          civisDaClasse.forEach(civil => {
+            const primeiraLetra = (civil.nome || '?').charAt(0).toUpperCase();
+            html += `
+              <div class="civil-card" onclick="abrirFicha(${civil.id})">
+                <div class="civil-avatar">${primeiraLetra}</div>
+                <div class="civil-info">
+                  <h3>${civil.nome}</h3>
+                  <p>${civil.patente}</p>
+                </div>
+                <button class="btn-ficha" onclick="event.stopPropagation(); abrirFicha(${civil.id})">Abrir Perfil</button>
+              </div>
+            `;
+          });
+        }
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function abrirFicha(id) {
+      const civil = todosCivis.find(x => x.id === id);
+      if (!civil) return;
+
+      // CAPA E FOTO
+      const bannerCapa = document.getElementById('fichaBannerCapa');
+      bannerCapa.style.backgroundImage = 'linear-gradient(135deg, var(--ficha-gold) 0%, var(--ficha-gold-dark) 100%)';
+
+      const fotoPerfil = document.getElementById('fichaFotoPerfil');
+      const inicial = (civil.nome || 'C').charAt(0).toUpperCase();
+      fotoPerfil.src = `https://ui-avatars.com/api/?name=${inicial}&background=d4a574&color=000&size=120`;
+
+      // TÍTULOS
+      document.getElementById('fichaNome').textContent = civil.nome || 'Desconhecido';
+      document.getElementById('fichaTitulo').textContent = `"${civil.patente || 'Civil'}"`;
+      document.getElementById('badgeClasse').textContent = civil.patente || '-';
+      document.getElementById('badgeVila').textContent = '-';
+      document.getElementById('badgeStatus').textContent = '-';
+
+      // Limpar todos os campos (placeholder)
+      document.getElementById('fGenero').textContent = '-';
+      document.getElementById('fIdade').textContent = '-';
+      document.getElementById('fAniversario').textContent = '-';
+      document.getElementById('fFama').textContent = '-';
+      document.getElementById('fOrigem').textContent = '-';
+      document.getElementById('fReside').textContent = '-';
+      document.getElementById('fRyos').textContent = '0';
+      document.getElementById('fScore').textContent = '0';
+      document.getElementById('fAparencia').textContent = '-';
+      document.getElementById('fAltura').textContent = '-';
+      document.getElementById('fPeso').textContent = '-';
+      document.getElementById('fCabelos').textContent = '-';
+      document.getElementById('fOlhos').textContent = '-';
+      document.getElementById('fHistoria').textContent = '-';
+      document.getElementById('fGosta').textContent = '-';
+      document.getElementById('fNaoGosta').textContent = '-';
+      document.getElementById('fProposito').textContent = '-';
+
+      document.getElementById('atividades-titulo').textContent = 'ATIVIDADES';
+      document.getElementById('boxAtividades').innerHTML = `<div style="color: #888; font-style: italic; padding: 20px;">Nenhuma atividade registrada.</div>`;
+      document.getElementById('boxRelacoes').innerHTML = `<div style="color: #888; font-style: italic; padding: 20px;">Nenhum relacionamento registrado.</div>`;
+      document.getElementById('boxResumo').innerHTML = `<div style="color: #888; font-style: italic; padding: 20px;">Nenhuma alteração registrada.</div>`;
+
+      document.querySelectorAll('.f-tab-btn')[0].click();
+      mostrarPagina('paginaFicha');
+    }
+
+    function voltarParaPrincipal() { mostrarPagina('paginaPrincipal'); }
+
+    function mostrarPagina(paginaId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(paginaId).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function trocarAba(evt, tabId) {
+      let contents = document.getElementsByClassName("f-tab-content");
+      for (let i = 0; i < contents.length; i++) contents[i].classList.remove("active");
+      let buttons = document.getElementsByClassName("f-tab-btn");
+      for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
+      document.getElementById(tabId).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', () => { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); });
+    menuBtn.addEventListener('click', () => { const isOpen = navOverlay.classList.toggle('open'); menuBtn.classList.toggle('open', isOpen); });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarSupabase();
+      carregarDados();
+    });
+  </script>
+</body>
+</html>
