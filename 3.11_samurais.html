@@ -3,599 +3,789 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personagens — Kigen Shinobi</title>
+  <title>Banco de Dados - País do Ferro</title>
   
-  <!-- Fontes -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ======= VARIÁVEIS DE TEMA ======= */
+    /* ======= VARIÁVEIS DE TEMA (FERRO / AÇO) ======= */
     :root {
-      /* Fundo totalmente preto para esta página */
-      --bg:      #000000;
-      --surface: #0d0d0d;
-      --surface-inner: #151515;
-      --border:  #cc0000;
-      --accent:  #cc0000; 
-      --accent2: #ff4444;
-      --glow:    rgba(204, 0, 0, 0.6);
-      --shadow:  rgba(0,0,0,0.8);
-      --text:    #e0e0e0;
-      --text-sub:#888888;
+      --bg:      #050505;
+      --surface: rgba(15, 18, 20, 0.9); 
+      --surface-inner: rgba(22, 26, 30, 0.95);
+      --border:  #4a5568;
+      --accent:  #718096; 
+      --accent2: #a0aec0;
       
-      /* Cores Específicas da Ficha de Personagem */
-      --ficha-bg: #111111;
-      --ficha-card: #1a1a1a;
-      --ficha-green: #4CAF50;
-    }
+      --text:    #e2e8f0;
+      --text-sub:#a0aec0;
 
-    [data-theme="light"] {
-      --bg:      #f0f0f0;
-      --surface: #ffffff;
-      --surface-inner: #e8e8e8;
-      --border:  #cc0000;
-      --accent:  #cc0000;
-      --accent2: #dd0000;
-      --glow:    rgba(204, 0, 0, 0.30);
-      --shadow:  rgba(0,0,0,0.15);
-      --text:    #111111;
-      --text-sub:#555555;
-      
-      --ficha-bg: #f9f9f9;
-      --ficha-card: #ffffff;
+      /* Cores do Layout da Ficha Samurai */
+      --theme-bg: #121519;
+      --theme-card: #1a202c;
+      --theme-border: #2d3748;
+      --theme-color: #a0aec0;       /* Prata / Aço claro */
+      --theme-color-dark: #4a5568;  /* Aço escuro */
     }
-
+    
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.95rem;
-      overflow-x: hidden;
-      transition: background-color 0.4s, color 0.4s;
-    }
+    body { background-color: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; overflow-x: hidden; }
 
-    /* ======= ESTRUTURA GLOBAL: MENU E TEMA ======= */
-    #floating-ui { 
-      position: fixed; top: 20px; right: 22px; z-index: 1000; 
-      display: flex; flex-direction: column; align-items: center; gap: 10px; 
-    }
-    
-    #menu-btn, #theme-toggle { 
-      width: 48px; height: 48px; border-radius: 50%; background: #000; 
-      border: 2px solid var(--border); cursor: pointer; display: flex; 
-      align-items: center; justify-content: center; 
-      box-shadow: 0 0 10px rgba(204,0,0,0.6); transition: box-shadow 0.25s, transform 0.2s; 
-    }
-    #theme-toggle { width: 32px; height: 32px; padding: 0; }
-    
-    #menu-btn:hover, #theme-toggle:hover { 
-      box-shadow: 0 0 20px rgba(204,0,0,0.6); transform: scale(1.07); 
-    }
-    
-    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    /* ======= FUNDO E FLOATING UI ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; background-color: #000; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.25) grayscale(0.5); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.95) 100%); }
+
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--theme-color); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(160, 174, 192, 0.4); transition: 0.2s; color: var(--theme-color); }
+    #menu-btn:hover { transform: scale(1.07); box-shadow: 0 0 20px rgba(160, 174, 192, 0.7); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; fill: currentColor; transition: transform 0.3s; }
     #menu-btn.open svg.kunai { transform: rotate(135deg); }
-    
-    #theme-toggle svg { width: 14px; height: 14px; }
-    #theme-toggle .icon-sun { display: none; }
-    #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
-    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #ffcc00; stroke-width: 2; }
-    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
 
     /* ======= NAV OVERLAY ======= */
     #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
     #nav-overlay.open { pointer-events: all; opacity: 1; }
     .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
-    #nav-panel { position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--theme-color); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px rgba(0,0,0,0.9); overflow-y: auto; }
     #nav-overlay.open #nav-panel { transform: translateX(0); }
-    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
-    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
-    .nav-link:hover { color: var(--accent2); padding-left: 10px; }
-    .nav-link:hover::before { width: 16px; }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(160, 174, 192, 0.2); transition: color 0.2s, padding-left 0.2s; }
+    .nav-link:hover { color: var(--theme-color); padding-left: 10px; }
 
-    /* ======= PÁGINA: LISTA DE PERSONAGENS MINIMALISTA ======= */
-    #page-container { 
-      min-height: 100vh; padding: 100px 20px 80px; 
-      max-width: 800px; margin: 0 auto; 
-      display: flex; flex-direction: column; gap: 30px; /* Mais respiro entre as patentes */
-    }
+    /* ======= ESTRUTURA GERAL DA PÁGINA ======= */
+    #page-container { position: relative; z-index: 10; min-height: 100vh; padding: 100px 20px 80px; max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+    .main-header-group { background: var(--surface-inner); border-radius: 8px; overflow: hidden; border: 1px solid var(--theme-border); box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
+    .header-image { width: 100%; height: 220px; background: #000; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .header-image img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+    .header-red { background: var(--theme-color-dark); padding: 15px 25px; display: flex; align-items: center; gap: 15px; border-top: 2px solid var(--theme-color); }
+    .header-red h1 { font-family: 'Bangers', cursive; font-size: 2.2rem; letter-spacing: 0.08em; color: #fff; text-transform: uppercase; margin: 0; text-shadow: 1px 1px 5px rgba(0,0,0,0.8); }
+
+    /* ======= SEÇÕES DA HOME ======= */
+    .patente-section { background: var(--surface-inner); border-radius: 8px; border: 1px solid var(--theme-border); overflow: hidden; margin-bottom: 30px; }
+    .patente-header { background: var(--theme-card); padding: 15px 25px; border-bottom: 2px solid var(--theme-color); display: flex; align-items: center; gap: 12px; }
+    .patente-header h2 { font-family: 'Russo One', sans-serif; font-size: 1.5rem; color: #fff; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+    .patente-count { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%; font-weight: 700; color: var(--theme-color); font-size: 0.9rem; }
+    .personagens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 20px; }
+    .personagem-card { background: rgba(255,255,255,0.02); border: 1px solid var(--theme-border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; cursor: pointer; }
+    .personagem-card:hover { border-color: var(--theme-color); box-shadow: 0 0 20px rgba(160, 174, 192, 0.2); transform: translateY(-3px); }
+    .personagem-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, var(--theme-color-dark), var(--theme-bg)); border: 2px solid var(--theme-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .personagem-info h3 { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; text-transform: uppercase; margin: 0; }
+    .personagem-info p { font-size: 0.9rem; color: var(--text-sub); margin: 4px 0 0 0; }
+    .btn-ficha { padding: 8px 16px; background: var(--theme-color-dark); color: #fff; border: 1px solid var(--theme-color); border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.85rem; text-transform: uppercase; }
+    .btn-ficha:hover { background: var(--theme-color); color: #000; }
+    .empty-patente { padding: 40px 20px; text-align: center; color: var(--text-sub); font-style: italic; }
+    .loading { padding: 40px; text-align: center; color: var(--theme-color); font-size: 1.1rem; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ======= FICHA LAYOUT (AÇO / FERRO) ======= */
+    .back-btn-top { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; color: #fff; text-decoration: none; font-family: 'Russo One', sans-serif; font-size: 0.85rem; margin-bottom: 20px; cursor: pointer; border: 1px solid var(--theme-border); transition: all 0.3s ease; }
+    .back-btn-top:hover { background: var(--theme-color-dark); border-color: var(--theme-color); }
+
+    .ficha-layout { background: var(--theme-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.8); position: relative; border: 1px solid var(--theme-border); }
+
+    /* CAPA BANNER */
+    .ficha-capa-banner { background-color: var(--theme-color-dark); background-image: linear-gradient(135deg, var(--theme-color-dark) 0%, #1a202c 100%); position: relative; padding: 50px 20px 30px; text-align: center; color: #fff; border-bottom: 2px solid var(--theme-color); }
+    .ficha-capa-overlay { position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none"/></svg>'); opacity: 0.8; pointer-events: none; }
+    .ficha-avatar-wrapper { position: relative; width: 130px; height: 130px; margin: 0 auto 15px; border-radius: 50%; border: 4px solid var(--theme-bg); background: #000; overflow: hidden; z-index: 2; box-shadow: 0 5px 15px rgba(0,0,0,0.6); }
+    .ficha-avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+    .ficha-nome-txt { font-family: 'Bangers', cursive; font-size: 2.8rem; letter-spacing: 0.05em; margin: 0 0 5px 0; position: relative; z-index: 2; text-transform: uppercase; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
+    .ficha-subtitulo-txt { font-size: 1.1rem; font-style: italic; color: #cbd5e0; margin-bottom: 20px; position: relative; z-index: 2; }
+
+    .ficha-badges-row { display: flex; gap: 10px; justify-content: center; position: relative; z-index: 2; flex-wrap: wrap; }
+    .badge-f { padding: 6px 16px; border-radius: 20px; font-family: 'Russo One', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    .badge-f.white { background: #fff; color: var(--theme-color-dark); }
+    .badge-f.dark { background: var(--theme-bg); color: #fff; border: 1px solid var(--theme-border); }
+    .badge-f.theme { background: var(--theme-color); color: #000; border: 1px solid rgba(255,255,255,0.3); }
+
+    /* NAV ABAS */
+    .ficha-nav-tabs { display: flex; background: #0f1318; padding: 15px 20px 0; gap: 5px; border-bottom: 2px solid var(--theme-border); overflow-x: auto; position: relative; }
+    .f-tab-btn { background: var(--theme-card); color: #718096; border: 1px solid transparent; border-bottom: none; padding: 12px 20px; border-radius: 8px 8px 0 0; font-family: 'Russo One', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+    .f-tab-btn:hover { background: #2d3748; color: #fff; }
+    .f-tab-btn.active { background: var(--theme-bg); color: var(--theme-color); border-color: var(--theme-border); border-top: 2px solid var(--theme-color); }
+
+    /* ÍCONE FLUTUANTE DA VILA (KATANA / SAMURAI) */
+    .vila-floating-icon { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); width: 55px; height: 55px; background: rgba(18, 21, 25, 0.95); border: 2px solid rgba(160, 174, 192, 0.6); border-radius: 50%; box-shadow: 0 0 15px rgba(160, 174, 192, 0.2); display: flex; align-items: center; justify-content: center; z-index: 10; }
+    /* Katana SVG Minimalista */
+    .vila-floating-icon svg { width: 32px; height: 32px; fill: none; stroke: var(--theme-color); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .ficha-body-content { padding: 30px; background: var(--theme-bg); }
+    .f-tab-content { display: none; animation: fadeIn 0.3s ease; }
+    .f-tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* SEÇÕES E GRIDS DETALHADOS */
+    .f-section { margin-bottom: 40px; }
+    .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .f-section-title::before { content: ''; display: inline-block; width: 12px; height: 12px; background: var(--theme-color); transform: rotate(45deg); }
+
+    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .f-card { background: var(--theme-card); border: 1px solid var(--theme-border); border-left: 3px solid var(--theme-color); border-radius: 8px; padding: 15px; transition: border-color 0.3s; }
+    .f-card:hover { border-color: rgba(160, 174, 192, 0.5); }
+    .f-card-label { color: var(--theme-color); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .f-card-value { color: #fff; font-size: 1.05rem; font-weight: 500; }
+
+    .f-block { background: var(--theme-card); border: 1px solid var(--theme-border); border-left: 3px solid var(--theme-color); border-radius: 8px; padding: 20px; color: #e2e8f0; line-height: 1.6; }
+    .f-block-destaque { background: var(--theme-card); border: 1px solid var(--theme-border); padding: 25px; border-radius: 8px; margin-bottom: 20px; color: #cbd5e0; line-height: 1.7; position: relative; overflow: hidden; }
+    .f-block-destaque::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-color); }
+    .f-block-destaque .label-top { font-family: 'Russo One', sans-serif; color: var(--theme-color); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; display: block; }
+
+    /* BARRAS DE STATUS (VITAIS) */
+    .status-box { background: var(--theme-card); border: 1px solid var(--theme-border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .status-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Russo One', sans-serif; color: #fff; font-size: 1rem; }
+    .status-bar-bg { width: 100%; height: 20px; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #111; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
+    .status-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease-in-out; }
+    .fill-hp { background: linear-gradient(90deg, #c53030, #fc8181); }
+    .fill-chakra { background: linear-gradient(90deg, #2b6cb0, #63b3ed); }
+
+    /* CANVA CHART (DATABOOK RADAR) */
+    .chart-container { max-width: 450px; margin: 0 auto; background: var(--theme-card); border: 1px solid var(--theme-border); border-radius: 10px; padding: 20px; }
+
+    /* ESTILOS DA ABA JORNADA / CONTRATOS */
+    .jornada-list { display: flex; flex-direction: column; gap: 12px; }
+    .jornada-card { background: var(--theme-card); border: 1px solid var(--theme-border); border-radius: 8px; padding: 15px 20px; display: flex; align-items: center; transition: 0.3s; }
+    .jornada-card:hover { border-color: rgba(160, 174, 192, 0.4); }
+    .grad-icon { width: 40px; height: 40px; background: var(--theme-color-dark); border: 1px solid var(--theme-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+    .grad-icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .grad-info { flex: 1; margin-left: 20px; }
+    .grad-info-title { color: #a0aec0; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; }
+    .grad-info-title strong { color: #fff; font-weight: 600; text-transform: uppercase; }
+    .grad-info-date { color: #718096; font-size: 0.85rem; margin-top: 4px; }
     
-    .page-title {
-      font-family: 'Bangers', cursive;
-      font-size: 3rem;
-      letter-spacing: 0.1em;
-      color: #fff;
-      text-transform: uppercase;
-      text-align: center;
-      margin-bottom: 20px;
-      text-shadow: 0 0 15px var(--glow);
-    }
-    [data-theme="light"] .page-title { color: var(--accent); text-shadow: none; }
+    .missao-badge { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: #fff; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+    .badge-s { background: #e53e3e; } /* Vermelho */
+    .badge-a { background: #dd6b20; } /* Laranja */
+    .badge-b { background: #319795; } /* Azul/Verde */
+    .badge-c { background: #3182ce; } /* Azul Claro */
+    .badge-d { background: #805ad5; } /* Roxo */
+    .missao-info { flex: 1; margin-left: 20px; }
+    .missao-label { font-family: 'Rajdhani', sans-serif; color: #a0aec0; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
+    .missao-value { color: #fff; font-family: 'Russo One', sans-serif; font-size: 1.3rem; margin-top: 2px; }
 
-    /* NOVO ESTILO: Título da Patente (Linha Divisória) */
-    .rank-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    /* ESTILOS DA ABA RELAÇÕES */
+    .relacoes-list { display: flex; flex-direction: column; gap: 15px; }
+    .relacao-card { background: var(--theme-card); border: 1px solid var(--theme-border); border-radius: 12px; padding: 20px; transition: 0.3s; position: relative; overflow: hidden; }
+    .relacao-card::after { content: ''; position: absolute; right: 0; top: 0; width: 100px; height: 100%; background: linear-gradient(90deg, transparent, rgba(160,174,192,0.03)); pointer-events: none; }
+    .relacao-card:hover { border-color: rgba(160, 174, 192, 0.5); }
+    .relacao-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+    .relacao-avatar { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 2px solid var(--theme-color); flex-shrink: 0; }
+    .relacao-info { flex: 1; min-width: 150px; }
+    .relacao-nome { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; }
+    .relacao-tipo { font-family: 'Rajdhani', sans-serif; font-style: italic; color: var(--theme-color); font-size: 0.95rem; margin-top: 2px; }
+    .relacao-stats { font-size: 0.85rem; font-weight: bold; margin-top: 5px; font-family: 'Rajdhani', sans-serif; }
+    .relacao-stats .pos { color: var(--theme-color); }
+    .relacao-stats .neg { color: #fc8181; }
+    .relacao-badge { background: #2d3748; color: var(--theme-color); font-family: 'Russo One', sans-serif; font-size: 0.75rem; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; border: 1px solid var(--theme-border); white-space: nowrap; }
+    .relacao-desc { color: #cbd5e0; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
+    .relacao-actions { display: flex; gap: 10px; }
+    .btn-icon-green { background: var(--theme-color-dark); border: 1px solid var(--theme-color); width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; color: #fff; }
+    .btn-icon-green:hover { background: var(--theme-color); color: #000; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(160,174,192,0.3); }
+    .btn-icon-green svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-    .rank-title {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.1rem;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(204, 0, 0, 0.4); /* Linha divisória */
-      margin-bottom: 5px;
-    }
-
-    /* Lista sem fundo de bloco */
-    .char-list {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      background: transparent;
-    }
-
-    /* Item do personagem minimalista direto no fundo preto */
-    .char-item {
-      padding: 12px 15px;
-      background: transparent;
-      border-left: 2px solid transparent;
-      cursor: pointer;
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.05rem;
-      color: var(--text);
-      letter-spacing: 0.05em;
-      transition: all 0.2s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .char-item::after {
-      content: 'VER FICHA ➔';
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.85rem;
-      color: var(--accent);
-      opacity: 0;
-      transition: opacity 0.2s, transform 0.2s;
-      transform: translateX(-10px);
-    }
-
-    /* Efeito de hover super elegante */
-    .char-item:hover {
-      background: linear-gradient(90deg, rgba(204, 0, 0, 0.1) 0%, transparent 100%);
-      border-left: 2px solid var(--accent);
-      color: #fff;
-      padding-left: 20px;
-    }
+    /* ESTILOS DA ABA RESUMO */
+    .resumo-list { display: flex; flex-direction: column; gap: 15px; }
+    .resumo-card { background: var(--theme-card); border-left: 4px solid var(--theme-color); border-radius: 8px; padding: 20px; border-top: 1px solid var(--theme-border); border-right: 1px solid var(--theme-border); border-bottom: 1px solid var(--theme-border); }
+    .resumo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .resumo-title { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; text-transform: uppercase; }
+    .resumo-date { font-family: 'Rajdhani', sans-serif; color: #718096; font-size: 0.85rem; }
+    .resumo-desc { color: #cbd5e0; font-size: 0.95rem; line-height: 1.5; margin-bottom: 15px; }
     
-    .char-item:hover::after {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    .btn-react { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--theme-border); padding: 6px 14px; border-radius: 20px; color: #a0aec0; cursor: pointer; transition: 0.3s; font-family: 'Russo One', sans-serif; font-size: 0.8rem; }
+    .btn-react:hover { background: rgba(160, 174, 192, 0.15); color: #fff; border-color: var(--theme-color); }
+    .btn-react.active { background: var(--theme-color-dark); color: #fff; border-color: var(--theme-color); }
+    .btn-react svg { width: 14px; height: 14px; fill: currentColor; }
 
-    [data-theme="light"] .char-item { color: var(--text); }
-    [data-theme="light"] .char-item:hover { color: var(--accent); }
-
-    /* ======= MODAL DA FICHA DE PERSONAGEM ======= */
-    #ficha-modal {
-      position: fixed; inset: 0; z-index: 2000;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    #ficha-modal.active { opacity: 1; pointer-events: all; }
-
-    .ficha-container {
-      background: var(--ficha-bg);
-      width: 100%;
-      max-width: 900px;
-      max-height: 90vh;
-      border-radius: 8px;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,1);
-      border: 1px solid rgba(255,255,255,0.05);
-      transform: scale(0.95);
-      transition: transform 0.3s ease;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-    [data-theme="light"] .ficha-container { border-color: rgba(0,0,0,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    #ficha-modal.active .ficha-container { transform: scale(1); }
-
-    /* Botão Voltar */
-    .close-modal {
-      position: absolute; top: 15px; left: 15px;
-      background: rgba(0,0,0,0.7);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      padding: 6px 15px;
-      border-radius: 20px;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      z-index: 10;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .close-modal:hover { background: var(--accent); border-color: var(--accent); }
-
-    /* BANNER DA FICHA */
-    .ficha-banner {
-      width: 100%; height: 320px;
-      position: relative; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      overflow: hidden;
-      border-bottom: 2px solid var(--accent);
-    }
-    .ficha-banner-bg {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; filter: brightness(0.3) contrast(1.2);
-      z-index: 0;
-    }
-    .ficha-header-content {
-      position: relative; z-index: 1;
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-    }
-    .ficha-avatar {
-      width: 130px; height: 130px;
-      border-radius: 50%;
-      border: 3px solid var(--accent);
-      object-fit: cover;
-      box-shadow: 0 0 25px rgba(204,0,0,0.8);
-    }
-    .ficha-nome {
-      font-family: 'Bangers', cursive;
-      font-size: 3.5rem;
-      color: #fff;
-      letter-spacing: 0.08em;
-      text-shadow: 2px 2px 15px rgba(204,0,0,0.8);
-      margin: 0;
-      line-height: 1;
-    }
-    
-    /* Tags abaixo do nome */
-    .ficha-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 5px; }
-    .tag-pill {
-      background: #fff; color: #000;
-      font-family: 'Russo One', sans-serif; font-size: 0.75rem;
-      padding: 4px 14px; border-radius: 20px;
-      text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    .tag-pill.tag-vivo { background: var(--ficha-green); color: #fff; }
-    .tag-pill.tag-class { background: linear-gradient(90deg, #cc0000, #ff4444); color: #fff; box-shadow: 0 0 10px rgba(204,0,0,0.5); }
-
-    /* Barra de Status Inferior no Banner */
-    .ficha-status-bar {
-      position: absolute; bottom: 15px;
-      display: flex; gap: 20px; z-index: 1;
-      font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.9rem; color: #fff;
-      background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 20px;
-    }
-    .status-item { display: flex; align-items: center; gap: 6px; }
-    .status-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--ficha-green); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px; }
-    .status-dot.red { background: var(--accent); }
-
-    /* NAVEGAÇÃO DE ABAS */
-    .ficha-tabs {
-      display: flex; background: #080808; border-bottom: 1px solid #222; overflow-x: auto;
-    }
-    [data-theme="light"] .ficha-tabs { background: #eee; border-bottom-color: #ddd; }
-    .ficha-tab-btn {
-      flex: 1; background: none; border: none; color: var(--text-sub);
-      font-family: 'Russo One', sans-serif; font-size: 0.85rem;
-      padding: 18px 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;
-      transition: color 0.2s, background 0.2s, border 0.2s; min-width: 120px; border-bottom: 3px solid transparent;
-    }
-    .ficha-tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.02); }
-    .ficha-tab-btn.active { color: var(--text); border-bottom: 3px solid var(--accent); background: rgba(255,255,255,0.05); }
-
-    /* CONTEÚDO (INFORMAÇÕES BÁSICAS) */
-    .ficha-body { padding: 30px 40px; }
-    .section-title {
-      font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: var(--text);
-      margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .section-title::before { content: '👤'; font-size: 1.2rem; color: var(--accent); }
-
-    .info-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;
-    }
-    .info-card {
-      background: var(--ficha-card); border-radius: 6px; padding: 15px;
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-    [data-theme="light"] .info-card { border-color: rgba(0,0,0,0.1); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .info-label {
-      font-family: 'Russo One', sans-serif; font-size: 0.65rem; color: var(--text-sub);
-      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px;
-    }
-    .info-value {
-      font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; color: var(--text); font-weight: 600;
-    }
-    .info-value.italic { font-style: italic; color: var(--text-sub); font-weight: 500; }
-
-    /* Custom Scrollbar for modal */
-    .ficha-container::-webkit-scrollbar { width: 6px; }
-    .ficha-container::-webkit-scrollbar-track { background: transparent; }
-    .ficha-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-    .ficha-container::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
-    /* Responsividade */
     @media (max-width: 768px) {
-      .ficha-banner { height: 260px; }
-      .ficha-avatar { width: 100px; height: 100px; }
-      .ficha-nome { font-size: 2.5rem; }
-      .ficha-status-bar { display: none; }
-      .ficha-body { padding: 20px; }
-      .info-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 480px) {
-      .info-grid { grid-template-columns: 1fr; }
+      #page-container { padding-top: 90px; }
+      .header-image { height: 150px; }
+      .personagens-grid, .f-grid { grid-template-columns: 1fr; }
+      .ficha-body-content { padding: 15px; }
+      .vila-floating-icon { right: 10px; width: 45px; height: 45px; }
+      .vila-floating-icon svg { width: 22px; height: 22px; }
+      .relacao-header { flex-direction: column; align-items: flex-start; }
+      .relacao-badge { align-self: flex-start; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ESTRUTURA GLOBAL: MENU FLUTUANTE -->
+  <div id="fixed-background">
+    <!-- IMAGEM DE FUNDO GERAL -->
+    <img src="00_fundo_2_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <!-- BOTAO MENU FLUTUANTE -->
   <div id="floating-ui">
     <button id="menu-btn" aria-label="Abrir menu">
-      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
-        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
-        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
-        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
-      </svg>
-    </button>
-    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
-      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
-      </svg>
-      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      <svg class="kunai" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 20l16-16M15 4l5 5M6 15l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
   </div>
 
-<div id="nav-overlay" role="dialog" aria-modal="true">
+  <!-- MENU LATERAL -->
+  <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
-      <a class="nav-link" href="3.0_samurai.html">Samurai</a>
-      <a class="nav-link" href="3.1_hierarquia.html">Hierarquia</a>
-      <a class="nav-link" href="3.2.promocao.html">Promoção</a>
-      <a class="nav-link" href="3.3.codigo_aco.html">Código do Aço</a>
-      <a class="nav-link" href="3.5_circulo_giz.html">Círculo de Giz</a>
-      <a class="nav-link" href="3.6_forcas_especiais.html">Forças Especiais</a>
-      <a class="nav-link" href="3.7_elo_aço.html">Elo de Aço</a>
-      <a class="nav-link" href="3.8_carcere_ferro.html">Carcere de Ferro</a>
-      <a class="nav-link" href="3.9_equipamento.html">Equipamento</a>
+      <a class="nav-link" href="5.0_shinobi.html">Geral</a>
+      <a class="nav-link" href="3.1_hierarquia.html">Hierarquia Samurai</a>
+      <a class="nav-link" href="3.9_equipamento.html">Equipamentos</a>
       <a class="nav-link" href="3.10_atributos.html">Atributos</a>
-      <a class="nav-link" href="3.10_mifune.html">Mifune</a>
-      <a class="nav-link" href="3.10_técnicas.html">Técnicas</a>
       <a class="nav-link" href="3.11_contratos.html">Contratos</a>
-      <a class="nav-link" href="3.11_samurais.html">Samurais</a>
+      <a class="nav-link" href="5.6_ficha.html">Fichas</a>
     </nav>
-  </div> <main id="page-container">
-
-  <!-- CONTEÚDO PRINCIPAL: LISTA MINIMALISTA -->
-  <main id="page-container">
-    <h1 class="page-title">PERSONAGENS</h1>
-
-    <div class="rank-section">
-      <h2 class="rank-title">LÍDER SUPREMO (MIFUNE)</h2>
-      <div class="char-list">
-        <div class="char-item" onclick="openFicha('Kuro', 'Mifune', 'País do Ferro', '00_banner_kuro.jpg', '00_avatar_kuro.jpg')">Kuro</div>
-      </div>
-    </div>
-
-    <div class="rank-section">
-      <h2 class="rank-title">GENERAL</h2>
-      <div class="char-list">
-        <div class="char-item" onclick="openFicha('Ryu', 'General', 'País do Ferro', '', '')">Ryu</div>
-        <div class="char-item" onclick="openFicha('Akira', 'General', 'País do Ferro', '', '')">Akira</div>
-      </div>
-    </div>
-
-    <div class="rank-section">
-      <h2 class="rank-title">MAJOR</h2>
-      <div class="char-list">
-        <div class="char-item" onclick="openFicha('Kenshin', 'Major', 'País do Ferro', '', '')">Kenshin</div>
-      </div>
-    </div>
-
-    <div class="rank-section">
-      <h2 class="rank-title">CAPITÃO</h2>
-      <div class="char-list">
-        <div class="char-item" onclick="openFicha('Luke Uchiha', 'Jonin', 'Kumo', '00_banner_luke.jpg', '00_avatar_luke.jpg')">Luke Uchiha</div>
-        <div class="char-item" onclick="openFicha('Kenji', 'Capitão', 'País do Ferro', '', '')">Kenji</div>
-      </div>
-    </div>
-    
-    <div class="rank-section">
-      <h2 class="rank-title">TENENTE</h2>
-      <div class="char-list">
-        <div class="char-item" onclick="openFicha('Taro', 'Tenente', 'País do Ferro', '', '')">Taro</div>
-        <div class="char-item" onclick="openFicha('Shin', 'Tenente', 'País do Ferro', '', '')">Shin</div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- ======= MODAL DA FICHA DE PERSONAGEM ======= -->
-  <div id="ficha-modal">
-    <div class="ficha-container">
-      <button class="close-modal" onclick="closeFicha()">← Voltar ao Painel</button>
-      
-      <!-- Banner -->
-      <div class="ficha-banner">
-        <img src="" alt="Banner" class="ficha-banner-bg" id="ficha-banner-img" onerror="this.style.display='none'">
-        
-        <div class="ficha-header-content">
-          <img src="" alt="Avatar" class="ficha-avatar" id="ficha-avatar-img" onerror="this.style.display='none'">
-          <h2 class="ficha-nome" id="ficha-nome-txt">LUKE UCHIHA</h2>
-          
-          <div class="ficha-tags">
-            <span class="tag-pill" id="ficha-rank-txt">JONIN</span>
-            <span class="tag-pill" id="ficha-vila-txt">KUMO</span>
-            <span class="tag-pill tag-vivo">VIVO</span>
-            <span class="tag-pill tag-class">COMBATENTE</span>
-          </div>
-        </div>
-
-        <div class="ficha-status-bar">
-          <div class="status-item"><div class="status-dot">✓</div> Ficha</div>
-          <div class="status-item"><div class="status-dot">✓</div> Banco</div>
-          <div class="status-item"><div class="status-dot">✓</div> Avaliação</div>
-          <div class="status-item"><div class="status-dot">✓</div> CF</div>
-          <div class="status-item"><div class="status-dot">✓</div> MOD</div>
-          <div class="status-item"><div class="status-dot red">✕</div> Mercado</div>
-        </div>
-      </div>
-
-      <!-- Abas -->
-      <div class="ficha-tabs">
-        <button class="ficha-tab-btn active">Perfil</button>
-        <button class="ficha-tab-btn">Combate</button>
-        <button class="ficha-tab-btn">Jornada</button>
-        <button class="ficha-tab-btn">Extras</button>
-        <button class="ficha-tab-btn">Colecionáveis</button>
-      </div>
-
-      <!-- Corpo -->
-      <div class="ficha-body">
-        <h3 class="section-title">INFORMAÇÕES BÁSICAS</h3>
-        
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="info-label">Gênero</div>
-            <div class="info-value">Masculino</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Sexualidade</div>
-            <div class="info-value italic">Não informado</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Idade</div>
-            <div class="info-value">17</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Aniversário</div>
-            <div class="info-value">Inverno</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Fama</div>
-            <div class="info-value">61</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Caminho Ninja</div>
-            <div class="info-value">Combatente</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Arquétipo</div>
-            <div class="info-value">Devoto</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Clã</div>
-            <div class="info-value" id="ficha-grid-cla">Uchiha</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Kekkei Genkai</div>
-            <div class="info-value italic">Sharingan</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Vilarejo</div>
-            <div class="info-value" id="ficha-grid-vila">Kumo</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Bijuu</div>
-            <div class="info-value italic">Nenhum</div>
-          </div>
-          <div class="info-card">
-            <div class="info-label">Profissão</div>
-            <div class="info-value">Não informado</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </div>
 
+  <main id="page-container">
+    
+    <!-- ============================================== -->
+    <!-- PÁGINA PRINCIPAL (HOME)                        -->
+    <!-- ============================================== -->
+    <div id="paginaPrincipal" class="page active">
+      <div class="main-header-group">
+        <div class="header-image">
+          <img src="00_samurais_ficha.jpg" alt="Header" onerror="this.style.display='none'" />
+        </div>
+        <div class="header-red">
+          <h1>Banco de Dados - País do Ferro</h1>
+        </div>
+      </div>
+      <br>
+      <div id="secoesPorPatente"></div>
+      <div class="loading" id="loadingIndicator">⏳ Sincronizando com o Registro Militar...</div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- PÁGINA DA FICHA (SAMURAI)                      -->
+    <!-- ============================================== -->
+    <div id="paginaFicha" class="page">
+      
+      <button class="back-btn-top" onclick="voltarParaPrincipal()">
+        ← Voltar ao Quartel
+      </button>
+
+      <div class="ficha-layout">
+        
+        <!-- HEADER DA FICHA -->
+        <div class="ficha-capa-banner" id="fichaBannerCapa">
+          <div class="ficha-capa-overlay"></div>
+          <div class="ficha-avatar-wrapper">
+            <img id="fichaFotoPerfil" src="" alt="Avatar" />
+          </div>
+          <h1 class="ficha-nome-txt" id="fichaNome">NOME DO SAMURAI</h1>
+          <p class="ficha-subtitulo-txt" id="fichaTitulo">"Título de Batalha"</p>
+          <div class="ficha-badges-row">
+            <span class="badge-f white" id="badgePatente">PATENTE</span>
+            <span class="badge-f dark" id="badgeVila">PAÍS DO FERRO</span>
+            <span class="badge-f theme" id="badgeStatus">VIVO</span>
+          </div>
+        </div>
+
+        <!-- ABAS NAVEGAÇÃO -->
+        <div class="ficha-nav-tabs">
+          <button class="f-tab-btn active" onclick="trocarAba(event, 'tabPerfil')">PERFIL</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabCombate')">COMBATE</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabJornada')">JORNADA</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabRelacoes')">RELAÇÕES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo')">RESUMO DE ALTERAÇÕES</button>
+
+          <!-- ÍCONE FLUTUANTE (KATANAS CRUZADAS) -->
+          <div class="vila-floating-icon" title="Símbolo Samurai">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 4l6 6-1 1-6-6 1-1z" />
+              <path d="M14.5 4.5L3 16v5h5L19.5 9.5" />
+              <path d="M10 4l-6 6 1 1 6-6-1-1z" />
+              <path d="M9.5 4.5L21 16v5h-5L4.5 9.5" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="ficha-body-content">
+          
+          <!-- ============================================== -->
+          <!-- ABA: PERFIL                                    -->
+          <!-- ============================================== -->
+          <div id="tabPerfil" class="f-tab-content active">
+            
+            <div class="f-section">
+              <h2 class="f-section-title">REGISTRO CIVIL</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Gênero</div><div class="f-card-value" id="fGenero">-</div></div>
+                <div class="f-card"><div class="f-card-label">Sexualidade</div><div class="f-card-value" id="fSexualidade">-</div></div>
+                <div class="f-card"><div class="f-card-label">Idade</div><div class="f-card-value" id="fIdade">-</div></div>
+                <div class="f-card"><div class="f-card-label">Aniversário</div><div class="f-card-value" id="fAniversario">-</div></div>
+                <div class="f-card"><div class="f-card-label">Fama</div><div class="f-card-value" id="fFama">-</div></div>
+                <div class="f-card"><div class="f-card-label">Origem de Nasc.</div><div class="f-card-value" id="fOrigem">-</div></div>
+                <div class="f-card"><div class="f-card-label">Local onde Reside</div><div class="f-card-value" id="fReside">-</div></div>
+                <div class="f-card"><div class="f-card-label">Organização</div><div class="f-card-value" id="fOrg">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
+              <div class="f-block-destaque">
+                <span class="label-top">Aparência</span>
+                <p id="fAparencia">-</p>
+              </div>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Altura</div><div class="f-card-value" id="fAltura">-</div></div>
+                <div class="f-card"><div class="f-card-label">Peso</div><div class="f-card-value" id="fPeso">-</div></div>
+                <div class="f-card"><div class="f-card-label">Cabelos</div><div class="f-card-value" id="fCabelos">-</div></div>
+                <div class="f-card"><div class="f-card-label">Olhos</div><div class="f-card-value" id="fOlhos">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRIA</h2>
+              <div class="f-block-destaque">
+                <p id="fHistoria">Nenhum registro histórico informado.</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PREFERÊNCIAS & PROPÓSITOS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">👍 Gosta De</div><div class="f-card-value" id="fGosta">-</div></div>
+                <div class="f-card"><div class="f-card-label">👎 Não Gosta De</div><div class="f-card-value" id="fNaoGosta">-</div></div>
+                <div class="f-card"><div class="f-card-label">Propósito 1</div><div class="f-card-value" id="fProp1">-</div></div>
+                <div class="f-card"><div class="f-card-label">Propósito 2</div><div class="f-card-value" id="fProp2">-</div></div>
+                <div class="f-card"><div class="f-card-label">5 Propósitos</div><div class="f-card-value" id="fProp5">-</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- ABA: COMBATE (SAMURAI FOCUS)                   -->
+          <!-- ============================================== -->
+          <div id="tabCombate" class="f-tab-content">
+            
+            <div class="f-section">
+              <h2 class="f-section-title">STATUS VITAIS</h2>
+              <div class="status-box">
+                <div class="status-header"><span>HP (Fixo Samurai)</span> <span id="fHpText" style="color: #fc8181;">6000/6000</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-hp" id="fHpBar" style="width: 100%;"></div></div>
+              </div>
+              <div class="status-box">
+                <div class="status-header"><span>CHAKRA</span> <span id="fChakraText" style="color: #63b3ed;">0/0</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-chakra" id="fChakraBar" style="width: 0%;"></div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">ATRIBUTOS PRIMÁRIOS</h2>
+              <div class="f-grid">
+                <div class="f-card" title="Manejo e maestria com a espada"><div class="f-card-label">Kenjutsu</div><div class="f-card-value" id="fAttrKen">0</div></div>
+                <div class="f-card" title="Capacidade de combate corpo a corpo"><div class="f-card-label">Taijutsu</div><div class="f-card-value" id="fAttrTai">0</div></div>
+                <div class="f-card" title="Poder de impacto e uso de armaduras pesadas"><div class="f-card-label">Força</div><div class="f-card-value" id="fAttrFor">0</div></div>
+                <div class="f-card" title="Vigor, fôlego e tolerância a dor"><div class="f-card-label">Resistência</div><div class="f-card-value" id="fAttrRes">0</div></div>
+                <div class="f-card" title="Mobilidade, reflexos e esquiva"><div class="f-card-label">Velocidade</div><div class="f-card-value" id="fAttrVel">0</div></div>
+                <div class="f-card" title="Leitura de combate e quebra de genjutsus"><div class="f-card-label">Inteligência</div><div class="f-card-value" id="fAttrInt">0</div></div>
+                <div class="f-card" title="Atenção aos detalhes do ambiente"><div class="f-card-label">Percepção</div><div class="f-card-value" id="fAttrPer">0</div></div>
+                <div class="f-card" title="Foco e treinamento Samurai"><div class="f-card-label">Disciplina</div><div class="f-card-value" id="fAttrDis">0</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DATABOOK MARCIAL</h2>
+              <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- EQUIPAMENTOS SAMURAI (NOVO) -->
+            <div class="f-section">
+              <h2 class="f-section-title">EQUIPAMENTO & ARMADURA</h2>
+              
+              <div class="f-block-destaque">
+                <span class="label-top">Lâmina do Juramento</span>
+                <p id="fEspada">Nenhuma espada vinculada pelo Batismo de Aço.</p>
+              </div>
+              
+              <div class="f-block-destaque">
+                <span class="label-top">Armadura Militar Antitecnologia</span>
+                <p id="fArmadura">Armadura Básica - Não há registros de modificações estruturais.</p>
+              </div>
+
+            </div>
+          </div>
+          
+          <!-- ============================================== -->
+          <!-- ABA: JORNADA (CONTRATOS E PATENTES)            -->
+          <!-- ============================================== -->
+          <div id="tabJornada" class="f-tab-content">
+            
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRICO MILITAR (GRADUAÇÕES)</h2>
+              <div class="jornada-list" id="boxGraduacoes">
+                <!-- Preenchido via JS -->
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">CONTRATOS EXECUTADOS</h2>
+              <div class="jornada-list">
+                
+                <div class="jornada-card">
+                  <div class="missao-badge badge-s">S</div>
+                  <div class="missao-info">
+                    <div class="missao-label">CONTRATO RANK S</div>
+                    <div class="missao-value" id="fMissaoS">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-a">A</div>
+                  <div class="missao-info">
+                    <div class="missao-label">CONTRATO RANK A</div>
+                    <div class="missao-value" id="fMissaoA">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-b">B</div>
+                  <div class="missao-info">
+                    <div class="missao-label">CONTRATO RANK B</div>
+                    <div class="missao-value" id="fMissaoB">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-c">C</div>
+                  <div class="missao-info">
+                    <div class="missao-label">CONTRATO RANK C</div>
+                    <div class="missao-value" id="fMissaoC">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-d">D</div>
+                  <div class="missao-info">
+                    <div class="missao-label">CONTRATO RANK D</div>
+                    <div class="missao-value" id="fMissaoD">0</div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          
+          <!-- ============================================== -->
+          <!-- ABA: RELAÇÕES                                  -->
+          <!-- ============================================== -->
+          <div id="tabRelacoes" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">JOGADORES</h2>
+              <div class="relacoes-list" id="boxRelacoes">
+                <!-- Preenchido via JS -->
+              </div>
+            </div>
+          </div>
+          
+          <!-- ============================================== -->
+          <!-- ABA: RESUMO DE ALTERAÇÕES                      -->
+          <!-- ============================================== -->
+          <div id="tabResumo" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRICO DE LOGS</h2>
+              <div class="resumo-list" id="boxResumo">
+                <!-- Preenchido via JS -->
+              </div>
+            </div>
+          </div>
+
+        </div> 
+      </div> 
+    </div> 
+  </main>
+
   <script>
-    /* ======= MENU LÓGICA ======= */
+    // ===== CONFIGURAÇÃO DO SUPABASE =====
+    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
+
+    let supabaseClient;
+    let todassPessoas = [];
+    let radarChartInstance = null;
+
+    // PATENTES SAMURAIS
+    const ordemPatentes = ['Mifune', 'General', 'Major', 'Capitão', 'Tenente', 'Aspirante', 'Sargento', 'Cabo', 'Soldado', 'Recruta'];
+
+    function inicializarSupabase() {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+
+    async function carregarDados() {
+      try {
+        // Se a sua tabela tiver outro nome para samurais, altere 'personagens' aqui
+        const { data, error } = await supabaseClient.from('personagens').select('*');
+        if (error) throw error;
+        todassPessoas = data || [];
+        renderizarPorPatente();
+      } catch (err) {
+        console.error('Erro:', err);
+        document.getElementById('loadingIndicator').innerHTML = '⚠️ Erro de comunicação militar com a base de dados.';
+      }
+    }
+
+    function renderizarPorPatente() {
+      const container = document.getElementById('secoesPorPatente');
+      document.getElementById('loadingIndicator').style.display = 'none';
+      let html = '';
+
+      ordemPatentes.forEach(patente => {
+        const personagensPatente = todassPessoas.filter(p => p.patente === patente);
+        html += `
+          <div class="patente-section">
+            <div class="patente-header">
+              <h2>${patente}</h2>
+              <div class="patente-count">${personagensPatente.length}</div>
+            </div>
+            <div class="personagens-grid">
+        `;
+        if (personagensPatente.length === 0) {
+          html += '<div class="empty-patente">Nenhum guerreiro registrado nesta hierarquia.</div>';
+        } else {
+          personagensPatente.forEach(pessoa => {
+            const primeiraLetra = (pessoa.nome || '?').charAt(0).toUpperCase();
+            html += `
+              <div class="personagem-card" onclick="abrirFicha(${pessoa.id})">
+                <div class="personagem-avatar">${primeiraLetra}</div>
+                <div class="personagem-info">
+                  <h3>${pessoa.nome}</h3>
+                  <p>${pessoa.patente}</p>
+                </div>
+                <button class="btn-ficha" onclick="event.stopPropagation(); abrirFicha(${pessoa.id})">Abrir Ficha</button>
+              </div>
+            `;
+          });
+        }
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // Gráfico Samurai (Cores Prata/Ferro)
+    function desenharGraficoRadar(ken, tai, forca, res, vel, int, per, dis) {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if (radarChartInstance) { radarChartInstance.destroy(); }
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['KEN', 'TAI', 'FOR', 'RES', 'VEL', 'INT', 'PER', 'DIS'],
+          datasets: [{
+            data: [ken, tai, forca, res, vel, int, per, dis],
+            backgroundColor: 'rgba(160, 174, 192, 0.2)', // Fundo prata transparente
+            borderColor: '#a0aec0', // Borda cor de ferro
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#a0aec0',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(255,255,255,0.1)' },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              pointLabels: { color: '#a0aec0', font: { family: 'Russo One', size: 12 } },
+              ticks: { display: false, min: 0, max: 10 } // Ajuste o maximo conforme seu RPG
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function abrirFicha(id) {
+      const p = todassPessoas.find(x => x.id === id);
+      if (!p) return;
+
+      // CAPA E FOTO
+      const bannerCapa = document.getElementById('fichaBannerCapa');
+      if (p.foto_capa) {
+        bannerCapa.style.backgroundImage = `url(${p.foto_capa})`;
+        bannerCapa.style.backgroundSize = 'cover';
+        bannerCapa.style.backgroundPosition = 'center';
+      } else {
+        bannerCapa.style.backgroundImage = 'linear-gradient(135deg, var(--theme-color-dark) 0%, #1a202c 100%)';
+      }
+
+      const fotoPerfil = document.getElementById('fichaFotoPerfil');
+      if (p.foto_perfil) {
+        fotoPerfil.src = p.foto_perfil;
+      } else {
+        const inicial = (p.nome || 'S').charAt(0).toUpperCase();
+        fotoPerfil.src = `https://ui-avatars.com/api/?name=${inicial}&background=4a5568&color=fff&size=120`;
+      }
+
+      // TÍTULOS
+      document.getElementById('fichaNome').textContent = p.nome || 'Desconhecido';
+      document.getElementById('fichaTitulo').textContent = `"${p.titulo || 'Sem título'}"`;
+      document.getElementById('badgePatente').textContent = p.patente || '-';
+      document.getElementById('badgeVila').textContent = p.vila || 'País do Ferro';
+      document.getElementById('badgeStatus').textContent = p.status_vida || 'Vivo';
+
+      // PERFIL (Trocado Clã/Profissão por Organização)
+      document.getElementById('fGenero').textContent = p.genero || '-';
+      document.getElementById('fSexualidade').textContent = p.sexualidade || 'Não informado';
+      document.getElementById('fIdade').textContent = p.idade || '-';
+      document.getElementById('fAniversario').textContent = p.aniversario || '-';
+      document.getElementById('fFama').textContent = p.fama || '-';
+      document.getElementById('fOrigem').textContent = p.origem_nascimento || '-';
+      document.getElementById('fReside').textContent = p.local_reside || '-';
+      document.getElementById('fOrg').textContent = p.organizacao || '-';
+
+      // VISUAL E HISTÓRIA
+      document.getElementById('fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
+      document.getElementById('fAltura').textContent = p.altura || '-';
+      document.getElementById('fPeso').textContent = p.peso || '-';
+      document.getElementById('fCabelos').textContent = p.cabelos || '-';
+      document.getElementById('fOlhos').textContent = p.olhos || '-';
+      document.getElementById('fHistoria').textContent = p.historia || 'Nenhum histórico informado.';
+
+      // PROPÓSITOS
+      document.getElementById('fGosta').textContent = p.gosta_de || '-';
+      document.getElementById('fNaoGosta').textContent = p.nao_gosta_de || '-';
+      document.getElementById('fProp1').textContent = p.proposito_1 || '-';
+      document.getElementById('fProp2').textContent = p.proposito_2 || '-';
+      document.getElementById('fProp5').textContent = p.proposito_5 || '-';
+
+      // COMBATE (Mecânicas Samurais)
+      // HP Samurai é fixo em 6000 (segundo a lore), mas pode ser puxado do banco
+      const hp = p.hp_atual || 6000;
+      const hpMax = p.hp_max || 6000;
+      const chakra = p.chakra_atual || 0;
+      const chakraMax = p.chakra_max || 100;
+      
+      document.getElementById('fHpText').textContent = `${hp}/${hpMax}`;
+      document.getElementById('fHpBar').style.width = `${Math.min((hp / hpMax) * 100, 100)}%`;
+      document.getElementById('fChakraText').textContent = `${chakra}/${chakraMax}`;
+      document.getElementById('fChakraBar').style.width = `${Math.min((chakra / chakraMax) * 100, 100)}%`;
+
+      // Atributos base Samurai
+      document.getElementById('fAttrKen').textContent = p.kenjutsu || '0';
+      document.getElementById('fAttrTai').textContent = p.taijutsu || '0';
+      document.getElementById('fAttrFor').textContent = p.forca || '0';
+      document.getElementById('fAttrRes').textContent = p.resistencia || '0';
+      document.getElementById('fAttrVel').textContent = p.velocidade || '0';
+      document.getElementById('fAttrInt').textContent = p.inteligencia || '0';
+      document.getElementById('fAttrPer').textContent = p.percepcao || '0';
+      document.getElementById('fAttrDis').textContent = p.disciplina || '0';
+
+      desenharGraficoRadar(p.kenjutsu||0, p.taijutsu||0, p.forca||0, p.resistencia||0, p.velocidade||0, p.inteligencia||0, p.percepcao||0, p.disciplina||0);
+      
+      // Equipamentos
+      document.getElementById('fEspada').textContent = p.espada_nome || 'Nenhuma espada vinculada. O Samurai precisa passar pelo Batismo de Aço.';
+      document.getElementById('fArmadura').textContent = p.armadura_tipo || 'Armadura Padrão (Sem modificações antitecnologia registradas).';
+
+      // JORNADA (CONTRATOS)
+      document.getElementById('fMissaoS').textContent = p.contrato_s || '0';
+      document.getElementById('fMissaoA').textContent = p.contrato_a || '0';
+      document.getElementById('fMissaoB').textContent = p.contrato_b || '0';
+      document.getElementById('fMissaoC').textContent = p.contrato_c || '0';
+      document.getElementById('fMissaoD').textContent = p.contrato_d || '0';
+
+      // HISTÓRICO GRADUAÇÕES
+      const boxGraduacoes = document.getElementById('boxGraduacoes');
+      if (p.historico_graduacoes) {
+        boxGraduacoes.innerHTML = p.historico_graduacoes;
+      } else {
+        boxGraduacoes.innerHTML = `
+          <div class="jornada-card">
+            <div class="grad-icon"><svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg></div>
+            <div class="grad-info">
+              <div class="grad-info-title">Recruta &rarr; <strong>Soldado</strong></div>
+              <div class="grad-info-date">Aprovação Inicial</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // RELAÇÕES
+      const boxRelacoes = document.getElementById('boxRelacoes');
+      if (p.lista_relacoes) {
+        boxRelacoes.innerHTML = p.lista_relacoes;
+      } else {
+        boxRelacoes.innerHTML = `
+          <div class="relacao-card">
+            <div class="relacao-header">
+              <img src="https://ui-avatars.com/api/?name=Aliado&background=a0aec0&color=fff&size=100" alt="Aliado" class="relacao-avatar" />
+              <div class="relacao-info">
+                <div class="relacao-nome">Guerreiro Aliado (@Player)</div>
+                <div class="relacao-tipo">Companheiro de Esquadrão</div>
+                <div class="relacao-stats"><span class="pos">+15</span> <span class="neg">-0</span></div>
+              </div>
+              <div class="relacao-badge">COMPANHEIROS</div>
+            </div>
+            <div class="relacao-desc">
+              Vocês lutaram lado a lado nas montanhas nevadas e desenvolveram grande confiança em campo de batalha.
+            </div>
+            <div class="relacao-actions">
+              <button class="btn-icon-green" title="Acessar Perfil"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg></button>
+            </div>
+          </div>
+        `;
+      }
+
+      // RESUMO DE ALTERAÇÕES
+      const boxResumo = document.getElementById('boxResumo');
+      if (p.historico_resumo) {
+        boxResumo.innerHTML = p.historico_resumo;
+      } else {
+        boxResumo.innerHTML = `
+          <div class="resumo-card">
+            <div class="resumo-header">
+              <div class="resumo-title">Criação do Registro</div>
+              <div class="resumo-date">Sistema</div>
+            </div>
+            <div class="resumo-desc">
+              Alistamento militar concluído no País do Ferro. Atributos base iniciados.
+            </div>
+            <button class="btn-react" onclick="this.classList.toggle('active')">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> 
+              Curtir / Visto
+            </button>
+          </div>
+        `;
+      }
+
+      document.querySelectorAll('.f-tab-btn')[0].click();
+      mostrarPagina('paginaFicha');
+    }
+
+    function voltarParaPrincipal() { mostrarPagina('paginaPrincipal'); }
+
+    function mostrarPagina(paginaId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(paginaId).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function trocarAba(evt, tabId) {
+      let contents = document.getElementsByClassName("f-tab-content");
+      for (let i = 0; i < contents.length; i++) contents[i].classList.remove("active");
+      let buttons = document.getElementsByClassName("f-tab-btn");
+      for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
+      document.getElementById(tabId).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+
     const menuBtn = document.getElementById('menu-btn');
     const navOverlay = document.getElementById('nav-overlay');
-    
-    document.getElementById('overlay-close').addEventListener('click', closeNav);
-    
-    menuBtn.addEventListener('click', () => {
-      const open = navOverlay.classList.toggle('open');
-      menuBtn.classList.toggle('open', open);
-    });
-    
-    function closeNav() { 
-      navOverlay.classList.remove('open'); 
-      menuBtn.classList.remove('open'); 
-    }
+    document.getElementById('overlay-close').addEventListener('click', () => { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); });
+    menuBtn.addEventListener('click', () => { const isOpen = navOverlay.classList.toggle('open'); menuBtn.classList.toggle('open', isOpen); });
 
-    /* ======= TEMA LÓGICA ======= */
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
-    root.setAttribute('data-theme', savedTheme);
-    
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('ks-theme', next);
-    });
-
-    /* ======= MODAL FICHA LÓGICA ======= */
-    const modal = document.getElementById('ficha-modal');
-    
-    function openFicha(nome, rank, vila, bannerSrc, avatarSrc) {
-      // Alimenta os textos da ficha
-      document.getElementById('ficha-nome-txt').innerText = nome;
-      document.getElementById('ficha-rank-txt').innerText = rank;
-      document.getElementById('ficha-vila-txt').innerText = vila;
-      document.getElementById('ficha-grid-vila').innerText = vila;
-      
-      // Ajusta as imagens
-      const bannerImg = document.getElementById('ficha-banner-img');
-      const avatarImg = document.getElementById('ficha-avatar-img');
-      
-      if(bannerSrc) { bannerImg.src = bannerSrc; bannerImg.style.display = 'block'; } 
-      else { bannerImg.style.display = 'none'; }
-      
-      if(avatarSrc) { avatarImg.src = avatarSrc; avatarImg.style.display = 'block'; } 
-      else { avatarImg.style.display = 'none'; }
-
-      // Abre o modal e trava scroll do fundo
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden'; 
-    }
-
-    function closeFicha() {
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto'; 
-    }
-
-    // Fechar com ESC ou clicando fora
-    document.addEventListener('keydown', e => { 
-      if(e.key === 'Escape') { closeNav(); closeFicha(); }
-    });
-    modal.addEventListener('click', (e) => {
-      if(e.target === modal) closeFicha();
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarSupabase();
+      carregarDados();
     });
   </script>
 </body>
