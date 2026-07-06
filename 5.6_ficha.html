@@ -109,7 +109,7 @@
     .back-btn-top { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; color: #fff; font-family: 'Russo One', sans-serif; font-size: 0.85rem; margin-bottom: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; }
     .back-btn-top:hover { background: var(--ficha-green-dark); border-color: var(--ficha-green); }
 
-    .ficha-layout { background: var(--ficha-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
+    .ficha-layout { background: var(--ficha-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.7); position: relative; }
 
     /* CAPA BANNER */
     .ficha-capa-banner { background-color: var(--ficha-green); background-image: linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%); position: relative; padding: 50px 20px 30px; text-align: center; color: #fff; }
@@ -127,10 +127,29 @@
     .badge-f.green { background: var(--ficha-green); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
 
     /* NAV ABAS */
-    .ficha-nav-tabs { display: flex; background: #0b0e0c; padding: 15px 20px 0; gap: 5px; border-bottom: 2px solid var(--ficha-border); overflow-x: auto; }
+    .ficha-nav-tabs { display: flex; background: #0b0e0c; padding: 15px 20px 0; gap: 5px; border-bottom: 2px solid var(--ficha-border); overflow-x: auto; position: relative; }
     .f-tab-btn { background: var(--ficha-card); color: #717d75; border: 1px solid transparent; border-bottom: none; padding: 12px 20px; border-radius: 8px 8px 0 0; font-family: 'Russo One', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
     .f-tab-btn:hover { background: #1e2421; color: #fff; }
     .f-tab-btn.active { background: var(--ficha-bg); color: var(--ficha-green); border-color: var(--ficha-border); border-top: 2px solid var(--ficha-green); }
+
+    /* ÍCONE FLUTUANTE DA VILA */
+    .vila-floating-icon {
+      position: absolute;
+      right: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 55px;
+      height: 55px;
+      background: rgba(18, 25, 20, 0.95);
+      border: 2px solid rgba(54, 182, 104, 0.6);
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(54, 182, 104, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .vila-floating-icon svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
     .ficha-body-content { padding: 30px; background: var(--ficha-bg); }
     .f-tab-content { display: none; }
@@ -161,17 +180,49 @@
     /* CANVA CHART (DATABOOK RADAR) */
     .chart-container { max-width: 450px; margin: 0 auto; background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 10px; padding: 20px; }
 
-    /* CARD ESTILO VERTICAL (SUBATRIBUTOS / ATRIBUTOS GRANDES) */
+    /* CARD ESTILO VERTICAL (SUBATRIBUTOS) */
     .subattr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
     .subattr-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 25px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .subattr-label { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
     .subattr-value { font-family: 'Russo One', sans-serif; font-size: 2.2rem; color: var(--ficha-green); text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
+
+    /* =======================================================
+       ========== ESTILOS DA ABA JORNADA (NOVO) ============== 
+       ======================================================= */
+    .jornada-list { display: flex; flex-direction: column; gap: 12px; }
+    .jornada-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 15px 20px; display: flex; align-items: center; transition: 0.3s; }
+    .jornada-card:hover { border-color: rgba(54, 182, 104, 0.4); }
+    
+    /* Histórico Graduações */
+    .grad-icon { width: 40px; height: 40px; background: var(--ficha-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(54, 182, 104, 0.4); }
+    .grad-icon svg { width: 22px; height: 22px; fill: #fff; }
+    .grad-info { flex: 1; margin-left: 20px; }
+    .grad-info-title { color: #aaa; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; }
+    .grad-info-title strong { color: var(--ficha-green); font-weight: 600; }
+    .grad-info-date { color: #666; font-size: 0.85rem; margin-top: 4px; }
+    .grad-link { color: var(--ficha-green); cursor: pointer; transition: 0.3s; }
+    .grad-link:hover { color: #fff; transform: scale(1.1); }
+    .grad-link svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* Missões Realizadas */
+    .missao-badge { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: #fff; flex-shrink: 0; }
+    .badge-s { background: #ef5350; }
+    .badge-a { background: #ff9800; }
+    .badge-b { background: #66bb6a; }
+    .badge-c { background: #42a5f5; }
+    .badge-d { background: #ab47bc; }
+    
+    .missao-info { flex: 1; margin-left: 20px; }
+    .missao-label { font-family: 'Rajdhani', sans-serif; color: #888; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
+    .missao-value { color: #fff; font-family: 'Russo One', sans-serif; font-size: 1.3rem; margin-top: 2px; }
 
     @media (max-width: 768px) {
       #page-container { padding-top: 90px; }
       .header-image { height: 150px; }
       .personagens-grid, .f-grid, .subattr-grid { grid-template-columns: 1fr; }
       .ficha-body-content { padding: 15px; }
+      .vila-floating-icon { right: 10px; width: 45px; height: 45px; }
+      .vila-floating-icon svg { width: 22px; height: 22px; }
     }
   </style>
 </head>
@@ -229,14 +280,11 @@
         
         <div class="ficha-capa-banner" id="fichaBannerCapa">
           <div class="ficha-capa-overlay"></div>
-          
           <div class="ficha-avatar-wrapper">
             <img id="fichaFotoPerfil" src="" alt="Avatar" />
           </div>
-          
           <h1 class="ficha-nome-txt" id="fichaNome">NOME DO PERSONAGEM</h1>
           <p class="ficha-subtitulo-txt" id="fichaTitulo">"Título do Personagem"</p>
-          
           <div class="ficha-badges-row">
             <span class="badge-f white" id="badgePatente">PATENTE</span>
             <span class="badge-f dark" id="badgeVila">VILA</span>
@@ -250,6 +298,14 @@
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabJornada')">JORNADA</button>
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabRelacoes')">RELAÇÕES</button>
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo')">RESUMO DE ALTERAÇÕES</button>
+
+          <div class="vila-floating-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 21c-4-4-7-8-7-12a7 7 0 0 1 14 0c0 4-3 8-7 12z"/>
+              <path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+              <path d="M12 10l3 3"/>
+            </svg>
+          </div>
         </div>
 
         <div class="ficha-body-content">
@@ -360,9 +416,62 @@
           </div>
           
           <div id="tabJornada" class="f-tab-content">
-            <h2 class="f-section-title">JORNADA</h2>
-            <div class="f-block">Em desenvolvimento...</div>
+            
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRICO DE GRADUAÇÕES</h2>
+              <div class="jornada-list" id="boxGraduacoes">
+                </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">MISSÕES REALIZADAS</h2>
+              <div class="jornada-list">
+                
+                <div class="jornada-card">
+                  <div class="missao-badge badge-s">S</div>
+                  <div class="missao-info">
+                    <div class="missao-label">RANK S</div>
+                    <div class="missao-value" id="fMissaoS">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-a">A</div>
+                  <div class="missao-info">
+                    <div class="missao-label">RANK A</div>
+                    <div class="missao-value" id="fMissaoA">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-b">B</div>
+                  <div class="missao-info">
+                    <div class="missao-label">RANK B</div>
+                    <div class="missao-value" id="fMissaoB">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-c">C</div>
+                  <div class="missao-info">
+                    <div class="missao-label">RANK C</div>
+                    <div class="missao-value" id="fMissaoC">0</div>
+                  </div>
+                </div>
+
+                <div class="jornada-card">
+                  <div class="missao-badge badge-d">D</div>
+                  <div class="missao-info">
+                    <div class="missao-label">RANK D</div>
+                    <div class="missao-value" id="fMissaoD">0</div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+            
           </div>
+          
           <div id="tabRelacoes" class="f-tab-content">
             <h2 class="f-section-title">RELAÇÕES</h2>
             <div class="f-block">Em desenvolvimento...</div>
@@ -527,22 +636,16 @@
       document.getElementById('fProp2').textContent = p.proposito_2 || '-';
       document.getElementById('fProp5').textContent = p.proposito_5 || '-';
 
-      // ===========================================
-      // ATUALIZAÇÃO DA SEÇÃO COMBATE
-      // ===========================================
-
-      // 1. Status Vitais
+      // COMBATE
       const hp = p.hp_atual || 0;
       const hpMax = p.hp_max || 100;
       const chakra = p.chakra_atual || 0;
       const chakraMax = p.chakra_max || 100;
-      
       document.getElementById('fHpText').textContent = `${hp}/${hpMax}`;
       document.getElementById('fHpBar').style.width = `${Math.min((hp / hpMax) * 100, 100)}%`;
       document.getElementById('fChakraText').textContent = `${chakra}/${chakraMax}`;
       document.getElementById('fChakraBar').style.width = `${Math.min((chakra / chakraMax) * 100, 100)}%`;
 
-      // 2. Preenchimento de Atributos Primários
       document.getElementById('fAttrVel').textContent = p.velocidade || '0';
       document.getElementById('fAttrTai').textContent = p.taijutsu || '0';
       document.getElementById('fAttrNin').textContent = p.ninjutsu || '0';
@@ -552,7 +655,6 @@
       document.getElementById('fAttrSel').textContent = p.selos || '0';
       document.getElementById('fAttrInt').textContent = p.inteligencia || '0';
 
-      // 3. Subatributos
       document.getElementById('fSubFuin').textContent = p.fuinjutsu || '0';
       document.getElementById('fSubNinG').textContent = p.ningeral || '0';
       document.getElementById('fSubEle').textContent = p.elementos || '0';
@@ -560,11 +662,51 @@
       document.getElementById('fSubShu').textContent = p.shurikenjutsu || '0';
       document.getElementById('fSubCom').textContent = p.combate || '0';
 
-      // 4. Renderização do Gráfico Databook
       desenharGraficoRadar(p.ninjutsu||0, p.taijutsu||0, p.genjutsu||0, p.inteligencia||0, p.forca||0, p.velocidade||0, p.resistencia||0, p.selos||0);
-
-      // 5. Exibição das Técnicas
       document.getElementById('boxTecnicas').innerHTML = p.lista_tecnicas ? p.lista_tecnicas : "<em>Nenhuma técnica listada para este personagem.</em>";
+
+      // ===========================================
+      // JORNADA
+      // ===========================================
+      document.getElementById('fMissaoS').textContent = p.missao_s || '0';
+      document.getElementById('fMissaoA').textContent = p.missao_a || '0';
+      document.getElementById('fMissaoB').textContent = p.missao_b || '0';
+      document.getElementById('fMissaoC').textContent = p.missao_c || '0';
+      document.getElementById('fMissaoD').textContent = p.missao_d || '0';
+
+      const boxGraduacoes = document.getElementById('boxGraduacoes');
+      if (p.historico_graduacoes) {
+        boxGraduacoes.innerHTML = p.historico_graduacoes;
+      } else {
+        // Exemplo Padrão Estilizado como no Print se não houver registros
+        boxGraduacoes.innerHTML = `
+          <div class="jornada-card">
+            <div class="grad-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+            </div>
+            <div class="grad-info">
+              <div class="grad-info-title">Genin &rarr; <strong>Chunin</strong></div>
+              <div class="grad-info-date">06/01/2026</div>
+            </div>
+            <div class="grad-link">
+              <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+            </div>
+          </div>
+
+          <div class="jornada-card">
+            <div class="grad-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+            </div>
+            <div class="grad-info">
+              <div class="grad-info-title">Chunin &rarr; <strong>Tokubetsu Jonin</strong></div>
+              <div class="grad-info-date">10/02/2026</div>
+            </div>
+            <div class="grad-link">
+              <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+            </div>
+          </div>
+        `;
+      }
 
       document.querySelectorAll('.f-tab-btn')[0].click();
       mostrarPagina('paginaFicha');
