@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Banco de Dados - Shinobi</title>
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -24,7 +27,7 @@
       --text:    #e0e0e0;
       --text-sub:#8a92a6;
 
-      /* Cores do Novo Layout de Ficha */
+      /* Cores do Layout de Ficha */
       --ficha-bg: #111513;
       --ficha-card: #171b19;
       --ficha-border: #202722;
@@ -48,33 +51,14 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.95rem;
-      overflow-x: hidden;
-      transition: background-color 0.4s, color 0.4s;
-    }
+    body { background-color: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; overflow-x: hidden; transition: background-color 0.4s, color 0.4s; }
 
-    /* ======= FUNDO FIXO COM IMAGEM ======= */
-    #fixed-background { 
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-      z-index: -10; overflow: hidden; background-color: #000;
-    }
-    .hero-bg { 
-      position: absolute; inset: 0; z-index: 0; 
-      width: 100%; height: 100%; object-fit: cover; 
-      filter: brightness(0.35) saturate(0.6); 
-      transition: filter 0.4s ease; 
-    }
+    /* ======= FUNDO E FLOATING UI ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; background-color: #000; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) saturate(0.6); transition: filter 0.4s ease; }
     [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
-    .hero-overlay { 
-      position: absolute; inset: 0; z-index: 1; pointer-events: none; 
-      background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%); 
-    }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%); }
 
-    /* ======= FLOATING UI ======= */
     #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
     #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(204,0,0,0.5); transition: box-shadow 0.25s, transform 0.2s; }
     #theme-toggle { width: 32px; height: 32px; padding: 0; }
@@ -94,407 +78,100 @@
     #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); overflow-y: auto; }
     #nav-overlay.open #nav-panel { transform: translateX(0); }
     .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
-    .nav-link::before { content: ''; position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--border); transition: width 0.25s; }
     .nav-link:hover { color: var(--accent2); padding-left: 10px; }
-    .nav-link:hover::before { width: 16px; }
 
-    /* ======= PÁGINA ======= */
-    #page-container { 
-      position: relative; z-index: 10; min-height: 100vh; 
-      padding: 100px 20px 80px; max-width: 1000px; margin: 0 auto; 
-      display: flex; flex-direction: column; gap: 30px;
-    }
+    /* ======= ESTRUTURA GERAL DA PÁGINA ======= */
+    #page-container { position: relative; z-index: 10; min-height: 100vh; padding: 100px 20px 80px; max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+    .main-header-group { background: var(--surface-inner); border-radius: 8px; overflow: hidden; border: 1px solid rgba(92, 107, 192, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; }
+    .header-image { width: 100%; height: 220px; background: #050505; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .header-image img { position: absolute; width: 100%; height: 100%; object-fit: cover; top: 0; left: 0; }
+    .header-red { background: var(--accent); padding: 15px 25px; display: flex; align-items: center; gap: 15px; }
+    .header-red h1 { font-family: 'Bangers', cursive; font-size: 2.2rem; letter-spacing: 0.08em; color: #fff; text-transform: uppercase; margin: 0; font-style: italic; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
 
-    .main-header-group {
-      background: var(--surface-inner);
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid rgba(92, 107, 192, 0.3);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .header-image {
-      width: 100%;
-      height: 220px;
-      background: #050505;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .header-image img {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      top: 0; left: 0;
-    }
+    /* ======= SEÇÕES DA HOME ======= */
+    .patente-section { background: var(--surface-inner); border-radius: 8px; border: 1px solid rgba(92, 107, 192, 0.3); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-bottom: 30px; }
+    .patente-header { background: var(--accent); padding: 15px 25px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .patente-header h2 { font-family: 'Russo One', sans-serif; font-size: 1.5rem; color: #fff; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+    .patente-count { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; font-weight: 700; color: #fff; font-size: 0.9rem; }
+    .personagens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; padding: 20px; }
+    .personagem-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(92, 107, 192, 0.2); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; cursor: pointer; }
+    .personagem-card:hover { background: rgba(92, 107, 192, 0.1); border-color: var(--accent2); box-shadow: 0 0 20px var(--glow); transform: translateY(-3px); }
+    .personagem-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent2), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .personagem-info h3 { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: var(--text); text-transform: uppercase; margin: 0; }
+    .btn-ficha { padding: 8px 16px; background: var(--accent2); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; font-size: 0.85rem; text-transform: uppercase; }
+    .empty-patente { padding: 40px 20px; text-align: center; color: var(--text-sub); font-style: italic; }
+    .loading { padding: 40px; text-align: center; color: var(--accent2); font-size: 1.1rem; }
 
-    .header-red {
-      background: var(--accent); 
-      padding: 15px 25px; 
-      display: flex; align-items: center; gap: 15px;
-    }
-    .header-red h1 { 
-      font-family: 'Bangers', cursive; font-size: 2.2rem; letter-spacing: 0.08em; 
-      color: #fff; text-transform: uppercase; margin: 0; font-style: italic;
-      text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
-    }
-    .header-deco { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, transparent 100%); }
-
-    /* ======= SEÇÕES POR PATENTE ======= */
-    .patente-section {
-      background: var(--surface-inner);
-      border-radius: 8px;
-      border: 1px solid rgba(92, 107, 192, 0.3);
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      margin-bottom: 30px;
-    }
-
-    .patente-header {
-      background: var(--accent);
-      padding: 15px 25px;
-      border-bottom: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .patente-header h2 {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.5rem;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin: 0;
-    }
-
-    .patente-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      font-weight: 700;
-      color: #fff;
-      font-size: 0.9rem;
-    }
-
-    .personagens-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
-      padding: 20px;
-    }
-
-    .personagem-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(92, 107, 192, 0.2);
-      border-radius: 8px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .personagem-card:hover {
-      background: rgba(92, 107, 192, 0.1);
-      border-color: var(--accent2);
-      box-shadow: 0 0 20px var(--glow);
-      transform: translateY(-3px);
-    }
-
-    .personagem-avatar {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .personagem-info h3 {
-      font-family: 'Russo One', sans-serif;
-      font-size: 1.1rem;
-      color: var(--text);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 0;
-    }
-
-    .personagem-info p {
-      font-size: 0.9rem;
-      color: var(--text-sub);
-      margin: 4px 0 0 0;
-    }
-
-    .btn-ficha {
-      padding: 8px 16px;
-      background: var(--accent2);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .btn-ficha:hover {
-      background: var(--accent);
-      box-shadow: 0 0 15px var(--glow);
-      transform: scale(1.05);
-    }
-
-    .empty-patente {
-      padding: 40px 20px;
-      text-align: center;
-      color: var(--text-sub);
-      font-style: italic;
-    }
-
-    .loading {
-      padding: 40px;
-      text-align: center;
-      color: var(--accent2);
-      font-size: 1.1rem;
-    }
-
-    /* ======= PÁGINAS VISIBILIDADE ======= */
     .page { display: none; }
     .page.active { display: block; }
 
-    /* =======================================================
-       ======= NOVO LAYOUT DA PÁGINA FICHA (VERDE/DARK) ====== 
-       ======================================================= */
-    
-    .back-btn-top {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,0,0,0.6);
-      padding: 8px 16px;
-      border-radius: 20px;
-      color: #fff;
-      text-decoration: none;
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.85rem;
-      margin-bottom: 20px;
-      cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.2);
-      transition: all 0.3s ease;
-    }
-    .back-btn-top:hover {
-      background: var(--ficha-green-dark);
-      border-color: var(--ficha-green);
-    }
+    /* ======= FICHA LAYOUT ======= */
+    .back-btn-top { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; color: #fff; font-family: 'Russo One', sans-serif; font-size: 0.85rem; margin-bottom: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; }
+    .back-btn-top:hover { background: var(--ficha-green-dark); border-color: var(--ficha-green); }
 
-    .ficha-layout {
-      background: var(--ficha-bg);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-    }
+    .ficha-layout { background: var(--ficha-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
 
-    /* HEADER VERDE (CAPA) */
-    .ficha-capa-banner {
-      background-color: var(--ficha-green);
-      background-image: linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%);
-      position: relative;
-      padding: 50px 20px 30px;
-      text-align: center;
-      color: #fff;
-    }
-    .ficha-capa-overlay {
-      position: absolute;
-      inset: 0;
-      background: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>');
-      opacity: 0.6;
-      pointer-events: none;
-    }
+    /* CAPA BANNER */
+    .ficha-capa-banner { background-color: var(--ficha-green); background-image: linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%); position: relative; padding: 50px 20px 30px; text-align: center; color: #fff; }
+    .ficha-capa-overlay { position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>'); opacity: 0.6; pointer-events: none; }
+    .ficha-avatar-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; border: 4px solid var(--ficha-bg); background: #000; overflow: hidden; z-index: 2; }
+    .ficha-avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* AVATAR DE PERFIL */
-    .ficha-avatar-wrapper {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 15px;
-      border-radius: 50%;
-      border: 4px solid var(--ficha-bg);
-      background: #000;
-      overflow: hidden;
-      z-index: 2;
-    }
-    .ficha-avatar-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .ficha-nome-txt { font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; margin: 0 0 5px 0; position: relative; z-index: 2; text-transform: uppercase; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+    .ficha-subtitulo-txt { font-size: 1.1rem; font-style: italic; color: rgba(255,255,255,0.9); margin-bottom: 20px; position: relative; z-index: 2; }
 
-    /* TITULOS DO HEADER */
-    .ficha-nome-txt {
-      font-family: 'Bangers', cursive;
-      font-size: 2.5rem;
-      letter-spacing: 0.08em;
-      margin: 0 0 5px 0;
-      position: relative;
-      z-index: 2;
-      text-transform: uppercase;
-      text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-    }
-    .ficha-subtitulo-txt {
-      font-size: 1.1rem;
-      font-style: italic;
-      color: rgba(255,255,255,0.9);
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* BADGES (Patente, Vila, Status) */
-    .ficha-badges-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      position: relative;
-      z-index: 2;
-      flex-wrap: wrap;
-    }
-    .badge-f {
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+    .ficha-badges-row { display: flex; gap: 10px; justify-content: center; position: relative; z-index: 2; flex-wrap: wrap; }
+    .badge-f { padding: 5px 15px; border-radius: 20px; font-family: 'Russo One', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
     .badge-f.white { background: #fff; color: var(--ficha-green-dark); }
     .badge-f.dark { background: #202722; color: #fff; }
     .badge-f.green { background: var(--ficha-green); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
 
-    /* MENU DE ABAS */
-    .ficha-nav-tabs {
-      display: flex;
-      background: #0b0e0c;
-      padding: 15px 20px 0;
-      gap: 5px;
-      border-bottom: 2px solid var(--ficha-border);
-      overflow-x: auto;
-    }
-    .f-tab-btn {
-      background: var(--ficha-card);
-      color: #717d75;
-      border: 1px solid transparent;
-      border-bottom: none;
-      padding: 12px 20px;
-      border-radius: 8px 8px 0 0;
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      white-space: nowrap;
-    }
-    .f-tab-btn:hover {
-      background: #1e2421;
-      color: #fff;
-    }
-    .f-tab-btn.active {
-      background: var(--ficha-bg);
-      color: var(--ficha-green);
-      border-color: var(--ficha-border);
-      border-top: 2px solid var(--ficha-green);
-    }
+    /* NAV ABAS */
+    .ficha-nav-tabs { display: flex; background: #0b0e0c; padding: 15px 20px 0; gap: 5px; border-bottom: 2px solid var(--ficha-border); overflow-x: auto; }
+    .f-tab-btn { background: var(--ficha-card); color: #717d75; border: 1px solid transparent; border-bottom: none; padding: 12px 20px; border-radius: 8px 8px 0 0; font-family: 'Russo One', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+    .f-tab-btn:hover { background: #1e2421; color: #fff; }
+    .f-tab-btn.active { background: var(--ficha-bg); color: var(--ficha-green); border-color: var(--ficha-border); border-top: 2px solid var(--ficha-green); }
 
-    /* CONTEÚDO DAS ABAS */
-    .ficha-body-content {
-      padding: 30px;
-      background: var(--ficha-bg);
-    }
+    .ficha-body-content { padding: 30px; background: var(--ficha-bg); }
     .f-tab-content { display: none; }
     .f-tab-content.active { display: block; }
 
-    /* SESSÕES E GRIDS */
+    /* SEÇÕES E GRIDS DETALHADOS */
     .f-section { margin-bottom: 40px; }
-    .f-section-title {
-      font-family: 'Bangers', cursive;
-      font-size: 1.5rem;
-      color: #fff;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      letter-spacing: 0.08em;
-    }
-    .f-section-title::before {
-      content: '';
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      background: var(--ficha-green);
-      border-radius: 50%;
-    }
+    .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; }
+    .f-section-title::before { content: ''; display: inline-block; width: 16px; height: 16px; background: var(--ficha-green); border-radius: 50%; }
 
-    .f-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 15px;
-    }
-    .f-card {
-      background: var(--ficha-card);
-      border: 1px solid var(--ficha-border);
-      border-left: 3px solid var(--ficha-green);
-      border-radius: 8px;
-      padding: 15px;
-      transition: border-color 0.3s;
-    }
-    .f-card:hover { border-color: rgba(54, 182, 104, 0.4); }
-    
-    .f-card-label {
-      color: var(--ficha-green);
-      font-weight: 700;
-      font-family: 'Russo One', sans-serif;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-    .f-card-value {
-      color: #e0e0e0;
-      font-size: 1.05rem;
-      font-weight: 500;
-    }
+    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-green); border-radius: 8px; padding: 15px; }
+    .f-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .f-card-value { color: #e0e0e0; font-size: 1.05rem; font-weight: 500; }
 
-    .f-block {
-      background: var(--ficha-card);
-      border: 1px solid var(--ficha-border);
-      border-left: 3px solid var(--ficha-green);
-      border-radius: 8px;
-      padding: 20px;
-      color: #e0e0e0;
-      line-height: 1.6;
-    }
+    .f-block { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-green); border-radius: 8px; padding: 20px; color: #e0e0e0; line-height: 1.6; }
+    .f-block-destaque { background: var(--ficha-card); border: 1px solid var(--ficha-border); padding: 25px; border-radius: 8px; margin-bottom: 20px; color: #d0d0d0; line-height: 1.7; }
+    .f-block-destaque .label-top { font-family: 'Russo One', sans-serif; color: var(--ficha-green); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; text-align: center; display: block; }
+
+    /* BARRAS DE STATUS (VITAIS) */
+    .status-box { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .status-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-family: 'Russo One', sans-serif; color: #fff; font-size: 1rem; }
+    .status-bar-bg { width: 100%; height: 20px; background: #0f1210; border-radius: 10px; overflow: hidden; border: 1px solid #000; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+    .status-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease-in-out; }
+    .fill-hp { background: linear-gradient(90deg, #b71c1c, #ff5252); }
+    .fill-chakra { background: linear-gradient(90deg, #0d47a1, #448aff); }
+
+    /* CANVA CHART (DATABOOK RADAR) */
+    .chart-container { max-width: 450px; margin: 0 auto; background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 10px; padding: 20px; }
+
+    /* CARD ESTILO VERTICAL (SUBATRIBUTOS / ATRIBUTOS GRANDES) */
+    .subattr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+    .subattr-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 25px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .subattr-label { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
+    .subattr-value { font-family: 'Russo One', sans-serif; font-size: 2.2rem; color: var(--ficha-green); text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
 
     @media (max-width: 768px) {
       #page-container { padding-top: 90px; }
       .header-image { height: 150px; }
-      .header-red h1 { font-size: 1.8rem; }
-      .personagens-grid { grid-template-columns: 1fr; }
+      .personagens-grid, .f-grid, .subattr-grid { grid-template-columns: 1fr; }
       .ficha-body-content { padding: 15px; }
-      .ficha-nav-tabs { padding: 15px 10px 0; }
     }
   </style>
 </head>
@@ -514,14 +191,6 @@
         <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
       </svg>
     </button>
-    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
-      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
-      </svg>
-      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
-      </svg>
-    </button>
   </div>
 
   <div id="nav-overlay" role="dialog" aria-modal="true">
@@ -530,21 +199,6 @@
       <a class="nav-link" href="5.0_shinobi.html">Shinobi</a>
       <a class="nav-link" href="5.1_clas_shinobi.html">Clãs</a>
       <a class="nav-link" href="5.7_patentes.html">Patentes</a>
-      <a class="nav-link" href="5.7_tecnicas.html">Aprendizagem de Técnicas</a>
-      <a class="nav-link" href="5.7_atributos.html">Atributos</a>
-      <a class="nav-link" href="5.7_chakra e hp.html">Chakra/HP</a>
-      <a class="nav-link" href="5.2_elementos.html">Elementos</a>
-      <a class="nav-link" href="5.5_missoes.html">Missões</a>
-      <a class="nav-link" href="5.4_especializações.html">Especializações</a>
-      <a class="nav-link" href="5.7_bijuus.html">Bijuus</a>
-      <a class="nav-link" href="5.7_ao e gatilho.html">A.O/Gatilho</a>
-      <a class="nav-link" href="5.7_bingo_book.html">BingoBook</a>
-      <a class="nav-link" href="5.7_doujutsu e kekkei genkai.html">Linhagem Sanguínea</a>
-      <a class="nav-link" href="5.7_espadas da nevoa_.html">Espadas da Névoa</a>
-      <a class="nav-link" href="5.7_loja ninja.html">Loja Ninja</a>
-      <a class="nav-link" href="5.7_nukkenins.html">Nukkenin</a>
-      <a class="nav-link" href="5.7_pesos.html">Pesos</a>
-      <a class="nav-link" href="5.7_kages.html">Kages</a>
       <a class="nav-link" href="5.6_ficha.html">Fichas</a>
     </nav>
   </div>
@@ -618,9 +272,12 @@
             </div>
 
             <div class="f-section">
-              <h2 class="f-section-title">DESCRIÇÕES FÍSICAS</h2>
+              <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
+              <div class="f-block-destaque">
+                <span class="label-top">Aparência</span>
+                <p id="fAparencia">-</p>
+              </div>
               <div class="f-grid">
-                <div class="f-card"><div class="f-card-label">Aparência</div><div class="f-card-value" id="fAparencia">-</div></div>
                 <div class="f-card"><div class="f-card-label">Altura</div><div class="f-card-value" id="fAltura">-</div></div>
                 <div class="f-card"><div class="f-card-label">Peso</div><div class="f-card-value" id="fPeso">-</div></div>
                 <div class="f-card"><div class="f-card-label">Cabelos</div><div class="f-card-value" id="fCabelos">-</div></div>
@@ -630,8 +287,8 @@
 
             <div class="f-section">
               <h2 class="f-section-title">HISTÓRIA</h2>
-              <div class="f-block" id="fHistoria">
-                Nenhum registro histórico informado.
+              <div class="f-block-destaque">
+                <p id="fHistoria">Nenhum registro histórico informado.</p>
               </div>
             </div>
 
@@ -645,30 +302,80 @@
                 <div class="f-card"><div class="f-card-label">5 Propósitos</div><div class="f-card-value" id="fProp5">-</div></div>
               </div>
             </div>
-
           </div>
 
           <div id="tabCombate" class="f-tab-content">
-            <h2 class="f-section-title">COMBATE</h2>
-            <div class="f-block">Em desenvolvimento...</div>
+            
+            <div class="f-section">
+              <h2 class="f-section-title">STATUS VITAIS</h2>
+              <div class="status-box">
+                <div class="status-header"><span>HP</span> <span id="fHpText" style="color: #ff5252;">0/0</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-hp" id="fHpBar" style="width: 0%;"></div></div>
+              </div>
+              <div class="status-box">
+                <div class="status-header"><span>CHAKRA</span> <span id="fChakraText" style="color: #448aff;">0/0</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-chakra" id="fChakraBar" style="width: 0%;"></div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">ATRIBUTOS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Velocidade</div><div class="f-card-value" id="fAttrVel">0</div></div>
+                <div class="f-card"><div class="f-card-label">Taijutsu</div><div class="f-card-value" id="fAttrTai">0</div></div>
+                <div class="f-card"><div class="f-card-label">Ninjutsu</div><div class="f-card-value" id="fAttrNin">0</div></div>
+                <div class="f-card"><div class="f-card-label">Força</div><div class="f-card-value" id="fAttrFor">0</div></div>
+                <div class="f-card"><div class="f-card-label">Resistência</div><div class="f-card-value" id="fAttrRes">0</div></div>
+                <div class="f-card"><div class="f-card-label">Genjutsu</div><div class="f-card-value" id="fAttrGen">0</div></div>
+                <div class="f-card"><div class="f-card-label">Selos</div><div class="f-card-value" id="fAttrSel">0</div></div>
+                <div class="f-card"><div class="f-card-label">Inteligência</div><div class="f-card-value" id="fAttrInt">0</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">SUBATRIBUTOS</h2>
+              <div class="subattr-grid">
+                <div class="subattr-card"><div class="subattr-label">Fuinjutsu</div><div class="subattr-value" id="fSubFuin">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Ningeral</div><div class="subattr-value" id="fSubNinG">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Elementos</div><div class="subattr-value" id="fSubEle">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Kenjutsu</div><div class="subattr-value" id="fSubKen">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Shurikenjutsu</div><div class="subattr-value" id="fSubShu">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Combate</div><div class="subattr-value" id="fSubCom">0</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DATABOOK PRIMÁRIO</h2>
+              <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">TÉCNICAS</h2>
+              <div class="f-block" id="boxTecnicas">
+                <em>Nenhuma técnica registrada.</em>
+              </div>
+            </div>
           </div>
           
           <div id="tabJornada" class="f-tab-content">
             <h2 class="f-section-title">JORNADA</h2>
             <div class="f-block">Em desenvolvimento...</div>
           </div>
-          
           <div id="tabRelacoes" class="f-tab-content">
             <h2 class="f-section-title">RELAÇÕES</h2>
             <div class="f-block">Em desenvolvimento...</div>
           </div>
-          
           <div id="tabResumo" class="f-tab-content">
             <h2 class="f-section-title">RESUMO DE ALTERAÇÕES</h2>
             <div class="f-block">Nenhuma alteração recente registrada.</div>
           </div>
 
-        </div> </div> </div> </main>
+        </div> 
+      </div> 
+    </div> 
+  </main>
 
   <script>
     // ===== CONFIGURAÇÃO DO SUPABASE =====
@@ -677,28 +384,18 @@
 
     let supabaseClient;
     let todassPessoas = [];
+    let radarChartInstance = null;
 
-    // Ordem das patentes
     const ordemPatentes = ['Kage', 'Estado-maior', 'ANBU', 'Jounin', 'Chunin', 'Genin'];
 
-    // Inicializa Supabase
     function inicializarSupabase() {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
 
-    // Carrega dados
     async function carregarDados() {
       try {
-        const { data, error } = await supabaseClient
-          .from('personagens')
-          .select('*');
-
-        if (error) {
-          console.error('Erro ao carregar:', error);
-          document.getElementById('loadingIndicator').innerHTML = '⚠️ Erro ao carregar dados';
-          return;
-        }
-
+        const { data, error } = await supabaseClient.from('personagens').select('*');
+        if (error) throw error;
         todassPessoas = data || [];
         renderizarPorPatente();
       } catch (err) {
@@ -707,28 +404,21 @@
       }
     }
 
-    // Renderiza seções por patente
     function renderizarPorPatente() {
       const container = document.getElementById('secoesPorPatente');
-      const loadingDiv = document.getElementById('loadingIndicator');
-      
-      if (loadingDiv) loadingDiv.style.display = 'none';
-
+      document.getElementById('loadingIndicator').style.display = 'none';
       let html = '';
 
       ordemPatentes.forEach(patente => {
         const personagensPatente = todassPessoas.filter(p => p.patente === patente);
-        const quantidade = personagensPatente.length;
-
         html += `
           <div class="patente-section">
             <div class="patente-header">
               <h2>${patente}</h2>
-              <div class="patente-count">${quantidade}</div>
+              <div class="patente-count">${personagensPatente.length}</div>
             </div>
-            <div class="personagens-grid" id="grid-${patente}">
+            <div class="personagens-grid">
         `;
-
         if (personagensPatente.length === 0) {
           html += '<div class="empty-patente">Nenhum personagem nesta patente</div>';
         } else {
@@ -741,152 +431,167 @@
                   <h3>${pessoa.nome}</h3>
                   <p>${pessoa.patente}</p>
                 </div>
-                <button class="btn-ficha" onclick="event.stopPropagation(); abrirFicha(${pessoa.id})">
-                  Abrir Ficha
-                </button>
+                <button class="btn-ficha" onclick="event.stopPropagation(); abrirFicha(${pessoa.id})">Abrir Ficha</button>
               </div>
             `;
           });
         }
-
-        html += `
-            </div>
-          </div>
-        `;
+        html += `</div></div>`;
       });
-
       container.innerHTML = html;
     }
 
-    // Abre a Ficha preenchendo o Novo Layout com dados do banco
-    function abrirFicha(id) {
-      const pessoa = todassPessoas.find(p => p.id === id);
-      if (!pessoa) return;
+    function desenharGraficoRadar(nin, tai, gen, int, forca, vel, res, sel) {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if (radarChartInstance) { radarChartInstance.destroy(); }
 
-      // Header Banner (Foto Capa)
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['NIN', 'TAI', 'GEN', 'INT', 'FOR', 'VEL', 'RES', 'SEL'],
+          datasets: [{
+            data: [nin, tai, gen, int, forca, vel, res, sel],
+            backgroundColor: 'rgba(54, 182, 104, 0.2)',
+            borderColor: '#36b668',
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#36b668',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(255,255,255,0.1)' },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              pointLabels: { color: '#8a92a6', font: { family: 'Russo One', size: 12 } },
+              ticks: { display: false, min: 0, max: 10 }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function abrirFicha(id) {
+      const p = todassPessoas.find(x => x.id === id);
+      if (!p) return;
+
+      // CAPA E FOTO
       const bannerCapa = document.getElementById('fichaBannerCapa');
-      if (pessoa.foto_capa) {
-        bannerCapa.style.backgroundImage = `url(${pessoa.foto_capa})`;
+      if (p.foto_capa) {
+        bannerCapa.style.backgroundImage = `url(${p.foto_capa})`;
         bannerCapa.style.backgroundSize = 'cover';
         bannerCapa.style.backgroundPosition = 'center';
       } else {
-        // Volta pro verde gradiente padrão se não tiver capa
         bannerCapa.style.backgroundImage = 'linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%)';
       }
 
-      // Foto de Perfil
       const fotoPerfil = document.getElementById('fichaFotoPerfil');
-      if (pessoa.foto_perfil) {
-        fotoPerfil.src = pessoa.foto_perfil;
+      if (p.foto_perfil) {
+        fotoPerfil.src = p.foto_perfil;
       } else {
-        // Imagem genérica baseada na primeira letra do nome
-        const inicial = (pessoa.nome || 'S').charAt(0).toUpperCase();
+        const inicial = (p.nome || 'S').charAt(0).toUpperCase();
         fotoPerfil.src = `https://ui-avatars.com/api/?name=${inicial}&background=36b668&color=fff&size=120`;
       }
 
-      // Títulos e Badges
-      document.getElementById('fichaNome').textContent = pessoa.nome || 'Desconhecido';
-      document.getElementById('fichaTitulo').textContent = `"${pessoa.titulo || 'Sem título cadastrado'}"`;
-      document.getElementById('badgePatente').textContent = pessoa.patente || 'Sem patente';
-      document.getElementById('badgeVila').textContent = pessoa.vila || 'Desconhecida';
-      document.getElementById('badgeStatus').textContent = pessoa.status_vida || 'Vivo';
+      // TÍTULOS
+      document.getElementById('fichaNome').textContent = p.nome || 'Desconhecido';
+      document.getElementById('fichaTitulo').textContent = `"${p.titulo || 'Sem título'}"`;
+      document.getElementById('badgePatente').textContent = p.patente || '-';
+      document.getElementById('badgeVila').textContent = p.vila || '-';
+      document.getElementById('badgeStatus').textContent = p.status_vida || 'Vivo';
 
-      // Container 1: Info Básicas
-      document.getElementById('fGenero').textContent = pessoa.genero || '-';
-      document.getElementById('fSexualidade').textContent = pessoa.sexualidade || 'Não informado';
-      document.getElementById('fIdade').textContent = pessoa.idade || '-';
-      document.getElementById('fAniversario').textContent = pessoa.aniversario || '-';
-      document.getElementById('fFama').textContent = pessoa.fama || '-';
-      document.getElementById('fOrigem').textContent = pessoa.origem_nascimento || '-';
-      document.getElementById('fReside').textContent = pessoa.local_reside || '-';
-      document.getElementById('fProfissao').textContent = pessoa.profissao || '-';
-      document.getElementById('fCla').textContent = pessoa.cla || '-';
+      // PERFIL
+      document.getElementById('fGenero').textContent = p.genero || '-';
+      document.getElementById('fSexualidade').textContent = p.sexualidade || 'Não informado';
+      document.getElementById('fIdade').textContent = p.idade || '-';
+      document.getElementById('fAniversario').textContent = p.aniversario || '-';
+      document.getElementById('fFama').textContent = p.fama || '-';
+      document.getElementById('fOrigem').textContent = p.origem_nascimento || '-';
+      document.getElementById('fReside').textContent = p.local_reside || '-';
+      document.getElementById('fProfissao').textContent = p.profissao || '-';
+      document.getElementById('fCla').textContent = p.cla || '-';
 
-      // Container 2: Descrições Físicas
-      document.getElementById('fAparencia').textContent = pessoa.aparencia || '-';
-      document.getElementById('fAltura').textContent = pessoa.altura || '-';
-      document.getElementById('fPeso').textContent = pessoa.peso || '-';
-      document.getElementById('fCabelos').textContent = pessoa.cabelos || '-';
-      document.getElementById('fOlhos').textContent = pessoa.olhos || '-';
+      // VISUAL E HISTÓRIA
+      document.getElementById('fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
+      document.getElementById('fAltura').textContent = p.altura || '-';
+      document.getElementById('fPeso').textContent = p.peso || '-';
+      document.getElementById('fCabelos').textContent = p.cabelos || '-';
+      document.getElementById('fOlhos').textContent = p.olhos || '-';
+      document.getElementById('fHistoria').textContent = p.historia || 'Nenhum histórico informado.';
 
-      // Container 3: História
-      document.getElementById('fHistoria').textContent = pessoa.historia || 'Nenhum registro histórico informado no banco de dados.';
+      // PROPÓSITOS
+      document.getElementById('fGosta').textContent = p.gosta_de || '-';
+      document.getElementById('fNaoGosta').textContent = p.nao_gosta_de || '-';
+      document.getElementById('fProp1').textContent = p.proposito_1 || '-';
+      document.getElementById('fProp2').textContent = p.proposito_2 || '-';
+      document.getElementById('fProp5').textContent = p.proposito_5 || '-';
 
-      // Container 4: Preferências & Propósitos
-      document.getElementById('fGosta').textContent = pessoa.gosta_de || '-';
-      document.getElementById('fNaoGosta').textContent = pessoa.nao_gosta_de || '-';
-      document.getElementById('fProp1').textContent = pessoa.proposito_1 || '-';
-      document.getElementById('fProp2').textContent = pessoa.proposito_2 || '-';
-      document.getElementById('fProp5').textContent = pessoa.proposito_5 || '-';
+      // ===========================================
+      // ATUALIZAÇÃO DA SEÇÃO COMBATE
+      // ===========================================
 
-      // Volta a aba "Perfil" por padrão ao abrir uma nova ficha
+      // 1. Status Vitais
+      const hp = p.hp_atual || 0;
+      const hpMax = p.hp_max || 100;
+      const chakra = p.chakra_atual || 0;
+      const chakraMax = p.chakra_max || 100;
+      
+      document.getElementById('fHpText').textContent = `${hp}/${hpMax}`;
+      document.getElementById('fHpBar').style.width = `${Math.min((hp / hpMax) * 100, 100)}%`;
+      document.getElementById('fChakraText').textContent = `${chakra}/${chakraMax}`;
+      document.getElementById('fChakraBar').style.width = `${Math.min((chakra / chakraMax) * 100, 100)}%`;
+
+      // 2. Preenchimento de Atributos Primários
+      document.getElementById('fAttrVel').textContent = p.velocidade || '0';
+      document.getElementById('fAttrTai').textContent = p.taijutsu || '0';
+      document.getElementById('fAttrNin').textContent = p.ninjutsu || '0';
+      document.getElementById('fAttrFor').textContent = p.forca || '0';
+      document.getElementById('fAttrRes').textContent = p.resistencia || '0';
+      document.getElementById('fAttrGen').textContent = p.genjutsu || '0';
+      document.getElementById('fAttrSel').textContent = p.selos || '0';
+      document.getElementById('fAttrInt').textContent = p.inteligencia || '0';
+
+      // 3. Subatributos
+      document.getElementById('fSubFuin').textContent = p.fuinjutsu || '0';
+      document.getElementById('fSubNinG').textContent = p.ningeral || '0';
+      document.getElementById('fSubEle').textContent = p.elementos || '0';
+      document.getElementById('fSubKen').textContent = p.kenjutsu || '0';
+      document.getElementById('fSubShu').textContent = p.shurikenjutsu || '0';
+      document.getElementById('fSubCom').textContent = p.combate || '0';
+
+      // 4. Renderização do Gráfico Databook
+      desenharGraficoRadar(p.ninjutsu||0, p.taijutsu||0, p.genjutsu||0, p.inteligencia||0, p.forca||0, p.velocidade||0, p.resistencia||0, p.selos||0);
+
+      // 5. Exibição das Técnicas
+      document.getElementById('boxTecnicas').innerHTML = p.lista_tecnicas ? p.lista_tecnicas : "<em>Nenhuma técnica listada para este personagem.</em>";
+
       document.querySelectorAll('.f-tab-btn')[0].click();
-
       mostrarPagina('paginaFicha');
     }
 
-    // Volta
-    function voltarParaPrincipal() {
-      mostrarPagina('paginaPrincipal');
-    }
+    function voltarParaPrincipal() { mostrarPagina('paginaPrincipal'); }
 
-    // Mostra/esconde páginas
     function mostrarPagina(paginaId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(paginaId).classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Navegação nas Abas Internas da Ficha
     function trocarAba(evt, tabId) {
-      // Esconde todos os conteúdos
       let contents = document.getElementsByClassName("f-tab-content");
-      for (let i = 0; i < contents.length; i++) {
-        contents[i].classList.remove("active");
-      }
-      // Remove classe 'active' de todos os botões
+      for (let i = 0; i < contents.length; i++) contents[i].classList.remove("active");
       let buttons = document.getElementsByClassName("f-tab-btn");
-      for (let i = 0; i < buttons.length; i++) {
-        buttons[i].classList.remove("active");
-      }
-      // Ativa a aba clicada
+      for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
       document.getElementById(tabId).classList.add("active");
       evt.currentTarget.classList.add("active");
     }
 
-    // Menu Floating 
     const menuBtn = document.getElementById('menu-btn');
     const navOverlay = document.getElementById('nav-overlay');
-    
-    document.getElementById('overlay-close').addEventListener('click', closeNav);
-    
-    menuBtn.addEventListener('click', () => {
-      const open = navOverlay.classList.toggle('open');
-      menuBtn.classList.toggle('open', open);
-    });
-    
-    function closeNav() { 
-      navOverlay.classList.remove('open'); 
-      menuBtn.classList.remove('open'); 
-    }
+    document.getElementById('overlay-close').addEventListener('click', () => { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); });
+    menuBtn.addEventListener('click', () => { const isOpen = navOverlay.classList.toggle('open'); menuBtn.classList.toggle('open', isOpen); });
 
-    // Tema
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
-    root.setAttribute('data-theme', savedTheme);
-    
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('ks-theme', next);
-    });
-
-    // ESC para fechar menu
-    document.addEventListener('keydown', e => { 
-      if(e.key === 'Escape') closeNav(); 
-    });
-
-    // Inicializa
     document.addEventListener('DOMContentLoaded', () => {
       inicializarSupabase();
       carregarDados();
