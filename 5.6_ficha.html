@@ -23,7 +23,15 @@
       --shadow:  rgba(0, 0, 0, 0.8);
       --text:    #e0e0e0;
       --text-sub:#8a92a6;
+
+      /* Cores do Novo Layout de Ficha */
+      --ficha-bg: #111513;
+      --ficha-card: #171b19;
+      --ficha-border: #202722;
+      --ficha-green: #36b668;
+      --ficha-green-dark: #2f7e4b;
     }
+    
     [data-theme="light"] {
       --bg:      #efefef;
       --surface: rgba(255, 255, 255, 0.9);
@@ -97,7 +105,6 @@
       display: flex; flex-direction: column; gap: 30px;
     }
 
-    /* ======= CABEÇALHO ======= */
     .main-header-group {
       background: var(--surface-inner);
       border-radius: 8px;
@@ -145,6 +152,7 @@
       border: 1px solid rgba(92, 107, 192, 0.3);
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      margin-bottom: 30px;
     }
 
     .patente-header {
@@ -266,125 +274,218 @@
       font-size: 1.1rem;
     }
 
-    /* ======= PÁGINA FICHA ======= */
-    .page {
-      display: none;
-    }
+    /* ======= PÁGINAS VISIBILIDADE ======= */
+    .page { display: none; }
+    .page.active { display: block; }
 
-    .page.active {
-      display: block;
-    }
-
-    .ficha-container {
-      background: var(--surface-inner);
-      border: 2px solid var(--accent2);
-      border-radius: 15px;
-      padding: 40px;
-      backdrop-filter: blur(10px);
-      max-width: 800px;
-      margin: 0 auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    }
-
-    .back-button {
+    /* =======================================================
+       ======= NOVO LAYOUT DA PÁGINA FICHA (VERDE/DARK) ====== 
+       ======================================================= */
+    
+    .back-btn-top {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 20px;
-      color: var(--accent2);
-      cursor: pointer;
-      font-size: 1em;
-      transition: all 0.2s ease;
-    }
-
-    .back-button:hover {
-      gap: 12px;
-    }
-
-    .ficha-header {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-      margin-bottom: 40px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid var(--accent2);
-    }
-
-    .ficha-avatar {
-      width: 150px;
-      height: 150px;
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3em;
-      flex-shrink: 0;
-    }
-
-    .ficha-info h1 {
+      background: rgba(0,0,0,0.6);
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #fff;
+      text-decoration: none;
       font-family: 'Russo One', sans-serif;
-      font-size: 2.2em;
-      color: var(--accent2);
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px rgba(92, 107, 192, 0.3);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+    }
+    .back-btn-top:hover {
+      background: var(--ficha-green-dark);
+      border-color: var(--ficha-green);
+    }
+
+    .ficha-layout {
+      background: var(--ficha-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+    }
+
+    /* HEADER VERDE (CAPA) */
+    .ficha-capa-banner {
+      background-color: var(--ficha-green);
+      background-image: linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%);
+      position: relative;
+      padding: 50px 20px 30px;
+      text-align: center;
+      color: #fff;
+    }
+    .ficha-capa-overlay {
+      position: absolute;
+      inset: 0;
+      background: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>');
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* AVATAR DE PERFIL */
+    .ficha-avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 15px;
+      border-radius: 50%;
+      border: 4px solid var(--ficha-bg);
+      background: #000;
+      overflow: hidden;
+      z-index: 2;
+    }
+    .ficha-avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* TITULOS DO HEADER */
+    .ficha-nome-txt {
+      font-family: 'Bangers', cursive;
+      font-size: 2.5rem;
+      letter-spacing: 0.08em;
+      margin: 0 0 5px 0;
+      position: relative;
+      z-index: 2;
       text-transform: uppercase;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    }
+    .ficha-subtitulo-txt {
+      font-size: 1.1rem;
+      font-style: italic;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
     }
 
-    .ficha-info p {
-      font-size: 1.2em;
-      color: #ccc;
-      margin: 5px 0;
+    /* BADGES (Patente, Vila, Status) */
+    .ficha-badges-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      flex-wrap: wrap;
+    }
+    .badge-f {
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .badge-f.white { background: #fff; color: var(--ficha-green-dark); }
+    .badge-f.dark { background: #202722; color: #fff; }
+    .badge-f.green { background: var(--ficha-green); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+
+    /* MENU DE ABAS */
+    .ficha-nav-tabs {
+      display: flex;
+      background: #0b0e0c;
+      padding: 15px 20px 0;
+      gap: 5px;
+      border-bottom: 2px solid var(--ficha-border);
+      overflow-x: auto;
+    }
+    .f-tab-btn {
+      background: var(--ficha-card);
+      color: #717d75;
+      border: 1px solid transparent;
+      border-bottom: none;
+      padding: 12px 20px;
+      border-radius: 8px 8px 0 0;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .f-tab-btn:hover {
+      background: #1e2421;
+      color: #fff;
+    }
+    .f-tab-btn.active {
+      background: var(--ficha-bg);
+      color: var(--ficha-green);
+      border-color: var(--ficha-border);
+      border-top: 2px solid var(--ficha-green);
     }
 
-    .ficha-label {
-      color: var(--accent2);
-      font-weight: 600;
+    /* CONTEÚDO DAS ABAS */
+    .ficha-body-content {
+      padding: 30px;
+      background: var(--ficha-bg);
     }
+    .f-tab-content { display: none; }
+    .f-tab-content.active { display: block; }
 
-    .ficha-content {
-      margin-top: 30px;
-    }
-
-    .ficha-section {
-      margin-bottom: 30px;
-    }
-
-    .ficha-section h2 {
-      color: var(--accent2);
-      margin-bottom: 15px;
-      font-size: 1.3em;
+    /* SESSÕES E GRIDS */
+    .f-section { margin-bottom: 40px; }
+    .f-section-title {
+      font-family: 'Bangers', cursive;
+      font-size: 1.5rem;
+      color: #fff;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
-      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
-
-    .ficha-section p {
-      color: #ddd;
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-
-    .btn-voltar {
+    .f-section-title::before {
+      content: '';
       display: inline-block;
-      padding: 12px 24px;
-      background: var(--accent2);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      margin-top: 30px;
-      font-size: 1em;
-      text-transform: uppercase;
+      width: 16px;
+      height: 16px;
+      background: var(--ficha-green);
+      border-radius: 50%;
     }
 
-    .btn-voltar:hover {
-      background: var(--accent);
-      transform: translateX(-5px);
-      box-shadow: 0 0 15px var(--glow);
+    .f-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+    }
+    .f-card {
+      background: var(--ficha-card);
+      border: 1px solid var(--ficha-border);
+      border-left: 3px solid var(--ficha-green);
+      border-radius: 8px;
+      padding: 15px;
+      transition: border-color 0.3s;
+    }
+    .f-card:hover { border-color: rgba(54, 182, 104, 0.4); }
+    
+    .f-card-label {
+      color: var(--ficha-green);
+      font-weight: 700;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .f-card-value {
+      color: #e0e0e0;
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    .f-block {
+      background: var(--ficha-card);
+      border: 1px solid var(--ficha-border);
+      border-left: 3px solid var(--ficha-green);
+      border-radius: 8px;
+      padding: 20px;
+      color: #e0e0e0;
+      line-height: 1.6;
     }
 
     @media (max-width: 768px) {
@@ -392,21 +493,18 @@
       .header-image { height: 150px; }
       .header-red h1 { font-size: 1.8rem; }
       .personagens-grid { grid-template-columns: 1fr; }
-      .ficha-header { flex-direction: column; text-align: center; }
-      .ficha-avatar { width: 120px; height: 120px; }
-      .ficha-container { padding: 20px; }
+      .ficha-body-content { padding: 15px; }
+      .ficha-nav-tabs { padding: 15px 10px 0; }
     }
   </style>
 </head>
 <body>
 
-  <!-- FUNDO BLINDADO -->
   <div id="fixed-background">
     <img src="00_fundo_2_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
     <div class="hero-overlay"></div>
   </div>
 
-  <!-- FLOATING UI -->
   <div id="floating-ui">
     <button id="menu-btn" aria-label="Abrir menu">
       <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -426,7 +524,6 @@
     </button>
   </div>
 
-  <!-- NAV OVERLAY -->
   <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
@@ -452,70 +549,126 @@
     </nav>
   </div>
 
-  <!-- PÁGINA PRINCIPAL -->
   <main id="page-container">
-    <div class="main-header-group">
-      <div class="header-image">
-        <img src="00_databook.png" alt="Header" onerror="this.style.display='none'" />
-      </div>
-      <div class="header-red">
-        <h1>Banco de Dados Shinobi</h1>
-        <div class="header-deco"></div>
-      </div>
-    </div>
-
     <div id="paginaPrincipal" class="page active">
+      <div class="main-header-group">
+        <div class="header-image">
+          <img src="00_databook.png" alt="Header" onerror="this.style.display='none'" />
+        </div>
+        <div class="header-red">
+          <h1>Banco de Dados Shinobi</h1>
+          <div class="header-deco"></div>
+        </div>
+      </div>
+      <br>
       <div id="secoesPorPatente"></div>
       <div class="loading" id="loadingIndicator">⏳ Carregando personagens...</div>
     </div>
 
-    <!-- PÁGINA FICHA -->
     <div id="paginaFicha" class="page">
-      <div class="back-button" onclick="voltarParaPrincipal()">
-        ← Voltar
-      </div>
+      
+      <button class="back-btn-top" onclick="voltarParaPrincipal()">
+        ← Voltar ao Painel
+      </button>
 
-      <div class="ficha-container">
-        <div class="ficha-header">
-          <div class="ficha-avatar" id="fichaAvatar">👤</div>
-          <div class="ficha-info">
-            <h1 id="fichaNome">Nome</h1>
-            <p><span class="ficha-label">Patente:</span> <span id="fichaPatente">-</span></p>
+      <div class="ficha-layout">
+        
+        <div class="ficha-capa-banner" id="fichaBannerCapa">
+          <div class="ficha-capa-overlay"></div>
+          
+          <div class="ficha-avatar-wrapper">
+            <img id="fichaFotoPerfil" src="" alt="Avatar" />
+          </div>
+          
+          <h1 class="ficha-nome-txt" id="fichaNome">NOME DO PERSONAGEM</h1>
+          <p class="ficha-subtitulo-txt" id="fichaTitulo">"Título do Personagem"</p>
+          
+          <div class="ficha-badges-row">
+            <span class="badge-f white" id="badgePatente">PATENTE</span>
+            <span class="badge-f dark" id="badgeVila">VILA</span>
+            <span class="badge-f green" id="badgeStatus">VIVO</span>
           </div>
         </div>
 
-        <div class="ficha-content">
-          <div class="ficha-section">
-            <h2>ℹ️ Informações Básicas</h2>
-            <p><strong>ID:</strong> <span id="fichaId">-</span></p>
-            <p><strong>Status:</strong> Ativo</p>
-            <p><strong>Data de Cadastro:</strong> <span id="fichaData">-</span></p>
-          </div>
-
-          <div class="ficha-section">
-            <h2>📋 Descrição</h2>
-            <p id="fichaDescricao">Preencha os dados desejados aqui. Esta seção é apenas visual e não sincroniza com o banco de dados.</p>
-          </div>
-
-          <div class="ficha-section">
-            <h2>⚡ Habilidades</h2>
-            <p>• Primeira habilidade</p>
-            <p>• Segunda habilidade</p>
-            <p>• Terceira habilidade</p>
-          </div>
-
-          <div class="ficha-section">
-            <h2>📊 Estatísticas</h2>
-            <p>Força: ████████░░ 80%</p>
-            <p>Velocidade: ██████░░░░ 60%</p>
-            <p>Inteligência: █████████░ 90%</p>
-          </div>
+        <div class="ficha-nav-tabs">
+          <button class="f-tab-btn active" onclick="trocarAba(event, 'tabPerfil')">PERFIL</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabCombate')">COMBATE</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabJornada')">JORNADA</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabRelacoes')">RELAÇÕES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo')">RESUMO DE ALTERAÇÕES</button>
         </div>
 
-        <button class="btn-voltar" onclick="voltarParaPrincipal()">← Voltar à Página Principal</button>
-      </div>
-    </div>
-  </main>
+        <div class="ficha-body-content">
+          
+          <div id="tabPerfil" class="f-tab-content active">
+            
+            <div class="f-section">
+              <h2 class="f-section-title">INFORMAÇÕES BÁSICAS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Gênero</div><div class="f-card-value" id="fGenero">-</div></div>
+                <div class="f-card"><div class="f-card-label">Sexualidade</div><div class="f-card-value" id="fSexualidade">-</div></div>
+                <div class="f-card"><div class="f-card-label">Idade</div><div class="f-card-value" id="fIdade">-</div></div>
+                <div class="f-card"><div class="f-card-label">Aniversário</div><div class="f-card-value" id="fAniversario">-</div></div>
+                <div class="f-card"><div class="f-card-label">Fama</div><div class="f-card-value" id="fFama">-</div></div>
+                <div class="f-card"><div class="f-card-label">Origem de Nasc.</div><div class="f-card-value" id="fOrigem">-</div></div>
+                <div class="f-card"><div class="f-card-label">Local onde Reside</div><div class="f-card-value" id="fReside">-</div></div>
+                <div class="f-card"><div class="f-card-label">Profissão</div><div class="f-card-value" id="fProfissao">-</div></div>
+                <div class="f-card"><div class="f-card-label">Clã</div><div class="f-card-value" id="fCla">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DESCRIÇÕES FÍSICAS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Aparência</div><div class="f-card-value" id="fAparencia">-</div></div>
+                <div class="f-card"><div class="f-card-label">Altura</div><div class="f-card-value" id="fAltura">-</div></div>
+                <div class="f-card"><div class="f-card-label">Peso</div><div class="f-card-value" id="fPeso">-</div></div>
+                <div class="f-card"><div class="f-card-label">Cabelos</div><div class="f-card-value" id="fCabelos">-</div></div>
+                <div class="f-card"><div class="f-card-label">Olhos</div><div class="f-card-value" id="fOlhos">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRIA</h2>
+              <div class="f-block" id="fHistoria">
+                Nenhum registro histórico informado.
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PREFERÊNCIAS & PROPÓSITOS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">👍 Gosta De</div><div class="f-card-value" id="fGosta">-</div></div>
+                <div class="f-card"><div class="f-card-label">👎 Não Gosta De</div><div class="f-card-value" id="fNaoGosta">-</div></div>
+                <div class="f-card"><div class="f-card-label">Propósito 1</div><div class="f-card-value" id="fProp1">-</div></div>
+                <div class="f-card"><div class="f-card-label">Propósito 2</div><div class="f-card-value" id="fProp2">-</div></div>
+                <div class="f-card"><div class="f-card-label">5 Propósitos</div><div class="f-card-value" id="fProp5">-</div></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="tabCombate" class="f-tab-content">
+            <h2 class="f-section-title">COMBATE</h2>
+            <div class="f-block">Em desenvolvimento...</div>
+          </div>
+          
+          <div id="tabJornada" class="f-tab-content">
+            <h2 class="f-section-title">JORNADA</h2>
+            <div class="f-block">Em desenvolvimento...</div>
+          </div>
+          
+          <div id="tabRelacoes" class="f-tab-content">
+            <h2 class="f-section-title">RELAÇÕES</h2>
+            <div class="f-block">Em desenvolvimento...</div>
+          </div>
+          
+          <div id="tabResumo" class="f-tab-content">
+            <h2 class="f-section-title">RESUMO DE ALTERAÇÕES</h2>
+            <div class="f-block">Nenhuma alteração recente registrada.</div>
+          </div>
+
+        </div> </div> </div> </main>
 
   <script>
     // ===== CONFIGURAÇÃO DO SUPABASE =====
@@ -557,13 +710,12 @@
     // Renderiza seções por patente
     function renderizarPorPatente() {
       const container = document.getElementById('secoesPorPatente');
-      const loadingDiv = document.getElementById('loadingIndicador');
+      const loadingDiv = document.getElementById('loadingIndicator');
       
       if (loadingDiv) loadingDiv.style.display = 'none';
 
       let html = '';
 
-      // Cria seção para cada patente
       ordemPatentes.forEach(patente => {
         const personagensPatente = todassPessoas.filter(p => p.patente === patente);
         const quantidade = personagensPatente.length;
@@ -581,7 +733,7 @@
           html += '<div class="empty-patente">Nenhum personagem nesta patente</div>';
         } else {
           personagensPatente.forEach(pessoa => {
-            const primeiraLetra = pessoa.nome.charAt(0).toUpperCase();
+            const primeiraLetra = (pessoa.nome || '?').charAt(0).toUpperCase();
             html += `
               <div class="personagem-card" onclick="abrirFicha(${pessoa.id})">
                 <div class="personagem-avatar">${primeiraLetra}</div>
@@ -606,18 +758,69 @@
       container.innerHTML = html;
     }
 
-    // Abre ficha
+    // Abre a Ficha preenchendo o Novo Layout com dados do banco
     function abrirFicha(id) {
       const pessoa = todassPessoas.find(p => p.id === id);
       if (!pessoa) return;
 
-      document.getElementById('fichaNome').textContent = pessoa.nome;
-      document.getElementById('fichaPatente').textContent = pessoa.patente;
-      document.getElementById('fichaId').textContent = id;
-      document.getElementById('fichaData').textContent = new Date().toLocaleDateString('pt-BR');
-      
-      const primeiraLetra = pessoa.nome.charAt(0).toUpperCase();
-      document.getElementById('fichaAvatar').textContent = primeiraLetra;
+      // Header Banner (Foto Capa)
+      const bannerCapa = document.getElementById('fichaBannerCapa');
+      if (pessoa.foto_capa) {
+        bannerCapa.style.backgroundImage = `url(${pessoa.foto_capa})`;
+        bannerCapa.style.backgroundSize = 'cover';
+        bannerCapa.style.backgroundPosition = 'center';
+      } else {
+        // Volta pro verde gradiente padrão se não tiver capa
+        bannerCapa.style.backgroundImage = 'linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%)';
+      }
+
+      // Foto de Perfil
+      const fotoPerfil = document.getElementById('fichaFotoPerfil');
+      if (pessoa.foto_perfil) {
+        fotoPerfil.src = pessoa.foto_perfil;
+      } else {
+        // Imagem genérica baseada na primeira letra do nome
+        const inicial = (pessoa.nome || 'S').charAt(0).toUpperCase();
+        fotoPerfil.src = `https://ui-avatars.com/api/?name=${inicial}&background=36b668&color=fff&size=120`;
+      }
+
+      // Títulos e Badges
+      document.getElementById('fichaNome').textContent = pessoa.nome || 'Desconhecido';
+      document.getElementById('fichaTitulo').textContent = `"${pessoa.titulo || 'Sem título cadastrado'}"`;
+      document.getElementById('badgePatente').textContent = pessoa.patente || 'Sem patente';
+      document.getElementById('badgeVila').textContent = pessoa.vila || 'Desconhecida';
+      document.getElementById('badgeStatus').textContent = pessoa.status_vida || 'Vivo';
+
+      // Container 1: Info Básicas
+      document.getElementById('fGenero').textContent = pessoa.genero || '-';
+      document.getElementById('fSexualidade').textContent = pessoa.sexualidade || 'Não informado';
+      document.getElementById('fIdade').textContent = pessoa.idade || '-';
+      document.getElementById('fAniversario').textContent = pessoa.aniversario || '-';
+      document.getElementById('fFama').textContent = pessoa.fama || '-';
+      document.getElementById('fOrigem').textContent = pessoa.origem_nascimento || '-';
+      document.getElementById('fReside').textContent = pessoa.local_reside || '-';
+      document.getElementById('fProfissao').textContent = pessoa.profissao || '-';
+      document.getElementById('fCla').textContent = pessoa.cla || '-';
+
+      // Container 2: Descrições Físicas
+      document.getElementById('fAparencia').textContent = pessoa.aparencia || '-';
+      document.getElementById('fAltura').textContent = pessoa.altura || '-';
+      document.getElementById('fPeso').textContent = pessoa.peso || '-';
+      document.getElementById('fCabelos').textContent = pessoa.cabelos || '-';
+      document.getElementById('fOlhos').textContent = pessoa.olhos || '-';
+
+      // Container 3: História
+      document.getElementById('fHistoria').textContent = pessoa.historia || 'Nenhum registro histórico informado no banco de dados.';
+
+      // Container 4: Preferências & Propósitos
+      document.getElementById('fGosta').textContent = pessoa.gosta_de || '-';
+      document.getElementById('fNaoGosta').textContent = pessoa.nao_gosta_de || '-';
+      document.getElementById('fProp1').textContent = pessoa.proposito_1 || '-';
+      document.getElementById('fProp2').textContent = pessoa.proposito_2 || '-';
+      document.getElementById('fProp5').textContent = pessoa.proposito_5 || '-';
+
+      // Volta a aba "Perfil" por padrão ao abrir uma nova ficha
+      document.querySelectorAll('.f-tab-btn')[0].click();
 
       mostrarPagina('paginaFicha');
     }
@@ -631,9 +834,27 @@
     function mostrarPagina(paginaId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(paginaId).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Menu
+    // Navegação nas Abas Internas da Ficha
+    function trocarAba(evt, tabId) {
+      // Esconde todos os conteúdos
+      let contents = document.getElementsByClassName("f-tab-content");
+      for (let i = 0; i < contents.length; i++) {
+        contents[i].classList.remove("active");
+      }
+      // Remove classe 'active' de todos os botões
+      let buttons = document.getElementsByClassName("f-tab-btn");
+      for (let i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove("active");
+      }
+      // Ativa a aba clicada
+      document.getElementById(tabId).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+
+    // Menu Floating 
     const menuBtn = document.getElementById('menu-btn');
     const navOverlay = document.getElementById('nav-overlay');
     
