@@ -675,7 +675,6 @@
     <div id="error" class="error" style="display:none;"></div>
 
     <div id="content" style="display:none;">
-      <!-- HEADER -->
       <div class="char-header">
         <img id="char-avatar" src="" alt="Avatar" class="char-avatar">
         <div class="char-details">
@@ -702,7 +701,6 @@
         </div>
       </div>
 
-      <!-- TOOLBAR -->
       <div class="toolbar">
         <button class="btn primary" id="btn-edit">Editar</button>
         <button class="btn hidden" id="btn-save">Salvar</button>
@@ -710,7 +708,6 @@
         <a href="personagens_lista.html" class="btn">Voltar</a>
       </div>
 
-      <!-- ABAS -->
       <div class="tabs">
         <button class="tab active" data-tab="perfil">Perfil</button>
         <button class="tab" data-tab="combate">Combate</button>
@@ -719,7 +716,6 @@
         <button class="tab" data-tab="colecoes">Colecionáveis</button>
       </div>
 
-      <!-- ABA PERFIL -->
       <div id="perfil" class="tab-content active">
         <div class="section">
           <h2>📋 Informações Básicas</h2>
@@ -796,7 +792,6 @@
         </div>
       </div>
 
-      <!-- ABA COMBATE -->
       <div id="combate" class="tab-content">
         <div class="section">
           <h2>⚔️ Atributos</h2>
@@ -885,7 +880,6 @@
         </div>
       </div>
 
-      <!-- ABA JORNADA -->
       <div id="jornada" class="tab-content">
         <div class="section">
           <h2>📜 Eventos e Jornadas</h2>
@@ -893,7 +887,6 @@
         </div>
       </div>
 
-      <!-- ABA EXTRAS -->
       <div id="extras" class="tab-content">
         <div class="section">
           <h2>⭐ Extras</h2>
@@ -901,7 +894,6 @@
         </div>
       </div>
 
-      <!-- ABA COLEÇÕES -->
       <div id="colecoes" class="tab-content">
         <div class="section">
           <h2>🏆 Colecionáveis</h2>
@@ -911,7 +903,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE CÓDIGO -->
   <div class="modal" id="edit-modal">
     <div class="modal-content">
       <h2>Código de Edição</h2>
@@ -923,7 +914,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE ADICIONAR TÉCNICA -->
   <div class="modal" id="technique-modal">
     <div class="modal-content">
       <h2>Nova Técnica</h2>
@@ -939,7 +929,7 @@
   <script>
     // ======= CONFIG SUPABASE =======
     // Troque pelos valores do seu projeto em Project Settings -> API
-    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co/rest/v1/';
+    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
