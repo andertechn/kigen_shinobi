@@ -260,7 +260,7 @@
           <h1 class="ficha-nome-txt" id="fichaNome">NOME DO CIVIL</h1>
           <p class="ficha-subtitulo-txt" id="fichaTitulo">"Profissão"</p>
           <div class="ficha-badges-row">
-            <span class="badge-f white" id="badgeClasse">PATENTE</span>
+            <span class="badge-f white" id="badgeClasse">CLASSE</span>
             <span class="badge-f dark" id="badgeVila">-</span>
             <span class="badge-f gold" id="badgeStatus">-</span>
           </div>
@@ -374,15 +374,14 @@
     let supabaseClient;
     let todosCivis = [];
 
-    const ordemClasses = ['Mifune', 'General', 'ANBU', 'Genin', 'Engenheiro', 'Comum'];
+    const ordemClasses = ['Comum', 'Mafioso', 'Engenheiro', 'Ferreiro', 'Ídolo'];
 
     const iconesPorClasse = {
-      'Mifune': '👑',
-      'General': '🎖️',
-      'ANBU': '🐺',
-      'Genin': '👤',
+      'Comum': '👨‍🌾',
+      'Mafioso': '🔪',
       'Engenheiro': '⚙️',
-      'Comum': '👨‍🌾'
+      'Ferreiro': '🔨',
+      'Ídolo': '⭐'
     };
 
     function inicializarSupabase() {
@@ -407,7 +406,7 @@
       let html = '';
 
       ordemClasses.forEach(classe => {
-        const civisDaClasse = todosCivis.filter(c => c.patente === classe);
+        const civisDaClasse = todosCivis.filter(c => c.classe === classe);
         const icone = iconesPorClasse[classe] || '👤';
         
         html += `
@@ -429,7 +428,7 @@
                 <div class="civil-avatar">${primeiraLetra}</div>
                 <div class="civil-info">
                   <h3>${civil.nome}</h3>
-                  <p>${civil.patente}</p>
+                  <p>${civil.classe}</p>
                 </div>
                 <button class="btn-ficha" onclick="event.stopPropagation(); abrirFicha(${civil.id})">Abrir Perfil</button>
               </div>
@@ -455,8 +454,8 @@
 
       // TÍTULOS
       document.getElementById('fichaNome').textContent = civil.nome || 'Desconhecido';
-      document.getElementById('fichaTitulo').textContent = `"${civil.patente || 'Civil'}"`;
-      document.getElementById('badgeClasse').textContent = civil.patente || '-';
+      document.getElementById('fichaTitulo').textContent = `"${civil.classe || 'Civil'}"`;
+      document.getElementById('badgeClasse').textContent = civil.classe || '-';
       document.getElementById('badgeVila').textContent = '-';
       document.getElementById('badgeStatus').textContent = '-';
 
