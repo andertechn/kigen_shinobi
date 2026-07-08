@@ -18,7 +18,7 @@
       --glow:        rgba(204,0,0,0.6);
       --shadow:      rgba(0,0,0,0.6);
       --text:        #f0f0f0;
-      --text-sub:    #cccccc; 
+      --text-sub:    #cccccc; /* Clareado para melhor leitura */
     }
 
     [data-theme="light"] {
@@ -30,7 +30,7 @@
       --glow:        rgba(204,0,0,0.30);
       --shadow:      rgba(0,0,0,0.18);
       --text:        #111111;
-      --text-sub:    #333333; 
+      --text-sub:    #333333; /* Escurecido no tema claro */
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -129,6 +129,7 @@
 
     /* ======= EXPLICAÇÃO DE RANKING ======= */
     .ranking-explanation {
+      /* Fundo mais sólido com desfoque para esconder o GIF atrás do texto */
       background: linear-gradient(135deg, rgba(20, 20, 20, 0.9), rgba(40, 10, 10, 0.95));
       backdrop-filter: blur(8px);
       border-left: 4px solid var(--accent);
@@ -167,6 +168,7 @@
     .rank-card {
       border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px;
       transition: all 0.3s; position: relative; overflow: hidden;
+      /* Fundo base escuro para não vazar a imagem */
       background: rgba(20, 20, 20, 0.9);
       backdrop-filter: blur(8px);
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -175,6 +177,7 @@
 
     .rank-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #999; }
 
+    /* MEDALHAS - OURO, PRATA, BRONZE COM FUNDOS AJUSTADOS */
     .rank-card.rank-1 {
       border: 2px solid #ffd700;
       background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(20,20,20,0.95));
@@ -228,16 +231,6 @@
     .rank-points {
       font-family: 'Russo One', sans-serif; font-size: 1.2rem; color: var(--accent); font-weight: 900;
     }
-    .status-badge {
-      font-size: 0.8rem;
-      color: #aaa;
-      display: inline-block;
-      margin-top: 5px;
-      background: rgba(0,0,0,0.3);
-      padding: 3px 8px;
-      border-radius: 12px;
-      border: 1px solid #444;
-    }
 
     /* ======= CARROSSEL DE DESTAQUES ======= */
     .highlights-wrapper { animation: slideDown 0.8s ease-out 2.9s both; }
@@ -253,7 +246,7 @@
     .highlight-card {
       flex: 0 0 calc(100% / 2.5); min-width: 300px; scroll-snap-align: start;
       display: flex; flex-direction: column; gap: 0; border-radius: 12px; overflow: hidden;
-      background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(8px); 
+      background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(8px); /* Consistência no fundo escuro */
       border: 2px solid rgba(204,0,0,0.2); transition: all 0.3s; cursor: pointer;
     }
     [data-theme="light"] .highlight-card { background: rgba(255, 255, 255, 0.95); }
@@ -282,11 +275,6 @@
       font-size: 0.95rem; line-height: 1.5; color: var(--text-sub); margin-top: 8px;
       border-top: 1px solid rgba(204,0,0,0.2); padding-top: 12px; text-align: justify;
     }
-    .highlight-record {
-      margin-top: 10px;
-      font-weight: bold;
-      color: var(--accent2);
-    }
 
     /* ======= NAV ======= */
     #nav-overlay {
@@ -299,6 +287,7 @@
       position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
       width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px;
       gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 60px var(--shadow);overflow-y: auto;
+      
     }
     #nav-overlay.open #nav-panel { transform: translateX(0); }
     .nav-link {
@@ -359,7 +348,7 @@
     </button>
   </div>
 
-  <div id="nav-overlay" role="dialog" aria-modal="true">
+ <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
       <a class="nav-link" href="index.html">Início</a>
@@ -403,8 +392,7 @@
     <section class="ranking-section">
       <h2 class="section-title">🏆 RANKING DA TEMPORADA</h2>
       <div class="ranking-grid" id="ranking-container">
-        <!-- O ranking será inserido dinamicamente pelo Supabase aqui -->
-        <p style="color: var(--text-sub);">Carregando ranking...</p>
+        <!-- Cards de ranking serão gerados aqui -->
       </div>
     </section>
 
@@ -413,16 +401,95 @@
       <h2 class="section-title">🌟 DESTAQUES DO MÊS</h2>
       <div class="carousel-container">
         <div class="carousel-track" id="carousel-container">
-          <!-- Os destaques serão inseridos dinamicamente pelo Supabase aqui -->
+          <!-- Cards de destaques serão gerados aqui -->
         </div>
       </div>
     </section>
   </main>
 
-  <!-- SUPABASE SCRIPT -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ========== MENU LOGIC ==========
+    // ========== DADOS DE RANKING ==========
+    const rankingData = [
+      { position: 1, player: "Nome do Player (1º)", points: "2.500 SCOR", avatar: "avatar_rank_1.jpg" },
+      { position: 2, player: "Nome do Player (2º)", points: "2.100 SCOR", avatar: "avatar_rank_2.jpg" },
+      { position: 3, player: "Nome do Player (3º)", points: "1.850 SCOR", avatar: "avatar_rank_3.jpg" },
+      { position: 4, player: "Nome do Player (4º)", points: "900 SCOR", avatar: "avatar_rank_4.jpg" },
+      { position: 5, player: "Nome do Player (5º)", points: "750 SCOR", avatar: "avatar_rank_5.jpg" }
+    ];
+
+    // ========== DADOS DE DESTAQUES ==========
+    const highlightsData = [
+      {
+        category: "⚔️ MAIOR CAMPEÃO DE PVP",
+        player: "Nome do Player",
+        image: "highlight_pvp.jpg",
+        description: "Conquistou a maior sequência de vitórias em combates 1v1, dominando o mês com estratégia impecável."
+      },
+      {
+        category: "📖 MESTRE DO ROLEPLAY",
+        player: "Nome do Player",
+        image: "highlight_rp.jpg",
+        description: "Criou narrativas memoráveis que marcaram a história de Kigen, envolvendo a comunidade em cada cena."
+      },
+      {
+        category: "🔪 CAÇADOR IMPLACÁVEL",
+        player: "Nome do Player",
+        image: "highlight_hunter.jpg",
+        description: "Eliminou mais inimigos que qualquer outro shinobi, provando ser uma verdadeira ameaça no campo de batalha."
+      },
+      {
+        category: "💰 MAGNATA DOS NEGÓCIOS",
+        player: "Nome do Player",
+        image: "highlight_business.jpg",
+        description: "Acumulou a maior quantidade de Ryos, expandindo seu império comercial pela vila inteira."
+      },
+      {
+        category: "🎭 LENDÁRIO INFLUENCIADOR",
+        player: "Nome do Player",
+        image: "highlight_influencer.jpg",
+        description: "Ganhou fama e respeito de todos, tornando-se o nome mais comentado entre os ninjas da temporada."
+      }
+    ];
+
+    // ========== RENDERIZAR RANKING ==========
+    const rankingContainer = document.getElementById('ranking-container');
+    rankingData.forEach(rank => {
+      const rankClass = `rank-${rank.position}`;
+      const card = document.createElement('div');
+      card.className = `rank-card ${rankClass}`;
+      card.innerHTML = `
+        <div class="rank-position">#${rank.position}</div>
+        <div class="rank-avatar">
+          <img src="${rank.avatar}" alt="${rank.player}" onerror="this.style.display='none'"/>
+        </div>
+        <div class="rank-info">
+          <div class="rank-player">${rank.player}</div>
+          <div class="rank-points">${rank.points}</div>
+        </div>
+      `;
+      rankingContainer.appendChild(card);
+    });
+
+    // ========== RENDERIZAR DESTAQUES ==========
+    const carouselContainer = document.getElementById('carousel-container');
+    highlightsData.forEach(highlight => {
+      const card = document.createElement('div');
+      card.className = 'highlight-card';
+      card.innerHTML = `
+        <div class="highlight-image">
+          <img src="${highlight.image}" alt="${highlight.category}" onerror="this.style.display='none'"/>
+          <div class="highlight-badge">⭐ DESTAQUE</div>
+        </div>
+        <div class="highlight-content">
+          <div class="highlight-category">${highlight.category}</div>
+          <div class="highlight-player">👤 ${highlight.player}</div>
+          <div class="highlight-description">${highlight.description}</div>
+        </div>
+      `;
+      carouselContainer.appendChild(card);
+    });
+
+    // ========== MENU ==========
     const menuBtn = document.getElementById('menu-btn');
     const navOverlay = document.getElementById('nav-overlay');
     const overlayClose = document.getElementById('overlay-close');
@@ -443,7 +510,7 @@
       if (e.key === 'Escape') closeNav();
     });
 
-    // ========== THEME LOGIC ==========
+    // ========== TEMA ==========
     const root = document.documentElement;
     const saved = localStorage.getItem('ks-theme') || 'dark';
     root.setAttribute('data-theme', saved);
@@ -454,139 +521,10 @@
       localStorage.setItem('ks-theme', next);
     });
 
-    // ========== STAR ENTRANCE ==========
+    // ========== REMOVER EFEITO ESTRELA APÓS ANIMAÇÃO ==========
     setTimeout(() => {
-      const star = document.getElementById('starEntrance');
-      if(star) star.style.display = 'none';
+      document.getElementById('starEntrance').style.display = 'none';
     }, 2500);
-
-    // ========== SUPABASE LOGIC ==========
-    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    async function loadHallOfFame() {
-      const rankingContainer = document.getElementById('ranking-container');
-      const carouselContainer = document.getElementById('carousel-container');
-
-      try {
-        // --- 1. Load Ranking (> 30000) ---
-        const { data: rankingData, error: rankError } = await supabase
-          .from('personagens')
-          .select('nome, score')
-          .gte('score', 30000)
-          .order('score', { ascending: false });
-
-        if (rankError) throw rankError;
-
-        rankingContainer.innerHTML = '';
-        if (rankingData && rankingData.length > 0) {
-          rankingData.forEach((p, index) => {
-            const position = index + 1;
-            const rankClass = position <= 3 ? `rank-${position}` : 'rank-other';
-            const statusHtml = position > 3 ? `<div class="status-badge">🔥 Na Disputa!</div>` : '';
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nome)}&background=cc0000&color=fff`;
-
-            rankingContainer.innerHTML += `
-              <div class="rank-card ${rankClass}">
-                <div class="rank-position">#${position}</div>
-                <div class="rank-avatar">
-                  <img src="${avatarUrl}" alt="${p.nome}" onerror="this.style.display='none'"/>
-                </div>
-                <div class="rank-info">
-                  <div class="rank-player">${p.nome}</div>
-                  <div class="rank-points">${p.score.toLocaleString('pt-BR')} SCOR</div>
-                  ${statusHtml}
-                </div>
-              </div>
-            `;
-          });
-        } else {
-          rankingContainer.innerHTML = '<p style="color: var(--text-sub);">Ainda não há ninjas com 30.000 ou mais de Score!</p>';
-        }
-
-        // --- 2. Load Highlights (métricas_mes) ---
-        // Fetch all metrics
-        const { data: metricas, error: metricasError } = await supabase
-          .from('métricas_mes') // Matching exact table name with accent
-          .select('*');
-        
-        if (metricasError) throw metricasError;
-
-        // Fetch all characters to map IDs to names
-        const { data: personagens, error: personagensError } = await supabase
-          .from('personagens')
-          .select('id, nome');
-
-        if (personagensError) throw personagensError;
-
-        carouselContainer.innerHTML = '';
-
-        if (metricas && metricas.length > 0 && personagens) {
-          const infoCategorias = {
-            'campeao_pvp': {
-              titulo: "⚔️ MAIOR CAMPEÃO DE PVP",
-              descricao: "Conquistou a maior sequência de vitórias em combates 1v1, dominando o mês com estratégia impecável.",
-              imagem: "https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?auto=format&fit=crop&q=80&w=400"
-            },
-            'mestre_roleplay': {
-              titulo: "📖 MESTRE DO ROLEPLAY",
-              descricao: "Criou narrativas memoráveis que marcaram a história de Kigen, envolvendo a comunidade em cada cena.",
-              imagem: "https://images.unsplash.com/photo-1473221326025-9183b46be8cb?auto=format&fit=crop&q=80&w=400"
-            },
-            'caçador_implacavel': {
-              titulo: "🔪 CAÇADOR IMPLACÁVEL",
-              descricao: "Eliminou mais inimigos que qualquer outro shinobi, provando ser uma verdadeira ameaça.",
-              imagem: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400"
-            },
-            'magnata_negocios': {
-              titulo: "💰 MAGNATA DOS NEGÓCIOS",
-              descricao: "Acumulou a maior quantidade de Ryos, expandindo seu império comercial pela vila inteira.",
-              imagem: "https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?auto=format&fit=crop&q=80&w=400"
-            },
-            'influenciador_lendario': {
-              titulo: "🎭 LENDÁRIO INFLUENCIADOR",
-              descricao: "Ganhou fama e respeito de todos, tornando-se o nome mais comentado entre os ninjas.",
-              imagem: "https://images.unsplash.com/photo-1570158268183-d296b2892211?auto=format&fit=crop&q=80&w=400"
-            }
-          };
-
-          metricas.forEach(destaque => {
-            const config = infoCategorias[destaque.categoria];
-            const personagemEncontrado = personagens.find(p => p.id === destaque.personagem_id);
-
-            if (config && personagemEncontrado) {
-              carouselContainer.innerHTML += `
-                <div class="highlight-card">
-                  <div class="highlight-image">
-                    <img src="${config.imagem}" alt="${config.titulo}" />
-                    <div class="highlight-badge">⭐ DESTAQUE</div>
-                  </div>
-                  <div class="highlight-content">
-                    <div class="highlight-category">${config.titulo}</div>
-                    <div class="highlight-player">👤 ${personagemEncontrado.nome}</div>
-                    <div class="highlight-description">${config.descricao}</div>
-                    <div class="highlight-record">Recorde: ${destaque.valor.toLocaleString('pt-BR')} pts</div>
-                  </div>
-                </div>
-              `;
-            }
-          });
-        }
-
-        if (carouselContainer.innerHTML === '') {
-           carouselContainer.innerHTML = '<p style="color: var(--text-sub); padding: 20px;">Os shinobis ainda estão batalhando para definir os destaques deste mês!</p>';
-        }
-
-      } catch (err) {
-        console.error("Supabase Error:", err);
-        rankingContainer.innerHTML = `<p style="color: var(--accent);">Erro ao carregar dados. Verifique o console.</p>`;
-        carouselContainer.innerHTML = `<p style="color: var(--accent);">Erro ao carregar dados.</p>`;
-      }
-    }
-
-    // Initialize Supabase loading
-    loadHallOfFame();
   </script>
 </body>
 </html>
