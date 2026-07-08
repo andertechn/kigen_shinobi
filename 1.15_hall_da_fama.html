@@ -299,6 +299,17 @@
     .nav-link:hover { color: var(--accent2); padding-left: 12px; }
     .nav-link:hover::before { width: 20px; }
 
+    /* ======= LOADING ======= */
+    .loading-spinner {
+      display: flex; justify-content: center; align-items: center; padding: 40px;
+    }
+    .spinner {
+      width: 40px; height: 40px; border: 4px solid rgba(204,0,0,0.3);
+      border-top: 4px solid var(--accent); border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     @media (max-width: 768px) {
       .highlight-card { flex: 0 0 calc(100% - 20px); }
       .ranking-grid { grid-template-columns: 1fr; }
@@ -407,15 +418,42 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ========== DADOS DE RANKING ==========
-    const rankingData = [
-      { position: 1, player: "Nome do Player (1º)", points: "2.500 SCOR", avatar: "avatar_rank_1.jpg" },
-      { position: 2, player: "Nome do Player (2º)", points: "2.100 SCOR", avatar: "avatar_rank_2.jpg" },
-      { position: 3, player: "Nome do Player (3º)", points: "1.850 SCOR", avatar: "avatar_rank_3.jpg" },
-      { position: 4, player: "Nome do Player (4º)", points: "900 SCOR", avatar: "avatar_rank_4.jpg" },
-      { position: 5, player: "Nome do Player (5º)", points: "750 SCOR", avatar: "avatar_rank_5.jpg" }
-    ];
+    // ========== CONFIGURAÇÃO SUPABASE ==========
+    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
+    
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ========== BUSCAR DADOS DE RANKING DO SUPABASE ==========
+    async function fetchRankingData() {
+      try {
+        const { data, error } = await supabase
+          .from('personagens')
+          .select('id, nome, scoore')
+          .order('scoore', { ascending: false })
+          .limit(10);
+
+        if (error) {
+          console.error('Erro ao buscar ranking:', error);
+          return [];
+        }
+
+        // Transformar dados para o formato esperado
+        return data.map((player, index) => ({
+          position: index + 1,
+          player: player.nome,
+          points: `${player.scoore || 0} SCOR`,
+          avatar: `avatar_rank_${player.id || index + 1}.jpg`,
+          id: player.id
+        }));
+      } catch (error) {
+        console.error('Erro na conexão:', error);
+        return [];
+      }
+    }
 
     // ========== DADOS DE DESTAQUES ==========
     const highlightsData = [
@@ -452,42 +490,60 @@
     ];
 
     // ========== RENDERIZAR RANKING ==========
-    const rankingContainer = document.getElementById('ranking-container');
-    rankingData.forEach(rank => {
-      const rankClass = `rank-${rank.position}`;
-      const card = document.createElement('div');
-      card.className = `rank-card ${rankClass}`;
-      card.innerHTML = `
-        <div class="rank-position">#${rank.position}</div>
-        <div class="rank-avatar">
-          <img src="${rank.avatar}" alt="${rank.player}" onerror="this.style.display='none'"/>
-        </div>
-        <div class="rank-info">
-          <div class="rank-player">${rank.player}</div>
-          <div class="rank-points">${rank.points}</div>
-        </div>
-      `;
-      rankingContainer.appendChild(card);
-    });
+    async function renderRanking() {
+      const rankingContainer = document.getElementById('ranking-container');
+      
+      // Mostrar loading
+      rankingContainer.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+      
+      const rankingData = await fetchRankingData();
+      
+      // Limpar loading
+      rankingContainer.innerHTML = '';
+      
+      if (rankingData.length === 0) {
+        rankingContainer.innerHTML = '<p style="text-align: center; color: var(--text-sub);">Nenhum dado disponível no momento</p>';
+        return;
+      }
+      
+      rankingData.forEach(rank => {
+        const rankClass = `rank-${rank.position}`;
+        const card = document.createElement('div');
+        card.className = `rank-card ${rankClass}`;
+        card.innerHTML = `
+          <div class="rank-position">#${rank.position}</div>
+          <div class="rank-avatar">
+            <img src="${rank.avatar}" alt="${rank.player}" onerror="this.style.display='none'"/>
+          </div>
+          <div class="rank-info">
+            <div class="rank-player">${rank.player}</div>
+            <div class="rank-points">${rank.points}</div>
+          </div>
+        `;
+        rankingContainer.appendChild(card);
+      });
+    }
 
     // ========== RENDERIZAR DESTAQUES ==========
-    const carouselContainer = document.getElementById('carousel-container');
-    highlightsData.forEach(highlight => {
-      const card = document.createElement('div');
-      card.className = 'highlight-card';
-      card.innerHTML = `
-        <div class="highlight-image">
-          <img src="${highlight.image}" alt="${highlight.category}" onerror="this.style.display='none'"/>
-          <div class="highlight-badge">⭐ DESTAQUE</div>
-        </div>
-        <div class="highlight-content">
-          <div class="highlight-category">${highlight.category}</div>
-          <div class="highlight-player">👤 ${highlight.player}</div>
-          <div class="highlight-description">${highlight.description}</div>
-        </div>
-      `;
-      carouselContainer.appendChild(card);
-    });
+    function renderHighlights() {
+      const carouselContainer = document.getElementById('carousel-container');
+      highlightsData.forEach(highlight => {
+        const card = document.createElement('div');
+        card.className = 'highlight-card';
+        card.innerHTML = `
+          <div class="highlight-image">
+            <img src="${highlight.image}" alt="${highlight.category}" onerror="this.style.display='none'"/>
+            <div class="highlight-badge">⭐ DESTAQUE</div>
+          </div>
+          <div class="highlight-content">
+            <div class="highlight-category">${highlight.category}</div>
+            <div class="highlight-player">👤 ${highlight.player}</div>
+            <div class="highlight-description">${highlight.description}</div>
+          </div>
+        `;
+        carouselContainer.appendChild(card);
+      });
+    }
 
     // ========== MENU ==========
     const menuBtn = document.getElementById('menu-btn');
@@ -525,6 +581,14 @@
     setTimeout(() => {
       document.getElementById('starEntrance').style.display = 'none';
     }, 2500);
+
+    // ========== INICIALIZAR ==========
+    renderRanking();
+    renderHighlights();
+
+    // ========== ATUALIZAR RANKING A CADA 5 SEGUNDOS (OPCIONAL) ==========
+    // Descomente a linha abaixo para atualizar o ranking automaticamente
+    // setInterval(renderRanking, 5000);
   </script>
 </body>
 </html>
