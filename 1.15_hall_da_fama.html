@@ -419,180 +419,174 @@
     </section>
   </main>
 
-  <!-- SCRIPT DO MENU ISOLADO - ASSIM ELE NUNCA QUEBRA -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const menuBtn = document.getElementById('menu-btn');
-      const navOverlay = document.getElementById('nav-overlay');
-      const overlayClose = document.getElementById('overlay-close');
-
-      if(menuBtn && navOverlay) {
-        menuBtn.addEventListener('click', () => {
-          navOverlay.classList.toggle('open');
-          menuBtn.classList.toggle('open');
-        });
-
-        overlayClose.addEventListener('click', () => {
-          navOverlay.classList.remove('open');
-          menuBtn.classList.remove('open');
-        });
-      }
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && navOverlay.classList.contains('open')) {
-          navOverlay.classList.remove('open');
-          menuBtn.classList.remove('open');
-        }
-      });
-
-      // ========== TEMA ==========
-      const root = document.documentElement;
-      const saved = localStorage.getItem('ks-theme') || 'dark';
-      root.setAttribute('data-theme', saved);
-
-      document.getElementById('theme-toggle').addEventListener('click', () => {
-        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        localStorage.setItem('ks-theme', next);
-      });
-
-      // ========== REMOVER EFEITO ESTRELA APÓS ANIMAÇÃO ==========
-      setTimeout(() => {
-        const star = document.getElementById('starEntrance');
-        if(star) star.style.display = 'none';
-      }, 2500);
-    });
-  </script>
-
   <!-- SUPABASE SCRIPT -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    // ========== MENU LOGIC ==========
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    const overlayClose = document.getElementById('overlay-close');
+
+    menuBtn.addEventListener('click', () => {
+      const open = navOverlay.classList.toggle('open');
+      menuBtn.classList.toggle('open', open);
+    });
+
+    overlayClose.addEventListener('click', closeNav);
+
+    function closeNav() {
+      navOverlay.classList.remove('open');
+      menuBtn.classList.remove('open');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeNav();
+    });
+
+    // ========== THEME LOGIC ==========
+    const root = document.documentElement;
+    const saved = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', saved);
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    // ========== STAR ENTRANCE ==========
+    setTimeout(() => {
+      const star = document.getElementById('starEntrance');
+      if(star) star.style.display = 'none';
+    }, 2500);
+
+    // ========== SUPABASE LOGIC ==========
     const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function carregarDadosHallDaFama() {
-      // 1. CARREGAR O RANKING DA TEMPORADA (Score >= 30.000)
-      const { data: personagensRanking, error: errorRank } = await supabase
-        .from('personagens')
-        .select('nome, score')
-        .gte('score', 30000) // maior ou igual a 30.000 (O Tatsuo tem exatamente 30k no print)
-        .order('score', { ascending: false });
-
+    async function loadHallOfFame() {
       const rankingContainer = document.getElementById('ranking-container');
-      rankingContainer.innerHTML = ''; 
-
-      if (errorRank) {
-        rankingContainer.innerHTML = `<p style="color: var(--accent);">Erro ao carregar o ranking: ${errorRank.message}</p>`;
-      } else if (personagensRanking && personagensRanking.length > 0) {
-        personagensRanking.forEach((p, index) => {
-          const position = index + 1;
-          const rankClass = position <= 3 ? `rank-${position}` : 'rank-other';
-          
-          let statusHtml = '';
-          if (position > 3) {
-            statusHtml = `<div class="status-badge">🔥 Na Disputa!</div>`;
-          }
-
-          const avatarUrl = p.avatar ? p.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nome)}&background=cc0000&color=fff`;
-
-          const card = document.createElement('div');
-          card.className = `rank-card ${rankClass}`;
-          card.innerHTML = `
-            <div class="rank-position">#${position}</div>
-            <div class="rank-avatar">
-              <img src="${avatarUrl}" alt="${p.nome}" onerror="this.style.display='none'"/>
-            </div>
-            <div class="rank-info">
-              <div class="rank-player">${p.nome}</div>
-              <div class="rank-points">${p.score.toLocaleString('pt-BR')} SCOR</div>
-              ${statusHtml}
-            </div>
-          `;
-          rankingContainer.appendChild(card);
-        });
-      } else {
-        rankingContainer.innerHTML = '<p style="color: var(--text-sub);">Ainda não há ninjas com 30.000 ou mais de Score!</p>';
-      }
-
-      // 2. CARREGAR DESTAQUES DO MÊS (SEM AUTO-JOIN PRA NÃO DAR ERRO)
-      // Primeiro puxa os destaques
-      const { data: metricas, error: errorDest } = await supabase
-        .from('metricas_mes')
-        .select('*');
-      
-      // Depois puxa TODOS os personagens pra gente cruzar os nomes manualmente (Isso impede que o site quebre)
-      const { data: todosPersonagens, error: errorPers } = await supabase
-        .from('personagens')
-        .select('id, nome');
-      
       const carouselContainer = document.getElementById('carousel-container');
-      carouselContainer.innerHTML = '';
 
-      if (errorDest || errorPers) {
-        carouselContainer.innerHTML = `<p style="color: var(--accent);">Erro ao carregar os destaques. Verifique a conexão.</p>`;
-      } else if (metricas && metricas.length > 0 && todosPersonagens) {
-        
-        // Mapeando exatamente igual aos textos que estão salvos na coluna "categoria" da sua tabela
-        const infoCategorias = {
-          'campeao_pvp': {
-            titulo: "⚔️ MAIOR CAMPEÃO DE PVP",
-            descricao: "Conquistou a maior sequência de vitórias em combates 1v1, dominando o mês com estratégia impecável.",
-            imagem: "https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?auto=format&fit=crop&q=80&w=400"
-          },
-          'mestre_roleplay': {
-            titulo: "📖 MESTRE DO ROLEPLAY",
-            descricao: "Criou narrativas memoráveis que marcaram a história de Kigen, envolvendo a comunidade em cada cena.",
-            imagem: "https://images.unsplash.com/photo-1473221326025-9183b46be8cb?auto=format&fit=crop&q=80&w=400"
-          },
-          'caçador_implacavel': {
-            titulo: "🔪 CAÇADOR IMPLACÁVEL",
-            descricao: "Eliminou mais inimigos que qualquer outro shinobi, provando ser uma verdadeira ameaça no campo de batalha.",
-            imagem: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400"
-          },
-          'magnata_negocios': {
-            titulo: "💰 MAGNATA DOS NEGÓCIOS",
-            descricao: "Acumulou a maior quantidade de Ryos, expandindo seu império comercial pela vila inteira.",
-            imagem: "https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?auto=format&fit=crop&q=80&w=400"
-          },
-          'influenciador_lendario': {
-            titulo: "🎭 LENDÁRIO INFLUENCIADOR",
-            descricao: "Ganhou fama e respeito de todos, tornando-se o nome mais comentado entre os ninjas da temporada.",
-            imagem: "https://images.unsplash.com/photo-1570158268183-d296b2892211?auto=format&fit=crop&q=80&w=400"
-          }
-        };
+      try {
+        // --- 1. Load Ranking (> 30000) ---
+        const { data: rankingData, error: rankError } = await supabase
+          .from('personagens')
+          .select('nome, score')
+          .gte('score', 30000)
+          .order('score', { ascending: false });
 
-        metricas.forEach(destaque => {
-          const config = infoCategorias[destaque.categoria];
-          
-          // Procura o nome do personagem cruzando o ID das duas tabelas via JavaScript (evita erros do Supabase)
-          const personagemEncontrado = todosPersonagens.find(p => p.id === destaque.personagem_id);
-          
-          if (config && personagemEncontrado) {
-            const card = document.createElement('div');
-            card.className = 'highlight-card';
-            card.innerHTML = `
-              <div class="highlight-image">
-                <img src="${config.imagem}" alt="${config.titulo}" />
-                <div class="highlight-badge">⭐ DESTAQUE</div>
-              </div>
-              <div class="highlight-content">
-                <div class="highlight-category">${config.titulo}</div>
-                <div class="highlight-player">👤 ${personagemEncontrado.nome}</div>
-                <div class="highlight-description">${config.descricao}</div>
-                <div class="highlight-record">Recorde: ${destaque.valor.toLocaleString('pt-BR')} pts</div>
+        if (rankError) throw rankError;
+
+        rankingContainer.innerHTML = '';
+        if (rankingData && rankingData.length > 0) {
+          rankingData.forEach((p, index) => {
+            const position = index + 1;
+            const rankClass = position <= 3 ? `rank-${position}` : 'rank-other';
+            const statusHtml = position > 3 ? `<div class="status-badge">🔥 Na Disputa!</div>` : '';
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nome)}&background=cc0000&color=fff`;
+
+            rankingContainer.innerHTML += `
+              <div class="rank-card ${rankClass}">
+                <div class="rank-position">#${position}</div>
+                <div class="rank-avatar">
+                  <img src="${avatarUrl}" alt="${p.nome}" onerror="this.style.display='none'"/>
+                </div>
+                <div class="rank-info">
+                  <div class="rank-player">${p.nome}</div>
+                  <div class="rank-points">${p.score.toLocaleString('pt-BR')} SCOR</div>
+                  ${statusHtml}
+                </div>
               </div>
             `;
-            carouselContainer.appendChild(card);
-          }
-        });
+          });
+        } else {
+          rankingContainer.innerHTML = '<p style="color: var(--text-sub);">Ainda não há ninjas com 30.000 ou mais de Score!</p>';
+        }
 
-      } else {
-        carouselContainer.innerHTML = '<p style="color: var(--text-sub); padding: 20px;">Os shinobis ainda estão batalhando para definir os destaques deste mês!</p>';
+        // --- 2. Load Highlights (métricas_mes) ---
+        // Fetch all metrics
+        const { data: metricas, error: metricasError } = await supabase
+          .from('métricas_mes') // Matching exact table name with accent
+          .select('*');
+        
+        if (metricasError) throw metricasError;
+
+        // Fetch all characters to map IDs to names
+        const { data: personagens, error: personagensError } = await supabase
+          .from('personagens')
+          .select('id, nome');
+
+        if (personagensError) throw personagensError;
+
+        carouselContainer.innerHTML = '';
+
+        if (metricas && metricas.length > 0 && personagens) {
+          const infoCategorias = {
+            'campeao_pvp': {
+              titulo: "⚔️ MAIOR CAMPEÃO DE PVP",
+              descricao: "Conquistou a maior sequência de vitórias em combates 1v1, dominando o mês com estratégia impecável.",
+              imagem: "https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?auto=format&fit=crop&q=80&w=400"
+            },
+            'mestre_roleplay': {
+              titulo: "📖 MESTRE DO ROLEPLAY",
+              descricao: "Criou narrativas memoráveis que marcaram a história de Kigen, envolvendo a comunidade em cada cena.",
+              imagem: "https://images.unsplash.com/photo-1473221326025-9183b46be8cb?auto=format&fit=crop&q=80&w=400"
+            },
+            'caçador_implacavel': {
+              titulo: "🔪 CAÇADOR IMPLACÁVEL",
+              descricao: "Eliminou mais inimigos que qualquer outro shinobi, provando ser uma verdadeira ameaça.",
+              imagem: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400"
+            },
+            'magnata_negocios': {
+              titulo: "💰 MAGNATA DOS NEGÓCIOS",
+              descricao: "Acumulou a maior quantidade de Ryos, expandindo seu império comercial pela vila inteira.",
+              imagem: "https://images.unsplash.com/photo-1614028674026-a65e31bfd27c?auto=format&fit=crop&q=80&w=400"
+            },
+            'influenciador_lendario': {
+              titulo: "🎭 LENDÁRIO INFLUENCIADOR",
+              descricao: "Ganhou fama e respeito de todos, tornando-se o nome mais comentado entre os ninjas.",
+              imagem: "https://images.unsplash.com/photo-1570158268183-d296b2892211?auto=format&fit=crop&q=80&w=400"
+            }
+          };
+
+          metricas.forEach(destaque => {
+            const config = infoCategorias[destaque.categoria];
+            const personagemEncontrado = personagens.find(p => p.id === destaque.personagem_id);
+
+            if (config && personagemEncontrado) {
+              carouselContainer.innerHTML += `
+                <div class="highlight-card">
+                  <div class="highlight-image">
+                    <img src="${config.imagem}" alt="${config.titulo}" />
+                    <div class="highlight-badge">⭐ DESTAQUE</div>
+                  </div>
+                  <div class="highlight-content">
+                    <div class="highlight-category">${config.titulo}</div>
+                    <div class="highlight-player">👤 ${personagemEncontrado.nome}</div>
+                    <div class="highlight-description">${config.descricao}</div>
+                    <div class="highlight-record">Recorde: ${destaque.valor.toLocaleString('pt-BR')} pts</div>
+                  </div>
+                </div>
+              `;
+            }
+          });
+        }
+
+        if (carouselContainer.innerHTML === '') {
+           carouselContainer.innerHTML = '<p style="color: var(--text-sub); padding: 20px;">Os shinobis ainda estão batalhando para definir os destaques deste mês!</p>';
+        }
+
+      } catch (err) {
+        console.error("Supabase Error:", err);
+        rankingContainer.innerHTML = `<p style="color: var(--accent);">Erro ao carregar dados. Verifique o console.</p>`;
+        carouselContainer.innerHTML = `<p style="color: var(--accent);">Erro ao carregar dados.</p>`;
       }
     }
 
-    carregarDadosHallDaFama();
+    // Initialize Supabase loading
+    loadHallOfFame();
   </script>
 </body>
 </html>
