@@ -65,23 +65,30 @@
     #floating-ui {
       position: fixed; top: 20px; right: 22px; z-index: 1000;
       display: flex; flex-direction: column; align-items: center; gap: 10px;
+      pointer-events: auto;
     }
     #menu-btn {
       width: 54px; height: 54px; border-radius: 50%; background: #000;
       border: 2.5px solid var(--border); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 0 14px var(--glow); transition: box-shadow 0.25s, transform 0.2s;
+      pointer-events: auto !important;
+      z-index: 1001;
     }
     #menu-btn:hover { box-shadow: 0 0 28px var(--glow); transform: scale(1.07); }
-    #menu-btn svg.kunai { width: 26px; height: 26px; transition: transform 0.35s; }
+    #menu-btn:active { transform: scale(0.95); }
+    #menu-btn svg.kunai { width: 26px; height: 26px; transition: transform 0.35s; pointer-events: none; }
     #menu-btn.open svg.kunai { transform: rotate(135deg); }
 
     #theme-toggle {
       width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border);
       background: #000; display: flex; align-items: center; justify-content: center;
       cursor: pointer; box-shadow: 0 0 8px var(--glow); transition: box-shadow 0.3s, transform 0.2s;
+      pointer-events: auto !important;
+      z-index: 1001;
     }
     #theme-toggle:hover { transform: scale(1.12); box-shadow: 0 0 18px var(--glow); }
+    #theme-toggle:active { transform: scale(0.95); }
     #theme-toggle svg { width: 15px; height: 15px; }
     #theme-toggle .icon-sun  { display: none; }
     #theme-toggle .icon-moon { display: block; fill: #aac8ff; }
@@ -279,10 +286,10 @@
     /* ======= NAV ======= */
     #nav-overlay {
       position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end;
-      pointer-events: none; opacity: 0; transition: opacity 0.35s;
+      pointer-events: none; opacity: 0; transition: opacity 0.35s, pointer-events 0.35s;
     }
-    #nav-overlay.open { pointer-events: all; opacity: 1; }
-    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-overlay.open { pointer-events: auto; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; pointer-events: auto; }
     #nav-panel {
       position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
       width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px;
@@ -432,8 +439,8 @@
       try {
         const { data, error } = await supabase
           .from('personagens')
-          .select('id, nome, scoore')
-          .order('scoore', { ascending: false })
+          .select('id, nome, score')
+          .order('score', { ascending: false })
           .limit(10);
 
         if (error) {
@@ -445,7 +452,7 @@
         return data.map((player, index) => ({
           position: index + 1,
           player: player.nome,
-          points: `${player.scoore || 0} SCOR`,
+          points: `${player.score || 0} SCOR`,
           avatar: `avatar_rank_${player.id || index + 1}.jpg`,
           id: player.id
         }));
