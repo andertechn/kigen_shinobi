@@ -1,0 +1,2413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kigen - Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F5F5F5;
+    }
+
+    /* ===== LOGIN PAGE ===== */
+    .login-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #FAEEDA 0%, #EF9F27 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(186, 117, 23, 0.15);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .login-header h1 {
+      font-size: 32px;
+      color: #BA7517;
+      margin: 0 0 8px 0;
+      font-weight: 600;
+    }
+
+    .login-header p {
+      color: #D85A30;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      color: #BA7517;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #F0997B;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: #FFF5ED;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #D85A30;
+      box-shadow: 0 0 0 3px rgba(216, 90, 48, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #D85A30;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      margin-top: 24px;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #BA7517;
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .error {
+      background: #FCEBEB;
+      color: #A32D2D;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      border: 1px solid #F09595;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .success {
+      background: #EBFCEB;
+      color: #2DA32D;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      border: 1px solid #95F095;
+      display: none;
+    }
+
+    .success.show {
+      display: block;
+    }
+
+    .toggle {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid #FAEEDA;
+      margin-top: 24px;
+    }
+
+    .toggle p {
+      color: #5F6E7A;
+      font-size: 14px;
+      margin: 0 0 12px 0;
+    }
+
+    .toggle button {
+      background: none;
+      border: none;
+      color: #D85A30;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .toggle button:hover {
+      color: #BA7517;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .password-match {
+      font-size: 12px;
+      margin-top: 4px;
+      color: #999;
+    }
+
+    .password-match.match {
+      color: #2DA32D;
+    }
+
+    .password-match.mismatch {
+      color: #A32D2D;
+    }
+
+    /* ===== DASHBOARD ===== */
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, #BA7517 0%, #993C1D 100%);
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      margin-bottom: 30px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 20px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 24px;
+      margin: 0 0 8px 0;
+    }
+
+    .user-info {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    .role-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 30px;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .menu-section {
+      margin-bottom: 20px;
+    }
+
+    .menu-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0 12px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 12px 0;
+    }
+
+    .menu-item {
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      text-align: left;
+      border-left: 3px solid transparent;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-left-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .menu-item.active {
+      background: rgba(255, 255, 255, 0.2);
+      border-left-color: white;
+      font-weight: 600;
+    }
+
+    .menu-companhia {
+      margin-bottom: 0;
+    }
+
+    .menu-companhia-header {
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      text-align: left;
+      font-weight: 600;
+      border-left: 3px solid transparent;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .menu-companhia-header:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-left-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .menu-companhia-header.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-left-color: white;
+    }
+
+    .menu-companhia-icon {
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+
+    .menu-companhia-header.open .menu-companhia-icon {
+      transform: rotate(180deg);
+    }
+
+    .menu-companhia-items {
+      display: none;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 3px solid rgba(255, 255, 255, 0.3);
+      margin-left: 0;
+    }
+
+    .menu-companhia-items.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu-sub-item {
+      padding: 10px 16px 10px 32px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      text-align: left;
+      border-left: 0;
+    }
+
+    .menu-sub-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .menu-sub-item.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: auto;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .content-header {
+      margin-bottom: 30px;
+    }
+
+    .content-header h1 {
+      font-size: 28px;
+      color: #BA7517;
+      margin: 0 0 8px 0;
+    }
+
+    .content-header p {
+      color: #5F6E7A;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .activity-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #E8E8E8;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-card h3 {
+      color: #BA7517;
+      font-size: 15px;
+      margin: 0 0 8px 0;
+    }
+
+    .activity-card p {
+      color: #5F6E7A;
+      font-size: 13px;
+      margin: 0 0 8px 0;
+      line-height: 1.5;
+    }
+
+    .activity-time {
+      font-size: 12px;
+      color: #999;
+      margin: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #5F6E7A;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #E8E8E8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #F5F5F5;
+      padding: 15px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #BA7517;
+      border-bottom: 2px solid #E8E8E8;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #E8E8E8;
+      font-size: 14px;
+      color: #5F6E7A;
+    }
+
+    tr:hover {
+      background: #FAFAFA;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      background: #D85A30;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-small:hover {
+      background: #BA7517;
+    }
+
+    .btn-small:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .kpi-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #E8E8E8;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .kpi-card h3 {
+      color: #5F6E7A;
+      font-size: 13px;
+      margin: 0 0 12px 0;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-card .number {
+      font-size: 36px;
+      color: #BA7517;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .kpi-card .label {
+      color: #999;
+      font-size: 12px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #E8E8E8;
+      padding-bottom: 15px;
+    }
+
+    .modal-header h2 {
+      color: #BA7517;
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .modal-body {
+      margin-bottom: 20px;
+    }
+
+    .form-group-modal {
+      margin-bottom: 15px;
+    }
+
+    .form-group-modal label {
+      display: block;
+      font-size: 13px;
+      color: #BA7517;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .form-group-modal input,
+    .form-group-modal select,
+    .form-group-modal textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #F0997B;
+      border-radius: 6px;
+      font-size: 13px;
+      background-color: #FFF5ED;
+      font-family: inherit;
+    }
+
+    .form-group-modal textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group-modal input:focus,
+    .form-group-modal select:focus,
+    .form-group-modal textarea:focus {
+      outline: none;
+      border-color: #D85A30;
+      box-shadow: 0 0 0 3px rgba(216, 90, 48, 0.1);
+    }
+
+    .form-group-modal input:disabled,
+    .form-group-modal select:disabled {
+      background-color: #F0F0F0;
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .companhia-section {
+      background: #F9F9F9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #D85A30;
+    }
+
+    .companhia-section h3 {
+      color: #BA7517;
+      font-size: 14px;
+      margin: 0 0 12px 0;
+      font-weight: 600;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-modal {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-save {
+      background: #D85A30;
+      color: white;
+    }
+
+    .btn-save:hover {
+      background: #BA7517;
+    }
+
+    .btn-save:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      background: #E8E8E8;
+      color: #5F6E7A;
+    }
+
+    .btn-cancel:hover {
+      background: #D8D8D8;
+    }
+
+    .btn-approve {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-approve:hover {
+      background: #218838;
+    }
+
+    .btn-reject {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #c82333;
+    }
+
+    .companhia-badge {
+      display: inline-block;
+      background: #EAF3F5;
+      color: #0C5460;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .papel-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 4px;
+      text-transform: uppercase;
+    }
+
+    .papel-lider {
+      background: #FFE5B4;
+      color: #8B4513;
+    }
+
+    .papel-coordenador {
+      background: #B4D7FF;
+      color: #003366;
+    }
+
+    .papel-membro {
+      background: #D4F1D4;
+      color: #003300;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pendente {
+      background: #FFF3CD;
+      color: #856404;
+    }
+
+    .status-aprovada {
+      background: #D4EDDA;
+      color: #155724;
+    }
+
+    .status-rejeitada {
+      background: #F8D7DA;
+      color: #721C24;
+    }
+
+    .ficha-info {
+      background: #F9F9F9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #D85A30;
+    }
+
+    .ficha-info h3 {
+      color: #BA7517;
+      font-size: 14px;
+      margin: 0 0 12px 0;
+      font-weight: 600;
+    }
+
+    .ficha-info-row {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .ficha-info-label {
+      font-weight: 600;
+      color: #BA7517;
+      min-width: 150px;
+    }
+
+    .ficha-info-value {
+      color: #5F6E7A;
+    }
+
+    .permission-denied {
+      background: #F5F5F5;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="login-page">
+    <div class="login-container">
+      <div class="login-header">
+        <h1>Kigen</h1>
+        <p>Painel de Administração</p>
+      </div>
+
+      <div id="error" class="error"></div>
+      <div id="success" class="success"></div>
+
+      <!-- Login Form -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Usuário</label>
+          <input type="text" id="username" placeholder="seu_usuario" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" class="btn" id="btnLogin">Entrar</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" style="display: none;">
+        <div class="form-group">
+          <label for="usernameSignup">Usuário</label>
+          <input type="text" id="usernameSignup" placeholder="escolha_um_usuario" required />
+        </div>
+
+        <div class="form-group">
+          <label for="whatsappSignup">WhatsApp</label>
+          <input type="text" id="whatsappSignup" placeholder="+551199999-9999" required />
+        </div>
+
+        <div class="form-group">
+          <label for="passwordSignup">Senha</label>
+          <input type="password" id="passwordSignup" placeholder="••••••••" required />
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirmar Senha</label>
+          <input type="password" id="confirmPassword" placeholder="••••••••" required />
+          <div class="password-match" id="passwordMatch"></div>
+        </div>
+
+        <button type="submit" class="btn" id="btnSignup">Criar Conta</button>
+      </form>
+
+      <div class="toggle">
+        <p id="toggleText">Primeira vez aqui?</p>
+        <button type="button" id="toggleBtn">Criar nova conta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="dashboard" style="display: none;">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Kigen</h2>
+        <div class="user-info" id="userDisplay">@usuario</div>
+        <div class="role-badge" id="roleDisplay">Narrador</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Menu</div>
+        <div class="sidebar-menu" id="functionsMenu"></div>
+      </div>
+
+      <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
+
+    <div class="main-content">
+      <div class="content-header">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageDescription">Bem-vindo ao painel de administração</p>
+      </div>
+
+      <div id="content">
+        <div class="activity-card">
+          <h3>Carregando atividades...</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDITAR USUÁRIO -->
+  <div id="editUserModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Editar Usuário: <span id="modalUserName"></span></h2>
+      </div>
+      <div class="modal-body">
+        <div class="form-group-modal">
+          <label for="modalRoleId">Role Geral</label>
+          <select id="modalRoleId">
+            <option value="">Selecione um role...</option>
+          </select>
+        </div>
+
+        <!-- COMPANHIA 1 -->
+        <div class="companhia-section" id="companhia1Section">
+          <h3 id="companhia1Label">Companhia 1</h3>
+          <div class="form-group-modal">
+            <label for="modalCompanhia1">Companhia</label>
+            <select id="modalCompanhia1">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+          <div class="form-group-modal">
+            <label for="modalPapel1">Papel</label>
+            <select id="modalPapel1">
+              <option value="">Nenhuma companhia selecionada</option>
+            </select>
+          </div>
+          <div class="form-group-modal">
+            <label for="modalPatente1">Patente</label>
+            <select id="modalPatente1">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- COMPANHIA 2 -->
+        <div class="companhia-section" id="companhia2Section">
+          <h3 id="companhia2Label">Companhia 2</h3>
+          <div class="form-group-modal">
+            <label for="modalCompanhia2">Companhia</label>
+            <select id="modalCompanhia2">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+          <div class="form-group-modal">
+            <label for="modalPapel2">Papel</label>
+            <select id="modalPapel2">
+              <option value="">Nenhuma companhia selecionada</option>
+            </select>
+          </div>
+          <div class="form-group-modal">
+            <label for="modalPatente2">Patente</label>
+            <select id="modalPatente2">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- COMPANHIA 3 -->
+        <div class="companhia-section" id="companhia3Section">
+          <h3 id="companhia3Label">Companhia 3</h3>
+          <div class="form-group-modal">
+            <label for="modalCompanhia3">Companhia</label>
+            <select id="modalCompanhia3">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+          <div class="form-group-modal">
+            <label for="modalPapel3">Papel</label>
+            <select id="modalPapel3">
+              <option value="">Nenhuma companhia selecionada</option>
+            </select>
+          </div>
+          <div class="form-group-modal">
+            <label for="modalPatente3">Patente</label>
+            <select id="modalPatente3">
+              <option value="">Nenhuma</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group-modal">
+          <label for="modalAtivo">Status</label>
+          <select id="modalAtivo">
+            <option value="true">Ativo</option>
+            <option value="false">Inativo</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" onclick="closeEditModal()">Cancelar</button>
+        <button class="btn-modal btn-save" onclick="saveUserChanges()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE VISUALIZAR FICHA -->
+  <div id="visualizarFichaModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📋 Ficha de Aprovação</h2>
+      </div>
+      <div class="modal-body">
+        <!-- Info da Ficha -->
+        <div class="ficha-info">
+          <h3>📌 Informações da Ficha</h3>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Usuário:</div>
+            <div class="ficha-info-value" id="modalFichaUsuario">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">WhatsApp:</div>
+            <div class="ficha-info-value" id="modalFichaWhatsapp">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Companhia:</div>
+            <div class="ficha-info-value" id="modalFichaCompanhia">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Papel:</div>
+            <div class="ficha-info-value" id="modalFichaPapel">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Data de Envio:</div>
+            <div class="ficha-info-value" id="modalFichaData">-</div>
+          </div>
+        </div>
+
+        <!-- Conteúdo da Ficha -->
+        <div class="ficha-info">
+          <h3>📝 Conteúdo da Ficha</h3>
+          <div id="modalFichaConteudo"></div>
+        </div>
+
+        <!-- Seção de Aprovação/Rejeição -->
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #E8E8E8;">
+          <div class="form-group-modal">
+            <label>✅ Aprovar Ficha</label>
+            <button class="btn-modal btn-approve" onclick="aprovarFicha()" style="width: 100%; text-align: center;">
+              Clique para Aprovar
+            </button>
+          </div>
+
+          <div class="form-group-modal">
+            <label for="modalMotivoRejeicao">⚠️ Rejeitar + Motivo (opcional)</label>
+            <textarea id="modalMotivoRejeicao" placeholder="Descreva o motivo da rejeição..."></textarea>
+            <button class="btn-modal btn-reject" onclick="rejeitarFicha()" style="width: 100%; text-align: center; margin-top: 10px;">
+              Rejeitar Ficha
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" onclick="closeVisualizarFichaModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    // Configuração Supabase
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+
+    let currentUser = null;
+    let isSignUp = false;
+
+    // Papéis disponíveis em uma companhia
+    const PAPEIS_COMPANHIA = ['lider', 'coordenador', 'membro'];
+
+    // Mapeamento de Companhias
+    const COMPANHIAS = {
+      1: 'Supervisores',
+      2: 'Treinadores',
+      3: 'Narradores'
+    };
+
+    // ===== TOGGLE ENTRE LOGIN E SIGNUP =====
+    document.getElementById('toggleBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      isSignUp = !isSignUp;
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const toggleText = document.getElementById('toggleText');
+      const toggleBtn = document.getElementById('toggleBtn');
+      const errorDiv = document.getElementById('error');
+      const successDiv = document.getElementById('success');
+
+      if (isSignUp) {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        toggleText.textContent = 'Já tem uma conta?';
+        toggleBtn.textContent = 'Fazer login';
+      } else {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        toggleText.textContent = 'Primeira vez aqui?';
+        toggleBtn.textContent = 'Criar nova conta';
+      }
+      errorDiv.classList.remove('show');
+      successDiv.classList.remove('show');
+    });
+
+    // ===== VALIDAR SENHAS EM TEMPO REAL =====
+    document.getElementById('confirmPassword').addEventListener('keyup', () => {
+      const password = document.getElementById('passwordSignup').value;
+      const confirm = document.getElementById('confirmPassword').value;
+      const match = document.getElementById('passwordMatch');
+
+      if (!confirm) {
+        match.textContent = '';
+        return;
+      }
+
+      if (password === confirm) {
+        match.textContent = '✓ Senhas conferem';
+        match.classList.add('match');
+        match.classList.remove('mismatch');
+      } else {
+        match.textContent = '✗ Senhas não conferem';
+        match.classList.add('mismatch');
+        match.classList.remove('match');
+      }
+    });
+
+    // ===== LOGIN =====
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await handleLogin();
+    });
+
+    async function handleLogin() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const btnLogin = document.getElementById('btnLogin');
+      const errorDiv = document.getElementById('error');
+
+      btnLogin.disabled = true;
+      errorDiv.classList.remove('show');
+
+      try {
+        // Buscar usuário
+        const { data: userData, error: userError } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .eq('nome', username)
+          .single();
+
+        if (userError || !userData) {
+          throw new Error('Usuário ou senha incorretos');
+        }
+
+        // Verificar senha (usando btoa para encode básico)
+        const encodedPassword = btoa(password);
+        if (userData.password_hash !== encodedPassword) {
+          throw new Error('Usuário ou senha incorretos');
+        }
+
+        currentUser = userData;
+        await showDashboard();
+
+      } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.classList.add('show');
+      } finally {
+        btnLogin.disabled = false;
+      }
+    }
+
+    // ===== SIGNUP =====
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await handleSignup();
+    });
+
+    async function handleSignup() {
+      const username = document.getElementById('usernameSignup').value;
+      const whatsapp = document.getElementById('whatsappSignup').value;
+      const password = document.getElementById('passwordSignup').value;
+      const confirm = document.getElementById('confirmPassword').value;
+      const btnSignup = document.getElementById('btnSignup');
+      const errorDiv = document.getElementById('error');
+      const successDiv = document.getElementById('success');
+
+      btnSignup.disabled = true;
+      errorDiv.classList.remove('show');
+      successDiv.classList.remove('show');
+
+      try {
+        // Validações
+        if (username.length < 3) throw new Error('Usuário deve ter 3+ caracteres');
+        if (password.length < 6) throw new Error('Senha deve ter 6+ caracteres');
+        if (password !== confirm) throw new Error('Senhas não conferem');
+        if (!whatsapp || !whatsapp.includes('+55')) throw new Error('Formato de WhatsApp inválido (+551199999-9999)');
+
+        // Verificar se usuário já existe
+        const { data: existingUser } = await supabaseClient
+          .from('usuarios')
+          .select('id')
+          .eq('nome', username)
+          .single();
+
+        if (existingUser) {
+          throw new Error('Este usuário já existe');
+        }
+
+        // Verificar se WhatsApp já existe
+        const { data: existingWhatsapp } = await supabaseClient
+          .from('usuarios')
+          .select('id')
+          .eq('whatsapp', whatsapp)
+          .single();
+
+        if (existingWhatsapp) {
+          throw new Error('Este WhatsApp já está cadastrado');
+        }
+
+        // Pegar role "Membro Comum" por padrão
+        const { data: roleData, error: roleError } = await supabaseClient
+          .from('roles')
+          .select('id')
+          .eq('nome', 'Membro Comum')
+          .single();
+
+        if (roleError || !roleData) {
+          throw new Error('Role padrão não encontrado. Contate o administrador.');
+        }
+
+        // Criar usuário
+        const { data: newUser, error: insertError } = await supabaseClient
+          .from('usuarios')
+          .insert([{
+            nome: username,
+            whatsapp: whatsapp,
+            password_hash: btoa(password),
+            role_id: roleData.id,
+            ativo: true
+          }])
+          .select()
+          .single();
+
+        if (insertError) {
+          throw new Error('Erro ao criar usuário: ' + insertError.message);
+        }
+
+        successDiv.textContent = '✓ Conta criada com sucesso! Faça login para continuar.';
+        successDiv.classList.add('show');
+
+        // Limpar form
+        setTimeout(() => {
+          document.getElementById('usernameSignup').value = '';
+          document.getElementById('whatsappSignup').value = '';
+          document.getElementById('passwordSignup').value = '';
+          document.getElementById('confirmPassword').value = '';
+          document.getElementById('passwordMatch').textContent = '';
+
+          // Voltar para login
+          isSignUp = false;
+          document.getElementById('signupForm').style.display = 'none';
+          document.getElementById('loginForm').style.display = 'block';
+          document.getElementById('toggleText').textContent = 'Primeira vez aqui?';
+          document.getElementById('toggleBtn').textContent = 'Criar nova conta';
+          successDiv.classList.remove('show');
+        }, 2000);
+
+      } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.classList.add('show');
+      } finally {
+        btnSignup.disabled = false;
+      }
+    }
+
+    // ===== MOSTRAR DASHBOARD =====
+    async function showDashboard() {
+      // Buscar role do usuário
+      const { data: roleData } = await supabaseClient
+        .from('roles')
+        .select('*')
+        .eq('id', currentUser.role_id)
+        .single();
+
+      // Buscar companhias para nomes
+      const { data: companhias } = await supabaseClient
+        .from('companhias')
+        .select('*');
+      
+      allCompanhias = companhias;
+
+      // Atualizar header
+      document.getElementById('userDisplay').textContent = `@${currentUser.nome}`;
+      document.getElementById('roleDisplay').textContent = roleData?.nome || 'Membro';
+
+      // Mostrar dashboard, esconder login
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'flex';
+
+      // Montar menu dinâmico
+      const functionsMenu = document.getElementById('functionsMenu');
+      functionsMenu.innerHTML = '';
+      
+      const isAdmin = currentUser.role_id === 1; // Administrador
+      const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id); // Qualquer gerência
+      const roleName = roleData?.nome || '';
+
+      // ADMINISTRADOR - vê todas as companhias
+      if (isAdmin) {
+        // Seção MEU PAINEL
+        const meuPainelSection = document.createElement('div');
+        meuPainelSection.className = 'menu-section';
+        
+        const titleMeuPainel = document.createElement('div');
+        titleMeuPainel.className = 'menu-section-title';
+        titleMeuPainel.textContent = 'MEU PAINEL';
+        meuPainelSection.appendChild(titleMeuPainel);
+
+        addMenuBtn(meuPainelSection, '📊 Gestão de Usuários', 'Gerenciar usuários', 'usuarios');
+        addMenuBtn(meuPainelSection, '📈 KPIs', 'KPIs do sistema', 'kpis-admin');
+        addMenuBtn(meuPainelSection, '📋 Atividades', 'Atividades do admin', 'atividades-admin');
+
+        functionsMenu.appendChild(meuPainelSection);
+
+        // Divisória
+        const divider = document.createElement('div');
+        divider.className = 'menu-divider';
+        functionsMenu.appendChild(divider);
+
+        // Seção FUNÇÕES
+        const funcoesSectionTitle = document.createElement('div');
+        funcoesSectionTitle.className = 'menu-section-title';
+        funcoesSectionTitle.style.paddingLeft = '12px';
+        funcoesSectionTitle.style.marginTop = '12px';
+        funcoesSectionTitle.textContent = 'FUNÇÕES';
+        functionsMenu.appendChild(funcoesSectionTitle);
+
+        // Admin vê todas as 3 companhias
+        for (let compId = 1; compId <= 3; compId++) {
+          const comp = allCompanhias.find(c => c.id === compId);
+          const compName = comp?.nome || COMPANHIAS[compId] || `Companhia ${compId}`;
+          const icon = getCompanhiaIcon(compId);
+          addCompanhiaMenu(functionsMenu, icon, compName, 'admin', compId);
+        }
+      }
+      // GERÊNCIA - vê todas as companhias também
+      else if (isGerencia) {
+        // Seção MEU PAINEL
+        const meuPainelSection = document.createElement('div');
+        meuPainelSection.className = 'menu-section';
+        
+        const titleMeuPainel = document.createElement('div');
+        titleMeuPainel.className = 'menu-section-title';
+        titleMeuPainel.textContent = 'MEU PAINEL';
+        meuPainelSection.appendChild(titleMeuPainel);
+
+        addMenuBtn(meuPainelSection, '📊 Gestão de Usuários', 'Gerenciar usuários', 'usuarios-gerencia');
+        addMenuBtn(meuPainelSection, '📈 KPIs', 'KPIs da gerência', 'kpis-gerencia');
+        addMenuBtn(meuPainelSection, '📋 Atividades da Gerência', 'Atividades', 'atividades-gerencia');
+
+        functionsMenu.appendChild(meuPainelSection);
+
+        // Divisória
+        const divider = document.createElement('div');
+        divider.className = 'menu-divider';
+        functionsMenu.appendChild(divider);
+
+        // Seção FUNÇÕES
+        const funcoesSectionTitle = document.createElement('div');
+        funcoesSectionTitle.className = 'menu-section-title';
+        funcoesSectionTitle.style.paddingLeft = '12px';
+        funcoesSectionTitle.style.marginTop = '12px';
+        funcoesSectionTitle.textContent = 'FUNÇÕES';
+        functionsMenu.appendChild(funcoesSectionTitle);
+
+        // Gerente vê todas as 3 companhias
+        for (let compId = 1; compId <= 3; compId++) {
+          const comp = allCompanhias.find(c => c.id === compId);
+          const compName = comp?.nome || COMPANHIAS[compId] || `Companhia ${compId}`;
+          const icon = getCompanhiaIcon(compId);
+          addCompanhiaMenu(functionsMenu, icon, compName, 'gerente', compId);
+        }
+      }
+      // LÍDERES, COORDENADORES e MEMBROS - Menu por companhia
+      else {
+        // Preencher dados auxiliares
+        const { data: roles } = await supabaseClient.from('roles').select('*');
+        allRoles = roles;
+
+        const { data: patentes } = await supabaseClient.from('patentes').select('*');
+        allPatentes = patentes;
+
+        // Para cada companhia que o usuário pertence
+        for (let i = 1; i <= 3; i++) {
+          const compId = currentUser[`companhia_${i}_id`];
+          const papel = currentUser[`companhia_${i}_papel`];
+          
+          if (compId && papel) {
+            const comp = allCompanhias.find(c => c.id === compId);
+            const compName = comp?.nome || `Companhia ${i}`;
+            const icon = getCompanhiaIcon(compId);
+            
+            // Seção da companhia com subitens
+            addCompanhiaMenu(functionsMenu, icon, compName, papel, compId);
+          }
+        }
+      }
+
+      // Mostrar dashboard por padrão
+      selectFunction({
+        name: 'Dashboard',
+        description: 'Bem-vindo ao painel de administração',
+        id: 'dashboard'
+      });
+    }
+
+    function getCompanhiaIcon(compId) {
+      const icons = {
+        1: '👮', // Supervisores
+        2: '🎓', // Treinadores
+        3: '🎭'  // Narradores
+      };
+      return icons[compId] || '📋';
+    }
+
+    function addMenuBtn(container, label, description, funcId, context = null) {
+      const btn = document.createElement('button');
+      btn.className = 'menu-item';
+      btn.textContent = label;
+      btn.onclick = () => {
+        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.menu-sub-item').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        selectFunction({
+          name: label,
+          description: description,
+          id: funcId,
+          context: context
+        });
+      };
+      container.appendChild(btn);
+    }
+
+    function addCompanhiaMenu(container, icon, compName, papel, compId) {
+      const compSection = document.createElement('div');
+      compSection.className = 'menu-companhia';
+
+      // Header da companhia (recolhível)
+      const header = document.createElement('button');
+      header.className = 'menu-companhia-header open';
+      header.innerHTML = `
+        <span>${icon} ${compName}</span>
+        <span class="menu-companhia-icon">▼</span>
+      `;
+      header.onclick = () => {
+        header.classList.toggle('open');
+        itemsDiv.classList.toggle('open');
+      };
+
+      // Container dos itens
+      const itemsDiv = document.createElement('div');
+      itemsDiv.className = 'menu-companhia-items open';
+
+      const subItems = [
+        { label: '👥 Usuários', id: `comp-usuarios-${compId}` },
+        { label: '📈 KPIs', id: `comp-kpis-${compId}` },
+        { label: '📋 Atividades', id: `comp-atividades-${compId}` },
+        { label: '📄 Estatuto', id: `comp-estatuto-${compId}` }
+      ];
+
+      subItems.forEach(item => {
+        const subBtn = document.createElement('button');
+        subBtn.className = 'menu-sub-item';
+        subBtn.textContent = item.label;
+        subBtn.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+          document.querySelectorAll('.menu-sub-item').forEach(el => el.classList.remove('active'));
+          subBtn.classList.add('active');
+          selectFunction({
+            name: `${compName} - ${item.label}`,
+            description: `Painel da função ${compName}`,
+            id: item.id,
+            context: { compId, papel, compName }
+          });
+        };
+        itemsDiv.appendChild(subBtn);
+      });
+
+      compSection.appendChild(header);
+      compSection.appendChild(itemsDiv);
+      container.appendChild(compSection);
+    }
+
+    function selectFunction(func) {
+      document.getElementById('pageTitle').textContent = func.name;
+      document.getElementById('pageDescription').textContent = func.description || 'Painel de ' + func.name;
+
+      const content = document.getElementById('content');
+      
+      // FICHAS PARA APROVAR
+      if (func.id === 'fichas-aprovar') {
+        loadFichasParaAprovar();
+      }
+      // Administrador - todos os usuários
+      else if (func.id === 'usuarios') {
+        loadUsersManagement();
+      }
+      // Gerência - usuários das companhias
+      else if (func.id === 'usuarios-gerencia') {
+        loadUsersForGerencia();
+      }
+      // Gerência - KPIs
+      else if (func.id === 'kpis-gerencia') {
+        loadKPIsGerencia();
+      }
+      // Gerência - Atividades
+      else if (func.id === 'atividades-gerencia') {
+        loadAtividadesGerencia();
+      }
+      // Companhia - Usuários
+      else if (func.id.startsWith('comp-usuarios-')) {
+        const compId = func.context.compId;
+        const papel = func.context.papel;
+        loadUsersForCompanhia(compId, papel);
+      }
+      // Companhia - KPIs
+      else if (func.id.startsWith('comp-kpis-')) {
+        const compId = func.context.compId;
+        loadKPIsCompanhia(compId);
+      }
+      // Companhia - Atividades
+      else if (func.id.startsWith('comp-atividades-')) {
+        loadAtividadesCompanhia();
+      }
+      // Companhia - Estatuto
+      else if (func.id.startsWith('comp-estatuto-')) {
+        loadEstatuto();
+      }
+      // Supervisores
+      else if (func.id === 'supervisores' || func.id === 'supervisores-gerencia') {
+        loadUsersByCompanhia(1, func.id.includes('gerencia'));
+      }
+      // Treinadores
+      else if (func.id === 'treinadores' || func.id === 'treinadores-gerencia') {
+        loadUsersByCompanhia(2, func.id.includes('gerencia'));
+      }
+      // Narradores
+      else if (func.id === 'narradores' || func.id === 'narradores-gerencia') {
+        loadUsersByCompanhia(3, func.id.includes('gerencia'));
+      }
+      else if (func.id.startsWith('companhia-')) {
+        content.innerHTML = `
+          <div class="empty-state">
+            <p>📋 ${func.name}</p>
+            <p style="margin-top: 10px; font-size: 13px; color: #999;">Selecione uma opção no menu lateral</p>
+          </div>
+        `;
+      }
+      else if (func.id === 'dashboard-gerencia' || func.id === 'dashboard-lider') {
+        content.innerHTML = `
+          <div class="empty-state">
+            <p>📋 ${func.name}</p>
+            <p style="margin-top: 10px; font-size: 13px; color: #999;">Bem-vindo ao seu painel</p>
+          </div>
+        `;
+      }
+      else {
+        content.innerHTML = `
+          <div class="empty-state">
+            <p>📋 ${func.name}</p>
+            <p style="margin-top: 10px; font-size: 13px; color: #999;">WhatsApp: ${currentUser.whatsapp}</p>
+            <p style="margin-top: 10px; font-size: 13px; color: #999;">Cadastrado em: ${new Date(currentUser.criado_em).toLocaleDateString('pt-BR')}</p>
+          </div>
+        `;
+      }
+    }
+
+    // ===== KPIs GERÊNCIA =====
+    function loadKPIsGerencia() {
+      const content = document.getElementById('content');
+      
+      // 4 KPIs - um para cada função
+      const kpis = [
+        { label: 'Supervisores - Pendentes', value: 12, icon: '👮' },
+        { label: 'Treinadores - Pendentes', value: 8, icon: '🎓' },
+        { label: 'Narradores - Pendentes', value: 15, icon: '🎭' },
+        { label: 'Minhas Atividades', value: 5, icon: '📊' }
+      ];
+
+      let html = '<div class="kpi-grid">';
+      kpis.forEach(kpi => {
+        html += `
+          <div class="kpi-card">
+            <h3>${kpi.icon} ${kpi.label}</h3>
+            <div class="number">${kpi.value}</div>
+            <div class="label">Atividades pendentes</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+
+      content.innerHTML = html;
+    }
+
+    // ===== KPIs COMPANHIA =====
+    function loadKPIsCompanhia(compId) {
+      const content = document.getElementById('content');
+      
+      const compName = COMPANHIAS[compId] || 'Companhia';
+      
+      // Exemplo: apenas 1 KPI para a companhia específica
+      const kpi = {
+        label: `${compName} - Atividades Pendentes`,
+        value: 10,
+        icon: getCompanhiaIcon(compId)
+      };
+
+      let html = `
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <h3>${kpi.icon} ${kpi.label}</h3>
+            <div class="number">${kpi.value}</div>
+            <div class="label">Atividades pendentes nesta função</div>
+          </div>
+        </div>
+      `;
+
+      content.innerHTML = html;
+    }
+
+    // ===== ATIVIDADES GERÊNCIA =====
+    function loadAtividadesGerencia() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<div class="empty-state"><p>📋 Lista de Atividades</p><p style="margin-top: 10px; font-size: 13px; color: #999;">Nenhuma atividade registrada</p></div>';
+    }
+
+    // ===== ATIVIDADES COMPANHIA =====
+    function loadAtividadesCompanhia() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<div class="empty-state"><p>📋 Lista de Atividades</p><p style="margin-top: 10px; font-size: 13px; color: #999;">Nenhuma atividade registrada</p></div>';
+    }
+
+    // ===== ESTATUTO =====
+    function loadEstatuto() {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div style="
+          background: white;
+          border-radius: 12px;
+          padding: 40px;
+          margin: 0 auto;
+          max-width: 210mm;
+          min-height: 297mm;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+          border: 1px solid #E8E8E8;
+          font-family: Arial, sans-serif;
+        ">
+          <!-- Página A4 em branco -->
+        </div>
+      `;
+    }
+
+    // ===== GERENCIAMENTO DE FICHAS =====
+    let allFichas = [];
+    let editingFichaId = null;
+
+    async function loadFichasParaAprovar() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando fichas...</p>';
+
+      try {
+        const isAdmin = currentUser.role_id === 1;
+        const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
+
+        let query = supabaseClient
+          .from('fichas')
+          .select('*, usuarios(nome, whatsapp, companhia_1_id, companhia_2_id, companhia_3_id, companhia_1_papel, companhia_2_papel, companhia_3_papel)');
+
+        if (!isAdmin && !isGerencia) {
+          query = query.eq('id', -1); // Retorna vazio
+        }
+
+        const { data: fichas, error } = await query.order('criado_em', { ascending: false });
+
+        if (error) throw error;
+
+        allFichas = fichas || [];
+        renderFichasTable();
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
+      }
+    }
+
+    function renderFichasTable() {
+      const content = document.getElementById('content');
+      
+      if (allFichas.length === 0) {
+        content.innerHTML = '<div class="empty-state"><p>Nenhuma ficha para aprovar</p></div>';
+        return;
+      }
+
+      let html = `
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Companhia</th>
+                <th>Data de Envio</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      for (const ficha of allFichas) {
+        const companhia = COMPANHIAS[ficha.companhia_id] || 'Desconhecida';
+        const dataEnvio = new Date(ficha.criado_em).toLocaleDateString('pt-BR');
+        const statusHtml = getStatusBadge(ficha.status);
+        
+        html += `
+          <tr>
+            <td><strong>${ficha.usuarios?.nome || 'Desconhecido'}</strong></td>
+            <td>${companhia}</td>
+            <td>${dataEnvio}</td>
+            <td>${statusHtml}</td>
+            <td>
+              <button class="btn-small" onclick="openVisualizarFichaModal(${ficha.id})">
+                ${ficha.status === 'pendente' ? 'Avaliar' : 'Visualizar'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      content.innerHTML = html;
+    }
+
+    function getStatusBadge(status) {
+      const badges = {
+        'pendente': '<span class="status-badge status-pendente">⏳ Pendente</span>',
+        'aprovada': '<span class="status-badge status-aprovada">✓ Aprovada</span>',
+        'rejeitada': '<span class="status-badge status-rejeitada">✗ Rejeitada</span>'
+      };
+      return badges[status] || status;
+    }
+
+    async function openVisualizarFichaModal(fichaId) {
+      editingFichaId = fichaId;
+      const ficha = allFichas.find(f => f.id === fichaId);
+      
+      if (!ficha) return;
+
+      // Preencher dados da ficha
+      document.getElementById('modalFichaUsuario').textContent = ficha.usuarios?.nome || '-';
+      document.getElementById('modalFichaWhatsapp').textContent = ficha.usuarios?.whatsapp || '-';
+      document.getElementById('modalFichaCompanhia').textContent = COMPANHIAS[ficha.companhia_id] || 'Desconhecida';
+      document.getElementById('modalFichaData').textContent = new Date(ficha.criado_em).toLocaleDateString('pt-BR', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Papel na companhia
+      let papel = '-';
+      for (let i = 1; i <= 3; i++) {
+        if (ficha.usuarios?.[`companhia_${i}_id`] === ficha.companhia_id) {
+          papel = ficha.usuarios[`companhia_${i}_papel`] || '-';
+          break;
+        }
+      }
+      document.getElementById('modalFichaPapel').textContent = papel;
+
+      // Conteúdo da ficha
+      const conteudoDiv = document.getElementById('modalFichaConteudo');
+      if (ficha.dados_formulario) {
+        let conteudoHtml = '';
+        for (const [key, value] of Object.entries(ficha.dados_formulario)) {
+          conteudoHtml += `
+            <div style="margin-bottom: 10px; padding: 8px; background: #F5F5F5; border-radius: 4px;">
+              <strong style="color: #BA7517;">${key}:</strong>
+              <div style="color: #5F6E7A; font-size: 13px; margin-top: 4px;">${value}</div>
+            </div>
+          `;
+        }
+        conteudoDiv.innerHTML = conteudoHtml;
+      }
+
+      // Se já foi aprovada/rejeitada, desabilitar botões
+      const motivo = document.getElementById('modalMotivoRejeicao');
+      const conteiner = document.querySelector('#visualizarFichaModal .modal-content');
+      
+      if (ficha.status !== 'pendente') {
+        const buttons = conteiner.querySelectorAll('.btn-approve, .btn-reject');
+        buttons.forEach(btn => btn.disabled = true);
+        
+        if (ficha.status === 'rejeitada') {
+          motivo.value = `[Rejeitada] Motivo: ${ficha.motivo_rejeicao || 'Sem motivo especificado'}`;
+          motivo.disabled = true;
+        } else {
+          motivo.value = `[Aprovada em ${new Date(ficha.atualizado_em).toLocaleDateString('pt-BR')}]`;
+          motivo.disabled = true;
+        }
+      } else {
+        motivo.value = '';
+        motivo.disabled = false;
+        const buttons = conteiner.querySelectorAll('.btn-approve, .btn-reject');
+        buttons.forEach(btn => btn.disabled = false);
+      }
+
+      document.getElementById('visualizarFichaModal').classList.add('show');
+    }
+
+    async function aprovarFicha() {
+      if (!editingFichaId) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('fichas')
+          .update({
+            status: 'aprovada',
+            aprovado_por_id: currentUser.id,
+            atualizado_em: new Date().toISOString()
+          })
+          .eq('id', editingFichaId);
+
+        if (error) throw error;
+
+        alert('✓ Ficha aprovada com sucesso!');
+        closeVisualizarFichaModal();
+        await loadFichasParaAprovar();
+      } catch (err) {
+        alert('Erro ao aprovar ficha: ' + err.message);
+      }
+    }
+
+    async function rejeitarFicha() {
+      if (!editingFichaId) return;
+      const motivo = document.getElementById('modalMotivoRejeicao').value;
+
+      if (!motivo.trim()) {
+        alert('Por favor, descreva o motivo da rejeição');
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('fichas')
+          .update({
+            status: 'rejeitada',
+            motivo_rejeicao: motivo,
+            aprovado_por_id: currentUser.id,
+            atualizado_em: new Date().toISOString()
+          })
+          .eq('id', editingFichaId);
+
+        if (error) throw error;
+
+        alert('✗ Ficha rejeitada com sucesso!');
+        closeVisualizarFichaModal();
+        await loadFichasParaAprovar();
+      } catch (err) {
+        alert('Erro ao rejeitar ficha: ' + err.message);
+      }
+    }
+
+    function closeVisualizarFichaModal() {
+      document.getElementById('visualizarFichaModal').classList.remove('show');
+      editingFichaId = null;
+      document.getElementById('modalMotivoRejeicao').value = '';
+    }
+
+    // ===== GERENCIAMENTO DE USUÁRIOS =====
+    let allUsers = [];
+    let editingUserId = null;
+    let editingUserCompanies = null;
+    let allRoles = [];
+    let allCompanhias = [];
+    let allPatentes = [];
+    let currentCompanhiaContext = null;
+
+    async function loadUsersForCompanhia(compId, userPapel) {
+      const content = document.getElementById('content');
+      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando usuários...</p>';
+
+      try {
+        currentCompanhiaContext = { compId, papel: userPapel };
+
+        const { data: usuarios, error: usuariosError } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .or(`companhia_1_id.eq.${compId},companhia_2_id.eq.${compId},companhia_3_id.eq.${compId}`)
+          .order('nome');
+
+        if (usuariosError) throw usuariosError;
+        allUsers = usuarios;
+
+        if (allRoles.length === 0) {
+          const { data: roles } = await supabaseClient.from('roles').select('*');
+          allRoles = roles;
+        }
+
+        if (allPatentes.length === 0) {
+          const { data: patentes } = await supabaseClient.from('patentes').select('*');
+          allPatentes = patentes;
+        }
+
+        renderUsersTableForCompanhia(compId, userPapel);
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
+      }
+    }
+
+    function renderUsersTableForCompanhia(compId, userPapel) {
+      const content = document.getElementById('content');
+      
+      if (allUsers.length === 0) {
+        content.innerHTML = '<div class="empty-state"><p>Nenhum membro nesta companhia</p></div>';
+        return;
+      }
+
+      let html = `
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th>Papel</th>
+                <th>Patente</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      for (const user of allUsers) {
+        let userCompanhiaIndex = null;
+        let userPapelNaComp = null;
+        let userPatenteId = null;
+
+        for (let i = 1; i <= 3; i++) {
+          if (user[`companhia_${i}_id`] === compId) {
+            userCompanhiaIndex = i;
+            userPapelNaComp = user[`companhia_${i}_papel`];
+            userPatenteId = user[`patente_${i}_id`];
+            break;
+          }
+        }
+
+        const status = user.ativo ? '✓ Ativo' : '✗ Inativo';
+        const patente = allPatentes.find(p => p.id === userPatenteId);
+        
+        let podeEditar = false;
+        if (userPapel === 'lider' || userPapel === 'admin' || userPapel === 'gerente') {
+          podeEditar = true;
+        } else if (userPapel === 'coordenador') {
+          podeEditar = userPapelNaComp === 'membro';
+        } else if (userPapel === 'membro') {
+          podeEditar = false;
+        }
+
+        const btnEditar = podeEditar 
+          ? `<button class="btn-small" onclick="openEditModal(${user.id}, ${compId}, '${userPapel}')">Editar</button>`
+          : `<button class="btn-small" style="opacity: 0.5; cursor: not-allowed;" disabled>Ver</button>`;
+
+        html += `
+          <tr>
+            <td><strong>${user.nome}</strong></td>
+            <td>${user.whatsapp}</td>
+            <td>
+              <span class="papel-badge papel-${userPapelNaComp}">
+                ${userPapelNaComp || 'N/A'}
+              </span>
+            </td>
+            <td>${patente?.nome || 'N/A'}</td>
+            <td>${status}</td>
+            <td>${btnEditar}</td>
+          </tr>
+        `;
+      }
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      content.innerHTML = html;
+    }
+
+    async function loadUsersManagement() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando usuários...</p>';
+
+      try {
+        const { data: usuarios, error: usuariosError } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .order('nome');
+
+        if (usuariosError) throw usuariosError;
+        allUsers = usuarios;
+
+        const { data: roles } = await supabaseClient.from('roles').select('*');
+        allRoles = roles;
+
+        const { data: companhias } = await supabaseClient.from('companhias').select('*');
+        allCompanhias = companhias;
+
+        const { data: patentes } = await supabaseClient.from('patentes').select('*');
+        allPatentes = patentes;
+
+        renderUsersTable();
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
+      }
+    }
+
+    function renderUsersTable() {
+      const content = document.getElementById('content');
+      
+      if (allUsers.length === 0) {
+        content.innerHTML = '<div class="empty-state"><p>Nenhum usuário cadastrado</p></div>';
+        return;
+      }
+
+      let html = `
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th>Role</th>
+                <th>Companhias</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      for (const user of allUsers) {
+        const role = allRoles.find(r => r.id === user.role_id);
+        const status = user.ativo ? '✓ Ativo' : '✗ Inativo';
+        
+        let companhiasHtml = '';
+        for (let i = 1; i <= 3; i++) {
+          const compId = user[`companhia_${i}_id`];
+          const patenteId = user[`patente_${i}_id`];
+          const papel = user[`companhia_${i}_papel`];
+          
+          if (compId) {
+            const comp = allCompanhias.find(c => c.id === compId);
+            const patente = allPatentes.find(p => p.id === patenteId);
+            if (comp) {
+              const papelClass = `papel-${papel}`;
+              companhiasHtml += `
+                <div class="companhia-badge">
+                  ${comp.nome}
+                  <span class="papel-badge ${papelClass}">${papel}</span>
+                  <br/>
+                  <small>${patente?.nome || 'N/A'}</small>
+                </div>
+              `;
+            }
+          }
+        }
+
+        html += `
+          <tr>
+            <td><strong>${user.nome}</strong></td>
+            <td>${user.whatsapp}</td>
+            <td>${role?.nome || 'N/A'}</td>
+            <td>${companhiasHtml || '<span style="color: #999;">Nenhuma</span>'}</td>
+            <td>${status}</td>
+            <td><button class="btn-small" onclick="openEditModal(${user.id})">Editar</button></td>
+          </tr>
+        `;
+      }
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      content.innerHTML = html;
+    }
+
+    async function openEditModal(userId, compId = null, userPapel = null) {
+      editingUserId = userId;
+      const user = allUsers.find(u => u.id === userId);
+      
+      if (!user) return;
+
+      const isAdmin = currentUser.role_id === 1;
+      const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
+
+      // Se userPapel for 'admin' ou 'gerente', abrir modal completo
+      if (userPapel === 'admin' || userPapel === 'gerente') {
+        openEditModalFull(userId);
+        return;
+      }
+
+      if (!compId || !userPapel) {
+        openEditModalFull(userId);
+        return;
+      }
+
+      document.getElementById('modalUserName').textContent = user.nome;
+
+      if (!isAdmin && !isGerencia && userPapel !== 'lider' && userPapel !== 'coordenador') {
+        alert('Você não tem permissão para editar este usuário');
+        return;
+      }
+
+      const roleSelect = document.getElementById('modalRoleId');
+      roleSelect.disabled = true;
+
+      for (let i = 1; i <= 3; i++) {
+        const compSelect = document.getElementById(`modalCompanhia${i}`);
+        const papelSelect = document.getElementById(`modalPapel${i}`);
+        const patenteSelect = document.getElementById(`modalPatente${i}`);
+        const sectionDiv = document.getElementById(`companhia${i}Section`);
+
+        compSelect.disabled = true;
+        patenteSelect.disabled = true;
+        
+        if (user[`companhia_${i}_id`] === compId) {
+          compSelect.value = compId;
+          
+          papelSelect.disabled = userPapel !== 'lider';
+          updatePapelOptions(i);
+          papelSelect.value = user[`companhia_${i}_papel`] || '';
+          
+          patenteSelect.disabled = userPapel === 'membro';
+          updatePatenteOptions(i);
+          patenteSelect.value = user[`patente_${i}_id`] || '';
+          
+          sectionDiv.style.opacity = '1';
+          sectionDiv.style.pointerEvents = 'auto';
+        } else {
+          sectionDiv.style.opacity = '0.5';
+          sectionDiv.style.pointerEvents = 'none';
+        }
+      }
+
+      const statusSelect = document.getElementById('modalAtivo');
+      statusSelect.value = user.ativo;
+      statusSelect.disabled = userPapel !== 'lider';
+
+      editingUserCompanies = {
+        comp1: user.companhia_1_id,
+        comp2: user.companhia_2_id,
+        comp3: user.companhia_3_id,
+        editingCompId: compId,
+        editingUserPapel: userPapel
+      };
+
+      document.getElementById('editUserModal').classList.add('show');
+    }
+
+    async function openEditModalFull(userId) {
+      editingUserId = userId;
+      const user = allUsers.find(u => u.id === userId);
+      
+      if (!user) return;
+
+      document.getElementById('modalUserName').textContent = user.nome;
+
+      const isAdmin = currentUser.role_id === 1;
+      const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
+
+      const roleSelect = document.getElementById('modalRoleId');
+      roleSelect.disabled = !isAdmin;
+      roleSelect.innerHTML = '<option value="">Selecione um role...</option>';
+      allRoles.forEach(role => {
+        roleSelect.innerHTML += `<option value="${role.id}">${role.nome}</option>`;
+      });
+      roleSelect.value = user.role_id || '';
+
+      for (let i = 1; i <= 3; i++) {
+        const compSelect = document.getElementById(`modalCompanhia${i}`);
+        const papelSelect = document.getElementById(`modalPapel${i}`);
+        const patenteSelect = document.getElementById(`modalPatente${i}`);
+        const sectionDiv = document.getElementById(`companhia${i}Section`);
+
+        compSelect.innerHTML = '<option value="">Nenhuma</option>';
+        allCompanhias.forEach(comp => {
+          compSelect.innerHTML += `<option value="${comp.id}">${comp.nome}</option>`;
+        });
+        compSelect.value = user[`companhia_${i}_id`] || '';
+        compSelect.disabled = !isAdmin && !isGerencia;
+        compSelect.addEventListener('change', () => updatePapelOptions(i));
+
+        updatePapelOptions(i);
+        papelSelect.value = user[`companhia_${i}_papel`] || '';
+        papelSelect.disabled = !isAdmin && !isGerencia;
+
+        patenteSelect.innerHTML = '<option value="">Nenhuma</option>';
+        updatePatenteOptions(i);
+        patenteSelect.value = user[`patente_${i}_id`] || '';
+        patenteSelect.disabled = !isAdmin && !isGerencia;
+
+        sectionDiv.style.opacity = '1';
+        sectionDiv.style.pointerEvents = 'auto';
+      }
+
+      const statusSelect = document.getElementById('modalAtivo');
+      statusSelect.value = user.ativo;
+      statusSelect.disabled = !isAdmin && !isGerencia;
+
+      editingUserCompanies = {
+        comp1: user.companhia_1_id,
+        comp2: user.companhia_2_id,
+        comp3: user.companhia_3_id,
+        editingCompId: null,
+        editingUserPapel: null
+      };
+
+      document.getElementById('editUserModal').classList.add('show');
+    }
+
+    function updatePapelOptions(companhiaNum) {
+      const compSelect = document.getElementById(`modalCompanhia${companhiaNum}`);
+      const papelSelect = document.getElementById(`modalPapel${companhiaNum}`);
+      const compId = parseInt(compSelect.value) || null;
+
+      papelSelect.innerHTML = '<option value="">Nenhuma</option>';
+      
+      if (compId) {
+        PAPEIS_COMPANHIA.forEach(papel => {
+          papelSelect.innerHTML += `<option value="${papel}">${papel.charAt(0).toUpperCase() + papel.slice(1)}</option>`;
+        });
+      }
+    }
+
+    function updatePatenteOptions(companhiaNum) {
+      const compSelect = document.getElementById(`modalCompanhia${companhiaNum}`);
+      const patenteSelect = document.getElementById(`modalPatente${companhiaNum}`);
+      const compId = parseInt(compSelect.value) || null;
+
+      patenteSelect.innerHTML = '<option value="">Nenhuma</option>';
+      
+      if (compId) {
+        const patentes = allPatentes.filter(p => p.companhia_id === compId);
+        patentes.forEach(patente => {
+          patenteSelect.innerHTML += `<option value="${patente.id}">${patente.nome}</option>`;
+        });
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('editUserModal').classList.remove('show');
+      editingUserId = null;
+      editingUserCompanies = null;
+    }
+
+    async function saveUserChanges() {
+      if (!editingUserId) return;
+
+      try {
+        let updateData = {};
+
+        if (editingUserCompanies.editingCompId) {
+          const compId = editingUserCompanies.editingCompId;
+          const userPapel = editingUserCompanies.editingUserPapel;
+          
+          let compIndex = null;
+          const user = allUsers.find(u => u.id === editingUserId);
+          for (let i = 1; i <= 3; i++) {
+            if (user[`companhia_${i}_id`] === compId) {
+              compIndex = i;
+              break;
+            }
+          }
+
+          if (compIndex) {
+            updateData[`companhia_${compIndex}_papel`] = document.getElementById(`modalPapel${compIndex}`).value || null;
+            
+            if (userPapel !== 'membro') {
+              updateData[`patente_${compIndex}_id`] = document.getElementById(`modalPatente${compIndex}`).value ? parseInt(document.getElementById(`modalPatente${compIndex}`).value) : null;
+            }
+            
+            if (userPapel === 'lider') {
+              updateData['ativo'] = document.getElementById('modalAtivo').value === 'true';
+            }
+          }
+        } else {
+          updateData = {
+            role_id: parseInt(document.getElementById('modalRoleId').value) || null,
+            companhia_1_id: document.getElementById('modalCompanhia1').value ? parseInt(document.getElementById('modalCompanhia1').value) : null,
+            companhia_1_papel: document.getElementById('modalCompanhia1').value ? document.getElementById('modalPapel1').value || null : null,
+            patente_1_id: document.getElementById('modalPatente1').value ? parseInt(document.getElementById('modalPatente1').value) : null,
+            companhia_2_id: document.getElementById('modalCompanhia2').value ? parseInt(document.getElementById('modalCompanhia2').value) : null,
+            companhia_2_papel: document.getElementById('modalCompanhia2').value ? document.getElementById('modalPapel2').value || null : null,
+            patente_2_id: document.getElementById('modalPatente2').value ? parseInt(document.getElementById('modalPatente2').value) : null,
+            companhia_3_id: document.getElementById('modalCompanhia3').value ? parseInt(document.getElementById('modalCompanhia3').value) : null,
+            companhia_3_papel: document.getElementById('modalCompanhia3').value ? document.getElementById('modalPapel3').value || null : null,
+            patente_3_id: document.getElementById('modalPatente3').value ? parseInt(document.getElementById('modalPatente3').value) : null,
+            ativo: document.getElementById('modalAtivo').value === 'true'
+          };
+        }
+
+        const { error } = await supabaseClient
+          .from('usuarios')
+          .update(updateData)
+          .eq('id', editingUserId);
+
+        if (error) throw error;
+
+        closeEditModal();
+        
+        if (currentCompanhiaContext) {
+          await loadUsersForCompanhia(currentCompanhiaContext.compId, currentCompanhiaContext.papel);
+        } else {
+          await loadUsersManagement();
+        }
+      } catch (err) {
+        alert('Erro ao salvar: ' + err.message);
+      }
+    }
+
+    async function loadUsersByCompanhia(companhiaId, isGerencia = false) {
+      const content = document.getElementById('content');
+      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando usuários...</p>';
+
+      try {
+        const { data: usuarios, error: usuariosError } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .or(`companhia_1_id.eq.${companhiaId},companhia_2_id.eq.${companhiaId},companhia_3_id.eq.${companhiaId}`)
+          .order('nome');
+
+        if (usuariosError) throw usuariosError;
+        allUsers = usuarios;
+
+        const { data: roles } = await supabaseClient.from('roles').select('*');
+        allRoles = roles;
+
+        const { data: companhias } = await supabaseClient.from('companhias').select('*');
+        allCompanhias = companhias;
+
+        const { data: patentes } = await supabaseClient.from('patentes').select('*');
+        allPatentes = patentes;
+
+        renderUsersTable();
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
+      }
+    }
+
+    async function loadUsersForGerencia() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando usuários...</p>';
+
+      try {
+        const { data: usuarios, error: usuariosError } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .not('role_id', 'in', '(1,2,4,5,6)')
+          .order('nome');
+
+        if (usuariosError) throw usuariosError;
+        allUsers = usuarios;
+
+        const { data: roles } = await supabaseClient.from('roles').select('*');
+        allRoles = roles;
+
+        const { data: companhias } = await supabaseClient.from('companhias').select('*');
+        allCompanhias = companhias;
+
+        const { data: patentes } = await supabaseClient.from('patentes').select('*');
+        allPatentes = patentes;
+
+        renderUsersTable();
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      isSignUp = false;
+
+      document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('usernameSignup').value = '';
+      document.getElementById('whatsappSignup').value = '';
+      document.getElementById('passwordSignup').value = '';
+      document.getElementById('confirmPassword').value = '';
+      document.getElementById('error').classList.remove('show');
+      document.getElementById('success').classList.remove('show');
+
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('toggleText').textContent = 'Primeira vez aqui?';
+      document.getElementById('toggleBtn').textContent = 'Criar nova conta';
+    }
+
+    window.onclick = function(event) {
+      const editModal = document.getElementById('editUserModal');
+      const fichaModal = document.getElementById('visualizarFichaModal');
+      
+      if (event.target === editModal) {
+        closeEditModal();
+      }
+      if (event.target === fichaModal) {
+        closeVisualizarFichaModal();
+      }
+    }
+  </script>
+</body>
+</html>
