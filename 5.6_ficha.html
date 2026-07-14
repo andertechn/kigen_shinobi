@@ -137,8 +137,8 @@
     .f-tab-btn:hover { background: #1e2421; color: #fff; }
     .f-tab-btn.active { background: var(--ficha-bg); color: var(--ficha-green); border-color: var(--ficha-border); border-top: 2px solid var(--ficha-green); }
 
-    /* ÍCONE FLUTUANTE DA VILA */
-    .vila-floating-icon { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); width: 55px; height: 55px; background: rgba(18, 25, 20, 0.95); border: 2px solid rgba(54, 182, 104, 0.6); border-radius: 50%; box-shadow: 0 0 20px rgba(54, 182, 104, 0.4); display: flex; align-items: center; justify-content: center; z-index: 10; }
+    /* ÍCONE FLUTUANTE DA VILA - REMOVIDO */
+    .vila-floating-icon { display: none; }
     .vila-floating-icon svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
     .ficha-body-content { padding: 30px; background: var(--ficha-bg); }
@@ -464,14 +464,6 @@
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabJornada')">JORNADA</button>
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabRelacoes')">RELAÇÕES</button>
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo')">RESUMO DE ALTERAÇÕES</button>
-
-          <div class="vila-floating-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 21c-4-4-7-8-7-12a7 7 0 0 1 14 0c0 4-3 8-7 12z"/>
-              <path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-              <path d="M12 10l3 3"/>
-            </svg>
-          </div>
         </div>
 
         <div class="ficha-body-content">
@@ -840,8 +832,8 @@
       const attr = p.atributos_personagem && p.atributos_personagem[0] ? p.atributos_personagem[0] : {};
 
       // COMBATE
-      const hp = p.hp_atual || 0;
       const hpMax = p.hp_max || 5000;
+      const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax; // Se não tiver hp_atual, começa no máximo
       
       // CHAKRA: cálculo de INT + RES + FOR
       const inteligencia = attr.inteligencia || 0;
@@ -1020,7 +1012,9 @@
       transformarEmInput('fSubShu', attr.shurikenjutsu, 'number');
       transformarEmInput('fSubCom', attr.combate, 'number');
 
-      transformarEmInput('fHpText', p.hp_atual, 'number');
+      const hpMax = p.hp_max || 5000;
+      const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax;
+      transformarEmInput('fHpText', hp, 'number');
 
       // Mostrar botões de ação
       document.getElementById('editActionsProfile').classList.add('show');
