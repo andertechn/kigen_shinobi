@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kigen - Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ESTILOS AQUI (mantém igual) -->
   <style>
     * {
       margin: 0;
@@ -275,6 +276,7 @@
       font-size: 14px;
       text-align: left;
       border-left: 3px solid transparent;
+      position: relative;
     }
 
     .menu-item:hover {
@@ -285,6 +287,22 @@
     .menu-item.active {
       background: rgba(255, 255, 255, 0.2);
       border-left-color: white;
+      font-weight: 600;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: #FF6B6B;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
       font-weight: 600;
     }
 
@@ -379,6 +397,30 @@
 
     .logout-btn:hover {
       background: rgba(255, 255, 255, 0.25);
+    }
+
+    .notification-settings {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .notification-settings label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .notification-settings input[type="checkbox"] {
+      width: auto;
+      accent-color: #D85A30;
+      cursor: pointer;
     }
 
     .main-content {
@@ -480,6 +522,7 @@
       font-size: 12px;
       font-weight: 600;
       transition: all 0.2s;
+      margin-right: 4px;
     }
 
     .btn-small:hover {
@@ -786,6 +829,45 @@
       text-align: center;
       color: #999;
     }
+
+    .tabbed-section {
+      border-bottom: 2px solid #E8E8E8;
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #999;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: #BA7517;
+    }
+
+    .tab.active {
+      color: #BA7517;
+      border-bottom-color: #D85A30;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -856,6 +938,13 @@
         <h2>Kigen</h2>
         <div class="user-info" id="userDisplay">@usuario</div>
         <div class="role-badge" id="roleDisplay">Narrador</div>
+      </div>
+
+      <div class="notification-settings">
+        <label>
+          <input type="checkbox" id="notificationToggle" />
+          🔔 Notificações
+        </label>
       </div>
 
       <div class="sidebar-section">
@@ -978,77 +1067,104 @@
     </div>
   </div>
 
-  <!-- MODAL DE VISUALIZAR FICHA -->
-  <div id="visualizarFichaModal" class="modal">
+  <!-- MODAL DE PERSONAGEM PARA APROVAÇÃO -->
+  <div id="personagemModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>📋 Ficha de Aprovação</h2>
+        <h2>📋 Ficha de Personagem</h2>
       </div>
       <div class="modal-body">
-        <!-- Info da Ficha -->
+        
         <div class="ficha-info">
-          <h3>📌 Informações da Ficha</h3>
+          <h3>👤 Informações do Player</h3>
           <div class="ficha-info-row">
-            <div class="ficha-info-label">Usuário:</div>
-            <div class="ficha-info-value" id="modalFichaUsuario">-</div>
+            <div class="ficha-info-label">Nome:</div>
+            <div class="ficha-info-value" id="modalNomePlayer">-</div>
           </div>
           <div class="ficha-info-row">
             <div class="ficha-info-label">WhatsApp:</div>
-            <div class="ficha-info-value" id="modalFichaWhatsapp">-</div>
-          </div>
-          <div class="ficha-info-row">
-            <div class="ficha-info-label">Companhia:</div>
-            <div class="ficha-info-value" id="modalFichaCompanhia">-</div>
-          </div>
-          <div class="ficha-info-row">
-            <div class="ficha-info-label">Papel:</div>
-            <div class="ficha-info-value" id="modalFichaPapel">-</div>
-          </div>
-          <div class="ficha-info-row">
-            <div class="ficha-info-label">Data de Envio:</div>
-            <div class="ficha-info-value" id="modalFichaData">-</div>
+            <div class="ficha-info-value" id="modalWhatsappPlayer">-</div>
           </div>
         </div>
 
-        <!-- Conteúdo da Ficha -->
         <div class="ficha-info">
-          <h3>📝 Conteúdo da Ficha</h3>
-          <div id="modalFichaConteudo"></div>
+          <h3>⚔️ Informações do Personagem</h3>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Nome:</div>
+            <div class="ficha-info-value" id="modalNomePersonagem">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Tipo:</div>
+            <div class="ficha-info-value" id="modalTipo">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Idade:</div>
+            <div class="ficha-info-value" id="modalIdade">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Gênero:</div>
+            <div class="ficha-info-value" id="modalGenero">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Tipo Sanguíneo:</div>
+            <div class="ficha-info-value" id="modalTipoSanguineo">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">País/Vila:</div>
+            <div class="ficha-info-value" id="modalPaisVila">-</div>
+          </div>
+          <div class="ficha-info-row">
+            <div class="ficha-info-label">Aniversário:</div>
+            <div class="ficha-info-value" id="modalAniversario">-</div>
+          </div>
         </div>
 
-        <!-- Seção de Aprovação/Rejeição -->
+        <div id="modalEspecificos"></div>
+
+        <div class="ficha-info" id="descricaoSection" style="display: none;">
+          <h3>📝 Descrição</h3>
+          <div id="modalDescricao" style="color: #5F6E7A; font-size: 13px; line-height: 1.5;"></div>
+        </div>
+
         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #E8E8E8;">
           <div class="form-group-modal">
-            <label>✅ Aprovar Ficha</label>
-            <button class="btn-modal btn-approve" onclick="aprovarFicha()" style="width: 100%; text-align: center;">
+            <label>✅ Aprovar Personagem</label>
+            <button class="btn-modal btn-approve" onclick="aprovarPersonagem()" style="width: 100%; text-align: center;">
               Clique para Aprovar
             </button>
           </div>
 
           <div class="form-group-modal">
-            <label for="modalMotivoRejeicao">⚠️ Rejeitar + Motivo (opcional)</label>
-            <textarea id="modalMotivoRejeicao" placeholder="Descreva o motivo da rejeição..."></textarea>
-            <button class="btn-modal btn-reject" onclick="rejeitarFicha()" style="width: 100%; text-align: center; margin-top: 10px;">
-              Rejeitar Ficha
+            <label>⚠️ Rejeitar Personagem (Sem confirmação)</label>
+            <p style="font-size: 12px; color: #999; margin-bottom: 8px;">Rejeição não altera o status no sistema. Apenas registra localmente.</p>
+            <button class="btn-modal btn-reject" onclick="rejeitarPersonagem()" style="width: 100%; text-align: center;">
+              Rejeitar (Sem Persistência)
             </button>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn-modal btn-cancel" onclick="closeVisualizarFichaModal()">Fechar</button>
+        <button class="btn-modal btn-cancel" onclick="closePersonagemModal()">Fechar</button>
       </div>
     </div>
   </div>
 
   <script src="config.js"></script>
   <script>
+    // ===== APPS SCRIPT WEBHOOK URL =====
+    function getAppsScriptUrl() {
+      return "https://script.google.com/macros/s/AKfycbwmbXtMKSUURqf3l8ZektgF9-CDqHlGECEdEsOc-C6y4rYTH14qh0nBYJL30xLUefw4/exec";
+    }
+
     // Configuração Supabase
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
 
     let currentUser = null;
     let isSignUp = false;
+    let notificationsEnabled = false;
+    let notificationCount = 0;
 
     // Papéis disponíveis em uma companhia
     const PAPEIS_COMPANHIA = ['lider', 'coordenador', 'membro'];
@@ -1124,7 +1240,6 @@
       errorDiv.classList.remove('show');
 
       try {
-        // Buscar usuário
         const { data: userData, error: userError } = await supabaseClient
           .from('usuarios')
           .select('*')
@@ -1135,13 +1250,14 @@
           throw new Error('Usuário ou senha incorretos');
         }
 
-        // Verificar senha (usando btoa para encode básico)
         const encodedPassword = btoa(password);
         if (userData.password_hash !== encodedPassword) {
           throw new Error('Usuário ou senha incorretos');
         }
 
         currentUser = userData;
+        notificationsEnabled = userData.notificacoes_habilitadas || false;
+        document.getElementById('notificationToggle').checked = notificationsEnabled;
         await showDashboard();
 
       } catch (err) {
@@ -1172,13 +1288,11 @@
       successDiv.classList.remove('show');
 
       try {
-        // Validações
         if (username.length < 3) throw new Error('Usuário deve ter 3+ caracteres');
         if (password.length < 6) throw new Error('Senha deve ter 6+ caracteres');
         if (password !== confirm) throw new Error('Senhas não conferem');
         if (!whatsapp || !whatsapp.includes('+55')) throw new Error('Formato de WhatsApp inválido (+551199999-9999)');
 
-        // Verificar se usuário já existe
         const { data: existingUser } = await supabaseClient
           .from('usuarios')
           .select('id')
@@ -1189,7 +1303,6 @@
           throw new Error('Este usuário já existe');
         }
 
-        // Verificar se WhatsApp já existe
         const { data: existingWhatsapp } = await supabaseClient
           .from('usuarios')
           .select('id')
@@ -1200,7 +1313,6 @@
           throw new Error('Este WhatsApp já está cadastrado');
         }
 
-        // Pegar role "Membro Comum" por padrão
         const { data: roleData, error: roleError } = await supabaseClient
           .from('roles')
           .select('id')
@@ -1211,7 +1323,6 @@
           throw new Error('Role padrão não encontrado. Contate o administrador.');
         }
 
-        // Criar usuário
         const { data: newUser, error: insertError } = await supabaseClient
           .from('usuarios')
           .insert([{
@@ -1219,7 +1330,8 @@
             whatsapp: whatsapp,
             password_hash: btoa(password),
             role_id: roleData.id,
-            ativo: true
+            ativo: true,
+            notificacoes_habilitadas: false
           }])
           .select()
           .single();
@@ -1231,7 +1343,6 @@
         successDiv.textContent = '✓ Conta criada com sucesso! Faça login para continuar.';
         successDiv.classList.add('show');
 
-        // Limpar form
         setTimeout(() => {
           document.getElementById('usernameSignup').value = '';
           document.getElementById('whatsappSignup').value = '';
@@ -1239,7 +1350,6 @@
           document.getElementById('confirmPassword').value = '';
           document.getElementById('passwordMatch').textContent = '';
 
-          // Voltar para login
           isSignUp = false;
           document.getElementById('signupForm').style.display = 'none';
           document.getElementById('loginForm').style.display = 'block';
@@ -1256,41 +1366,78 @@
       }
     }
 
+    // ===== NOTIFICAÇÕES =====
+    document.getElementById('notificationToggle').addEventListener('change', async (e) => {
+      notificationsEnabled = e.target.checked;
+      
+      try {
+        await supabaseClient
+          .from('usuarios')
+          .update({ notificacoes_habilitadas: notificationsEnabled })
+          .eq('id', currentUser.id);
+
+        if (notificationsEnabled && 'Notification' in window) {
+          if (Notification.permission === 'default') {
+            Notification.requestPermission();
+          } else if (Notification.permission === 'granted') {
+            showNotification('🔔 Notificações Ativadas', 'Você receberá notificações de novas atividades');
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao atualizar notificações:', err);
+      }
+    });
+
+    function showNotification(title, body) {
+      if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, {
+          body: body,
+          icon: '🔔',
+          tag: 'kigen-notification'
+        });
+      }
+    }
+
+    function updateNotificationBadge() {
+      const badge = document.querySelector('.notification-badge');
+      if (badge) {
+        if (notificationCount > 0) {
+          badge.textContent = notificationCount;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
     // ===== MOSTRAR DASHBOARD =====
     async function showDashboard() {
-      // Buscar role do usuário
       const { data: roleData } = await supabaseClient
         .from('roles')
         .select('*')
         .eq('id', currentUser.role_id)
         .single();
 
-      // Buscar companhias para nomes
       const { data: companhias } = await supabaseClient
         .from('companhias')
         .select('*');
       
       allCompanhias = companhias;
 
-      // Atualizar header
       document.getElementById('userDisplay').textContent = `@${currentUser.nome}`;
       document.getElementById('roleDisplay').textContent = roleData?.nome || 'Membro';
 
-      // Mostrar dashboard, esconder login
       document.getElementById('loginPage').style.display = 'none';
       document.getElementById('dashboard').style.display = 'flex';
 
-      // Montar menu dinâmico
       const functionsMenu = document.getElementById('functionsMenu');
       functionsMenu.innerHTML = '';
       
-      const isAdmin = currentUser.role_id === 1; // Administrador
-      const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id); // Qualquer gerência
+      const isAdmin = currentUser.role_id === 1;
+      const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
       const roleName = roleData?.nome || '';
 
-      // ADMINISTRADOR - vê todas as companhias
-      if (isAdmin) {
-        // Seção MEU PAINEL
+      if (isAdmin || isGerencia) {  
         const meuPainelSection = document.createElement('div');
         meuPainelSection.className = 'menu-section';
         
@@ -1300,17 +1447,16 @@
         meuPainelSection.appendChild(titleMeuPainel);
 
         addMenuBtn(meuPainelSection, '📊 Gestão de Usuários', 'Gerenciar usuários', 'usuarios');
+        addMenuBtn(meuPainelSection, '📋 Atividades', 'Atividades do sistema', 'atividades-admin');
+        addMenuBtn(meuPainelSection, '💡 Sugestões Pendentes', 'Sugestões a votar', 'sugestoes-pendentes');
         addMenuBtn(meuPainelSection, '📈 KPIs', 'KPIs do sistema', 'kpis-admin');
-        addMenuBtn(meuPainelSection, '📋 Atividades', 'Atividades do admin', 'atividades-admin');
 
         functionsMenu.appendChild(meuPainelSection);
 
-        // Divisória
         const divider = document.createElement('div');
         divider.className = 'menu-divider';
         functionsMenu.appendChild(divider);
 
-        // Seção FUNÇÕES
         const funcoesSectionTitle = document.createElement('div');
         funcoesSectionTitle.className = 'menu-section-title';
         funcoesSectionTitle.style.paddingLeft = '12px';
@@ -1318,7 +1464,6 @@
         funcoesSectionTitle.textContent = 'FUNÇÕES';
         functionsMenu.appendChild(funcoesSectionTitle);
 
-        // Admin vê todas as 3 companhias
         for (let compId = 1; compId <= 3; compId++) {
           const comp = allCompanhias.find(c => c.id === compId);
           const compName = comp?.nome || COMPANHIAS[compId] || `Companhia ${compId}`;
@@ -1326,82 +1471,49 @@
           addCompanhiaMenu(functionsMenu, icon, compName, 'admin', compId);
         }
       }
-      // GERÊNCIA - vê todas as companhias também
-      else if (isGerencia) {
-        // Seção MEU PAINEL
-        const meuPainelSection = document.createElement('div');
-        meuPainelSection.className = 'menu-section';
-        
-        const titleMeuPainel = document.createElement('div');
-        titleMeuPainel.className = 'menu-section-title';
-        titleMeuPainel.textContent = 'MEU PAINEL';
-        meuPainelSection.appendChild(titleMeuPainel);
-
-        addMenuBtn(meuPainelSection, '📊 Gestão de Usuários', 'Gerenciar usuários', 'usuarios-gerencia');
-        addMenuBtn(meuPainelSection, '📈 KPIs', 'KPIs da gerência', 'kpis-gerencia');
-        addMenuBtn(meuPainelSection, '📋 Atividades da Gerência', 'Atividades', 'atividades-gerencia');
-
-        functionsMenu.appendChild(meuPainelSection);
-
-        // Divisória
-        const divider = document.createElement('div');
-        divider.className = 'menu-divider';
-        functionsMenu.appendChild(divider);
-
-        // Seção FUNÇÕES
-        const funcoesSectionTitle = document.createElement('div');
-        funcoesSectionTitle.className = 'menu-section-title';
-        funcoesSectionTitle.style.paddingLeft = '12px';
-        funcoesSectionTitle.style.marginTop = '12px';
-        funcoesSectionTitle.textContent = 'FUNÇÕES';
-        functionsMenu.appendChild(funcoesSectionTitle);
-
-        // Gerente vê todas as 3 companhias
-        for (let compId = 1; compId <= 3; compId++) {
-          const comp = allCompanhias.find(c => c.id === compId);
-          const compName = comp?.nome || COMPANHIAS[compId] || `Companhia ${compId}`;
-          const icon = getCompanhiaIcon(compId);
-          addCompanhiaMenu(functionsMenu, icon, compName, 'gerente', compId);
-        }
-      }
-      // LÍDERES, COORDENADORES e MEMBROS - Menu por companhia
       else {
-        // Preencher dados auxiliares
         const { data: roles } = await supabaseClient.from('roles').select('*');
         allRoles = roles;
 
         const { data: patentes } = await supabaseClient.from('patentes').select('*');
         allPatentes = patentes;
 
-        // Para cada companhia que o usuário pertence
+        // FIX 1: Mostrar APENAS as funções que o usuário pertence
+        const funcoesSectionTitle = document.createElement('div');
+        funcoesSectionTitle.className = 'menu-section-title';
+        funcoesSectionTitle.style.paddingLeft = '12px';
+        funcoesSectionTitle.style.marginTop = '12px';
+        funcoesSectionTitle.textContent = 'MINHAS FUNÇÕES';
+        functionsMenu.appendChild(funcoesSectionTitle);
+
         for (let i = 1; i <= 3; i++) {
           const compId = currentUser[`companhia_${i}_id`];
           const papel = currentUser[`companhia_${i}_papel`];
           
-          if (compId && papel) {
+          if (compId) {  // ✅ Mostra se tiver companhia, mesmo que papel seja NULL
             const comp = allCompanhias.find(c => c.id === compId);
             const compName = comp?.nome || `Companhia ${i}`;
             const icon = getCompanhiaIcon(compId);
             
-            // Seção da companhia com subitens
-            addCompanhiaMenu(functionsMenu, icon, compName, papel, compId);
+            addCompanhiaMenu(functionsMenu, icon, compName, papel || 'membro', compId);  // Usa 'membro' se vazio
           }
         }
       }
 
-      // Mostrar dashboard por padrão
       selectFunction({
         name: 'Dashboard',
         description: 'Bem-vindo ao painel de administração',
         id: 'dashboard'
       });
+
+      startPollingActivities();
     }
 
     function getCompanhiaIcon(compId) {
       const icons = {
-        1: '👮', // Supervisores
-        2: '🎓', // Treinadores
-        3: '🎭'  // Narradores
+        1: '👮',
+        2: '🎓',
+        3: '🎭'
       };
       return icons[compId] || '📋';
     }
@@ -1428,7 +1540,6 @@
       const compSection = document.createElement('div');
       compSection.className = 'menu-companhia';
 
-      // Header da companhia (recolhível)
       const header = document.createElement('button');
       header.className = 'menu-companhia-header open';
       header.innerHTML = `
@@ -1440,14 +1551,13 @@
         itemsDiv.classList.toggle('open');
       };
 
-      // Container dos itens
       const itemsDiv = document.createElement('div');
       itemsDiv.className = 'menu-companhia-items open';
 
       const subItems = [
         { label: '👥 Usuários', id: `comp-usuarios-${compId}` },
-        { label: '📈 KPIs', id: `comp-kpis-${compId}` },
         { label: '📋 Atividades', id: `comp-atividades-${compId}` },
+        { label: '📈 KPIs', id: `comp-kpis-${compId}` },
         { label: '📄 Estatuto', id: `comp-estatuto-${compId}` }
       ];
 
@@ -1475,78 +1585,140 @@
       container.appendChild(compSection);
     }
 
+    // ===== CARREGAR SUGESTÕES PENDENTES =====
+    async function loadSugestoesTab() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando sugestões...</p>';
+
+      try {
+        const { data: sugestoes } = await supabaseClient
+          .from('sugestoes')
+          .select('*')
+          .eq('status', 'pendente')
+          .order('data_criacao', { ascending: false });
+
+        if (!sugestoes || sugestoes.length === 0) {
+          content.innerHTML = '<div class="empty-state"><p>✓ Nenhuma sugestão pendente</p></div>';
+          return;
+        }
+
+        let html = `
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Autor</th>
+                  <th>Título</th>
+                  <th>Sugestão</th>
+                  <th>Status</th>
+                  <th>A Favor</th>
+                  <th>Contra</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        for (const sug of sugestoes) {
+          const statusClass = sug.status === 'pendente' ? 'status-pendente' : 
+                              sug.status === 'aprovada' ? 'status-aprovada' : 'status-rejeitada';
+          
+          html += `
+            <tr>
+              <td><strong>${sug.nick_autor}</strong></td>
+              <td>${sug.titulo}</td>
+              <td>${sug.sugestao.substring(0, 50)}...</td>
+              <td><span class="status-badge ${statusClass}">${sug.status}</span></td>
+              <td>${sug.votos_favor || 0}</td>
+              <td>${sug.votos_contra || 0}</td>
+              <td>
+                <button class="btn-small" onclick="votarSugestao(${sug.id}, 'favor')">👍</button>
+                <button class="btn-small" style="background: #dc3545;" onclick="votarSugestao(${sug.id}, 'contra')">👎</button>
+              </td>
+            </tr>
+          `;
+        }
+
+        html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        content.innerHTML = html;
+
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">Erro: ${err.message}</div>`;
+      }
+    }
+
+    // ===== VOTAR NA SUGESTÃO =====
+    async function votarSugestao(sugestaoId, voto) {
+      try {
+        const appScriptUrl = getAppsScriptUrl();
+        
+        const payload = {
+          sugestao_id: sugestaoId,
+          diretor_id: currentUser.role_id,
+          voto: voto,
+          justificativa: ""
+        };
+
+        const response = await fetch(appScriptUrl, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('✅ Voto registrado com sucesso!');
+          loadSugestoesTab();
+        } else {
+          alert('❌ Erro: ' + result.error);
+        }
+
+      } catch (err) {
+        alert('❌ Erro ao votar: ' + err.message);
+      }
+    }
+
     function selectFunction(func) {
       document.getElementById('pageTitle').textContent = func.name;
       document.getElementById('pageDescription').textContent = func.description || 'Painel de ' + func.name;
 
       const content = document.getElementById('content');
       
-      // FICHAS PARA APROVAR
-      if (func.id === 'fichas-aprovar') {
-        loadFichasParaAprovar();
+      if (func.id === 'sugestoes-pendentes') {
+        loadSugestoesTab();
       }
-      // Administrador - todos os usuários
+      else if (func.id === 'atividades-admin' || func.id === 'atividades-gerencia') {
+        loadAtividadesDashboard(func.id);
+      }
       else if (func.id === 'usuarios') {
         loadUsersManagement();
       }
-      // Gerência - usuários das companhias
       else if (func.id === 'usuarios-gerencia') {
         loadUsersForGerencia();
       }
-      // Gerência - KPIs
       else if (func.id === 'kpis-gerencia') {
         loadKPIsGerencia();
       }
-      // Gerência - Atividades
-      else if (func.id === 'atividades-gerencia') {
-        loadAtividadesGerencia();
-      }
-      // Companhia - Usuários
       else if (func.id.startsWith('comp-usuarios-')) {
         const compId = func.context.compId;
         const papel = func.context.papel;
         loadUsersForCompanhia(compId, papel);
       }
-      // Companhia - KPIs
       else if (func.id.startsWith('comp-kpis-')) {
         const compId = func.context.compId;
         loadKPIsCompanhia(compId);
       }
-      // Companhia - Atividades
       else if (func.id.startsWith('comp-atividades-')) {
-        loadAtividadesCompanhia();
+        const compId = func.context.compId;
+        loadAtividadesCompanhia(compId);
       }
-      // Companhia - Estatuto
       else if (func.id.startsWith('comp-estatuto-')) {
         loadEstatuto();
-      }
-      // Supervisores
-      else if (func.id === 'supervisores' || func.id === 'supervisores-gerencia') {
-        loadUsersByCompanhia(1, func.id.includes('gerencia'));
-      }
-      // Treinadores
-      else if (func.id === 'treinadores' || func.id === 'treinadores-gerencia') {
-        loadUsersByCompanhia(2, func.id.includes('gerencia'));
-      }
-      // Narradores
-      else if (func.id === 'narradores' || func.id === 'narradores-gerencia') {
-        loadUsersByCompanhia(3, func.id.includes('gerencia'));
-      }
-      else if (func.id.startsWith('companhia-')) {
-        content.innerHTML = `
-          <div class="empty-state">
-            <p>📋 ${func.name}</p>
-            <p style="margin-top: 10px; font-size: 13px; color: #999;">Selecione uma opção no menu lateral</p>
-          </div>
-        `;
-      }
-      else if (func.id === 'dashboard-gerencia' || func.id === 'dashboard-lider') {
-        content.innerHTML = `
-          <div class="empty-state">
-            <p>📋 ${func.name}</p>
-            <p style="margin-top: 10px; font-size: 13px; color: #999;">Bem-vindo ao seu painel</p>
-          </div>
-        `;
       }
       else {
         content.innerHTML = `
@@ -1559,11 +1731,180 @@
       }
     }
 
+    // ===== POLLING DE ATIVIDADES =====
+    let pollingInterval = null;
+
+    function startPollingActivities() {
+      if (pollingInterval) clearInterval(pollingInterval);
+      
+      pollingInterval = setInterval(async () => {
+        try {
+          const isAdmin = currentUser.role_id === 1;
+          const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
+          const isSupervisor = currentUser.companhia_1_id === 1;
+          
+          if (isAdmin || isGerencia || isSupervisor) {
+            const { data: personagens } = await supabaseClient
+              .from('personagens')
+              .select('*')
+              .eq('status', 'em_analise')
+              .order('data_criacao', { ascending: false });
+
+            notificationCount = personagens?.length || 0;
+            updateNotificationBadge();
+
+            if (personagens && personagens.length > 0 && notificationsEnabled) {
+              showNotification('📋 Nova Ficha para Análise', `Você tem ${personagens.length} ficha(s) aguardando aprovação`);
+            }
+          }
+        } catch (err) {
+          console.error('Erro ao fazer polling:', err);
+        }
+      }, 30000); // A cada 30 segundos
+    }
+
+    // ===== ATIVIDADES DASHBOARD (COM ABAS) =====
+    async function loadAtividadesDashboard(funcId) {
+      const content = document.getElementById('content');
+      
+      try {
+        const isAdmin = currentUser.role_id === 1;
+        const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
+
+        let personagens = [];
+
+        // FIX 2: Se não é Admin/Gerência, mostrar fichas de suas funções
+        if (isAdmin || isGerencia) {
+          const { data: fichas } = await supabaseClient
+            .from('personagens')
+            .select('*')
+            .eq('status', 'em_analise')
+            .order('data_criacao', { ascending: false });
+          personagens = fichas || [];
+        } else {
+          // Mostrar fichas apenas de suas funções
+          const userCompIds = [];
+          for (let i = 1; i <= 3; i++) {
+            const compId = currentUser[`companhia_${i}_id`];
+            if (compId) userCompIds.push(compId);
+          }
+
+          if (userCompIds.length > 0) {
+            const { data: fichas } = await supabaseClient
+              .from('personagens')
+              .select('*')
+              .eq('status', 'em_analise')
+              .in('companhia_id', userCompIds)
+              .order('data_criacao', { ascending: false });
+            personagens = fichas || [];
+          }
+        }
+
+        allPersonagensPendentes = personagens;
+
+        let html = `
+          <div class="tabbed-section">
+            <div class="tabs">
+              <button class="tab active" onclick="switchTab('fichas', event)">📋 Aprovação de Fichas (${allPersonagensPendentes.length})</button>
+              <button class="tab" onclick="switchTab('outras', event)">📊 Outras Atividades</button>
+            </div>
+          </div>
+
+          <div id="fichas-tab" class="tab-content active">
+        `;
+
+        if (allPersonagensPendentes.length === 0) {
+          html += '<div class="empty-state"><p>✓ Nenhuma ficha em análise</p></div>';
+        } else {
+          html += `
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Personagem</th>
+                    <th>Tipo</th>
+                    <th>Idade</th>
+                    <th>Status</th>
+                    <th>Data de Envio</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+          `;
+
+          for (const pers of allPersonagensPendentes) {
+            const dataEnvio = new Date(pers.data_criacao).toLocaleDateString('pt-BR', { 
+              year: 'numeric', 
+              month: '2-digit', 
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            const estilo = getEstiloLabel(pers.estilo_vida);
+            const statusBadge = getStatusBadgePersonagem(pers.status);
+            
+            html += `
+              <tr>
+                <td><strong>${pers.nome_player}</strong></td>
+                <td>${pers.nome_personagem}</td>
+                <td>${estilo}</td>
+                <td>${pers.idade || '-'}</td>
+                <td>${statusBadge}</td>
+                <td>${dataEnvio}</td>
+                <td>
+                  <button class="btn-small" onclick="openPersonagemModal(${pers.id})">
+                    Avaliar
+                  </button>
+                </td>
+              </tr>
+            `;
+          }
+
+          html += `
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+
+        html += `
+          </div>
+
+          <div id="outras-tab" class="tab-content">
+            <div class="empty-state">
+              <p>📊 Outras Atividades</p>
+              <p style="margin-top: 10px; font-size: 13px; color: #999;">Nenhuma outra atividade registrada</p>
+            </div>
+          </div>
+        `;
+
+        content.innerHTML = html;
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
+      }
+    }
+
+    function switchTab(tabName, event) {
+      event.preventDefault();
+      
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      event.target.classList.add('active');
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+    }
+
     // ===== KPIs GERÊNCIA =====
     function loadKPIsGerencia() {
       const content = document.getElementById('content');
       
-      // 4 KPIs - um para cada função
       const kpis = [
         { label: 'Supervisores - Pendentes', value: 12, icon: '👮' },
         { label: 'Treinadores - Pendentes', value: 8, icon: '🎓' },
@@ -1592,7 +1933,6 @@
       
       const compName = COMPANHIAS[compId] || 'Companhia';
       
-      // Exemplo: apenas 1 KPI para a companhia específica
       const kpi = {
         label: `${compName} - Atividades Pendentes`,
         value: 10,
@@ -1612,16 +1952,73 @@
       content.innerHTML = html;
     }
 
-    // ===== ATIVIDADES GERÊNCIA =====
-    function loadAtividadesGerencia() {
-      const content = document.getElementById('content');
-      content.innerHTML = '<div class="empty-state"><p>📋 Lista de Atividades</p><p style="margin-top: 10px; font-size: 13px; color: #999;">Nenhuma atividade registrada</p></div>';
-    }
-
     // ===== ATIVIDADES COMPANHIA =====
-    function loadAtividadesCompanhia() {
+    // FIX 3: Buscar fichas da companhia no banco
+    async function loadAtividadesCompanhia(compId) {
       const content = document.getElementById('content');
-      content.innerHTML = '<div class="empty-state"><p>📋 Lista de Atividades</p><p style="margin-top: 10px; font-size: 13px; color: #999;">Nenhuma atividade registrada</p></div>';
+      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando fichas...</p>';
+
+      try {
+        const { data: personagens } = await supabaseClient
+          .from('personagens')
+          .select('*')
+          .eq('companhia_id', compId)
+          .eq('status', 'em_analise')
+          .order('data_criacao', { ascending: false });
+
+        allPersonagensPendentes = personagens || [];
+
+        let html = `
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Personagem</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Data de Envio</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        if (allPersonagensPendentes.length === 0) {
+          html += '<tr><td colspan="6" style="text-align: center; color: #999;">Nenhuma ficha em análise</td></tr>';
+        } else {
+          for (const pers of allPersonagensPendentes) {
+            const dataEnvio = new Date(pers.data_criacao).toLocaleDateString('pt-BR');
+            const estilo = getEstiloLabel(pers.estilo_vida);
+            const statusBadge = getStatusBadgePersonagem(pers.status);
+            
+            html += `
+              <tr>
+                <td><strong>${pers.nome_player}</strong></td>
+                <td>${pers.nome_personagem}</td>
+                <td>${estilo}</td>
+                <td>${statusBadge}</td>
+                <td>${dataEnvio}</td>
+                <td>
+                  <button class="btn-small" onclick="openPersonagemModal(${pers.id})">
+                    Avaliar
+                  </button>
+                </td>
+              </tr>
+            `;
+          }
+        }
+
+        html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        content.innerHTML = html;
+      } catch (err) {
+        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
+      }
     }
 
     // ===== ESTATUTO =====
@@ -1644,223 +2041,166 @@
       `;
     }
 
-    // ===== GERENCIAMENTO DE FICHAS =====
-    let allFichas = [];
-    let editingFichaId = null;
+    // ===== PERSONAGENS (TABELA UNIFICADA) =====
+    let allPersonagensPendentes = [];
+    let editingPersonagemId = null;
 
-    async function loadFichasParaAprovar() {
-      const content = document.getElementById('content');
-      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando fichas...</p>';
-
-      try {
-        const isAdmin = currentUser.role_id === 1;
-        const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
-
-        let query = supabaseClient
-          .from('fichas')
-          .select('*, usuarios(nome, whatsapp, companhia_1_id, companhia_2_id, companhia_3_id, companhia_1_papel, companhia_2_papel, companhia_3_papel)');
-
-        if (!isAdmin && !isGerencia) {
-          query = query.eq('id', -1); // Retorna vazio
-        }
-
-        const { data: fichas, error } = await query.order('criado_em', { ascending: false });
-
-        if (error) throw error;
-
-        allFichas = fichas || [];
-        renderFichasTable();
-      } catch (err) {
-        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
-      }
-    }
-
-    function renderFichasTable() {
-      const content = document.getElementById('content');
-      
-      if (allFichas.length === 0) {
-        content.innerHTML = '<div class="empty-state"><p>Nenhuma ficha para aprovar</p></div>';
-        return;
-      }
-
-      let html = `
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Companhia</th>
-                <th>Data de Envio</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      for (const ficha of allFichas) {
-        const companhia = COMPANHIAS[ficha.companhia_id] || 'Desconhecida';
-        const dataEnvio = new Date(ficha.criado_em).toLocaleDateString('pt-BR');
-        const statusHtml = getStatusBadge(ficha.status);
-        
-        html += `
-          <tr>
-            <td><strong>${ficha.usuarios?.nome || 'Desconhecido'}</strong></td>
-            <td>${companhia}</td>
-            <td>${dataEnvio}</td>
-            <td>${statusHtml}</td>
-            <td>
-              <button class="btn-small" onclick="openVisualizarFichaModal(${ficha.id})">
-                ${ficha.status === 'pendente' ? 'Avaliar' : 'Visualizar'}
-              </button>
-            </td>
-          </tr>
-        `;
-      }
-
-      html += `
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      content.innerHTML = html;
-    }
-
-    function getStatusBadge(status) {
+    function getStatusBadgePersonagem(status) {
       const badges = {
-        'pendente': '<span class="status-badge status-pendente">⏳ Pendente</span>',
-        'aprovada': '<span class="status-badge status-aprovada">✓ Aprovada</span>',
-        'rejeitada': '<span class="status-badge status-rejeitada">✗ Rejeitada</span>'
+        'em_analise': '<span class="status-badge status-pendente">⏳ Em Análise</span>',
+        'aprovado': '<span class="status-badge status-aprovada">✓ Aprovado</span>',
+        'rejeitado': '<span class="status-badge status-rejeitada">✗ Rejeitado</span>'
       };
       return badges[status] || status;
     }
 
-    async function openVisualizarFichaModal(fichaId) {
-      editingFichaId = fichaId;
-      const ficha = allFichas.find(f => f.id === fichaId);
-      
-      if (!ficha) return;
+    function getEstiloLabel(estilo) {
+      const labels = {
+        'Shinobi': '🥷 Ninja',
+        'Samurai': '⚔️ Samurai',
+        'Civil': '🛠️ Civil',
+        'Daimyo': '👑 Daimyo'
+      };
+      return labels[estilo] || estilo;
+    }
 
-      // Preencher dados da ficha
-      document.getElementById('modalFichaUsuario').textContent = ficha.usuarios?.nome || '-';
-      document.getElementById('modalFichaWhatsapp').textContent = ficha.usuarios?.whatsapp || '-';
-      document.getElementById('modalFichaCompanhia').textContent = COMPANHIAS[ficha.companhia_id] || 'Desconhecida';
-      document.getElementById('modalFichaData').textContent = new Date(ficha.criado_em).toLocaleDateString('pt-BR', { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
+    async function openPersonagemModal(personagemId) {
+      editingPersonagemId = personagemId;
+      const pers = allPersonagensPendentes.find(p => p.id === personagemId);
+      
+      if (!pers) return;
+
+      document.getElementById('modalNomePlayer').textContent = pers.nome_player || '-';
+      document.getElementById('modalWhatsappPlayer').textContent = pers.numero_player || '-';
+      document.getElementById('modalNomePersonagem').textContent = pers.nome_personagem || '-';
+      document.getElementById('modalTipo').textContent = getEstiloLabel(pers.estilo_vida);
+      document.getElementById('modalIdade').textContent = pers.idade || '-';
+      document.getElementById('modalGenero').textContent = pers.genero || '-';
+      document.getElementById('modalTipoSanguineo').textContent = pers.tipo_sanguineo || '-';
+      document.getElementById('modalPaisVila').textContent = pers.pais_vila || '-';
+      document.getElementById('modalAniversario').textContent = pers.aniversario || '-';
+
+      const especificosDiv = document.getElementById('modalEspecificos');
+      especificosDiv.innerHTML = '';
+
+      if (pers.estilo_vida === 'Shinobi') {
+        especificosDiv.innerHTML = `
+          <div class="ficha-info">
+            <h3>🥷 Informações Ninja</h3>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Clã:</div>
+              <div class="ficha-info-value">${pers.clan || '-'}</div>
+            </div>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Patente:</div>
+              <div class="ficha-info-value">${pers.patente_ninja || '-'}</div>
+            </div>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Elemento:</div>
+              <div class="ficha-info-value">${pers.elemento_basico || '-'}</div>
+            </div>
+          </div>
+        `;
+      } else if (pers.estilo_vida === 'Samurai') {
+        especificosDiv.innerHTML = `
+          <div class="ficha-info">
+            <h3>⚔️ Informações Samurai</h3>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Nome de Guerra:</div>
+              <div class="ficha-info-value">${pers.nome_guerra || '-'}</div>
+            </div>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Patente:</div>
+              <div class="ficha-info-value">${pers.patente_samurai || '-'}</div>
+            </div>
+          </div>
+        `;
+      } else if (pers.estilo_vida === 'Civil') {
+        especificosDiv.innerHTML = `
+          <div class="ficha-info">
+            <h3>🛠️ Informações Civil</h3>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Classe:</div>
+              <div class="ficha-info-value">${pers.classe_civil || '-'}</div>
+            </div>
+          </div>
+        `;
+      } else if (pers.estilo_vida === 'Daimyo') {
+        especificosDiv.innerHTML = `
+          <div class="ficha-info">
+            <h3>👑 Informações Daimyo</h3>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Dinastia:</div>
+              <div class="ficha-info-value">${pers.dinastia || '-'}</div>
+            </div>
+            <div class="ficha-info-row">
+              <div class="ficha-info-label">Cargo Inicial:</div>
+              <div class="ficha-info-value">${pers.cargo_inicial || '-'}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (pers.descricao) {
+        document.getElementById('descricaoSection').style.display = 'block';
+        document.getElementById('modalDescricao').textContent = pers.descricao;
+      } else {
+        document.getElementById('descricaoSection').style.display = 'none';
+      }
+
+      const buttons = document.querySelectorAll('#personagemModal .btn-approve, #personagemModal .btn-reject');
+      buttons.forEach(btn => {
+        btn.disabled = pers.status !== 'em_analise';
       });
 
-      // Papel na companhia
-      let papel = '-';
-      for (let i = 1; i <= 3; i++) {
-        if (ficha.usuarios?.[`companhia_${i}_id`] === ficha.companhia_id) {
-          papel = ficha.usuarios[`companhia_${i}_papel`] || '-';
-          break;
-        }
-      }
-      document.getElementById('modalFichaPapel').textContent = papel;
+      document.getElementById('personagemModal').classList.add('show');
+    }
 
-      // Conteúdo da ficha
-      const conteudoDiv = document.getElementById('modalFichaConteudo');
-      if (ficha.dados_formulario) {
-        let conteudoHtml = '';
-        for (const [key, value] of Object.entries(ficha.dados_formulario)) {
-          conteudoHtml += `
-            <div style="margin-bottom: 10px; padding: 8px; background: #F5F5F5; border-radius: 4px;">
-              <strong style="color: #BA7517;">${key}:</strong>
-              <div style="color: #5F6E7A; font-size: 13px; margin-top: 4px;">${value}</div>
-            </div>
-          `;
-        }
-        conteudoDiv.innerHTML = conteudoHtml;
-      }
+    function closePersonagemModal() {
+      document.getElementById('personagemModal').classList.remove('show');
+      editingPersonagemId = null;
+    }
 
-      // Se já foi aprovada/rejeitada, desabilitar botões
-      const motivo = document.getElementById('modalMotivoRejeicao');
-      const conteiner = document.querySelector('#visualizarFichaModal .modal-content');
-      
-      if (ficha.status !== 'pendente') {
-        const buttons = conteiner.querySelectorAll('.btn-approve, .btn-reject');
-        buttons.forEach(btn => btn.disabled = true);
+    async function aprovarPersonagem() {
+      if (!editingPersonagemId) return;
+
+      try {
+        const personagem = allPersonagensPendentes.find(p => p.id === editingPersonagemId);
+        if (!personagem) throw new Error('Personagem não encontrado');
+
+        const { error } = await supabaseClient
+          .from('personagens')
+          .update({
+            status: 'aprovado',
+            data_aprovacao: new Date().toISOString(),
+            aprovado_por_id: currentUser.id
+          })
+          .eq('id', editingPersonagemId);
+
+        if (error) throw error;
+
+        alert('✓ Personagem aprovado com sucesso!');
+        showNotification('✅ Ficha Aprovada', `O personagem ${personagem.nome_personagem} foi aprovado`);
         
-        if (ficha.status === 'rejeitada') {
-          motivo.value = `[Rejeitada] Motivo: ${ficha.motivo_rejeicao || 'Sem motivo especificado'}`;
-          motivo.disabled = true;
-        } else {
-          motivo.value = `[Aprovada em ${new Date(ficha.atualizado_em).toLocaleDateString('pt-BR')}]`;
-          motivo.disabled = true;
-        }
-      } else {
-        motivo.value = '';
-        motivo.disabled = false;
-        const buttons = conteiner.querySelectorAll('.btn-approve, .btn-reject');
-        buttons.forEach(btn => btn.disabled = false);
+        closePersonagemModal();
+        const isAdmin = currentUser.role_id === 1;
+        const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
+        await loadAtividadesDashboard(isAdmin || isGerencia ? 'atividades-admin' : 'atividades-gerencia');
+      } catch (err) {
+        alert('Erro ao aprovar: ' + err.message);
       }
-
-      document.getElementById('visualizarFichaModal').classList.add('show');
     }
 
-    async function aprovarFicha() {
-      if (!editingFichaId) return;
+    async function rejeitarPersonagem() {
+      if (!editingPersonagemId) return;
 
       try {
-        const { error } = await supabaseClient
-          .from('fichas')
-          .update({
-            status: 'aprovada',
-            aprovado_por_id: currentUser.id,
-            atualizado_em: new Date().toISOString()
-          })
-          .eq('id', editingFichaId);
-
-        if (error) throw error;
-
-        alert('✓ Ficha aprovada com sucesso!');
-        closeVisualizarFichaModal();
-        await loadFichasParaAprovar();
+        alert('⚠️ Rejeição registrada localmente. O status no banco de dados não foi alterado.');
+        showNotification('⚠️ Ficha Rejeitada', 'Você rejeitou uma ficha de personagem');
+        closePersonagemModal();
       } catch (err) {
-        alert('Erro ao aprovar ficha: ' + err.message);
+        alert('Erro ao rejeitar: ' + err.message);
       }
-    }
-
-    async function rejeitarFicha() {
-      if (!editingFichaId) return;
-      const motivo = document.getElementById('modalMotivoRejeicao').value;
-
-      if (!motivo.trim()) {
-        alert('Por favor, descreva o motivo da rejeição');
-        return;
-      }
-
-      try {
-        const { error } = await supabaseClient
-          .from('fichas')
-          .update({
-            status: 'rejeitada',
-            motivo_rejeicao: motivo,
-            aprovado_por_id: currentUser.id,
-            atualizado_em: new Date().toISOString()
-          })
-          .eq('id', editingFichaId);
-
-        if (error) throw error;
-
-        alert('✗ Ficha rejeitada com sucesso!');
-        closeVisualizarFichaModal();
-        await loadFichasParaAprovar();
-      } catch (err) {
-        alert('Erro ao rejeitar ficha: ' + err.message);
-      }
-    }
-
-    function closeVisualizarFichaModal() {
-      document.getElementById('visualizarFichaModal').classList.remove('show');
-      editingFichaId = null;
-      document.getElementById('modalMotivoRejeicao').value = '';
     }
 
     // ===== GERENCIAMENTO DE USUÁRIOS =====
@@ -1946,7 +2286,7 @@
         const patente = allPatentes.find(p => p.id === userPatenteId);
         
         let podeEditar = false;
-        if (userPapel === 'lider' || userPapel === 'admin' || userPapel === 'gerente') {
+        if (userPapel === 'lider' || userPapel === 'admin' || userPapel === 'supervisor') {
           podeEditar = true;
         } else if (userPapel === 'coordenador') {
           podeEditar = userPapelNaComp === 'membro';
@@ -2092,8 +2432,7 @@
       const isAdmin = currentUser.role_id === 1;
       const isGerencia = [2, 4, 5, 6].includes(currentUser.role_id);
 
-      // Se userPapel for 'admin' ou 'gerente', abrir modal completo
-      if (userPapel === 'admin' || userPapel === 'gerente') {
+      if (userPapel === 'admin' || userPapel === 'gerente' || userPapel === 'supervisor') {
         openEditModalFull(userId);
         return;
       }
@@ -2317,35 +2656,6 @@
       }
     }
 
-    async function loadUsersByCompanhia(companhiaId, isGerencia = false) {
-      const content = document.getElementById('content');
-      content.innerHTML = '<p style="text-align: center; color: #999;">Carregando usuários...</p>';
-
-      try {
-        const { data: usuarios, error: usuariosError } = await supabaseClient
-          .from('usuarios')
-          .select('*')
-          .or(`companhia_1_id.eq.${companhiaId},companhia_2_id.eq.${companhiaId},companhia_3_id.eq.${companhiaId}`)
-          .order('nome');
-
-        if (usuariosError) throw usuariosError;
-        allUsers = usuarios;
-
-        const { data: roles } = await supabaseClient.from('roles').select('*');
-        allRoles = roles;
-
-        const { data: companhias } = await supabaseClient.from('companhias').select('*');
-        allCompanhias = companhias;
-
-        const { data: patentes } = await supabaseClient.from('patentes').select('*');
-        allPatentes = patentes;
-
-        renderUsersTable();
-      } catch (err) {
-        content.innerHTML = `<div class="error show" style="display: block;">${err.message}</div>`;
-      }
-    }
-
     async function loadUsersForGerencia() {
       const content = document.getElementById('content');
       content.innerHTML = '<p style="text-align: center; color: #999;">Carregando usuários...</p>';
@@ -2378,6 +2688,9 @@
     function logout() {
       currentUser = null;
       isSignUp = false;
+      notificationCount = 0;
+
+      if (pollingInterval) clearInterval(pollingInterval);
 
       document.getElementById('loginPage').style.display = 'flex';
       document.getElementById('dashboard').style.display = 'none';
@@ -2399,13 +2712,13 @@
 
     window.onclick = function(event) {
       const editModal = document.getElementById('editUserModal');
-      const fichaModal = document.getElementById('visualizarFichaModal');
+      const personagemModal = document.getElementById('personagemModal');
       
       if (event.target === editModal) {
         closeEditModal();
       }
-      if (event.target === fichaModal) {
-        closeVisualizarFichaModal();
+      if (event.target === personagemModal) {
+        closePersonagemModal();
       }
     }
   </script>
