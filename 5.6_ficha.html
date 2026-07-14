@@ -274,6 +274,28 @@
       max-width: 400px; 
       width: 90%;
       box-shadow: 0 0 30px rgba(54, 182, 104, 0.3);
+      position: relative;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--ficha-green);
+      color: #fff;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .modal-close-btn:hover {
+      background: var(--ficha-green-dark);
+      transform: rotate(90deg);
     }
     .modal-content h2 { 
       font-family: 'Russo One', sans-serif; 
@@ -409,6 +431,7 @@
   <!-- MODAL DE AUTENTICAÇÃO -->
   <div id="modalAutenticacao">
     <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAutenticacao()" title="Fechar e voltar à ficha">×</button>
       <h2>Autenticação Necessária</h2>
       <form class="modal-form" onsubmit="autenticarEdicao(event)">
         <input type="number" id="inputId" placeholder="ID do Personagem" required />
@@ -833,14 +856,13 @@
 
       // COMBATE
       const hpMax = p.hp_max || 5000;
-      const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax; // Se não tiver hp_atual, começa no máximo
+      const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax;
       
-      // CHAKRA: cálculo de INT + RES + FOR
       const inteligencia = attr.inteligencia || 0;
       const resistencia = attr.resistencia || 0;
       const forca = attr.forca || 0;
       const chakraMax = inteligencia + resistencia + forca;
-      const chakra = chakraMax; // começa cheio
+      const chakra = chakraMax;
 
       document.getElementById('fHpText').textContent = `${hp}/${hpMax}`;
       document.getElementById('fHpBar').style.width = `${Math.min((hp / hpMax) * 100, 100)}%`;
@@ -924,6 +946,14 @@
       document.getElementById('modalAutenticacao').classList.add('show');
     }
 
+    function fecharModalAutenticacao() {
+      document.getElementById('modalAutenticacao').classList.remove('show');
+      document.getElementById('inputId').value = '';
+      document.getElementById('inputSenha').value = '';
+      document.getElementById('modalError').style.display = 'none';
+      modoEdicaoAtivo = false;
+    }
+
     async function autenticarEdicao(evt) {
       evt.preventDefault();
 
@@ -933,7 +963,6 @@
       const modalError = document.getElementById('modalError');
 
       try {
-        // Validar ID e Senha no Supabase
         const { data, error } = await supabaseClient
           .from('personagens')
           .select('id, senha_edicao')
@@ -946,13 +975,11 @@
           return;
         }
 
-        // Autenticação bem-sucedida
         modal.classList.remove('show');
         modalError.style.display = 'none';
         document.getElementById('inputId').value = '';
         document.getElementById('inputSenha').value = '';
 
-        // Ativar modo edição
         ativarModoEdicao();
       } catch (err) {
         console.error('Erro:', err);
@@ -965,11 +992,9 @@
       const p = fichaAtualAberta;
       const attr = p.atributos_personagem && p.atributos_personagem[0] ? p.atributos_personagem[0] : {};
 
-      // Mudar botão
       document.getElementById('btnEditarFicha').textContent = '✕ Cancelar Edição';
       document.getElementById('btnEditarFicha').classList.add('edit-mode');
 
-      // Transformar campos em inputs
       transformarEmInput('fGenero', p.genero);
       transformarEmInput('fSexualidade', p.tipo_sanguineo);
       transformarEmInput('fIdade', p.idade);
@@ -995,7 +1020,6 @@
       transformarEmInput('fProp2', p.proposito_2);
       transformarEmInput('fProp5', p.proposito_5);
 
-      // Atributos
       transformarEmInput('fAttrVel', attr.velocidade, 'number');
       transformarEmInput('fAttrTai', attr.taijutsu, 'number');
       transformarEmInput('fAttrNin', attr.ninjutsu, 'number');
@@ -1016,7 +1040,6 @@
       const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax;
       transformarEmInput('fHpText', hp, 'number');
 
-      // Mostrar botões de ação
       document.getElementById('editActionsProfile').classList.add('show');
       document.getElementById('editActionsCombate').classList.add('show');
     }
@@ -1048,7 +1071,6 @@
       const p = fichaAtualAberta;
       const attr = p.atributos_personagem && p.atributos_personagem[0] ? p.atributos_personagem[0] : {};
 
-      // Coletar valores editados
       const dadosPersonagem = {
         genero: document.getElementById('edit_fGenero')?.value || p.genero,
         tipo_sanguineo: document.getElementById('edit_fSexualidade')?.value || p.tipo_sanguineo,
@@ -1093,10 +1115,8 @@
       };
 
       try {
-        // Registrar alterações no histórico
         const historico = p.historico_alteracoes || [];
         
-        // Comparar e registrar mudanças
         for (const [chave, novoValor] of Object.entries(dadosPersonagem)) {
           if (p[chave] != novoValor) {
             historico.push({
@@ -1109,7 +1129,6 @@
           }
         }
 
-        // Atualizar personagens
         const { error: errorPersonagem } = await supabaseClient
           .from('personagens')
           .update({
@@ -1120,7 +1139,6 @@
 
         if (errorPersonagem) throw errorPersonagem;
 
-        // Atualizar atributos
         if (attr.id) {
           const { error: errorAtributos } = await supabaseClient
             .from('atributos_personagem')
@@ -1130,7 +1148,6 @@
           if (errorAtributos) throw errorAtributos;
         }
 
-        // Sucesso!
         cancelarEdicao();
         mostrarMensagemSucesso();
         carregarDados();
