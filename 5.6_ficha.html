@@ -137,7 +137,6 @@
     .f-tab-btn:hover { background: #1e2421; color: #fff; }
     .f-tab-btn.active { background: var(--ficha-bg); color: var(--ficha-green); border-color: var(--ficha-border); border-top: 2px solid var(--ficha-green); }
 
-    /* ÍCONE FLUTUANTE DA VILA - REMOVIDO */
     .vila-floating-icon { display: none; }
     .vila-floating-icon svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -150,10 +149,13 @@
     .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
     .f-section-title::before { content: ''; display: inline-block; width: 16px; height: 16px; background: var(--ficha-green); border-radius: 50%; }
 
-    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-    .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-green); border-radius: 8px; padding: 15px; }
-    .f-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .f-card-value { color: #e0e0e0; font-size: 1.05rem; font-weight: 500; }
+    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+    .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 25px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .f-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+    .f-card-value { color: var(--ficha-green); font-family: 'Russo One', sans-serif; font-size: 2.2rem; text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
+
+    .f-card button { background: var(--ficha-green); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: all 0.3s ease; margin-top: 10px; }
+    .f-card button:hover { background: var(--ficha-green-dark); transform: scale(1.1); }
 
     .f-card input[type="text"],
     .f-card input[type="number"],
@@ -643,14 +645,12 @@
             
             <div class="f-section">
               <h2 class="f-section-title">HISTÓRICO DE GRADUAÇÕES</h2>
-              <div class="jornada-list" id="boxGraduacoes">
-                </div>
+              <div class="jornada-list" id="boxGraduacoes"></div>
             </div>
 
             <div class="f-section">
               <h2 class="f-section-title">MISSÕES REALIZADAS</h2>
               <div class="jornada-list">
-                
                 <div class="jornada-card">
                   <div class="missao-badge badge-s">S</div>
                   <div class="missao-info">
@@ -658,7 +658,6 @@
                     <div class="missao-value" id="fMissaoS">0</div>
                   </div>
                 </div>
-
                 <div class="jornada-card">
                   <div class="missao-badge badge-a">A</div>
                   <div class="missao-info">
@@ -666,7 +665,6 @@
                     <div class="missao-value" id="fMissaoA">0</div>
                   </div>
                 </div>
-
                 <div class="jornada-card">
                   <div class="missao-badge badge-b">B</div>
                   <div class="missao-info">
@@ -674,7 +672,6 @@
                     <div class="missao-value" id="fMissaoB">0</div>
                   </div>
                 </div>
-
                 <div class="jornada-card">
                   <div class="missao-badge badge-c">C</div>
                   <div class="missao-info">
@@ -682,7 +679,6 @@
                     <div class="missao-value" id="fMissaoC">0</div>
                   </div>
                 </div>
-
                 <div class="jornada-card">
                   <div class="missao-badge badge-d">D</div>
                   <div class="missao-info">
@@ -690,7 +686,6 @@
                     <div class="missao-value" id="fMissaoD">0</div>
                   </div>
                 </div>
-                
               </div>
             </div>
           </div>
@@ -698,16 +693,14 @@
           <div id="tabRelacoes" class="f-tab-content">
             <div class="f-section">
               <h2 class="f-section-title">JOGADORES</h2>
-              <div class="relacoes-list" id="boxRelacoes">
-                </div>
+              <div class="relacoes-list" id="boxRelacoes"></div>
             </div>
           </div>
           
           <div id="tabResumo" class="f-tab-content">
             <div class="f-section">
               <h2 class="f-section-title">RESUMO DE ALTERAÇÕES</h2>
-              <div class="resumo-list" id="boxResumo">
-                </div>
+              <div class="resumo-list" id="boxResumo"></div>
             </div>
           </div>
 
@@ -828,7 +821,6 @@
       fichaAtualAberta = p;
       modoEdicaoAtivo = false;
 
-      // CAPA E FOTO
       const bannerCapa = document.getElementById('fichaBannerCapa');
       if (p.foto_capa) {
         bannerCapa.style.backgroundImage = `url(${p.foto_capa})`;
@@ -844,14 +836,12 @@
         fotoPerfil.src = `https://ui-avatars.com/api/?name=${inicial}&background=36b668&color=fff&size=120`;
       }
 
-      // TÍTULOS
       document.getElementById('fichaNome').textContent = p.nome_personagem || 'Desconhecido';
       document.getElementById('fichaTitulo').textContent = `"${p.titulo_1 || 'Sem título'}"`;
       document.getElementById('badgePatente').textContent = p.patente || 'Sem Patente';
       document.getElementById('badgeVila').textContent = p.pais_vila || '-';
       document.getElementById('badgeStatus').textContent = p.estilo_vida || 'Vivo';
 
-      // PERFIL
       document.getElementById('fGenero').textContent = p.genero || '-';
       document.getElementById('fSexualidade').textContent = p.tipo_sanguineo || 'Não informado';
       document.getElementById('fIdade').textContent = p.idade || '-';
@@ -863,7 +853,6 @@
       document.getElementById('fCla').textContent = p.cla || '-';
       document.getElementById('fRyos').textContent = p.ryos || '0';
 
-      // VISUAL E HISTÓRIA
       document.getElementById('fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
       document.getElementById('fAltura').textContent = p.altura || '-';
       document.getElementById('fPeso').textContent = p.peso || '-';
@@ -871,7 +860,6 @@
       document.getElementById('fOlhos').textContent = p.olhos || '-';
       document.getElementById('fHistoria').textContent = p.historia || 'Nenhum histórico informado.';
 
-      // PREFERÊNCIAS E PROPÓSITOS
       document.getElementById('fGosta').textContent = p.gosta_de || '-';
       document.getElementById('fNaoGosta').textContent = p.nao_gosta_de || '-';
       document.getElementById('fProp1').textContent = p.proposito_1 || '-';
@@ -880,10 +868,8 @@
       document.getElementById('fProp4').textContent = p.proposito_4 || '-';
       document.getElementById('fProp5').textContent = p.proposito_5 || '-';
 
-      // PUXAR ATRIBUTOS
       const attr = p.atributos_personagem && p.atributos_personagem[0] ? p.atributos_personagem[0] : {};
 
-      // COMBATE
       const hpMax = p.hp_max || 5000;
       const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax;
       
@@ -917,7 +903,6 @@
       desenharGraficoRadar(attr.ninjutsu||0, attr.taijutsu||0, attr.genjutsu||0, inteligencia, forca, attr.velocidade||0, resistencia, attr.selos||0);
       document.getElementById('boxTecnicas').innerHTML = p.lista_tecnicas ? p.lista_tecnicas : "<em>Nenhuma técnica listada para este personagem.</em>";
 
-      // JORNADA
       document.getElementById('fMissaoS').textContent = p.missao_s || '0';
       document.getElementById('fMissaoA').textContent = p.missao_a || '0';
       document.getElementById('fMissaoB').textContent = p.missao_b || '0';
@@ -931,7 +916,6 @@
         boxGraduacoes.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma graduação registrada.</em></div>`;
       }
 
-      // RELAÇÕES
       const boxRelacoes = document.getElementById('boxRelacoes');
       if (p.lista_relacoes) {
         boxRelacoes.innerHTML = p.lista_relacoes;
@@ -939,7 +923,6 @@
         boxRelacoes.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma relação registrada.</em></div>`;
       }
 
-      // RESUMO DE ALTERAÇÕES
       const boxResumo = document.getElementById('boxResumo');
       if (p.historico_alteracoes && Array.isArray(p.historico_alteracoes) && p.historico_alteracoes.length > 0) {
         let resumoHtml = '';
@@ -970,7 +953,6 @@
 
     function iniciarEdicao() {
       if (!fichaAtualAberta) return;
-
       modoEdicaoAtivo = true;
       document.getElementById('modalAutenticacao').classList.add('show');
     }
@@ -992,13 +974,24 @@
       const modalError = document.getElementById('modalError');
 
       try {
-        const { data, error } = await supabaseClient
-          .from('personagens')
-          .select('id, senha_edicao')
-          .eq('id', idInput)
-          .single();
+        const response = await fetch(
+          'https://etojqmmhdciphantyzoa.supabase.co/functions/v1/validar-senha',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            },
+            body: JSON.stringify({
+              personagem_id: idInput,
+              senha: senhaInput
+            })
+          }
+        );
 
-        if (error || !data || data.senha_edicao !== senhaInput) {
+        const result = await response.json();
+
+        if (!result.valido) {
           modalError.textContent = '❌ ID ou Senha incorretos';
           modalError.style.display = 'block';
           return;
@@ -1077,14 +1070,12 @@
     function incrementarAtributo(id) {
       const elemento = document.getElementById(id);
       const valor = parseInt(elemento.textContent.split('+')[0].trim()) || 0;
-      elemento.textContent = `${valor + 1}`;
       elemento.innerHTML = `${valor + 1}<button onclick="incrementarAtributo('${id}')">+</button>`;
     }
 
     function incrementarSubAtributo(id) {
       const elemento = document.getElementById(id);
       const valor = parseInt(elemento.textContent.split('+')[0].trim()) || 0;
-      elemento.textContent = `${valor + 1}`;
       elemento.innerHTML = `${valor + 1}<button onclick="incrementarSubAtributo('${id}')">+</button>`;
     }
 
