@@ -112,7 +112,7 @@
     .ficha-layout { background: var(--ficha-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.7); position: relative; }
 
     /* CAPA BANNER */
-    .ficha-capa-banner { background-color: var(--ficha-green); background-image: linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%); position: relative; padding: 50px 20px 30px; text-align: center; color: #fff; }
+    .ficha-capa-banner { background-color: var(--ficha-green); background-image: linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%); position: relative; padding: 50px 20px 30px; text-align: center; color: #fff; background-size: cover; background-position: center; }
     .ficha-capa-overlay { position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>'); opacity: 0.6; pointer-events: none; }
     .ficha-avatar-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; border: 4px solid var(--ficha-bg); background: #000; overflow: hidden; z-index: 2; }
     .ficha-avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
@@ -194,7 +194,8 @@
     .subattr-label { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
     .subattr-value { font-family: 'Russo One', sans-serif; font-size: 2.2rem; color: var(--ficha-green); text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
 
-    .subattr-card input[type="number"] { width: 80px; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--ficha-green); color: #fff; padding: 8px; border-radius: 4px; font-size: 1.2rem; font-weight: bold; }
+    .subattr-card button { background: var(--ficha-green); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: all 0.3s ease; margin-top: 10px; }
+    .subattr-card button:hover { background: var(--ficha-green-dark); transform: scale(1.1); }
 
     /* ESTILOS DA ABA JORNADA */
     .jornada-list { display: flex; flex-direction: column; gap: 12px; }
@@ -388,10 +389,17 @@
     }
     .success-message.show { display: block; }
 
+    /* Propostos Grid */
+    .propositos-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
+    .proposito-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 15px; text-align: center; }
+    .proposito-card .f-card-label { margin-bottom: 10px; }
+    .proposito-card textarea { width: 100%; min-height: 80px; }
+
     @media (max-width: 768px) {
       #page-container { padding-top: 90px; }
       .header-image { height: 150px; }
       .personagens-grid, .f-grid, .subattr-grid { grid-template-columns: 1fr; }
+      .propositos-grid { grid-template-columns: repeat(2, 1fr); }
       .ficha-body-content { padding: 15px; }
       .vila-floating-icon { right: 10px; width: 45px; height: 45px; }
       .vila-floating-icon svg { width: 22px; height: 22px; }
@@ -498,30 +506,29 @@
               <h2 class="f-section-title">INFORMAÇÕES BÁSICAS</h2>
               <div class="f-grid">
                 <div class="f-card"><div class="f-card-label">Gênero</div><div class="f-card-value" id="fGenero">-</div></div>
-                <div class="f-card"><div class="f-card-label">Sexualidade</div><div class="f-card-value" id="fSexualidade">-</div></div>
+                <div class="f-card"><div class="f-card-label">Tipo Sanguíneo</div><div class="f-card-value" id="fSexualidade">-</div></div>
                 <div class="f-card"><div class="f-card-label">Idade</div><div class="f-card-value" id="fIdade">-</div></div>
                 <div class="f-card"><div class="f-card-label">Aniversário</div><div class="f-card-value" id="fAniversario">-</div></div>
-                <div class="f-card"><div class="f-card-label">Fama</div><div class="f-card-value" id="fFama">-</div></div>
+                <div class="f-card"><div class="f-card-label">Score</div><div class="f-card-value" id="fScore">0</div></div>
                 <div class="f-card"><div class="f-card-label">Origem de Nasc.</div><div class="f-card-value" id="fOrigem">-</div></div>
                 <div class="f-card"><div class="f-card-label">Local onde Reside</div><div class="f-card-value" id="fReside">-</div></div>
                 <div class="f-card"><div class="f-card-label">Profissão</div><div class="f-card-value" id="fProfissao">-</div></div>
                 <div class="f-card"><div class="f-card-label">Clã</div><div class="f-card-value" id="fCla">-</div></div>
                 <div class="f-card"><div class="f-card-label">Ryos</div><div class="f-card-value" id="fRyos">0</div></div>
-                <div class="f-card"><div class="f-card-label">Score</div><div class="f-card-value" id="fScore">0</div></div>
               </div>
             </div>
 
             <div class="f-section">
               <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
-              <div class="f-block-destaque">
-                <span class="label-top">Aparência</span>
-                <p id="fAparencia">-</p>
-              </div>
               <div class="f-grid">
                 <div class="f-card"><div class="f-card-label">Altura</div><div class="f-card-value" id="fAltura">-</div></div>
                 <div class="f-card"><div class="f-card-label">Peso</div><div class="f-card-value" id="fPeso">-</div></div>
                 <div class="f-card"><div class="f-card-label">Cabelos</div><div class="f-card-value" id="fCabelos">-</div></div>
                 <div class="f-card"><div class="f-card-label">Olhos</div><div class="f-card-value" id="fOlhos">-</div></div>
+              </div>
+              <div class="f-block-destaque" style="margin-top: 20px;">
+                <span class="label-top">Aparência</span>
+                <p id="fAparencia">-</p>
               </div>
             </div>
 
@@ -533,13 +540,36 @@
             </div>
 
             <div class="f-section">
-              <h2 class="f-section-title">PREFERÊNCIAS & PROPÓSITOS</h2>
+              <h2 class="f-section-title">PREFERÊNCIAS</h2>
               <div class="f-grid">
                 <div class="f-card"><div class="f-card-label">👍 Gosta De</div><div class="f-card-value" id="fGosta">-</div></div>
                 <div class="f-card"><div class="f-card-label">👎 Não Gosta De</div><div class="f-card-value" id="fNaoGosta">-</div></div>
-                <div class="f-card"><div class="f-card-label">Propósito 1</div><div class="f-card-value" id="fProp1">-</div></div>
-                <div class="f-card"><div class="f-card-label">Propósito 2</div><div class="f-card-value" id="fProp2">-</div></div>
-                <div class="f-card"><div class="f-card-label">5 Propósitos</div><div class="f-card-value" id="fProp5">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PROPÓSITOS (5 TOTAL)</h2>
+              <div class="propositos-grid">
+                <div class="proposito-card">
+                  <div class="f-card-label">PROPÓSITO 1</div>
+                  <div class="f-card-value" id="fProp1">-</div>
+                </div>
+                <div class="proposito-card">
+                  <div class="f-card-label">PROPÓSITO 2</div>
+                  <div class="f-card-value" id="fProp2">-</div>
+                </div>
+                <div class="proposito-card">
+                  <div class="f-card-label">PROPÓSITO 3</div>
+                  <div class="f-card-value" id="fProp3">-</div>
+                </div>
+                <div class="proposito-card">
+                  <div class="f-card-label">PROPÓSITO 4</div>
+                  <div class="f-card-value" id="fProp4">-</div>
+                </div>
+                <div class="proposito-card">
+                  <div class="f-card-label">PROPÓSITO 5</div>
+                  <div class="f-card-value" id="fProp5">-</div>
+                </div>
               </div>
             </div>
 
@@ -802,8 +832,6 @@
       const bannerCapa = document.getElementById('fichaBannerCapa');
       if (p.foto_capa) {
         bannerCapa.style.backgroundImage = `url(${p.foto_capa})`;
-        bannerCapa.style.backgroundSize = 'cover';
-        bannerCapa.style.backgroundPosition = 'center';
       } else {
         bannerCapa.style.backgroundImage = 'linear-gradient(135deg, var(--ficha-green) 0%, var(--ficha-green-dark) 100%)';
       }
@@ -818,7 +846,7 @@
 
       // TÍTULOS
       document.getElementById('fichaNome').textContent = p.nome_personagem || 'Desconhecido';
-      document.getElementById('fichaTitulo').textContent = `"${p.titulo || 'Sem título'}"`;
+      document.getElementById('fichaTitulo').textContent = `"${p.titulo_1 || 'Sem título'}"`;
       document.getElementById('badgePatente').textContent = p.patente || 'Sem Patente';
       document.getElementById('badgeVila').textContent = p.pais_vila || '-';
       document.getElementById('badgeStatus').textContent = p.estilo_vida || 'Vivo';
@@ -828,13 +856,12 @@
       document.getElementById('fSexualidade').textContent = p.tipo_sanguineo || 'Não informado';
       document.getElementById('fIdade').textContent = p.idade || '-';
       document.getElementById('fAniversario').textContent = p.aniversario || '-';
-      document.getElementById('fFama').textContent = p.fama || '-';
+      document.getElementById('fScore').textContent = p.score || '0';
       document.getElementById('fOrigem').textContent = p.origem_nascimento || '-';
       document.getElementById('fReside').textContent = p.local_reside || '-';
       document.getElementById('fProfissao').textContent = p.profissao || '-';
       document.getElementById('fCla').textContent = p.cla || '-';
       document.getElementById('fRyos').textContent = p.ryos || '0';
-      document.getElementById('fScore').textContent = p.score || '0';
 
       // VISUAL E HISTÓRIA
       document.getElementById('fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
@@ -844,11 +871,13 @@
       document.getElementById('fOlhos').textContent = p.olhos || '-';
       document.getElementById('fHistoria').textContent = p.historia || 'Nenhum histórico informado.';
 
-      // PROPÓSITOS
+      // PREFERÊNCIAS E PROPÓSITOS
       document.getElementById('fGosta').textContent = p.gosta_de || '-';
       document.getElementById('fNaoGosta').textContent = p.nao_gosta_de || '-';
       document.getElementById('fProp1').textContent = p.proposito_1 || '-';
       document.getElementById('fProp2').textContent = p.proposito_2 || '-';
+      document.getElementById('fProp3').textContent = p.proposito_3 || '-';
+      document.getElementById('fProp4').textContent = p.proposito_4 || '-';
       document.getElementById('fProp5').textContent = p.proposito_5 || '-';
 
       // PUXAR ATRIBUTOS
@@ -858,10 +887,10 @@
       const hpMax = p.hp_max || 5000;
       const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax;
       
+      const forca = attr.forca || 0;
       const inteligencia = attr.inteligencia || 0;
       const resistencia = attr.resistencia || 0;
-      const forca = attr.forca || 0;
-      const chakraMax = inteligencia + resistencia + forca;
+      const chakraMax = (forca + inteligencia + resistencia) * 4;
       const chakra = chakraMax;
 
       document.getElementById('fHpText').textContent = `${hp}/${hpMax}`;
@@ -999,13 +1028,12 @@
       transformarEmInput('fSexualidade', p.tipo_sanguineo);
       transformarEmInput('fIdade', p.idade);
       transformarEmInput('fAniversario', p.aniversario);
-      transformarEmInput('fFama', p.fama);
+      transformarEmInput('fScore', p.score, 'number');
       transformarEmInput('fOrigem', p.origem_nascimento);
       transformarEmInput('fReside', p.local_reside);
       transformarEmInput('fProfissao', p.profissao);
       transformarEmInput('fCla', p.cla);
       transformarEmInput('fRyos', p.ryos, 'number');
-      transformarEmInput('fScore', p.score, 'number');
 
       transformarEmTextarea('fAparencia', p.aparencia);
       transformarEmInput('fAltura', p.altura);
@@ -1016,25 +1044,27 @@
 
       transformarEmInput('fGosta', p.gosta_de);
       transformarEmInput('fNaoGosta', p.nao_gosta_de);
-      transformarEmInput('fProp1', p.proposito_1);
-      transformarEmInput('fProp2', p.proposito_2);
-      transformarEmInput('fProp5', p.proposito_5);
+      transformarEmTextarea('fProp1', p.proposito_1);
+      transformarEmTextarea('fProp2', p.proposito_2);
+      transformarEmTextarea('fProp3', p.proposito_3);
+      transformarEmTextarea('fProp4', p.proposito_4);
+      transformarEmTextarea('fProp5', p.proposito_5);
 
-      transformarEmInput('fAttrVel', attr.velocidade, 'number');
-      transformarEmInput('fAttrTai', attr.taijutsu, 'number');
-      transformarEmInput('fAttrNin', attr.ninjutsu, 'number');
-      transformarEmInput('fAttrFor', attr.forca, 'number');
-      transformarEmInput('fAttrRes', attr.resistencia, 'number');
-      transformarEmInput('fAttrGen', attr.genjutsu, 'number');
-      transformarEmInput('fAttrSel', attr.selos, 'number');
-      transformarEmInput('fAttrInt', attr.inteligencia, 'number');
+      document.getElementById('fAttrVel').innerHTML = `${attr.velocidade || 0}<button onclick="incrementarAtributo('fAttrVel')">+</button>`;
+      document.getElementById('fAttrTai').innerHTML = `${attr.taijutsu || 0}<button onclick="incrementarAtributo('fAttrTai')">+</button>`;
+      document.getElementById('fAttrNin').innerHTML = `${attr.ninjutsu || 0}<button onclick="incrementarAtributo('fAttrNin')">+</button>`;
+      document.getElementById('fAttrFor').innerHTML = `${attr.forca || 0}<button onclick="incrementarAtributo('fAttrFor')">+</button>`;
+      document.getElementById('fAttrRes').innerHTML = `${attr.resistencia || 0}<button onclick="incrementarAtributo('fAttrRes')">+</button>`;
+      document.getElementById('fAttrGen').innerHTML = `${attr.genjutsu || 0}<button onclick="incrementarAtributo('fAttrGen')">+</button>`;
+      document.getElementById('fAttrSel').innerHTML = `${attr.selos || 0}<button onclick="incrementarAtributo('fAttrSel')">+</button>`;
+      document.getElementById('fAttrInt').innerHTML = `${attr.inteligencia || 0}<button onclick="incrementarAtributo('fAttrInt')">+</button>`;
 
-      transformarEmInput('fSubFuin', attr.fuinjutsu, 'number');
-      transformarEmInput('fSubNinG', attr.ningeral, 'number');
-      transformarEmInput('fSubEle', attr.elementos, 'number');
-      transformarEmInput('fSubKen', attr.kenjutsu, 'number');
-      transformarEmInput('fSubShu', attr.shurikenjutsu, 'number');
-      transformarEmInput('fSubCom', attr.combate, 'number');
+      document.getElementById('fSubFuin').innerHTML = `${attr.fuinjutsu || 0}<button onclick="incrementarSubAtributo('fSubFuin')">+</button>`;
+      document.getElementById('fSubNinG').innerHTML = `${attr.ningeral || 0}<button onclick="incrementarSubAtributo('fSubNinG')">+</button>`;
+      document.getElementById('fSubEle').innerHTML = `${attr.elementos || 0}<button onclick="incrementarSubAtributo('fSubEle')">+</button>`;
+      document.getElementById('fSubKen').innerHTML = `${attr.kenjutsu || 0}<button onclick="incrementarSubAtributo('fSubKen')">+</button>`;
+      document.getElementById('fSubShu').innerHTML = `${attr.shurikenjutsu || 0}<button onclick="incrementarSubAtributo('fSubShu')">+</button>`;
+      document.getElementById('fSubCom').innerHTML = `${attr.combate || 0}<button onclick="incrementarSubAtributo('fSubCom')">+</button>`;
 
       const hpMax = p.hp_max || 5000;
       const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax;
@@ -1042,6 +1072,20 @@
 
       document.getElementById('editActionsProfile').classList.add('show');
       document.getElementById('editActionsCombate').classList.add('show');
+    }
+
+    function incrementarAtributo(id) {
+      const elemento = document.getElementById(id);
+      const valor = parseInt(elemento.textContent.split('+')[0].trim()) || 0;
+      elemento.textContent = `${valor + 1}`;
+      elemento.innerHTML = `${valor + 1}<button onclick="incrementarAtributo('${id}')">+</button>`;
+    }
+
+    function incrementarSubAtributo(id) {
+      const elemento = document.getElementById(id);
+      const valor = parseInt(elemento.textContent.split('+')[0].trim()) || 0;
+      elemento.textContent = `${valor + 1}`;
+      elemento.innerHTML = `${valor + 1}<button onclick="incrementarSubAtributo('${id}')">+</button>`;
     }
 
     function transformarEmInput(id, valor, tipo = 'text') {
@@ -1076,13 +1120,12 @@
         tipo_sanguineo: document.getElementById('edit_fSexualidade')?.value || p.tipo_sanguineo,
         idade: document.getElementById('edit_fIdade')?.value || p.idade,
         aniversario: document.getElementById('edit_fAniversario')?.value || p.aniversario,
-        fama: document.getElementById('edit_fFama')?.value || p.fama,
+        score: parseInt(document.getElementById('edit_fScore')?.value || p.score || 0),
         origem_nascimento: document.getElementById('edit_fOrigem')?.value || p.origem_nascimento,
         local_reside: document.getElementById('edit_fReside')?.value || p.local_reside,
         profissao: document.getElementById('edit_fProfissao')?.value || p.profissao,
         cla: document.getElementById('edit_fCla')?.value || p.cla,
         ryos: parseInt(document.getElementById('edit_fRyos')?.value || p.ryos || 0),
-        score: parseInt(document.getElementById('edit_fScore')?.value || p.score || 0),
         aparencia: document.getElementById('edit_fAparencia')?.value || p.aparencia,
         altura: document.getElementById('edit_fAltura')?.value || p.altura,
         peso: document.getElementById('edit_fPeso')?.value || p.peso,
@@ -1093,25 +1136,27 @@
         nao_gosta_de: document.getElementById('edit_fNaoGosta')?.value || p.nao_gosta_de,
         proposito_1: document.getElementById('edit_fProp1')?.value || p.proposito_1,
         proposito_2: document.getElementById('edit_fProp2')?.value || p.proposito_2,
+        proposito_3: document.getElementById('edit_fProp3')?.value || p.proposito_3,
+        proposito_4: document.getElementById('edit_fProp4')?.value || p.proposito_4,
         proposito_5: document.getElementById('edit_fProp5')?.value || p.proposito_5,
         hp_atual: parseInt(document.getElementById('edit_fHpText')?.value || p.hp_atual || 0),
       };
 
       const dadosAtributos = {
-        velocidade: parseInt(document.getElementById('edit_fAttrVel')?.value || attr.velocidade || 0),
-        taijutsu: parseInt(document.getElementById('edit_fAttrTai')?.value || attr.taijutsu || 0),
-        ninjutsu: parseInt(document.getElementById('edit_fAttrNin')?.value || attr.ninjutsu || 0),
-        forca: parseInt(document.getElementById('edit_fAttrFor')?.value || attr.forca || 0),
-        resistencia: parseInt(document.getElementById('edit_fAttrRes')?.value || attr.resistencia || 0),
-        genjutsu: parseInt(document.getElementById('edit_fAttrGen')?.value || attr.genjutsu || 0),
-        selos: parseInt(document.getElementById('edit_fAttrSel')?.value || attr.selos || 0),
-        inteligencia: parseInt(document.getElementById('edit_fAttrInt')?.value || attr.inteligencia || 0),
-        fuinjutsu: parseInt(document.getElementById('edit_fSubFuin')?.value || attr.fuinjutsu || 0),
-        ningeral: parseInt(document.getElementById('edit_fSubNinG')?.value || attr.ningeral || 0),
-        elementos: parseInt(document.getElementById('edit_fSubEle')?.value || attr.elementos || 0),
-        kenjutsu: parseInt(document.getElementById('edit_fSubKen')?.value || attr.kenjutsu || 0),
-        shurikenjutsu: parseInt(document.getElementById('edit_fSubShu')?.value || attr.shurikenjutsu || 0),
-        combate: parseInt(document.getElementById('edit_fSubCom')?.value || attr.combate || 0),
+        velocidade: parseInt(document.getElementById('fAttrVel')?.textContent.split('+')[0].trim() || attr.velocidade || 0),
+        taijutsu: parseInt(document.getElementById('fAttrTai')?.textContent.split('+')[0].trim() || attr.taijutsu || 0),
+        ninjutsu: parseInt(document.getElementById('fAttrNin')?.textContent.split('+')[0].trim() || attr.ninjutsu || 0),
+        forca: parseInt(document.getElementById('fAttrFor')?.textContent.split('+')[0].trim() || attr.forca || 0),
+        resistencia: parseInt(document.getElementById('fAttrRes')?.textContent.split('+')[0].trim() || attr.resistencia || 0),
+        genjutsu: parseInt(document.getElementById('fAttrGen')?.textContent.split('+')[0].trim() || attr.genjutsu || 0),
+        selos: parseInt(document.getElementById('fAttrSel')?.textContent.split('+')[0].trim() || attr.selos || 0),
+        inteligencia: parseInt(document.getElementById('fAttrInt')?.textContent.split('+')[0].trim() || attr.inteligencia || 0),
+        fuinjutsu: parseInt(document.getElementById('fSubFuin')?.textContent.split('+')[0].trim() || attr.fuinjutsu || 0),
+        ningeral: parseInt(document.getElementById('fSubNinG')?.textContent.split('+')[0].trim() || attr.ningeral || 0),
+        elementos: parseInt(document.getElementById('fSubEle')?.textContent.split('+')[0].trim() || attr.elementos || 0),
+        kenjutsu: parseInt(document.getElementById('fSubKen')?.textContent.split('+')[0].trim() || attr.kenjutsu || 0),
+        shurikenjutsu: parseInt(document.getElementById('fSubShu')?.textContent.split('+')[0].trim() || attr.shurikenjutsu || 0),
+        combate: parseInt(document.getElementById('fSubCom')?.textContent.split('+')[0].trim() || attr.combate || 0),
       };
 
       try {
