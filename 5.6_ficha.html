@@ -1027,7 +1027,6 @@
       document.getElementById('btnEditarFicha').classList.add('edit-mode');
 
       transformarEmInput('fGenero', p.genero);
-      // Tipo sanguíneo não é editável - permanece readonly
       transformarEmInput('fIdade', p.idade);
       transformarEmInput('fAniversario', p.aniversario);
       transformarEmInput('fScore', p.score, 'number');
@@ -1068,10 +1067,6 @@
       document.getElementById('fSubShu').innerHTML = `${attr.shurikenjutsu || 0}<button onclick="incrementarSubAtributo('fSubShu')">+</button>`;
       document.getElementById('fSubCom').innerHTML = `${attr.combate || 0}<button onclick="incrementarSubAtributo('fSubCom')">+</button>`;
 
-      const hpMax = p.hp_max || 5000;
-      const hp = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : hpMax;
-      transformarEmInput('fHpText', hp, 'number');
-
       document.getElementById('editActionsProfile').classList.add('show');
       document.getElementById('editActionsCombate').classList.add('show');
     }
@@ -1109,15 +1104,16 @@
       element.appendChild(textarea);
     }
 
+    // ✅ VERSÃO CORRIGIDA - SEM HISTÓRICO PROBLEMÁTICO
     async function salvarEdicao() {
       if (!fichaAtualAberta) return;
 
       const p = fichaAtualAberta;
       const attr = p.atributos_personagem && p.atributos_personagem[0] ? p.atributos_personagem[0] : {};
 
+      // Dados simples - SEM histórico para evitar problemas
       const dadosPersonagem = {
         genero: document.getElementById('edit_fGenero')?.value || p.genero,
-        tipo_sanguineo: p.tipo_sanguineo, // Imutável - não pode ser editado
         idade: document.getElementById('edit_fIdade')?.value || p.idade,
         aniversario: document.getElementById('edit_fAniversario')?.value || p.aniversario,
         score: parseInt(document.getElementById('edit_fScore')?.value || p.score || 0),
@@ -1139,7 +1135,6 @@
         proposito_3: document.getElementById('edit_fProp3')?.value || p.proposito_3,
         proposito_4: document.getElementById('edit_fProp4')?.value || p.proposito_4,
         proposito_5: document.getElementById('edit_fProp5')?.value || p.proposito_5,
-        hp_atual: parseInt(document.getElementById('edit_fHpText')?.value || p.hp_atual || 0),
       };
 
       const dadosAtributos = {
@@ -1160,45 +1155,44 @@
       };
 
       try {
-        const historico = p.historico_alteracoes || [];
-        
-        for (const [chave, novoValor] of Object.entries(dadosPersonagem)) {
-          if (p[chave] != novoValor) {
-            historico.push({
-              data: new Date().toISOString(),
-              campo_alterado: chave,
-              valor_anterior: p[chave],
-              valor_novo: novoValor,
-              editado_por_id: p.id
-            });
-          }
-        }
+        console.log('🔵 Salvando personagem ID:', p.id);
+        console.log('📦 Dados:', dadosPersonagem);
 
         const { error: errorPersonagem } = await supabaseClient
           .from('personagens')
-          .update({
-            ...dadosPersonagem,
-            historico_alteracoes: historico
-          })
+          .update(dadosPersonagem)
           .eq('id', p.id);
 
-        if (errorPersonagem) throw errorPersonagem;
+        if (errorPersonagem) {
+          console.error('❌ Erro personagem:', errorPersonagem);
+          throw errorPersonagem;
+        }
+
+        console.log('✅ Personagem salvo!');
 
         if (attr.id) {
+          console.log('🔵 Salvando atributos ID:', attr.id);
           const { error: errorAtributos } = await supabaseClient
             .from('atributos_personagem')
             .update(dadosAtributos)
             .eq('id', attr.id);
 
-          if (errorAtributos) throw errorAtributos;
+          if (errorAtributos) {
+            console.error('❌ Erro atributos:', errorAtributos);
+            throw errorAtributos;
+          }
+
+          console.log('✅ Atributos salvos!');
         }
 
+        console.log('🎉 Tudo salvo com sucesso!');
         cancelarEdicao();
         mostrarMensagemSucesso();
         carregarDados();
+
       } catch (err) {
-        console.error('Erro ao salvar:', err);
-        alert('❌ Erro ao salvar a ficha: ' + err.message);
+        console.error('❌ ERRO:', err);
+        alert('❌ Erro ao salvar: ' + (err.message || err));
       }
     }
 
