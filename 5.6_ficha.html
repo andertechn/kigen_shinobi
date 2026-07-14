@@ -144,15 +144,24 @@
     .f-tab-content { display: none; }
     .f-tab-content.active { display: block; }
 
-    /* SEÇÕES E GRIDS DETALHADOS */
+    /* ======= SEÇÕES E GRIDS DETALHADOS ======= */
     .f-section { margin-bottom: 40px; }
     .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
     .f-section-title::before { content: ''; display: inline-block; width: 16px; height: 16px; background: var(--ficha-green); border-radius: 50%; }
 
+    /* GRID PARA ATRIBUTOS E SUBATRIBUTOS */
     .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
     .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 25px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .f-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
     .f-card-value { color: var(--ficha-green); font-family: 'Russo One', sans-serif; font-size: 2.2rem; text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
+
+    /* GRID ESPECIAL PARA INFORMAÇÕES BÁSICAS */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .info-card { background: transparent; border: none; border-left: 3px solid var(--ficha-green); border-radius: 0; padding: 12px 0 12px 15px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; }
+    .info-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .info-card-value { color: #e0e0e0; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; }
+    .info-card input, .info-card textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--ficha-green); color: #fff; padding: 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; }
+    .info-card textarea { min-height: 60px; resize: vertical; }
 
     .f-card button { background: var(--ficha-green); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: all 0.3s ease; margin-top: 10px; }
     .f-card button:hover { background: var(--ficha-green-dark); transform: scale(1.1); }
@@ -400,7 +409,7 @@
     @media (max-width: 768px) {
       #page-container { padding-top: 90px; }
       .header-image { height: 150px; }
-      .personagens-grid, .f-grid, .subattr-grid { grid-template-columns: 1fr; }
+      .personagens-grid, .f-grid, .subattr-grid, .info-grid { grid-template-columns: 1fr; }
       .propositos-grid { grid-template-columns: repeat(2, 1fr); }
       .ficha-body-content { padding: 15px; }
       .vila-floating-icon { right: 10px; width: 45px; height: 45px; }
@@ -506,27 +515,27 @@
             
             <div class="f-section">
               <h2 class="f-section-title">INFORMAÇÕES BÁSICAS</h2>
-              <div class="f-grid">
-                <div class="f-card"><div class="f-card-label">Gênero</div><div class="f-card-value" id="fGenero">-</div></div>
-                <div class="f-card"><div class="f-card-label">Tipo Sanguíneo</div><div class="f-card-value" id="fSexualidade">-</div></div>
-                <div class="f-card"><div class="f-card-label">Idade</div><div class="f-card-value" id="fIdade">-</div></div>
-                <div class="f-card"><div class="f-card-label">Aniversário</div><div class="f-card-value" id="fAniversario">-</div></div>
-                <div class="f-card"><div class="f-card-label">Score</div><div class="f-card-value" id="fScore">0</div></div>
-                <div class="f-card"><div class="f-card-label">Origem de Nasc.</div><div class="f-card-value" id="fOrigem">-</div></div>
-                <div class="f-card"><div class="f-card-label">Local onde Reside</div><div class="f-card-value" id="fReside">-</div></div>
-                <div class="f-card"><div class="f-card-label">Profissão</div><div class="f-card-value" id="fProfissao">-</div></div>
-                <div class="f-card"><div class="f-card-label">Clã</div><div class="f-card-value" id="fCla">-</div></div>
-                <div class="f-card"><div class="f-card-label">Ryos</div><div class="f-card-value" id="fRyos">0</div></div>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Gênero</div><div class="info-card-value" id="fGenero">-</div></div>
+                <div class="info-card"><div class="info-card-label">Tipo Sanguíneo</div><div class="info-card-value" id="fSexualidade">-</div></div>
+                <div class="info-card"><div class="info-card-label">Idade</div><div class="info-card-value" id="fIdade">-</div></div>
+                <div class="info-card"><div class="info-card-label">Aniversário</div><div class="info-card-value" id="fAniversario">-</div></div>
+                <div class="info-card"><div class="info-card-label">Score</div><div class="info-card-value" id="fScore">0</div></div>
+                <div class="info-card"><div class="info-card-label">Origem de Nasc.</div><div class="info-card-value" id="fOrigem">-</div></div>
+                <div class="info-card"><div class="info-card-label">Local onde Reside</div><div class="info-card-value" id="fReside">-</div></div>
+                <div class="info-card"><div class="info-card-label">Profissão</div><div class="info-card-value" id="fProfissao">-</div></div>
+                <div class="info-card"><div class="info-card-label">Clã</div><div class="info-card-value" id="fCla">-</div></div>
+                <div class="info-card"><div class="info-card-label">Ryos</div><div class="info-card-value" id="fRyos">0</div></div>
               </div>
             </div>
 
             <div class="f-section">
               <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
-              <div class="f-grid">
-                <div class="f-card"><div class="f-card-label">Altura</div><div class="f-card-value" id="fAltura">-</div></div>
-                <div class="f-card"><div class="f-card-label">Peso</div><div class="f-card-value" id="fPeso">-</div></div>
-                <div class="f-card"><div class="f-card-label">Cabelos</div><div class="f-card-value" id="fCabelos">-</div></div>
-                <div class="f-card"><div class="f-card-label">Olhos</div><div class="f-card-value" id="fOlhos">-</div></div>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Altura</div><div class="info-card-value" id="fAltura">-</div></div>
+                <div class="info-card"><div class="info-card-label">Peso</div><div class="info-card-value" id="fPeso">-</div></div>
+                <div class="info-card"><div class="info-card-label">Cabelos</div><div class="info-card-value" id="fCabelos">-</div></div>
+                <div class="info-card"><div class="info-card-label">Olhos</div><div class="info-card-value" id="fOlhos">-</div></div>
               </div>
               <div class="f-block-destaque" style="margin-top: 20px;">
                 <span class="label-top">Aparência</span>
@@ -543,9 +552,9 @@
 
             <div class="f-section">
               <h2 class="f-section-title">PREFERÊNCIAS</h2>
-              <div class="f-grid">
-                <div class="f-card"><div class="f-card-label">👍 Gosta De</div><div class="f-card-value" id="fGosta">-</div></div>
-                <div class="f-card"><div class="f-card-label">👎 Não Gosta De</div><div class="f-card-value" id="fNaoGosta">-</div></div>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">👍 Gosta De</div><div class="info-card-value" id="fGosta">-</div></div>
+                <div class="info-card"><div class="info-card-label">👎 Não Gosta De</div><div class="info-card-value" id="fNaoGosta">-</div></div>
               </div>
             </div>
 
@@ -975,7 +984,7 @@
 
       try {
         const response = await fetch(
-          'https://etojqmmhdciphantyzoa.supabase.co/functions/v1/validar-senha',
+          'https://etojqmmhdciphantyzoa.supabase.co/functions/v1/swift-api',
           {
             method: 'POST',
             headers: {
@@ -1018,7 +1027,7 @@
       document.getElementById('btnEditarFicha').classList.add('edit-mode');
 
       transformarEmInput('fGenero', p.genero);
-      transformarEmInput('fSexualidade', p.tipo_sanguineo);
+      // Tipo sanguíneo não é editável - permanece readonly
       transformarEmInput('fIdade', p.idade);
       transformarEmInput('fAniversario', p.aniversario);
       transformarEmInput('fScore', p.score, 'number');
@@ -1108,7 +1117,7 @@
 
       const dadosPersonagem = {
         genero: document.getElementById('edit_fGenero')?.value || p.genero,
-        tipo_sanguineo: document.getElementById('edit_fSexualidade')?.value || p.tipo_sanguineo,
+        tipo_sanguineo: p.tipo_sanguineo, // Imutável - não pode ser editado
         idade: document.getElementById('edit_fIdade')?.value || p.idade,
         aniversario: document.getElementById('edit_fAniversario')?.value || p.aniversario,
         score: parseInt(document.getElementById('edit_fScore')?.value || p.score || 0),
