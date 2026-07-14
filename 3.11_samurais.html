@@ -685,15 +685,13 @@
     let fichaAtualAberta = null;
     let modoEdicaoAtivo = false;
 
-    const ordemPatentes = ['Mifune', 'General', 'Major', 'Capitão', 'Tenente', 'Aspirante', 'Sargento', 'Cabo', 'Soldado', 'Recruta'];
-
     function inicializarSupabase() {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
 
     async function carregarDados() {
       try {
-        const { data, error } = await supabaseClient.from('personagens').select('*');
+        const { data, error } = await supabaseClient.from('personagens').select('*').eq('estilo_vida', 'Samurai');
         if (error) throw error;
         todassPessoas = data || [];
         renderizarPorPatente();
@@ -708,27 +706,44 @@
       document.getElementById('loadingIndicator').style.display = 'none';
       let html = '';
 
-      ordemPatentes.forEach(patente => {
-        const personagensPatente = todassPessoas.filter(p => p.patente === patente);
+      // Mapear patentes com sua coluna correspondente
+      const patentesConfig = [
+        { nome: 'Mifune', coluna: 'patente_samurai' },
+        { nome: 'General', coluna: 'patente_samurai' },
+        { nome: 'Major', coluna: 'patente_samurai' },
+        { nome: 'Capitão', coluna: 'patente_samurai' },
+        { nome: 'Tenente', coluna: 'patente_samurai' },
+        { nome: 'Aspirante', coluna: 'patente_samurai' },
+        { nome: 'Sargento', coluna: 'patente_samurai' },
+        { nome: 'Cabo', coluna: 'patente_samurai' },
+        { nome: 'Soldado', coluna: 'patente_samurai' },
+        { nome: 'Recruta', coluna: 'patente_samurai' },
+      ];
+
+      patentesConfig.forEach(config => {
+        // Filtra pela coluna correta
+        const personagensPatente = todassPessoas.filter(p => p[config.coluna] === config.nome);
+        
         html += `
           <div class="patente-section">
             <div class="patente-header">
-              <h2>${patente}</h2>
+              <h2>${config.nome}</h2>
               <div class="patente-count">${personagensPatente.length}</div>
             </div>
             <div class="personagens-grid">
         `;
+        
         if (personagensPatente.length === 0) {
           html += '<div class="empty-patente">Nenhum guerreiro registrado nesta hierarquia.</div>';
         } else {
           personagensPatente.forEach(pessoa => {
-            const primeiraLetra = (pessoa.nome || '?').charAt(0).toUpperCase();
+            const primeiraLetra = (pessoa.nome_personagem || '?').charAt(0).toUpperCase();
             html += `
               <div class="personagem-card" onclick="abrirFicha(${pessoa.id})">
                 <div class="personagem-avatar">${primeiraLetra}</div>
                 <div class="personagem-info">
-                  <h3>${pessoa.nome}</h3>
-                  <p>${pessoa.patente}</p>
+                  <h3>${pessoa.nome_personagem}</h3>
+                  <p>${config.nome}</p>
                 </div>
                 <button class="btn-ficha" onclick="event.stopPropagation(); abrirFicha(${pessoa.id})">Abrir Ficha</button>
               </div>
@@ -737,6 +752,7 @@
         }
         html += `</div></div>`;
       });
+      
       container.innerHTML = html;
     }
 
@@ -789,44 +805,44 @@
       }
 
       const fotoPerfil = document.getElementById('fichaFotoPerfil');
-      if (p.foto_perfil) {
-        fotoPerfil.src = p.foto_perfil;
+      if (p.aparencia_link) {
+        fotoPerfil.src = p.aparencia_link;
       } else {
-        const inicial = (p.nome || 'S').charAt(0).toUpperCase();
+        const inicial = (p.nome_personagem || 'S').charAt(0).toUpperCase();
         fotoPerfil.src = `https://ui-avatars.com/api/?name=${inicial}&background=4a5568&color=fff&size=120`;
       }
 
       // TÍTULOS
-      document.getElementById('fichaNome').textContent = p.nome || 'Desconhecido';
-      document.getElementById('fichaTitulo').textContent = `"${p.titulo || 'Sem título'}"`;
-      document.getElementById('badgePatente').textContent = p.patente || '-';
-      document.getElementById('badgeVila').textContent = p.vila || 'País do Ferro';
-      document.getElementById('badgeStatus').textContent = p.status_vida || 'Vivo';
+      document.getElementById('fichaNome').textContent = p.nome_personagem || 'Desconhecido';
+      document.getElementById('fichaTitulo').textContent = `"${p.nome_guerra || 'Sem título'}"`;
+      document.getElementById('badgePatente').textContent = p.patente_samurai || '-';
+      document.getElementById('badgeVila').textContent = p.pais_vila || 'País do Ferro';
+      document.getElementById('badgeStatus').textContent = 'Ativo';
 
       // PERFIL
       document.getElementById('fGenero').textContent = p.genero || '-';
-      document.getElementById('fSexualidade').textContent = p.sexualidade || 'Não informado';
+      document.getElementById('fSexualidade').textContent = 'Não informado';
       document.getElementById('fIdade').textContent = p.idade || '-';
       document.getElementById('fAniversario').textContent = p.aniversario || '-';
-      document.getElementById('fFama').textContent = p.fama || '-';
-      document.getElementById('fOrigem').textContent = p.origem_nascimento || '-';
-      document.getElementById('fReside').textContent = p.local_reside || '-';
-      document.getElementById('fOrg').textContent = p.organizacao || '-';
+      document.getElementById('fFama').textContent = '-';
+      document.getElementById('fOrigem').textContent = p.pais_vila || '-';
+      document.getElementById('fReside').textContent = p.pais_vila || '-';
+      document.getElementById('fOrg').textContent = 'Império do País do Ferro';
 
       // VISUAL E HISTÓRIA
       document.getElementById('fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
-      document.getElementById('fAltura').textContent = p.altura || '-';
-      document.getElementById('fPeso').textContent = p.peso || '-';
-      document.getElementById('fCabelos').textContent = p.cabelos || '-';
-      document.getElementById('fOlhos').textContent = p.olhos || '-';
-      document.getElementById('fHistoria').textContent = p.historia || 'Nenhum histórico informado.';
+      document.getElementById('fAltura').textContent = '-';
+      document.getElementById('fPeso').textContent = '-';
+      document.getElementById('fCabelos').textContent = '-';
+      document.getElementById('fOlhos').textContent = '-';
+      document.getElementById('fHistoria').textContent = 'Histórico disponível após aprovação.';
 
       // PROPÓSITOS
-      document.getElementById('fGosta').textContent = p.gosta_de || '-';
-      document.getElementById('fNaoGosta').textContent = p.nao_gosta_de || '-';
-      document.getElementById('fProp1').textContent = p.proposito_1 || '-';
-      document.getElementById('fProp2').textContent = p.proposito_2 || '-';
-      document.getElementById('fProp5').textContent = p.proposito_5 || '-';
+      document.getElementById('fGosta').textContent = '-';
+      document.getElementById('fNaoGosta').textContent = '-';
+      document.getElementById('fProp1').textContent = '-';
+      document.getElementById('fProp2').textContent = '-';
+      document.getElementById('fProp5').textContent = '-';
 
       // STATUS (Ryos/Score)
       document.getElementById('fRyos').textContent = p.ryos || '0';
@@ -853,82 +869,53 @@
       desenharGraficoRadar(p.kenjutsu||0, p.taijutsu||0, p.forca||0, p.resistencia||0, p.velocidade||0, p.inteligencia||0);
       
       // EQUIPAMENTOS
-      document.getElementById('fEspada').textContent = p.espada_nome || 'Nenhuma espada vinculada. O Samurai precisa passar pelo Batismo de Aço.';
-      document.getElementById('fArmadura').textContent = p.armadura_tipo || 'Armadura Padrão (Sem modificações antitecnologia registradas).';
+      document.getElementById('fEspada').textContent = 'Espada não vinculada. Aguardando Batismo de Aço.';
+      document.getElementById('fArmadura').textContent = 'Armadura Padrão de Samurai do País do Ferro.';
 
       // JORNADA
-      document.getElementById('fMissaoS').textContent = p.contrato_s || '0';
-      document.getElementById('fMissaoA').textContent = p.contrato_a || '0';
-      document.getElementById('fMissaoB').textContent = p.contrato_b || '0';
-      document.getElementById('fMissaoC').textContent = p.contrato_c || '0';
-      document.getElementById('fMissaoD').textContent = p.contrato_d || '0';
+      document.getElementById('fMissaoS').textContent = '0';
+      document.getElementById('fMissaoA').textContent = '0';
+      document.getElementById('fMissaoB').textContent = '0';
+      document.getElementById('fMissaoC').textContent = '0';
+      document.getElementById('fMissaoD').textContent = '0';
 
       // HISTÓRICO GRADUAÇÕES
       const boxGraduacoes = document.getElementById('boxGraduacoes');
-      if (p.historico_graduacoes) {
-        boxGraduacoes.innerHTML = p.historico_graduacoes;
-      } else {
-        boxGraduacoes.innerHTML = `
-          <div class="jornada-card">
-            <div class="grad-icon"><svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg></div>
-            <div class="grad-info">
-              <div class="grad-info-title">Recruta &rarr; <strong>Soldado</strong></div>
-              <div class="grad-info-date">Aprovação Inicial</div>
-            </div>
+      boxGraduacoes.innerHTML = `
+        <div class="jornada-card">
+          <div class="grad-icon"><svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg></div>
+          <div class="grad-info">
+            <div class="grad-info-title">Recruta &rarr; <strong>${p.patente_samurai || 'Recruta'}</strong></div>
+            <div class="grad-info-date">Aprovação Inicial</div>
           </div>
-        `;
-      }
+        </div>
+      `;
 
       // RELAÇÕES
       const boxRelacoes = document.getElementById('boxRelacoes');
-      if (p.lista_relacoes) {
-        boxRelacoes.innerHTML = p.lista_relacoes;
-      } else {
-        boxRelacoes.innerHTML = `
-          <div class="relacao-card">
-            <div class="relacao-header">
-              <img src="https://ui-avatars.com/api/?name=Aliado&background=a0aec0&color=fff&size=100" alt="Aliado" class="relacao-avatar" />
-              <div class="relacao-info">
-                <div class="relacao-nome">Guerreiro Aliado (@Player)</div>
-                <div class="relacao-tipo">Companheiro de Esquadrão</div>
-                <div class="relacao-stats"><span class="pos">+15</span> <span class="neg">-0</span></div>
-              </div>
-              <div class="relacao-badge">COMPANHEIROS</div>
+      boxRelacoes.innerHTML = `
+        <div class="relacao-card">
+          <div class="relacao-header">
+            <img src="https://ui-avatars.com/api/?name=Aliado&background=a0aec0&color=fff&size=100" alt="Aliado" class="relacao-avatar" />
+            <div class="relacao-info">
+              <div class="relacao-nome">Guerreiro Aliado (@Player)</div>
+              <div class="relacao-tipo">Companheiro de Esquadrão</div>
+              <div class="relacao-stats"><span class="pos">+15</span> <span class="neg">-0</span></div>
             </div>
-            <div class="relacao-desc">
-              Vocês lutaram lado a lado nas montanhas nevadas e desenvolveram grande confiança em campo de batalha.
-            </div>
-            <div class="relacao-actions">
-              <button class="btn-icon-green" title="Acessar Perfil"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg></button>
-            </div>
+            <div class="relacao-badge">COMPANHEIROS</div>
           </div>
-        `;
-      }
+          <div class="relacao-desc">
+            Vocês lutaram lado a lado nas montanhas nevadas e desenvolveram grande confiança em campo de batalha.
+          </div>
+          <div class="relacao-actions">
+            <button class="btn-icon-green" title="Acessar Perfil"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg></button>
+          </div>
+        </div>
+      `;
 
       // RESUMO DE ALTERAÇÕES
       const boxResumo = document.getElementById('boxResumo');
-      if (p.historico_alteracoes && Array.isArray(p.historico_alteracoes) && p.historico_alteracoes.length > 0) {
-        let resumoHtml = '';
-        p.historico_alteracoes.forEach(alteracao => {
-          const data = new Date(alteracao.data);
-          const dataFormatada = data.toLocaleString('pt-BR');
-          resumoHtml += `
-            <div class="resumo-card">
-              <div class="resumo-header">
-                <div class="resumo-title">${alteracao.campo_alterado}</div>
-                <div class="resumo-date">${dataFormatada}</div>
-              </div>
-              <div class="resumo-desc">
-                <strong>Anterior:</strong> ${alteracao.valor_anterior} → <strong>Novo:</strong> ${alteracao.valor_novo}
-                ${alteracao.editado_por_id ? `<br><small>Editado por ID: ${alteracao.editado_por_id}</small>` : ''}
-              </div>
-            </div>
-          `;
-        });
-        boxResumo.innerHTML = resumoHtml;
-      } else {
-        boxResumo.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma alteração registrada.</em></div>`;
-      }
+      boxResumo.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma alteração registrada.</em></div>`;
 
       document.querySelectorAll('.f-tab-btn')[0].click();
       mostrarPagina('paginaFicha');
@@ -990,26 +977,12 @@
 
       // PERFIL
       transformarEmInput('fGenero', p.genero);
-      transformarEmInput('fSexualidade', p.sexualidade);
       transformarEmInput('fIdade', p.idade);
       transformarEmInput('fAniversario', p.aniversario);
-      transformarEmInput('fFama', p.fama);
-      transformarEmInput('fOrigem', p.origem_nascimento);
-      transformarEmInput('fReside', p.local_reside);
-      transformarEmInput('fOrg', p.organizacao);
+      transformarEmInput('fOrigem', p.pais_vila);
+      transformarEmInput('fReside', p.pais_vila);
 
       transformarEmTextarea('fAparencia', p.aparencia);
-      transformarEmInput('fAltura', p.altura);
-      transformarEmInput('fPeso', p.peso);
-      transformarEmInput('fCabelos', p.cabelos);
-      transformarEmInput('fOlhos', p.olhos);
-      transformarEmTextarea('fHistoria', p.historia);
-
-      transformarEmInput('fGosta', p.gosta_de);
-      transformarEmInput('fNaoGosta', p.nao_gosta_de);
-      transformarEmInput('fProp1', p.proposito_1);
-      transformarEmInput('fProp2', p.proposito_2);
-      transformarEmInput('fProp5', p.proposito_5);
 
       // STATUS
       transformarEmInput('fRyos', p.ryos, 'number');
@@ -1059,24 +1032,9 @@
 
       const dadosPersonagem = {
         genero: document.getElementById('edit_fGenero')?.value || p.genero,
-        sexualidade: document.getElementById('edit_fSexualidade')?.value || p.sexualidade,
         idade: document.getElementById('edit_fIdade')?.value || p.idade,
         aniversario: document.getElementById('edit_fAniversario')?.value || p.aniversario,
-        fama: document.getElementById('edit_fFama')?.value || p.fama,
-        origem_nascimento: document.getElementById('edit_fOrigem')?.value || p.origem_nascimento,
-        local_reside: document.getElementById('edit_fReside')?.value || p.local_reside,
-        organizacao: document.getElementById('edit_fOrg')?.value || p.organizacao,
         aparencia: document.getElementById('edit_fAparencia')?.value || p.aparencia,
-        altura: document.getElementById('edit_fAltura')?.value || p.altura,
-        peso: document.getElementById('edit_fPeso')?.value || p.peso,
-        cabelos: document.getElementById('edit_fCabelos')?.value || p.cabelos,
-        olhos: document.getElementById('edit_fOlhos')?.value || p.olhos,
-        historia: document.getElementById('edit_fHistoria')?.value || p.historia,
-        gosta_de: document.getElementById('edit_fGosta')?.value || p.gosta_de,
-        nao_gosta_de: document.getElementById('edit_fNaoGosta')?.value || p.nao_gosta_de,
-        proposito_1: document.getElementById('edit_fProp1')?.value || p.proposito_1,
-        proposito_2: document.getElementById('edit_fProp2')?.value || p.proposito_2,
-        proposito_5: document.getElementById('edit_fProp5')?.value || p.proposito_5,
         ryos: parseInt(document.getElementById('edit_fRyos')?.value || p.ryos || 0),
         score: parseInt(document.getElementById('edit_fScore')?.value || p.score || 0),
         kenjutsu: parseInt(document.getElementById('edit_fAttrKen')?.value || p.kenjutsu || 0),
@@ -1089,26 +1047,9 @@
       };
 
       try {
-        const historico = p.historico_alteracoes || [];
-        
-        for (const [chave, novoValor] of Object.entries(dadosPersonagem)) {
-          if (p[chave] != novoValor) {
-            historico.push({
-              data: new Date().toISOString(),
-              campo_alterado: chave,
-              valor_anterior: p[chave],
-              valor_novo: novoValor,
-              editado_por_id: p.id
-            });
-          }
-        }
-
         const { error: errorPersonagem } = await supabaseClient
           .from('personagens')
-          .update({
-            ...dadosPersonagem,
-            historico_alteracoes: historico
-          })
+          .update(dadosPersonagem)
           .eq('id', p.id);
 
         if (errorPersonagem) throw errorPersonagem;
