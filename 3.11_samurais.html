@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Banco de Dados - País do Ferro</title>
+  <title>Banco de Dados - País do Ferro (Samurais)</title>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -105,6 +105,11 @@
     .badge-f.dark { background: var(--theme-bg); color: #fff; border: 1px solid var(--theme-border); }
     .badge-f.theme { background: var(--theme-color); color: #000; border: 1px solid rgba(255,255,255,0.3); }
 
+    .btn-editar-ficha { position: absolute; top: 20px; right: 20px; z-index: 3; background: var(--theme-color); color: #000; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Russo One', sans-serif; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease; }
+    .btn-editar-ficha:hover { background: #fff; box-shadow: 0 4px 12px rgba(160, 174, 192, 0.6); }
+    .btn-editar-ficha.edit-mode { background: #fc8181; color: #000; }
+    .btn-editar-ficha.edit-mode:hover { background: #f56565; }
+
     /* NAV ABAS */
     .ficha-nav-tabs { display: flex; background: #0f1318; padding: 15px 20px 0; gap: 5px; border-bottom: 2px solid var(--theme-border); overflow-x: auto; position: relative; }
     .f-tab-btn { background: var(--theme-card); color: #718096; border: 1px solid transparent; border-bottom: none; padding: 12px 20px; border-radius: 8px 8px 0 0; font-family: 'Russo One', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
@@ -113,7 +118,6 @@
 
     /* ÍCONE FLUTUANTE DA VILA (KATANA / SAMURAI) */
     .vila-floating-icon { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); width: 55px; height: 55px; background: rgba(18, 21, 25, 0.95); border: 2px solid rgba(160, 174, 192, 0.6); border-radius: 50%; box-shadow: 0 0 15px rgba(160, 174, 192, 0.2); display: flex; align-items: center; justify-content: center; z-index: 10; }
-    /* Katana SVG Minimalista */
     .vila-floating-icon svg { width: 32px; height: 32px; fill: none; stroke: var(--theme-color); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
     .ficha-body-content { padding: 30px; background: var(--theme-bg); }
@@ -132,10 +136,28 @@
     .f-card-label { color: var(--theme-color); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .f-card-value { color: #fff; font-size: 1.05rem; font-weight: 500; }
 
+    .f-card input[type="text"],
+    .f-card input[type="number"],
+    .f-card textarea { 
+      width: 100%; 
+      background: rgba(255,255,255,0.05); 
+      border: 1px solid var(--theme-color); 
+      color: #fff; 
+      padding: 8px; 
+      border-radius: 4px; 
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+    }
+    .f-card textarea { resize: vertical; min-height: 60px; }
+    .f-card input[type="text"]::placeholder,
+    .f-card input[type="number"]::placeholder,
+    .f-card textarea::placeholder { color: #666; }
+
     .f-block { background: var(--theme-card); border: 1px solid var(--theme-border); border-left: 3px solid var(--theme-color); border-radius: 8px; padding: 20px; color: #e2e8f0; line-height: 1.6; }
     .f-block-destaque { background: var(--theme-card); border: 1px solid var(--theme-border); padding: 25px; border-radius: 8px; margin-bottom: 20px; color: #cbd5e0; line-height: 1.7; position: relative; overflow: hidden; }
     .f-block-destaque::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--theme-color); }
     .f-block-destaque .label-top { font-family: 'Russo One', sans-serif; color: var(--theme-color); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; display: block; }
+    .f-block-destaque textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--theme-color); color: #fff; padding: 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; min-height: 80px; resize: vertical; }
 
     /* BARRAS DE STATUS (VITAIS) */
     .status-box { background: var(--theme-card); border: 1px solid var(--theme-border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
@@ -160,11 +182,11 @@
     .grad-info-date { color: #718096; font-size: 0.85rem; margin-top: 4px; }
     
     .missao-badge { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: #fff; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-    .badge-s { background: #e53e3e; } /* Vermelho */
-    .badge-a { background: #dd6b20; } /* Laranja */
-    .badge-b { background: #319795; } /* Azul/Verde */
-    .badge-c { background: #3182ce; } /* Azul Claro */
-    .badge-d { background: #805ad5; } /* Roxo */
+    .badge-s { background: #e53e3e; }
+    .badge-a { background: #dd6b20; }
+    .badge-b { background: #319795; }
+    .badge-c { background: #3182ce; }
+    .badge-d { background: #805ad5; }
     .missao-info { flex: 1; margin-left: 20px; }
     .missao-label { font-family: 'Rajdhani', sans-serif; color: #a0aec0; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
     .missao-value { color: #fff; font-family: 'Russo One', sans-serif; font-size: 1.3rem; margin-top: 2px; }
@@ -202,6 +224,143 @@
     .btn-react.active { background: var(--theme-color-dark); color: #fff; border-color: var(--theme-color); }
     .btn-react svg { width: 14px; height: 14px; fill: currentColor; }
 
+    /* ======= MODAL DE AUTENTICAÇÃO ======= */
+    #modalAutenticacao { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.9); 
+      z-index: 2000; 
+      align-items: center; 
+      justify-content: center; 
+      backdrop-filter: blur(4px);
+    }
+    #modalAutenticacao.show { display: flex; }
+    .modal-content { 
+      background: var(--theme-card); 
+      border: 2px solid var(--theme-color); 
+      border-radius: 12px; 
+      padding: 40px; 
+      max-width: 400px; 
+      width: 90%;
+      box-shadow: 0 0 30px rgba(160, 174, 192, 0.3);
+      position: relative;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--theme-color);
+      color: #000;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .modal-close-btn:hover {
+      background: #fff;
+      transform: rotate(90deg);
+    }
+    .modal-content h2 { 
+      font-family: 'Russo One', sans-serif; 
+      color: var(--theme-color); 
+      margin-bottom: 30px; 
+      text-align: center; 
+      font-size: 1.5rem;
+      text-transform: uppercase;
+    }
+    .modal-form { display: flex; flex-direction: column; gap: 15px; }
+    .modal-form input { 
+      background: rgba(255,255,255,0.05); 
+      border: 1px solid var(--theme-color); 
+      color: #fff; 
+      padding: 12px; 
+      border-radius: 6px; 
+      font-family: 'Rajdhani', sans-serif; 
+      font-size: 1rem;
+    }
+    .modal-form input::placeholder { color: #666; }
+    .modal-form button { 
+      background: var(--theme-color); 
+      color: #000; 
+      border: none; 
+      padding: 12px; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-weight: 600; 
+      font-family: 'Russo One', sans-serif;
+      transition: all 0.3s ease;
+    }
+    .modal-form button:hover { 
+      background: #fff; 
+      box-shadow: 0 4px 12px rgba(160, 174, 192, 0.6);
+    }
+    .modal-error { 
+      color: #fc8181; 
+      text-align: center; 
+      font-size: 0.9rem; 
+      margin-top: 15px; 
+      display: none;
+    }
+
+    /* ======= BOTÕES DE SALVAR/CANCELAR ======= */
+    .edit-actions { 
+      display: none; 
+      gap: 10px; 
+      margin-top: 20px; 
+      padding-top: 20px; 
+      border-top: 2px solid var(--theme-border);
+    }
+    .edit-actions.show { display: flex; }
+    .btn-save, .btn-cancel { 
+      flex: 1; 
+      padding: 12px 20px; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-family: 'Russo One', sans-serif; 
+      font-weight: 600; 
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+    .btn-save { 
+      background: var(--theme-color); 
+      color: #000;
+    }
+    .btn-save:hover { 
+      background: #fff; 
+      box-shadow: 0 4px 12px rgba(160, 174, 192, 0.6);
+    }
+    .btn-cancel { 
+      background: #c53030; 
+      color: #fff;
+    }
+    .btn-cancel:hover { 
+      background: #9b2c2c;
+    }
+
+    .success-message { 
+      display: none; 
+      padding: 15px 20px; 
+      background: rgba(160, 174, 192, 0.2); 
+      border: 1px solid var(--theme-color); 
+      border-radius: 6px; 
+      color: var(--theme-color); 
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .success-message.show { display: block; }
+
     @media (max-width: 768px) {
       #page-container { padding-top: 90px; }
       .header-image { height: 150px; }
@@ -217,12 +376,10 @@
 <body>
 
   <div id="fixed-background">
-    <!-- IMAGEM DE FUNDO GERAL -->
     <img src="00_fundo_2_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
     <div class="hero-overlay"></div>
   </div>
 
-  <!-- BOTAO MENU FLUTUANTE -->
   <div id="floating-ui">
     <button id="menu-btn" aria-label="Abrir menu">
       <svg class="kunai" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -231,7 +388,6 @@
     </button>
   </div>
 
-  <!-- MENU LATERAL -->
   <div id="nav-overlay" role="dialog" aria-modal="true">
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
@@ -244,11 +400,22 @@
     </nav>
   </div>
 
+  <!-- MODAL DE AUTENTICAÇÃO -->
+  <div id="modalAutenticacao">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAutenticacao()" title="Fechar e voltar à ficha">×</button>
+      <h2>Autenticação Necessária</h2>
+      <form class="modal-form" onsubmit="autenticarEdicao(event)">
+        <input type="number" id="inputId" placeholder="ID do Samurai" required />
+        <input type="password" id="inputSenha" placeholder="Senha de Edição" required />
+        <button type="submit">Autenticar</button>
+      </form>
+      <div class="modal-error" id="modalError"></div>
+    </div>
+  </div>
+
   <main id="page-container">
     
-    <!-- ============================================== -->
-    <!-- PÁGINA PRINCIPAL (HOME)                        -->
-    <!-- ============================================== -->
     <div id="paginaPrincipal" class="page active">
       <div class="main-header-group">
         <div class="header-image">
@@ -263,9 +430,6 @@
       <div class="loading" id="loadingIndicator">⏳ Sincronizando com o Registro Militar...</div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- PÁGINA DA FICHA (SAMURAI)                      -->
-    <!-- ============================================== -->
     <div id="paginaFicha" class="page">
       
       <button class="back-btn-top" onclick="voltarParaPrincipal()">
@@ -274,9 +438,9 @@
 
       <div class="ficha-layout">
         
-        <!-- HEADER DA FICHA -->
         <div class="ficha-capa-banner" id="fichaBannerCapa">
           <div class="ficha-capa-overlay"></div>
+          <button class="btn-editar-ficha" id="btnEditarFicha" onclick="iniciarEdicao()">✎ Editar</button>
           <div class="ficha-avatar-wrapper">
             <img id="fichaFotoPerfil" src="" alt="Avatar" />
           </div>
@@ -289,15 +453,14 @@
           </div>
         </div>
 
-        <!-- ABAS NAVEGAÇÃO -->
         <div class="ficha-nav-tabs">
           <button class="f-tab-btn active" onclick="trocarAba(event, 'tabPerfil')">PERFIL</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabStatus')">STATUS</button>
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabCombate')">COMBATE</button>
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabJornada')">JORNADA</button>
           <button class="f-tab-btn" onclick="trocarAba(event, 'tabRelacoes')">RELAÇÕES</button>
-          <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo')">RESUMO DE ALTERAÇÕES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo')">HISTÓRICO</button>
 
-          <!-- ÍCONE FLUTUANTE (KATANAS CRUZADAS) -->
           <div class="vila-floating-icon" title="Símbolo Samurai">
             <svg viewBox="0 0 24 24">
               <path d="M14 4l6 6-1 1-6-6 1-1z" />
@@ -309,10 +472,8 @@
         </div>
 
         <div class="ficha-body-content">
+          <div class="success-message" id="successMessage">✓ Ficha salva com sucesso!</div>
           
-          <!-- ============================================== -->
-          <!-- ABA: PERFIL                                    -->
-          <!-- ============================================== -->
           <div id="tabPerfil" class="f-tab-content active">
             
             <div class="f-section">
@@ -360,17 +521,35 @@
                 <div class="f-card"><div class="f-card-label">5 Propósitos</div><div class="f-card-value" id="fProp5">-</div></div>
               </div>
             </div>
+
+            <div class="edit-actions" id="editActionsPerfil">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
           </div>
 
-          <!-- ============================================== -->
-          <!-- ABA: COMBATE (SAMURAI FOCUS)                   -->
-          <!-- ============================================== -->
+          <div id="tabStatus" class="f-tab-content">
+            
+            <div class="f-section">
+              <h2 class="f-section-title">REPUTAÇÃO & RECURSOS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Ryos</div><div class="f-card-value" id="fRyos">0</div></div>
+                <div class="f-card"><div class="f-card-label">Score</div><div class="f-card-value" id="fScore">0</div></div>
+              </div>
+            </div>
+
+            <div class="edit-actions" id="editActionsStatus">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+
           <div id="tabCombate" class="f-tab-content">
             
             <div class="f-section">
               <h2 class="f-section-title">STATUS VITAIS</h2>
               <div class="status-box">
-                <div class="status-header"><span>HP (Fixo Samurai)</span> <span id="fHpText" style="color: #fc8181;">6000/6000</span></div>
+                <div class="status-header"><span>HP</span> <span id="fHpText" style="color: #fc8181;">6000/6000</span></div>
                 <div class="status-bar-bg"><div class="status-bar-fill fill-hp" id="fHpBar" style="width: 100%;"></div></div>
               </div>
               <div class="status-box">
@@ -380,16 +559,14 @@
             </div>
 
             <div class="f-section">
-              <h2 class="f-section-title">ATRIBUTOS PRIMÁRIOS</h2>
+              <h2 class="f-section-title">ATRIBUTOS MARCIAIS</h2>
               <div class="f-grid">
-                <div class="f-card" title="Manejo e maestria com a espada"><div class="f-card-label">Kenjutsu</div><div class="f-card-value" id="fAttrKen">0</div></div>
-                <div class="f-card" title="Capacidade de combate corpo a corpo"><div class="f-card-label">Taijutsu</div><div class="f-card-value" id="fAttrTai">0</div></div>
-                <div class="f-card" title="Poder de impacto e uso de armaduras pesadas"><div class="f-card-label">Força</div><div class="f-card-value" id="fAttrFor">0</div></div>
-                <div class="f-card" title="Vigor, fôlego e tolerância a dor"><div class="f-card-label">Resistência</div><div class="f-card-value" id="fAttrRes">0</div></div>
-                <div class="f-card" title="Mobilidade, reflexos e esquiva"><div class="f-card-label">Velocidade</div><div class="f-card-value" id="fAttrVel">0</div></div>
-                <div class="f-card" title="Leitura de combate e quebra de genjutsus"><div class="f-card-label">Inteligência</div><div class="f-card-value" id="fAttrInt">0</div></div>
-                <div class="f-card" title="Atenção aos detalhes do ambiente"><div class="f-card-label">Percepção</div><div class="f-card-value" id="fAttrPer">0</div></div>
-                <div class="f-card" title="Foco e treinamento Samurai"><div class="f-card-label">Disciplina</div><div class="f-card-value" id="fAttrDis">0</div></div>
+                <div class="f-card"><div class="f-card-label">Kenjutsu</div><div class="f-card-value" id="fAttrKen">0</div></div>
+                <div class="f-card"><div class="f-card-label">Taijutsu</div><div class="f-card-value" id="fAttrTai">0</div></div>
+                <div class="f-card"><div class="f-card-label">Força</div><div class="f-card-value" id="fAttrFor">0</div></div>
+                <div class="f-card"><div class="f-card-label">Resistência</div><div class="f-card-value" id="fAttrRes">0</div></div>
+                <div class="f-card"><div class="f-card-label">Velocidade</div><div class="f-card-value" id="fAttrVel">0</div></div>
+                <div class="f-card"><div class="f-card-label">Inteligência</div><div class="f-card-value" id="fAttrInt">0</div></div>
               </div>
             </div>
 
@@ -400,7 +577,6 @@
               </div>
             </div>
 
-            <!-- EQUIPAMENTOS SAMURAI (NOVO) -->
             <div class="f-section">
               <h2 class="f-section-title">EQUIPAMENTO & ARMADURA</h2>
               
@@ -413,19 +589,19 @@
                 <span class="label-top">Armadura Militar Antitecnologia</span>
                 <p id="fArmadura">Armadura Básica - Não há registros de modificações estruturais.</p>
               </div>
+            </div>
 
+            <div class="edit-actions" id="editActionsCombate">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
             </div>
           </div>
           
-          <!-- ============================================== -->
-          <!-- ABA: JORNADA (CONTRATOS E PATENTES)            -->
-          <!-- ============================================== -->
           <div id="tabJornada" class="f-tab-content">
             
             <div class="f-section">
               <h2 class="f-section-title">HISTÓRICO MILITAR (GRADUAÇÕES)</h2>
               <div class="jornada-list" id="boxGraduacoes">
-                <!-- Preenchido via JS -->
               </div>
             </div>
 
@@ -477,26 +653,18 @@
             </div>
           </div>
           
-          <!-- ============================================== -->
-          <!-- ABA: RELAÇÕES                                  -->
-          <!-- ============================================== -->
           <div id="tabRelacoes" class="f-tab-content">
             <div class="f-section">
               <h2 class="f-section-title">JOGADORES</h2>
               <div class="relacoes-list" id="boxRelacoes">
-                <!-- Preenchido via JS -->
               </div>
             </div>
           </div>
           
-          <!-- ============================================== -->
-          <!-- ABA: RESUMO DE ALTERAÇÕES                      -->
-          <!-- ============================================== -->
           <div id="tabResumo" class="f-tab-content">
             <div class="f-section">
               <h2 class="f-section-title">HISTÓRICO DE LOGS</h2>
               <div class="resumo-list" id="boxResumo">
-                <!-- Preenchido via JS -->
               </div>
             </div>
           </div>
@@ -514,8 +682,9 @@
     let supabaseClient;
     let todassPessoas = [];
     let radarChartInstance = null;
+    let fichaAtualAberta = null;
+    let modoEdicaoAtivo = false;
 
-    // PATENTES SAMURAIS
     const ordemPatentes = ['Mifune', 'General', 'Major', 'Capitão', 'Tenente', 'Aspirante', 'Sargento', 'Cabo', 'Soldado', 'Recruta'];
 
     function inicializarSupabase() {
@@ -524,7 +693,6 @@
 
     async function carregarDados() {
       try {
-        // Se a sua tabela tiver outro nome para samurais, altere 'personagens' aqui
         const { data, error } = await supabaseClient.from('personagens').select('*');
         if (error) throw error;
         todassPessoas = data || [];
@@ -572,19 +740,18 @@
       container.innerHTML = html;
     }
 
-    // Gráfico Samurai (Cores Prata/Ferro)
-    function desenharGraficoRadar(ken, tai, forca, res, vel, int, per, dis) {
+    function desenharGraficoRadar(ken, tai, forca, res, vel, int) {
       const ctx = document.getElementById('radarChart').getContext('2d');
       if (radarChartInstance) { radarChartInstance.destroy(); }
 
       radarChartInstance = new Chart(ctx, {
         type: 'radar',
         data: {
-          labels: ['KEN', 'TAI', 'FOR', 'RES', 'VEL', 'INT', 'PER', 'DIS'],
+          labels: ['KEN', 'TAI', 'FOR', 'RES', 'VEL', 'INT'],
           datasets: [{
-            data: [ken, tai, forca, res, vel, int, per, dis],
-            backgroundColor: 'rgba(160, 174, 192, 0.2)', // Fundo prata transparente
-            borderColor: '#a0aec0', // Borda cor de ferro
+            data: [ken, tai, forca, res, vel, int],
+            backgroundColor: 'rgba(160, 174, 192, 0.2)',
+            borderColor: '#a0aec0',
             pointBackgroundColor: '#fff',
             pointBorderColor: '#a0aec0',
             borderWidth: 2
@@ -596,7 +763,7 @@
               angleLines: { color: 'rgba(255,255,255,0.1)' },
               grid: { color: 'rgba(255,255,255,0.1)' },
               pointLabels: { color: '#a0aec0', font: { family: 'Russo One', size: 12 } },
-              ticks: { display: false, min: 0, max: 10 } // Ajuste o maximo conforme seu RPG
+              ticks: { display: false, min: 0, max: 10 }
             }
           },
           plugins: { legend: { display: false } }
@@ -607,6 +774,9 @@
     function abrirFicha(id) {
       const p = todassPessoas.find(x => x.id === id);
       if (!p) return;
+
+      fichaAtualAberta = p;
+      modoEdicaoAtivo = false;
 
       // CAPA E FOTO
       const bannerCapa = document.getElementById('fichaBannerCapa');
@@ -633,7 +803,7 @@
       document.getElementById('badgeVila').textContent = p.vila || 'País do Ferro';
       document.getElementById('badgeStatus').textContent = p.status_vida || 'Vivo';
 
-      // PERFIL (Trocado Clã/Profissão por Organização)
+      // PERFIL
       document.getElementById('fGenero').textContent = p.genero || '-';
       document.getElementById('fSexualidade').textContent = p.sexualidade || 'Não informado';
       document.getElementById('fIdade').textContent = p.idade || '-';
@@ -658,8 +828,11 @@
       document.getElementById('fProp2').textContent = p.proposito_2 || '-';
       document.getElementById('fProp5').textContent = p.proposito_5 || '-';
 
-      // COMBATE (Mecânicas Samurais)
-      // HP Samurai é fixo em 6000 (segundo a lore), mas pode ser puxado do banco
+      // STATUS (Ryos/Score)
+      document.getElementById('fRyos').textContent = p.ryos || '0';
+      document.getElementById('fScore').textContent = p.score || '0';
+
+      // COMBATE
       const hp = p.hp_atual || 6000;
       const hpMax = p.hp_max || 6000;
       const chakra = p.chakra_atual || 0;
@@ -670,23 +843,20 @@
       document.getElementById('fChakraText').textContent = `${chakra}/${chakraMax}`;
       document.getElementById('fChakraBar').style.width = `${Math.min((chakra / chakraMax) * 100, 100)}%`;
 
-      // Atributos base Samurai
       document.getElementById('fAttrKen').textContent = p.kenjutsu || '0';
       document.getElementById('fAttrTai').textContent = p.taijutsu || '0';
       document.getElementById('fAttrFor').textContent = p.forca || '0';
       document.getElementById('fAttrRes').textContent = p.resistencia || '0';
       document.getElementById('fAttrVel').textContent = p.velocidade || '0';
       document.getElementById('fAttrInt').textContent = p.inteligencia || '0';
-      document.getElementById('fAttrPer').textContent = p.percepcao || '0';
-      document.getElementById('fAttrDis').textContent = p.disciplina || '0';
 
-      desenharGraficoRadar(p.kenjutsu||0, p.taijutsu||0, p.forca||0, p.resistencia||0, p.velocidade||0, p.inteligencia||0, p.percepcao||0, p.disciplina||0);
+      desenharGraficoRadar(p.kenjutsu||0, p.taijutsu||0, p.forca||0, p.resistencia||0, p.velocidade||0, p.inteligencia||0);
       
-      // Equipamentos
+      // EQUIPAMENTOS
       document.getElementById('fEspada').textContent = p.espada_nome || 'Nenhuma espada vinculada. O Samurai precisa passar pelo Batismo de Aço.';
       document.getElementById('fArmadura').textContent = p.armadura_tipo || 'Armadura Padrão (Sem modificações antitecnologia registradas).';
 
-      // JORNADA (CONTRATOS)
+      // JORNADA
       document.getElementById('fMissaoS').textContent = p.contrato_s || '0';
       document.getElementById('fMissaoA').textContent = p.contrato_a || '0';
       document.getElementById('fMissaoB').textContent = p.contrato_b || '0';
@@ -737,28 +907,237 @@
 
       // RESUMO DE ALTERAÇÕES
       const boxResumo = document.getElementById('boxResumo');
-      if (p.historico_resumo) {
-        boxResumo.innerHTML = p.historico_resumo;
+      if (p.historico_alteracoes && Array.isArray(p.historico_alteracoes) && p.historico_alteracoes.length > 0) {
+        let resumoHtml = '';
+        p.historico_alteracoes.forEach(alteracao => {
+          const data = new Date(alteracao.data);
+          const dataFormatada = data.toLocaleString('pt-BR');
+          resumoHtml += `
+            <div class="resumo-card">
+              <div class="resumo-header">
+                <div class="resumo-title">${alteracao.campo_alterado}</div>
+                <div class="resumo-date">${dataFormatada}</div>
+              </div>
+              <div class="resumo-desc">
+                <strong>Anterior:</strong> ${alteracao.valor_anterior} → <strong>Novo:</strong> ${alteracao.valor_novo}
+                ${alteracao.editado_por_id ? `<br><small>Editado por ID: ${alteracao.editado_por_id}</small>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        boxResumo.innerHTML = resumoHtml;
       } else {
-        boxResumo.innerHTML = `
-          <div class="resumo-card">
-            <div class="resumo-header">
-              <div class="resumo-title">Criação do Registro</div>
-              <div class="resumo-date">Sistema</div>
-            </div>
-            <div class="resumo-desc">
-              Alistamento militar concluído no País do Ferro. Atributos base iniciados.
-            </div>
-            <button class="btn-react" onclick="this.classList.toggle('active')">
-              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> 
-              Curtir / Visto
-            </button>
-          </div>
-        `;
+        boxResumo.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma alteração registrada.</em></div>`;
       }
 
       document.querySelectorAll('.f-tab-btn')[0].click();
       mostrarPagina('paginaFicha');
+    }
+
+    function iniciarEdicao() {
+      if (!fichaAtualAberta) return;
+      modoEdicaoAtivo = true;
+      document.getElementById('modalAutenticacao').classList.add('show');
+    }
+
+    function fecharModalAutenticacao() {
+      document.getElementById('modalAutenticacao').classList.remove('show');
+      document.getElementById('inputId').value = '';
+      document.getElementById('inputSenha').value = '';
+      document.getElementById('modalError').style.display = 'none';
+      modoEdicaoAtivo = false;
+    }
+
+    async function autenticarEdicao(evt) {
+      evt.preventDefault();
+
+      const idInput = parseInt(document.getElementById('inputId').value);
+      const senhaInput = document.getElementById('inputSenha').value;
+      const modal = document.getElementById('modalAutenticacao');
+      const modalError = document.getElementById('modalError');
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('personagens')
+          .select('id, senha_edicao')
+          .eq('id', idInput)
+          .single();
+
+        if (error || !data || data.senha_edicao !== senhaInput) {
+          modalError.textContent = '❌ ID ou Senha incorretos';
+          modalError.style.display = 'block';
+          return;
+        }
+
+        modal.classList.remove('show');
+        modalError.style.display = 'none';
+        document.getElementById('inputId').value = '';
+        document.getElementById('inputSenha').value = '';
+
+        ativarModoEdicao();
+      } catch (err) {
+        console.error('Erro:', err);
+        modalError.textContent = '❌ Erro ao autenticar';
+        modalError.style.display = 'block';
+      }
+    }
+
+    function ativarModoEdicao() {
+      const p = fichaAtualAberta;
+
+      document.getElementById('btnEditarFicha').textContent = '✕ Cancelar Edição';
+      document.getElementById('btnEditarFicha').classList.add('edit-mode');
+
+      // PERFIL
+      transformarEmInput('fGenero', p.genero);
+      transformarEmInput('fSexualidade', p.sexualidade);
+      transformarEmInput('fIdade', p.idade);
+      transformarEmInput('fAniversario', p.aniversario);
+      transformarEmInput('fFama', p.fama);
+      transformarEmInput('fOrigem', p.origem_nascimento);
+      transformarEmInput('fReside', p.local_reside);
+      transformarEmInput('fOrg', p.organizacao);
+
+      transformarEmTextarea('fAparencia', p.aparencia);
+      transformarEmInput('fAltura', p.altura);
+      transformarEmInput('fPeso', p.peso);
+      transformarEmInput('fCabelos', p.cabelos);
+      transformarEmInput('fOlhos', p.olhos);
+      transformarEmTextarea('fHistoria', p.historia);
+
+      transformarEmInput('fGosta', p.gosta_de);
+      transformarEmInput('fNaoGosta', p.nao_gosta_de);
+      transformarEmInput('fProp1', p.proposito_1);
+      transformarEmInput('fProp2', p.proposito_2);
+      transformarEmInput('fProp5', p.proposito_5);
+
+      // STATUS
+      transformarEmInput('fRyos', p.ryos, 'number');
+      transformarEmInput('fScore', p.score, 'number');
+
+      // COMBATE
+      transformarEmInput('fAttrKen', p.kenjutsu, 'number');
+      transformarEmInput('fAttrTai', p.taijutsu, 'number');
+      transformarEmInput('fAttrFor', p.forca, 'number');
+      transformarEmInput('fAttrRes', p.resistencia, 'number');
+      transformarEmInput('fAttrVel', p.velocidade, 'number');
+      transformarEmInput('fAttrInt', p.inteligencia, 'number');
+
+      const hp = p.hp_atual || 6000;
+      transformarEmInput('fHpText', hp, 'number');
+
+      document.getElementById('editActionsPerfil').classList.add('show');
+      document.getElementById('editActionsStatus').classList.add('show');
+      document.getElementById('editActionsCombate').classList.add('show');
+    }
+
+    function transformarEmInput(id, valor, tipo = 'text') {
+      const element = document.getElementById(id);
+      const input = document.createElement('input');
+      input.type = tipo;
+      input.value = valor || '';
+      input.id = `edit_${id}`;
+      input.placeholder = 'Edite aqui...';
+      element.innerHTML = '';
+      element.appendChild(input);
+    }
+
+    function transformarEmTextarea(id, valor) {
+      const element = document.getElementById(id);
+      const textarea = document.createElement('textarea');
+      textarea.value = valor || '';
+      textarea.id = `edit_${id}`;
+      textarea.placeholder = 'Edite aqui...';
+      element.innerHTML = '';
+      element.appendChild(textarea);
+    }
+
+    async function salvarEdicao() {
+      if (!fichaAtualAberta) return;
+
+      const p = fichaAtualAberta;
+
+      const dadosPersonagem = {
+        genero: document.getElementById('edit_fGenero')?.value || p.genero,
+        sexualidade: document.getElementById('edit_fSexualidade')?.value || p.sexualidade,
+        idade: document.getElementById('edit_fIdade')?.value || p.idade,
+        aniversario: document.getElementById('edit_fAniversario')?.value || p.aniversario,
+        fama: document.getElementById('edit_fFama')?.value || p.fama,
+        origem_nascimento: document.getElementById('edit_fOrigem')?.value || p.origem_nascimento,
+        local_reside: document.getElementById('edit_fReside')?.value || p.local_reside,
+        organizacao: document.getElementById('edit_fOrg')?.value || p.organizacao,
+        aparencia: document.getElementById('edit_fAparencia')?.value || p.aparencia,
+        altura: document.getElementById('edit_fAltura')?.value || p.altura,
+        peso: document.getElementById('edit_fPeso')?.value || p.peso,
+        cabelos: document.getElementById('edit_fCabelos')?.value || p.cabelos,
+        olhos: document.getElementById('edit_fOlhos')?.value || p.olhos,
+        historia: document.getElementById('edit_fHistoria')?.value || p.historia,
+        gosta_de: document.getElementById('edit_fGosta')?.value || p.gosta_de,
+        nao_gosta_de: document.getElementById('edit_fNaoGosta')?.value || p.nao_gosta_de,
+        proposito_1: document.getElementById('edit_fProp1')?.value || p.proposito_1,
+        proposito_2: document.getElementById('edit_fProp2')?.value || p.proposito_2,
+        proposito_5: document.getElementById('edit_fProp5')?.value || p.proposito_5,
+        ryos: parseInt(document.getElementById('edit_fRyos')?.value || p.ryos || 0),
+        score: parseInt(document.getElementById('edit_fScore')?.value || p.score || 0),
+        kenjutsu: parseInt(document.getElementById('edit_fAttrKen')?.value || p.kenjutsu || 0),
+        taijutsu: parseInt(document.getElementById('edit_fAttrTai')?.value || p.taijutsu || 0),
+        forca: parseInt(document.getElementById('edit_fAttrFor')?.value || p.forca || 0),
+        resistencia: parseInt(document.getElementById('edit_fAttrRes')?.value || p.resistencia || 0),
+        velocidade: parseInt(document.getElementById('edit_fAttrVel')?.value || p.velocidade || 0),
+        inteligencia: parseInt(document.getElementById('edit_fAttrInt')?.value || p.inteligencia || 0),
+        hp_atual: parseInt(document.getElementById('edit_fHpText')?.value || p.hp_atual || 0),
+      };
+
+      try {
+        const historico = p.historico_alteracoes || [];
+        
+        for (const [chave, novoValor] of Object.entries(dadosPersonagem)) {
+          if (p[chave] != novoValor) {
+            historico.push({
+              data: new Date().toISOString(),
+              campo_alterado: chave,
+              valor_anterior: p[chave],
+              valor_novo: novoValor,
+              editado_por_id: p.id
+            });
+          }
+        }
+
+        const { error: errorPersonagem } = await supabaseClient
+          .from('personagens')
+          .update({
+            ...dadosPersonagem,
+            historico_alteracoes: historico
+          })
+          .eq('id', p.id);
+
+        if (errorPersonagem) throw errorPersonagem;
+
+        cancelarEdicao();
+        mostrarMensagemSucesso();
+        carregarDados();
+      } catch (err) {
+        console.error('Erro ao salvar:', err);
+        alert('❌ Erro ao salvar a ficha: ' + err.message);
+      }
+    }
+
+    function cancelarEdicao() {
+      modoEdicaoAtivo = false;
+      document.getElementById('btnEditarFicha').textContent = '✎ Editar';
+      document.getElementById('btnEditarFicha').classList.remove('edit-mode');
+      document.getElementById('editActionsPerfil').classList.remove('show');
+      document.getElementById('editActionsStatus').classList.remove('show');
+      document.getElementById('editActionsCombate').classList.remove('show');
+      abrirFicha(fichaAtualAberta.id);
+    }
+
+    function mostrarMensagemSucesso() {
+      const msg = document.getElementById('successMessage');
+      msg.classList.add('show');
+      setTimeout(() => {
+        msg.classList.remove('show');
+      }, 3000);
     }
 
     function voltarParaPrincipal() { mostrarPagina('paginaPrincipal'); }
