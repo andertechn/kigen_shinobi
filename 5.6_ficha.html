@@ -150,12 +150,10 @@
     .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
     .f-section-title::before { content: ''; display: inline-block; width: 16px; height: 16px; background: var(--ficha-green); border-radius: 50%; }
 
-    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-    .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 25px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .f-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
-    .f-card-value { color: var(--ficha-green); font-family: 'Russo One', sans-serif; font-size: 2.2rem; text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
-    .f-card button { background: var(--ficha-green); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: all 0.3s ease; margin-top: 10px; }
-    .f-card button:hover { background: var(--ficha-green-dark); transform: scale(1.1); }
+    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-green); border-radius: 8px; padding: 15px; }
+    .f-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .f-card-value { color: #e0e0e0; font-size: 1.05rem; font-weight: 500; }
 
     .f-card input[type="text"],
     .f-card input[type="number"],
