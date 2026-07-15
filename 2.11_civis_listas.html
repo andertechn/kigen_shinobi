@@ -6,6 +6,8 @@
   <title>Banco de Dados - Civis</title>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared/config.js"></script>
+  <script src="shared/supabase.js"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -367,10 +369,6 @@
   </main>
 
   <script>
-    // ===== CONFIGURAÇÃO DO SUPABASE =====
-    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
-
     let supabaseClient;
     let todosCivis = [];
 
@@ -385,7 +383,7 @@
     };
 
     function inicializarSupabase() {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      supabaseClient = KigenDB.getClient();
     }
 
     async function carregarDados() {
