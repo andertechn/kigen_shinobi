@@ -173,25 +173,16 @@
     #nav-overlay.open { pointer-events: all; opacity: 1; }
     .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); cursor: pointer; }
     
-    /* MODIFICAÇÃO PRINCIPAL AQUI: Adicionado overflow-y para rolar o conteúdo */
     #nav-panel {
       position: relative; z-index: 1; background: var(--surface); border-left: 2px solid var(--border);
       width: min(300px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 110px 36px 40px;
       gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 60px var(--shadow);
-      overflow-y: auto; /* Permite rolar o menu para baixo */
+      overflow-y: auto;
     }
 
-    /* Scrollbar personalizada para o menu ficar com visual profissional */
-    #nav-panel::-webkit-scrollbar {
-      width: 6px;
-    }
-    #nav-panel::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    #nav-panel::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 4px;
-    }
+    #nav-panel::-webkit-scrollbar { width: 6px; }
+    #nav-panel::-webkit-scrollbar-track { background: transparent; }
+    #nav-panel::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
 
     #nav-overlay.open #nav-panel { transform: translateX(0); }
     
@@ -199,7 +190,7 @@
       display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem; letter-spacing: 0.12em;
       text-transform: uppercase; color: var(--text); text-decoration: none; padding: 13px 0;
       border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s;
-      flex-shrink: 0; /* Impede que os links fiquem esmagados */
+      flex-shrink: 0;
     }
     .nav-link::before { content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.25s; }
     .nav-link:hover { color: var(--accent2); padding-left: 12px; }
@@ -299,12 +290,13 @@
     .details-panel h3 {
         font-family: 'Russo One', sans-serif;
         color: var(--accent); 
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         border-bottom: 2px solid var(--border);
         padding-bottom: 15px;
         font-size: 1.3rem;
         letter-spacing: 0.05em;
         padding-right: 30px;
+        text-transform: uppercase;
     }
     .details-panel .close-btn {
         position: absolute; top: 18px; right: 20px;
@@ -313,23 +305,20 @@
         font-weight: bold;
         line-height: 1;
     }
-    .campaign-legend {
-        display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;
-        padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #ddd; }
-    .legend-box { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
-    .legend-box.red { background: #cc0000; }
-    .legend-box.gray { background: #888888; }
-    .legend-box.yellow { background: #ffcc00; }
-
-    .category-group { margin-bottom: 25px; padding-left: 15px; }
-    .category-group:last-child { margin-bottom: 0; }
-    .category-title { font-family: 'Russo One', sans-serif; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.05em; }
     
-    .details-panel .campaign-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 6px; }
-    .details-panel .campaign-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .details-panel .campaign-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #ffffff; font-size: 1.15rem; }
+    .details-panel .campaign-item { 
+        margin-bottom: 20px; 
+        padding-bottom: 15px; 
+        border-bottom: 1px solid rgba(255,255,255,0.05); 
+        display: flex; 
+        flex-direction: column; 
+        gap: 6px; 
+        border-left: 3px solid var(--accent); /* Borda lateral vermelha */
+        padding-left: 15px; /* Espaçamento da borda */
+    }
+    .details-panel .campaign-item:last-child { border-bottom: none; }
+    .details-panel .campaign-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #ffffff; font-size: 1.25rem; }
+    .details-panel .campaign-desc { color: #cccccc; font-size: 0.95rem; line-height: 1.4; margin-bottom: 4px; }
     .details-panel .campaign-reward { color: var(--accent); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1rem; }
 
     /* ======= LISTA DE SISTEMAS (LINKS) ======= */
@@ -495,15 +484,9 @@
             <div id="campaign-details" class="details-panel">
                 <button id="close-camp-details" class="close-btn" aria-label="Fechar">&times;</button>
                 <h3 id="camp-details-title"></h3>
-                
-                <div class="campaign-legend">
-                    <div class="legend-item"><span class="legend-box red"></span>Campanhas da Geração</div>
-                    <div class="legend-item"><span class="legend-box gray"></span>Campanhas da Temporada</div>
-                    <div class="legend-item"><span class="legend-box yellow"></span>Eventos Sazonais</div>
-                </div>
-
                 <div id="camp-details-content">
-                    </div>
+                    <!-- Conteúdo dinâmico será injetado aqui -->
+                </div>
             </div>
         </div>
     </div>
@@ -578,29 +561,79 @@
     const campDetailsContent = document.getElementById('camp-details-content');
     const closeCampDetails = document.getElementById('close-camp-details');
     
+    // Novo array de dados simples e direto
     const campaignData = {
-        civil: [
-            { type: 'geracao', title: "Fundação da Vila", reward: "500x Ouro" },
-            { type: 'temporada', title: "Defesa da Aldeia", reward: "20x Kunai" },
-            { type: 'sazonal', title: "Abastecimento de Suprimentos (Inverno)", reward: "100x Ouro" }
-        ],
         daymo: [
-            { type: 'geracao', title: "Unificação dos Clãs", reward: "10x Pergaminho de Honra" },
-            { type: 'temporada', title: "Alianças Políticas", reward: "5x Pergaminho de Honra" },
-            { type: 'sazonal', title: "Festival das Flores", reward: "50x Ouro" }
+            { title: "A Corte de Verão", desc: "Cene a viagem de sua capital até um palácio de verão em clima fresco, escolhendo um jogador de outra classe para ser seu guarda-costas pessoal durante o trajeto.", reward: "150 Score, 120 Ryous" },
+            { title: "Anexação pela Seca", desc: "Convoque um conselho de guerra e cene o planejamento estratégico e político da anexação de terras vizinhas enfraquecidas pela falta de água.", reward: "400 Score, 180 Ryous" },
+            { title: "O Preço da Força", desc: "O calor está exaurindo suas tropas. Envie emissários (ou vá pessoalmente) ao acampamento de um Clã Ninja famoso e negocie para que lutem sob sua bandeira.", reward: "300 Score, 150 Ryous" },
+            { title: "Aliança nas Águas", desc: "Convide outro Daimyo para um banho termal ou cachoeira privada, discutindo uma aliança secreta para destruir um terceiro país enquanto relaxam.", reward: "250 Score, 130 Ryous" },
+            { title: "A Insurreição do Calor", desc: "Cene a repressão de uma revolta camponesa causada pelos altos impostos nas colheitas de verão, ou o apaziguamento distribuindo recursos.", reward: "350 Score, 160 Ryous" },
+            { title: "Contratação Sanguinária", desc: "Convoque secretamente um Samurai errante (Ronin) ou um mercenário para planejar o assassinato de um rival político incômodo.", reward: "400 Score, 180 Ryous" },
+            { title: "Banquete Envenenado", desc: "Organize um banquete de verão para os líderes locais e cene a sobrevivência a uma tentativa de envenenamento na sua bebida fresca.", reward: "500 Score, 200 Ryous" },
+            { title: "Disputa pelo Rio", desc: "Declare guerra formalmente contra um país vizinho pelo controle da nascente de um rio vital durante a seca.", reward: "450 Score, 190 Ryous" },
+            { title: "Casamento de Conveniência", desc: "Realize uma cerimônia de casamento (sua ou de um herdeiro) no on durante o festival de solstício de verão para selar um pacto territorial.", reward: "350 Score, 150 Ryous" },
+            { title: "A Caçada Real", desc: "Saia para caçar feras selvagens no calor escaldante com seus convidados, testando a lealdade e a força deles.", reward: "200 Score, 140 Ryous" },
+            { title: "Sabotagem Econômica", desc: "Pague ninjas para incendiarem os campos de arroz do território inimigo, aproveitando a vegetação seca do verão.", reward: "300 Score, 160 Ryous" },
+            { title: "Audiência Desafiadora", desc: "Receba o líder de um clã recém-contratado e cene uma demonstração de dominância em uma sala do trono sob pura tensão política.", reward: "250 Score, 130 Ryous" },
+            { title: "Julgamento na Praça", desc: "Cene o interrogatório e a execução (ou perdão) de um espião em praça pública sob o sol do meio-dia para dar o exemplo ao povo.", reward: "350 Score, 150 Ryous" },
+            { title: "Inspeção de Fronteiras", desc: "Visite as fronteiras do país e interaja com os camponeses e patrulhas sob um calor de 40 graus.", reward: "150 Score, 110 Ryous" },
+            { title: "O Retiro Solitário", desc: "Cene um momento de meditação e paz em um cenário isolado, refletindo sobre a guerra, até ser interrompido por uma notícia urgente.", reward: "100 Score, 100 Ryous" }
         ],
         ninja: [
-            { type: 'geracao', title: "Sombras da Guerra", reward: "Arma Lendária" },
-            { type: 'temporada', title: "Infiltração Furtiva", reward: "1x Capa Ninja" },
-            { type: 'sazonal', title: "Noite do Terror", reward: "2x Shuriken de Ouro" }
+            { title: "Guerra no Sol a Pino", desc: "Trave uma batalha contra um membro de clã rival em campo aberto, onde o calor excessivo drena o chakra e a estamina de ambos.", reward: "4 pontos de atributos, 350 Score, 20 legado, 1 Kunai" },
+            { title: "Trégua na Cachoeira", desc: "Exausto de uma missão, encontre um inimigo em uma cachoeira escondida e cene um raro momento de trégua para ambos se refrescarem em paz.", reward: "2 pontos de atributos, 150 Score" },
+            { title: "Escolta de Sangue", desc: "Proteja a carruagem de um Daimyo ou nobre enquanto viajam pelo país sob um sol escaldante, repelindo uma emboscada pelo caminho.", reward: "4 pontos de atributos, 400 Score, 40 legado, 2 Shurikens" },
+            { title: "Laços de Estrada", desc: "Viaje para um país vizinho e faça amizade no on com um shinobi de outro clã à beira de uma fogueira de acampamento ou pousada.", reward: "2 pontos de atributos, 120 Score" },
+            { title: "Infiltração no Festival", desc: "Vista-se com roupas civis, invada um festival de verão na vila inimiga, recolha informações cruciais e saia sem ser notado.", reward: "3 pontos de atributos, 250 Score, 1 Bomba de fumaça" },
+            { title: "Oásis Estratégico", desc: "Mapeie e domine um oásis ou lago na fronteira, garantindo o controle da água apenas para os membros do seu clã.", reward: "3 pontos de atributos, 300 Score, 10 legado" },
+            { title: "Treinamento Brutal", desc: "Chame outro jogador para um treino de Taijutsu intenso e exaustivo em um cenário de praia ou deserto sob sol forte.", reward: "3 pontos de atributos, 200 Score, 1 Kunai" },
+            { title: "Sabotagem da Represa", desc: "Invada o território inimigo na calada da noite quente e cene a destruição da represa ou o envenenamento da fonte de água deles.", reward: "5 pontos de atributos, 450 Score, 50 legado, 1 Bomba de fumaça" },
+            { title: "Missão de Resgate Suada", desc: "Cene a invasão furtiva ao acampamento inimigo para resgatar um aliado amarrado no sol antes que ele morra de insolação.", reward: "4 pontos de atributos, 380 Score, 30 legado, 2 Kunais" },
+            { title: "Caçador de Recompensas", desc: "Rastreie um traidor com a cabeça a prêmio por quilômetros através de uma floresta densa e úmida de verão.", reward: "4 pontos de atributos, 350 Score, 20 legado" },
+            { title: "Mensagem Interceptada", desc: "Derrube um mensageiro em trânsito e roube um pergaminho que contém segredos militares inimigos.", reward: "3 pontos de atributos, 280 Score, 1 Shuriken" },
+            { title: "Fogo no Matagal", desc: "Use Jutsus de Katon em uma área de vegetação seca de verão para encurralar e derrotar um esquadrão inimigo.", reward: "4 pontos de atributos, 320 Score, 20 legado" },
+            { title: "Sangue no Gelo", desc: "Viaje até o País do Ferro em missão diplomática ou de assassinato e lute contra um Samurai no ambiente frio e hostil deles.", reward: "5 pontos de atributos, 480 Score, 60 legado, 2 Shurikens" },
+            { title: "Negociação Obscura", desc: "Encontre-se com um Civil (mercador) clandestino no meio da noite para comprar suprimentos de guerra superfaturados.", reward: "2 pontos de atributos, 150 Score" },
+            { title: "Última Resistência", desc: "Seu acampamento base foi descoberto, lidere a defesa contra um clã inimigo maior que quer roubar as terras férteis do seu clã.", reward: "5 pontos de atributos, 500 Score, 80 legado" }
+        ],
+        civil: [
+            { title: "A \"Rede Social\" de Fofocas", desc: "Espalhe um boato devastador no mercado central para cancelar a imagem de um clã ou gerar discórdia entre duas facções.", reward: "250 Score, 150 Ryous" },
+            { title: "O Ferreiro da Guerra", desc: "Cene a forja minuciosa e trabalhosa de uma arma customizada (espada, foice, kunais) encomendada por um guerreiro famoso.", reward: "400 Score, 200 Ryous" },
+            { title: "Senhor do Ouro Azul", desc: "Estoque água fresca ou gelo e venda a preços exorbitantes para guerreiros exaustos que passam pelo seu comércio durante a seca.", reward: "300 Score, 180 Ryous" },
+            { title: "O Marionetista dos Contratos", desc: "Encontre-se secretamente com um líder Shinobi e ofereça suas economias para financiar a destruição do clã rival.", reward: "350 Score, 160 Ryous" },
+            { title: "Mercado de Verão", desc: "Monte uma barraca de comidas ou jogos de festival, interaja com diversas classes disfarçadas e colete fofocas valiosas.", reward: "200 Score, 130 Ryous" },
+            { title: "Mensageiro Duplo", desc: "Abra cartas militares que você transporta, copie as informações em segredo e venda-as para o lado inimigo antes de fazer a entrega original.", reward: "450 Score, 190 Ryous" },
+            { title: "Armas Contrabandeadas", desc: "Cene o transporte de uma carroça de frutas de verão contendo armas pesadas escondidas em um fundo falso para abastecer rebeldes.", reward: "380 Score, 170 Ryous" },
+            { title: "O Agitador de Massas", desc: "Faça um discurso inflamado em praça pública e convença outros civis a marcharem com tochas contra os altos impostos do castelo.", reward: "500 Score, 150 Ryous" },
+            { title: "Abrigo de Refugiados", desc: "Cene a recepção e o cuidado de civis ou shinobis gravemente feridos, escondendo-os no porão da sua casa.", reward: "250 Score, 120 Ryous" },
+            { title: "A Taberna Desordeira", desc: "Atenda sua taverna lotada onde duas facções rivais sentam próximas, tentando usar diplomacia para evitar uma carnificina no seu negócio.", reward: "200 Score, 140 Ryous" },
+            { title: "Engenharia de Combate", desc: "Crie e apresente o projeto de uma engenhoca de cerco ou armadilha complexa para um Senhor Feudal ou Clã.", reward: "400 Score, 200 Ryous" },
+            { title: "O Guia Subornado", desc: "Guie um esquadrão taticamente pelo deserto e cene a traição de levá-los direto para uma emboscada encomendada.", reward: "450 Score, 180 Ryous" },
+            { title: "Golpe do Falso Curandeiro", desc: "Venda poções falsas de \"resfriamento\" para curar insolação, enrolando os compradores com sua lábia.", reward: "150 Score, 150 Ryous" },
+            { title: "Arte da Sedução e Espionagem", desc: "Trabalhando como entretenimento na corte ou casa de chás, arranque um segredo militar de um oficial através de flertes e saquê.", reward: "350 Score, 160 Ryous" },
+            { title: "A Rota de Fuga", desc: "Arrume suas tralhas às pressas e cene uma fuga desesperada de sua vila em chamas sob o céu noturno de verão.", reward: "200 Score, 100 Ryous" }
         ],
         samurai: [
-            { type: 'geracao', title: "O Caminho do Guerreiro", reward: "Armadura do Shogun" },
-            { type: 'temporada', title: "Duelo de Honra", reward: "1x Katana Ancestral" },
-            { type: 'sazonal', title: "Torneio de Inverno", reward: "10x Ouro" }
+            { title: "Treino Abaixo de Zero", desc: "Cene um treino exaustivo de kenjutsu sem camisa no meio de uma nevasca em suas terras gélidas, fortalecendo a mente e o corpo.", reward: "3 pontos de atributos, 200 Score, 10 legado" },
+            { title: "O Ronin no Deserto", desc: "Caminhe com sua armadura pesada em um país desértico debaixo de sol, resistindo ao calor extenuante enquanto busca um mestre.", reward: "3 pontos de atributos, 250 Score" },
+            { title: "A Defesa do Gelo", desc: "Comande um esquadrão Samurai para expulsar invasores Shinobi de suas terras nevadas usando táticas brutais de emboscada.", reward: "5 pontos de atributos, 450 Score, 60 legado, 2 Kunais" },
+            { title: "Duelo de Honra", desc: "Desafie formalmente um Ninja para um duelo de espadas no pôr do sol de verão, exigindo uma luta sem o uso de ninjutsu (magia).", reward: "4 pontos de atributos, 350 Score, 30 legado, 1 Shuriken" },
+            { title: "Aço Forjado no Gelo", desc: "Escale uma montanha gelada para encontrar um eremita ferreiro e cene provar seu valor para portar uma nova Katana.", reward: "4 pontos de atributos, 400 Score, 40 legado" },
+            { title: "O Emissário Inabalável", desc: "Compareça à corte de um Daimyo do sul como diplomata, permanecendo estóico e formal em sua armadura completa apesar do calor de 40 graus.", reward: "2 pontos de atributos, 200 Score" },
+            { title: "A Cachoeira Congelada", desc: "Cene meditação profunda embaixo de uma cachoeira gélida, ignorando o mundo para limpar a mente da violência da guerra.", reward: "2 pontos de atributos, 150 Score" },
+            { title: "Caçador de Lâminas", desc: "Saia do seu território frio e rastreie um ladrão shinobi no mormaço tropical do sul para recuperar uma espada ancestral do seu clã.", reward: "4 pontos de atributos, 380 Score, 30 legado, 1 Bomba de fumaça" },
+            { title: "A Guarda de Ferro", desc: "Faça a segurança pessoal e implacável de um nobre em uma festa de verão cheia de aglomerações e possíveis ameaças.", reward: "3 pontos de atributos, 280 Score, 10 legado" },
+            { title: "Aulas de Disciplina", desc: "Chame um player iniciante (ou um civil) para o dojo e ensine a ele a postura, a rigidez e o caminho da espada samurai.", reward: "2 pontos de atributos, 150 Score" },
+            { title: "Choque Cultural no Festival", desc: "Em terras estrangeiras durante um festival de verão, cene seu choque e irritação com a falta de etiqueta local até entrar em uma briga.", reward: "3 pontos de atributos, 220 Score" },
+            { title: "Cortando as Chamas", desc: "Use suas técnicas de canalização de chakra na lâmina para abrir caminho e cruzar um campo de batalha incendiado no verão.", reward: "4 pontos de atributos, 320 Score, 20 legado" },
+            { title: "Protegendo a Rota do Chá", desc: "Escolte rigorosamente uma caravana civil que transporta o valioso carregamento de ervas do País do Ferro para as cortes do sul.", reward: "4 pontos de atributos, 300 Score, 1 Kunai" },
+            { title: "O Último de Pé", desc: "Após uma batalha campal que durou do amanhecer até o sol do meio-dia, seja o último de pé no cenário, clamando por um oponente final.", reward: "5 pontos de atributos, 500 Score, 80 legado" },
+            { title: "Pacto no Saquê Quente", desc: "Encontre secretamente o líder de um Clã Ninja inimigo e proponha uma trégua não-oficial dividindo uma garrafa de saquê.", reward: "3 pontos de atributos, 250 Score, 15 legado" }
         ]
     };
     
+    // Atualiza a exibição para renderizar de forma simples e linear
     campBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const className = btn.getAttribute('data-class');
@@ -610,44 +643,17 @@
             campDetailsTitle.innerText = `Campanhas para ${classTitle}`;
             campDetailsContent.innerHTML = '';
             
-            if (campaigns) {
-                const categories = {
-                    geracao: { title: "Campanhas da Geração", color: "#cc0000", items: [] },
-                    temporada: { title: "Campanhas da Temporada", color: "#888888", items: [] },
-                    sazonal: { title: "Eventos Sazonais", color: "#ffcc00", items: [] }
-                };
-
+            if (campaigns && campaigns.length > 0) {
                 campaigns.forEach(camp => {
-                    if(categories[camp.type]) {
-                        categories[camp.type].items.push(camp);
-                    }
-                });
-
-                Object.values(categories).forEach(cat => {
-                    if (cat.items.length > 0) {
-                        const catContainer = document.createElement('div');
-                        catContainer.classList.add('category-group');
-                        catContainer.style.borderLeft = `3px solid ${cat.color}`;
-
-                        const catTitle = document.createElement('h4');
-                        catTitle.classList.add('category-title');
-                        catTitle.innerText = cat.title;
-                        catTitle.style.color = cat.color;
-                        catContainer.appendChild(catTitle);
-
-                        cat.items.forEach(camp => {
-                            const campElem = document.createElement('div');
-                            campElem.classList.add('campaign-item');
-                            
-                            campElem.innerHTML = `
-                                <p class="campaign-title">${camp.title}</p>
-                                <p class="campaign-reward">Recompensa: ${camp.reward}</p>
-                            `;
-                            catContainer.appendChild(campElem);
-                        });
-
-                        campDetailsContent.appendChild(catContainer);
-                    }
+                    const campElem = document.createElement('div');
+                    campElem.classList.add('campaign-item');
+                    
+                    campElem.innerHTML = `
+                        <p class="campaign-title">${camp.title}</p>
+                        <p class="campaign-desc">${camp.desc}</p>
+                        <p class="campaign-reward">Recompensa: ${camp.reward}</p>
+                    `;
+                    campDetailsContent.appendChild(campElem);
                 });
             } else {
                 campDetailsContent.innerHTML = '<p>Nenhuma campanha disponível.</p>';

@@ -402,7 +402,7 @@
                 • <strong>Fanatismo:</strong> Evolua de Iniciado para Sumo Sacerdote, ganhando status global para influenciar e declarar Guerras Santas.<br>
                 • <strong>Heresia:</strong> Praticar cultos proibidos pelas Vilas Ocultas torna o jogador um criminoso, exigindo sigilo e esconderijos.<br>
                 <br>
-                Para ser recrutado por uma religão, confira no sistema de Zonas de RP - Geografia, pois há determinados locais que você pode encontrar um devoto para te convidar.
+                Para ser recrutado por uma religião, confira no sistema de Zonas de RP - Geografia, pois há determinados locais que você pode encontrar um devoto para te convidar.
             </div>
 
             <button class="gen-btn" onclick="toggle('jashin')"><span> O CAMINHO DE JASHIN</span><span id="seta-jashin">▼</span></button>
@@ -410,6 +410,42 @@
                 <div class="img-container"><img src="00_jashin.jpg" class="religion-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x250/111/eee?text=JASHIN'"></div>
                 <div class="religion-detail"><strong>Ritual:</strong> Sacrifício de 5 NPCS ou 1 Player a cada 15 dias.</div>
                 <div class="religion-detail"><strong>Bônus:</strong> Imortalidade (desde que seja feito os sacríficos), Técnicas dos Dogmas Jashonismo.</div>
+                <button class="gen-btn" style="margin-top: 20px; border-left-color: #cc0000;" onclick="toggle('sistema-jashin')"><span> SISTEMA DO JASHINISMO</span><span id="seta-sistema-jashin">▼</span></button>
+            </div>
+            <div class="expand-content" id="sistema-jashin">
+                <div style="padding: 20px;">
+                    <h3 style="color: var(--accent); font-family: 'Russo One', sans-serif; font-size: 1.2rem; margin-bottom: 15px; letter-spacing: 0.05em;">A DOUTRINA DE JASHIN (O Caminho da Imortalidade)</h3>
+                    <p style="font-size: 0.95rem; color: var(--text-sub); margin-bottom: 15px; line-height: 1.6;">Esta é uma doutrina proibida e rara. No Kigen Shinobi, apenas 2 personagens no continente podem carregar o título de "Discípulo Imortal" simultaneamente.</p>
+
+                    <div style="background: rgba(204,0,0,0.08); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--accent);">
+                        <h4 style="color: var(--accent); font-family: 'Russo One', sans-serif; margin-bottom: 10px; font-size: 1rem;">1. O Despertar (Iniciação)</h4>
+                        <p style="font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 10px;">Para se tornar um imortal, o personagem deve realizar uma peregrinação até o local da religião (ex: Poço dos Afogados no País da Água).</p>
+                        <div class="religion-detail"><strong>Renúncia Total:</strong> Ao decidir seguir o caminho, o personagem abre mão de todas as suas linhagens (clã), Kekkei Genkai e todas as técnicas ninjutsu/genjutsu avançadas que possuía até então. O personagem é "limpo" de sua história anterior.</div>
+                        <div class="religion-detail"><strong>O Primeiro Sacrifício:</strong> Para selar o pacto, o candidato deve realizar o sacrifício de um inimigo digno (outro player ou um NPC importante/vilão narrado) em solo sagrado.</div>
+                    </div>
+
+                    <div style="background: rgba(204,0,0,0.08); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--accent);">
+                        <h4 style="color: var(--accent); font-family: 'Russo One', sans-serif; margin-bottom: 10px; font-size: 1rem;">2. A Manutenção (O Preço do Sangue)</h4>
+                        <p style="font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 10px;">A imortalidade não é passiva; ela é mantida através do favor do Deus Jashin.</p>
+                        <div class="religion-detail"><strong>O Ciclo do Sacrifício:</strong> O jogador deve realizar 1 sacrifício humano a cada 30 dias (tempo real).</div>
+                        <div class="religion-detail"><strong>Qualificação:</strong> O alvo deve ser alguém de relevância (player ou um NPC de destaque em uma missão/arco).</div>
+                        <div class="religion-detail"><strong>Falha no Ciclo:</strong> Se o sacrifício não for realizado dentro do prazo de 30 dias, o pacto é suspenso. O personagem perde a imortalidade imediatamente (tornando-se um humano comum com danos acumulados, se houver).</div>
+                    </div>
+
+                    <div style="background: rgba(204,0,0,0.08); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--accent);">
+                        <h4 style="color: var(--accent); font-family: 'Russo One', sans-serif; margin-bottom: 10px; font-size: 1rem;">3. A Restrição (O Voto do Zealote)</h4>
+                        <p style="font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 10px;">Ao aceitar a imortalidade, o corpo torna-se um receptáculo de dor, incapaz de manipular energia de forma complexa (Nin/Gen).</p>
+                        <div class="religion-detail"><strong>O que você PERDE:</strong> Qualquer jutsu de clã, Kekkei Genkai, Ninjutsus elementais (Katon, Suiton, etc.), ou Genjutsus que não sejam o básico.</div>
+                        <div class="religion-detail"><strong>O que você MANTÉM (Básicos de Sobrevivência):</strong> Você ainda possui o controle básico de chakra acadêmico para caminhar sobre árvores, caminhar sobre água e realizar o Henge/Kawarimi (Substituição) básico.</div>
+                        <div class="religion-detail"><strong>Foco Total:</strong> O combate torna-se puramente Taijutsu (artes marciais), Kenjutsu (uso de armas como foices, espadas, lanças) e técnicas de tortura/maldição vinculadas ao ritual de Jashin (como a técnica de voodoo do Hidan).</div>
+                    </div>
+
+                    <div style="background: rgba(204,0,0,0.08); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
+                        <h4 style="color: var(--accent); font-family: 'Russo One', sans-serif; margin-bottom: 10px; font-size: 1rem;">4. A Vantagem de Combate</h4>
+                        <div class="religion-detail"><strong>Imortalidade Funcional:</strong> Dano físico incapacitante (perda de membros, decapitação, ferimentos fatais) não mata o personagem.</div>
+                        <div class="religion-detail"><strong>Limitação Narrativa:</strong> Embora imortal, você não é invencível. Você pode ser imobilizado, aprisionado, selado ou soterrado. Se perder um membro, você precisará de tempo e costura (RP) para reconectá-lo, ou o membro será perdido permanentemente.</div>
+                    </div>
+                </div>
             </div>
 
             <button class="gen-btn" onclick="toggle('lotus')"><span> A ORDEM DO LÓTUS BRANCO</span><span id="seta-lotus">▼</span></button>

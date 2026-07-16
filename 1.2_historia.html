@@ -37,7 +37,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      /* Fundo removido para mostrar a imagem fixa */
       color: var(--text);
       font-family: 'Rajdhani', sans-serif;
       overflow-x: hidden;
@@ -325,7 +324,6 @@
       line-height: 1.05;
       transition: color 0.3s;
     }
-    /* .tl-locked-tag (Tag "Em breve" na linha do tempo principal) removida por solicitação anterior */
 
     /* DIMINUÍDO UM POUCO MAIS: Círculos das Temporadas */
     .tl-circle-wrap {
@@ -541,10 +539,11 @@
       </div>
     </div>
 
-    <div class="historia-timeline-box">
+    <!-- Container 1: Era dos Estados Combatentes -->
+    <div class="historia-timeline-box" style="margin-bottom: 32px;">
       
-      <div class="gen-item" id="btn-gen-1" tabindex="0" role="button" aria-label="Expandir 1ª Geração">
-        <div class="tl-season-num">1ª GERAÇÃO</div>
+      <div class="gen-item" id="btn-gen-0" tabindex="0" role="button" aria-label="Expandir Era dos Estados Combatentes">
+        <div class="tl-season-num">A ORIGEM</div>
         <div class="tl-season-title">ERA DOS ESTADOS COMBATENTES</div>
         <div class="tl-circle-wrap">
           <div class="tl-ring-outer">
@@ -572,10 +571,36 @@
         </div>
       </div>
 
-      <div class="gen-content" id="content-gen-1">
+      <div class="gen-content" id="content-gen-0">
         <div class="gen-content-inner">
           <div class="gen-connector"></div>
           <div class="timeline-wrap" id="timeline-wrap"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Container 2: 1ª Geração (Bloqueado) -->
+    <div class="historia-timeline-box">
+      
+      <div class="gen-item locked" style="cursor: default;">
+        <div class="tl-season-num" style="color: #444;">O FUTURO</div>
+        <div class="tl-season-title" style="color: #555;">1ª GERAÇÃO</div>
+        <div class="tl-circle-wrap">
+          <div class="tl-ring-outer" style="border-color: #2e2e2e; box-shadow: none;">
+            <div class="tl-ring-inner" style="border-color: #2e2e2e; box-shadow: none; background: var(--surface); cursor: default;">
+              <div class="tl-icon" style="color: #3a3a3a;">
+                
+                <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="12" y="23" width="28" height="21" rx="4" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="2.2"/>
+                  <path d="M18 23v-6.5a8 8 0 0 1 16 0V23" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+                  <circle cx="26" cy="33.5" r="3.2" fill="currentColor" opacity="0.9"/>
+                  <rect x="24.5" y="33.5" width="3" height="4.5" rx="1.5" fill="currentColor" opacity="0.7"/>
+                </svg>
+
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -591,18 +616,14 @@
   </div>
 
   <script>
-    /* ---- DADOS ---- */
+    /* ---- DADOS DA ERA DOS ESTADOS COMBATENTES ---- */
     const seasons = [
       {
         num: "TEMPORADA 1", title: "O QUEBRA-TERRAS", unlocked: true,
         story: "Na Era dos Estados Combatentes, clãs ninjas são apenas nômades vendendo suas vidas como cães de guerra. Enquanto os Daimyōs financiam massacres por migalhas de terra, exércitos de Samurais caçam usuários de chakra como anomalias a serem exterminadas.\n\nNas sombras, o submundo sorri: a Máfia e os Piratas lucram com o caos absoluto. É neste cenário que a 1ª Temporada: O Quebra-Terras começa. O mapa-múndi é um pergaminho em branco e a corrida territorial explodiu.\n\nFoco: conquista territorial brutal e sobrevivência. A corrida inicial por terras, minas e recursos."
       },
-      { num: "TEMPORADA 2", title: "O EFEITO KIRIGAKURE",    unlocked: false, story: "" },
-      { num: "TEMPORADA 3", title: "O DESPERTAR DAS BESTAS", unlocked: false, story: "" },
-      { num: "TEMPORADA 4", title: "A NOITE DAS CINZAS",     unlocked: false, story: "" },
-      { num: "TEMPORADA 5", title: "O INVERNO DAS BESTAS",   unlocked: false, story: "" },
-      { num: "TEMPORADA 6", title: "O PROTOCOLO DE FERRO",   unlocked: false, story: "" },
-      { num: "TEMPORADA 7", title: "O AMANHECER DAS NAÇÕES", unlocked: false, story: "" }
+      { num: "TEMPORADA 2", title: "O DESPERTAR DAS BESTAS E A QUEDA DE UZOCHIGAKURE", unlocked: false, story: "" },
+      { num: "TEMPORADA 3", title: "A FORMAÇÃO DAS VILAS", unlocked: false, story: "" }
     ];
 
     const palette = [
@@ -680,7 +701,6 @@
         item.style.setProperty('--cg', p.g);
       }
 
-      // Tag "Em breve" (.tl-locked-tag) removida da linha do tempo principal
       item.innerHTML = `
         <div class="tl-text">
           <div class="tl-season-num">${s.num}</div>
@@ -706,16 +726,16 @@
     });
 
     /* ---- GERAÇÃO TOGGLE (ACCORDION) ---- */
-    const btnGen1 = document.getElementById('btn-gen-1');
-    const contentGen1 = document.getElementById('content-gen-1');
+    const btnGen0 = document.getElementById('btn-gen-0');
+    const contentGen0 = document.getElementById('content-gen-0');
 
     function toggleGeneration() {
-      btnGen1.classList.toggle('open');
-      contentGen1.classList.toggle('open');
+      btnGen0.classList.toggle('open');
+      contentGen0.classList.toggle('open');
     }
 
-    btnGen1.addEventListener('click', toggleGeneration);
-    btnGen1.addEventListener('keydown', e => {
+    btnGen0.addEventListener('click', toggleGeneration);
+    btnGen0.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         toggleGeneration();
