@@ -918,7 +918,38 @@
 
       // RESUMO DE ALTERAÇÕES
       const boxResumo = document.getElementById('boxResumo');
-      boxResumo.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma alteração registrada.</em></div>`;
+      const historico = Array.isArray(p.historico_alteracoes) ? p.historico_alteracoes : [];
+      if (historico.length > 0) {
+        const escapeHtml = (s) => String(s ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+
+        let resumoHtml = '';
+        historico.forEach((alteracao) => {
+          const data = alteracao.data ? new Date(alteracao.data) : null;
+          const dataFormatada = data && !Number.isNaN(data.getTime())
+            ? data.toLocaleString('pt-BR')
+            : '-';
+          resumoHtml += `
+            <div class="resumo-card">
+              <div class="resumo-header">
+                <div class="resumo-title">${escapeHtml(alteracao.campo_alterado)}</div>
+                <div class="resumo-date">${escapeHtml(dataFormatada)}</div>
+              </div>
+              <div class="resumo-desc">
+                <strong>Anterior:</strong> ${escapeHtml(alteracao.valor_anterior)}
+                → <strong>Novo:</strong> ${escapeHtml(alteracao.valor_novo)}
+                ${alteracao.editado_por_id ? `<br><small>Editado por personagem #${escapeHtml(alteracao.editado_por_id)}</small>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        boxResumo.innerHTML = resumoHtml;
+      } else {
+        boxResumo.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma alteração registrada.</em></div>`;
+      }
 
       document.querySelectorAll('.f-tab-btn')[0].click();
       mostrarPagina('paginaFicha');
@@ -1073,6 +1104,14 @@
         p,
         KigenSchema.PERSONAGENS_COLUMNS
       );
+
+      const novasEntradas = KigenSchema.buildHistoricoEntries(payload, p, p.id);
+      if (novasEntradas.length > 0) {
+        payload.historico_alteracoes = KigenSchema.mergeHistorico(
+          p.historico_alteracoes,
+          novasEntradas
+        );
+      }
 
       try {
         if (Object.keys(payload).length > 0) {

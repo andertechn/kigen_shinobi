@@ -205,6 +205,90 @@
     return payload;
   }
 
+  const CAMPO_LABELS = Object.freeze({
+    genero: 'Gênero',
+    idade: 'Idade',
+    aniversario: 'Aniversário',
+    score: 'Score',
+    pais_vila: 'País/Vila',
+    elemento_basico: 'Elemento',
+    clan: 'Clã',
+    ryos: 'Ryos',
+    aparencia: 'Aparência',
+    altura: 'Altura',
+    peso: 'Peso',
+    cabelos: 'Cabelos',
+    olhos: 'Olhos',
+    historia: 'História',
+    gosta_de: 'Gosta de',
+    nao_gosta_de: 'Não gosta de',
+    proposito_1: 'Propósito 1',
+    proposito_2: 'Propósito 2',
+    proposito_3: 'Propósito 3',
+    proposito_4: 'Propósito 4',
+    proposito_5: 'Propósito 5',
+    hp_atual: 'HP atual',
+    hp_max: 'HP máximo',
+    tecnicas: 'Técnicas',
+    historico_graduacoes: 'Histórico de graduações',
+    missao_s: 'Missões Rank S',
+    missao_a: 'Missões Rank A',
+    missao_b: 'Missões Rank B',
+    missao_c: 'Missões Rank C',
+    missao_d: 'Missões Rank D',
+    relacoes: 'Relações',
+    velocidade: 'Velocidade',
+    taijutsu: 'Taijutsu',
+    ninjutsu: 'Ninjutsu',
+    forca: 'Força',
+    resistencia: 'Resistência',
+    genjutsu: 'Genjutsu',
+    selos: 'Selos',
+    inteligencia: 'Inteligência',
+    fuinjutsu: 'Fuinjutsu',
+    ningeral: 'Ningeral',
+    elementos: 'Elementos (sub)',
+    kenjutsu: 'Kenjutsu',
+    shurikenjutsu: 'Shurikenjutsu',
+    combate: 'Combate'
+  });
+
+  const HISTORICO_MAX = 200;
+
+  function labelCampo(campo, prefixo) {
+    const base = CAMPO_LABELS[campo] || campo;
+    return prefixo ? `${prefixo}: ${base}` : base;
+  }
+
+  function formatHistoricoValor(valor) {
+    if (valor === null || valor === undefined || valor === '') return '(vazio)';
+    if (typeof valor === 'object') return JSON.stringify(valor);
+    const text = String(valor);
+    return text.length > 200 ? text.slice(0, 200) + '…' : text;
+  }
+
+  /**
+   * Monta entradas de log a partir de um payload de mudanças.
+   */
+  function buildHistoricoEntries(changes, prevRow, editadoPorId, prefixo) {
+    const agora = new Date().toISOString();
+    return Object.entries(changes)
+      .filter(([campo]) => campo !== 'historico_alteracoes')
+      .map(([campo, valorNovo]) => ({
+        data: agora,
+        campo_alterado: labelCampo(campo, prefixo),
+        valor_anterior: formatHistoricoValor(prevRow ? prevRow[campo] : null),
+        valor_novo: formatHistoricoValor(valorNovo),
+        editado_por_id: editadoPorId ?? null
+      }));
+  }
+
+  /** Concatena logs novos no histórico existente (mais recentes no início). */
+  function mergeHistorico(historicoAtual, novasEntradas) {
+    const atual = Array.isArray(historicoAtual) ? historicoAtual : [];
+    return [...novasEntradas, ...atual].slice(0, HISTORICO_MAX);
+  }
+
   function filterKnownColumns(data, allowedColumns) {
     const allowed = new Set(allowedColumns);
     const secrets = new Set(SECRET_COLUMNS);
@@ -225,6 +309,7 @@
     PERSONAGENS_READONLY,
     ATRIBUTOS_COLUMNS,
     SECRET_COLUMNS,
+    CAMPO_LABELS,
     resolveColumn,
     readField,
     normalizePatente,
@@ -233,6 +318,9 @@
     getClan,
     getPublicSelect,
     buildChangedPayload,
-    filterKnownColumns
+    filterKnownColumns,
+    buildHistoricoEntries,
+    mergeHistorico,
+    formatHistoricoValor
   };
 })(window);

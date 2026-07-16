@@ -942,20 +942,30 @@
       }
 
       const boxResumo = document.getElementById('boxResumo');
-      if (p.historico_alteracoes && Array.isArray(p.historico_alteracoes) && p.historico_alteracoes.length > 0) {
+      const historico = Array.isArray(p.historico_alteracoes) ? p.historico_alteracoes : [];
+      if (historico.length > 0) {
+        const escapeHtml = (s) => String(s ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+
         let resumoHtml = '';
-        p.historico_alteracoes.forEach(alteracao => {
-          const data = new Date(alteracao.data);
-          const dataFormatada = data.toLocaleString('pt-BR');
+        historico.forEach((alteracao) => {
+          const data = alteracao.data ? new Date(alteracao.data) : null;
+          const dataFormatada = data && !Number.isNaN(data.getTime())
+            ? data.toLocaleString('pt-BR')
+            : '-';
           resumoHtml += `
             <div class="resumo-card">
               <div class="resumo-header">
-                <div class="resumo-title">${alteracao.campo_alterado}</div>
-                <div class="resumo-date">${dataFormatada}</div>
+                <div class="resumo-title">${escapeHtml(alteracao.campo_alterado)}</div>
+                <div class="resumo-date">${escapeHtml(dataFormatada)}</div>
               </div>
               <div class="resumo-desc">
-                <strong>Anterior:</strong> ${alteracao.valor_anterior} → <strong>Novo:</strong> ${alteracao.valor_novo}
-                ${alteracao.editado_por_id ? `<br><small>Editado por ID: ${alteracao.editado_por_id}</small>` : ''}
+                <strong>Anterior:</strong> ${escapeHtml(alteracao.valor_anterior)}
+                → <strong>Novo:</strong> ${escapeHtml(alteracao.valor_novo)}
+                ${alteracao.editado_por_id ? `<br><small>Editado por personagem #${escapeHtml(alteracao.editado_por_id)}</small>` : ''}
               </div>
             </div>
           `;
@@ -1237,8 +1247,45 @@
         KigenSchema.ATRIBUTOS_COLUMNS
       );
 
+      const editadoPorId = p.id;
+      const logsPersonagem = KigenSchema.buildHistoricoEntries(
+        payloadPersonagem,
+        p,
+        editadoPorId
+      );
+
+      let logsAtributos = [];
+      if (attr.id) {
+        logsAtributos = KigenSchema.buildHistoricoEntries(
+          payloadAtributos,
+          attr,
+          editadoPorId,
+          'Atributo'
+        );
+      } else if (Object.values(dadosAtributosNext).some((v) => Number(v) > 0)) {
+        const attrsCriados = Object.fromEntries(
+          Object.entries(dadosAtributosNext).filter(([, v]) => Number(v) > 0)
+        );
+        logsAtributos = KigenSchema.buildHistoricoEntries(
+          attrsCriados,
+          {},
+          editadoPorId,
+          'Atributo'
+        );
+      }
+
+      const novasEntradas = [...logsPersonagem, ...logsAtributos];
+
+      if (novasEntradas.length > 0) {
+        payloadPersonagem.historico_alteracoes = KigenSchema.mergeHistorico(
+          p.historico_alteracoes,
+          novasEntradas
+        );
+      }
+
       try {
-        if (Object.keys(payloadPersonagem).length > 0) {
+        const precisaAtualizarPersonagem = Object.keys(payloadPersonagem).length > 0;
+        if (precisaAtualizarPersonagem) {
           const { error: errorPersonagem } = await supabaseClient
             .from('personagens')
             .update(payloadPersonagem)
