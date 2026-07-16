@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "build": "vite build"
+    "build": "echo Static HTML site - use vercel.json (no vite bundle required)"
   },
   "devDependencies": {
     "vite": "^6.3.5"
