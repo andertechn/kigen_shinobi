@@ -1786,7 +1786,7 @@
           if (isAdmin || isGerencia || isSupervisor) {
             const { data: personagens } = await supabaseClient
               .from('personagens')
-              .select('*')
+              .select(KigenSchema.getPublicSelect())
               .eq('status', 'em_analise')
               .order('data_criacao', { ascending: false });
 
@@ -1817,7 +1817,7 @@
         if (isAdmin || isGerencia) {
           const { data: fichas } = await supabaseClient
             .from('personagens')
-            .select('*')
+            .select(KigenSchema.getPublicSelect())
             .eq('status', 'em_analise')
             .order('data_criacao', { ascending: false });
           personagens = fichas || [];
@@ -1832,7 +1832,7 @@
           if (userCompIds.length > 0) {
             const { data: fichas } = await supabaseClient
               .from('personagens')
-              .select('*')
+              .select(KigenSchema.getPublicSelect())
               .eq('status', 'em_analise')
               .in('companhia_id', userCompIds)
               .order('data_criacao', { ascending: false });
@@ -2001,7 +2001,7 @@
       try {
         const { data: personagens } = await supabaseClient
           .from('personagens')
-          .select('*')
+          .select(KigenSchema.getPublicSelect())
           .eq('companhia_id', compId)
           .eq('status', 'em_analise')
           .order('data_criacao', { ascending: false });

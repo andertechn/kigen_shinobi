@@ -7,6 +7,7 @@
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="shared/config.js"></script>
+  <script src="shared/schema.js"></script>
   <script src="shared/supabase.js"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -388,7 +389,9 @@
 
     async function carregarDados() {
       try {
-        const { data, error } = await supabaseClient.from('personagens').select('*');
+        const { data, error } = await supabaseClient
+          .from('personagens')
+          .select(KigenSchema.getPublicSelect());
         if (error) throw error;
         todosCivis = data || [];
         renderizarPorClasse();

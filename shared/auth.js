@@ -100,6 +100,35 @@
     }
   }
 
+  /**
+   * Valida senha_edicao via Edge Function (nunca busca a senha no client).
+   * @returns {Promise<{ valido: boolean, erro?: string }>}
+   */
+  async function verifyFichaPassword(personagemId, senha) {
+    const cfg = global.KIGEN_CONFIG;
+    if (!cfg?.SWIFT_API_URL) {
+      return { valido: false, erro: 'Config de API ausente' };
+    }
+
+    const response = await fetch(cfg.SWIFT_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${cfg.SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        personagem_id: Number(personagemId),
+        senha: String(senha)
+      })
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return { valido: false, erro: result.erro || 'Erro ao autenticar' };
+    }
+    return { valido: !!result.valido };
+  }
+
   global.KigenAuth = {
     hashPassword,
     verifyPassword,
@@ -109,6 +138,7 @@
     readAdminSession,
     saveFichaEditSession,
     clearFichaEditSession,
-    hasValidFichaEditSession
+    hasValidFichaEditSession,
+    verifyFichaPassword
   };
 })(window);

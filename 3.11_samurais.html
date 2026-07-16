@@ -691,7 +691,10 @@
 
     async function carregarDados() {
       try {
-        const { data, error } = await supabaseClient.from('personagens').select('*').eq('estilo_vida', 'Samurai');
+        const { data, error } = await supabaseClient
+          .from('personagens')
+          .select(KigenSchema.getPublicSelect())
+          .eq('estilo_vida', 'Samurai');
         if (error) throw error;
         todassPessoas = data || [];
         renderizarPorPatente();
@@ -956,20 +959,16 @@
       const modalError = document.getElementById('modalError');
 
       try {
-        const { data, error } = await supabaseClient
-          .from('personagens')
-          .select('id, senha_edicao')
-          .eq('id', idInput)
-          .single();
-
-        if (error || !data || data.senha_edicao !== senhaInput) {
-          modalError.textContent = '❌ ID ou Senha incorretos';
+        if (fichaAtualAberta && idInput !== fichaAtualAberta.id) {
+          modalError.textContent = '❌ O ID deve ser o desta ficha';
           modalError.style.display = 'block';
           return;
         }
 
-        if (fichaAtualAberta && idInput !== fichaAtualAberta.id) {
-          modalError.textContent = '❌ O ID deve ser o desta ficha';
+        const result = await KigenAuth.verifyFichaPassword(idInput, senhaInput);
+
+        if (!result.valido) {
+          modalError.textContent = '❌ ID ou Senha incorretos';
           modalError.style.display = 'block';
           return;
         }
@@ -1063,12 +1062,9 @@
         aparencia: document.getElementById('edit_fAparencia')?.value ?? p.aparencia,
         ryos: parseInt(document.getElementById('edit_fRyos')?.value ?? p.ryos ?? 0, 10),
         score: parseInt(document.getElementById('edit_fScore')?.value ?? p.score ?? 0, 10),
-        kenjutsu: parseInt(document.getElementById('edit_fAttrKen')?.value ?? p.kenjutsu ?? 0, 10),
-        taijutsu: parseInt(document.getElementById('edit_fAttrTai')?.value ?? p.taijutsu ?? 0, 10),
-        forca: parseInt(document.getElementById('edit_fAttrFor')?.value ?? p.forca ?? 0, 10),
-        resistencia: parseInt(document.getElementById('edit_fAttrRes')?.value ?? p.resistencia ?? 0, 10),
-        velocidade: parseInt(document.getElementById('edit_fAttrVel')?.value ?? p.velocidade ?? 0, 10),
-        inteligencia: parseInt(document.getElementById('edit_fAttrInt')?.value ?? p.inteligencia ?? 0, 10),
+        pais_vila: document.getElementById('edit_fOrigem')?.value
+          || document.getElementById('edit_fReside')?.value
+          || p.pais_vila,
         hp_atual: parseInt(document.getElementById('edit_fHpText')?.value ?? p.hp_atual ?? 0, 10),
       };
 

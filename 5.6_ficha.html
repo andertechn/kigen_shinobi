@@ -525,9 +525,9 @@
                 <div class="info-card"><div class="info-card-label">Idade</div><div class="info-card-value" id="fIdade">-</div></div>
                 <div class="info-card"><div class="info-card-label">Aniversário</div><div class="info-card-value" id="fAniversario">-</div></div>
                 <div class="info-card"><div class="info-card-label">Score</div><div class="info-card-value" id="fScore">0</div></div>
-                <div class="info-card"><div class="info-card-label">Origem de Nasc.</div><div class="info-card-value" id="fOrigem">-</div></div>
-                <div class="info-card"><div class="info-card-label">Local onde Reside</div><div class="info-card-value" id="fReside">-</div></div>
-                <div class="info-card"><div class="info-card-label">Profissão</div><div class="info-card-value" id="fProfissao">-</div></div>
+                <div class="info-card"><div class="info-card-label">País/Vila</div><div class="info-card-value" id="fOrigem">-</div></div>
+                <div class="info-card" style="display:none"><div class="info-card-label">País/Vila</div><div class="info-card-value" id="fReside">-</div></div>
+                <div class="info-card"><div class="info-card-label">Elemento</div><div class="info-card-value" id="fProfissao">-</div></div>
                 <div class="info-card"><div class="info-card-label">Clã</div><div class="info-card-value" id="fCla">-</div></div>
                 <div class="info-card"><div class="info-card-label">Ryos</div><div class="info-card-value" id="fRyos">0</div></div>
               </div>
@@ -701,12 +701,21 @@
                 </div>
               </div>
             </div>
+
+            <div class="edit-actions" id="editActionsJornada">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
           </div>
           
           <div id="tabRelacoes" class="f-tab-content">
             <div class="f-section">
               <h2 class="f-section-title">JOGADORES</h2>
               <div class="relacoes-list" id="boxRelacoes"></div>
+            </div>
+            <div class="edit-actions" id="editActionsRelacoes">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
             </div>
           </div>
           
@@ -739,7 +748,7 @@
       try {
         const { data, error } = await supabaseClient
           .from('personagens')
-          .select('*, atributos_personagem(*)');
+          .select(KigenSchema.getPublicSelect('atributos_personagem(*)'));
         if (error) throw error;
         todassPessoas = data || [];
         renderizarPorPatente();
@@ -755,15 +764,9 @@
       let html = '';
 
       ordemPatentes.forEach(patente => {
-        let personagensPatente = [];
-        if (patente === 'Sem Patente') {
-          personagensPatente = todassPessoas.filter(p => {
-            const pat = KigenSchema.getPatente(p);
-            return !pat || pat === '-';
-          });
-        } else {
-          personagensPatente = todassPessoas.filter(p => KigenSchema.getPatente(p) === patente);
-        }
+        const personagensPatente = todassPessoas.filter(
+          p => KigenSchema.getPatenteBucket(p, ordemPatentes) === patente
+        );
 
         html += `
           <div class="patente-section">
@@ -842,8 +845,8 @@
       }
 
       const fotoPerfil = document.getElementById('fichaFotoPerfil');
-      if (p.foto_perfil) {
-        fotoPerfil.src = p.foto_perfil;
+      if (p.aparencia_link) {
+        fotoPerfil.src = p.aparencia_link;
       } else {
         const inicial = (p.nome_personagem || 'S').charAt(0).toUpperCase();
         fotoPerfil.src = `https://ui-avatars.com/api/?name=${inicial}&background=36b668&color=fff&size=120`;
@@ -860,9 +863,9 @@
       document.getElementById('fIdade').textContent = p.idade || '-';
       document.getElementById('fAniversario').textContent = p.aniversario || '-';
       document.getElementById('fScore').textContent = p.score || '0';
-      document.getElementById('fOrigem').textContent = p.origem_nascimento || '-';
-      document.getElementById('fReside').textContent = p.local_reside || '-';
-      document.getElementById('fProfissao').textContent = p.profissao || '-';
+      document.getElementById('fOrigem').textContent = p.pais_vila || '-';
+      document.getElementById('fReside').textContent = p.pais_vila || '-';
+      document.getElementById('fProfissao').textContent = p.elemento_basico || '-';
       document.getElementById('fCla').textContent = KigenSchema.getClan(p) || '-';
       document.getElementById('fRyos').textContent = p.ryos || '0';
 
@@ -914,13 +917,15 @@
       document.getElementById('fSubCom').textContent = attr.combate || '0';
 
       desenharGraficoRadar(attr.ninjutsu||0, attr.taijutsu||0, attr.genjutsu||0, inteligencia, forca, attr.velocidade||0, resistencia, attr.selos||0);
-      document.getElementById('boxTecnicas').innerHTML = p.lista_tecnicas ? p.lista_tecnicas : "<em>Nenhuma técnica listada para este personagem.</em>";
+      document.getElementById('boxTecnicas').innerHTML = p.tecnicas
+        ? p.tecnicas
+        : "<em>Nenhuma técnica listada para este personagem.</em>";
 
-      document.getElementById('fMissaoS').textContent = p.missao_s || '0';
-      document.getElementById('fMissaoA').textContent = p.missao_a || '0';
-      document.getElementById('fMissaoB').textContent = p.missao_b || '0';
-      document.getElementById('fMissaoC').textContent = p.missao_c || '0';
-      document.getElementById('fMissaoD').textContent = p.missao_d || '0';
+      document.getElementById('fMissaoS').textContent = p.missao_s ?? 0;
+      document.getElementById('fMissaoA').textContent = p.missao_a ?? 0;
+      document.getElementById('fMissaoB').textContent = p.missao_b ?? 0;
+      document.getElementById('fMissaoC').textContent = p.missao_c ?? 0;
+      document.getElementById('fMissaoD').textContent = p.missao_d ?? 0;
 
       const boxGraduacoes = document.getElementById('boxGraduacoes');
       if (p.historico_graduacoes) {
@@ -930,8 +935,8 @@
       }
 
       const boxRelacoes = document.getElementById('boxRelacoes');
-      if (p.lista_relacoes) {
-        boxRelacoes.innerHTML = p.lista_relacoes;
+      if (p.relacoes) {
+        boxRelacoes.innerHTML = p.relacoes;
       } else {
         boxRelacoes.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma relação registrada.</em></div>`;
       }
@@ -974,7 +979,6 @@
 
       modoEdicaoAtivo = true;
 
-      // Sessão de edição válida: não pede senha de novo
       if (KigenAuth.hasValidFichaEditSession(fichaAtualAberta.id)) {
         ativarModoEdicao();
         return;
@@ -1000,28 +1004,16 @@
       const modalError = document.getElementById('modalError');
 
       try {
-        const response = await fetch(KIGEN_CONFIG.SWIFT_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${KIGEN_CONFIG.SUPABASE_ANON_KEY}`
-          },
-          body: JSON.stringify({
-            personagem_id: idInput,
-            senha: senhaInput
-          })
-        });
-
-        const result = await response.json();
-
-        if (!result.valido) {
-          modalError.textContent = '❌ ID ou Senha incorretos';
+        if (fichaAtualAberta && idInput !== fichaAtualAberta.id) {
+          modalError.textContent = '❌ O ID deve ser o desta ficha';
           modalError.style.display = 'block';
           return;
         }
 
-        if (fichaAtualAberta && idInput !== fichaAtualAberta.id) {
-          modalError.textContent = '❌ O ID deve ser o desta ficha';
+        const result = await KigenAuth.verifyFichaPassword(idInput, senhaInput);
+
+        if (!result.valido) {
+          modalError.textContent = '❌ ID ou Senha incorretos';
           modalError.style.display = 'block';
           return;
         }
@@ -1048,15 +1040,16 @@
       document.getElementById('btnEditarFicha').textContent = '✕ Cancelar Edição';
       document.getElementById('btnEditarFicha').classList.add('edit-mode');
 
+      // —— Perfil ——
       transformarEmInput('fGenero', p.genero);
       transformarEmInput('fIdade', p.idade);
       transformarEmInput('fAniversario', p.aniversario);
-      transformarEmInput('fScore', p.score, 'number');
-      transformarEmInput('fOrigem', p.origem_nascimento);
-      transformarEmInput('fReside', p.local_reside);
-      transformarEmInput('fProfissao', p.profissao);
+      transformarEmInput('fScore', p.score ?? 0, 'number');
+      transformarEmInput('fOrigem', p.pais_vila);
+      document.getElementById('fReside').textContent = p.pais_vila || '-';
+      transformarEmInput('fProfissao', p.elemento_basico);
       transformarEmInput('fCla', KigenSchema.getClan(p));
-      transformarEmInput('fRyos', p.ryos, 'number');
+      transformarEmInput('fRyos', p.ryos ?? 0, 'number');
 
       transformarEmTextarea('fAparencia', p.aparencia);
       transformarEmInput('fAltura', p.altura);
@@ -1073,43 +1066,63 @@
       transformarEmTextarea('fProp4', p.proposito_4);
       transformarEmTextarea('fProp5', p.proposito_5);
 
-      document.getElementById('fAttrVel').innerHTML = `${attr.velocidade || 0}<button onclick="incrementarAtributo('fAttrVel')">+</button>`;
-      document.getElementById('fAttrTai').innerHTML = `${attr.taijutsu || 0}<button onclick="incrementarAtributo('fAttrTai')">+</button>`;
-      document.getElementById('fAttrNin').innerHTML = `${attr.ninjutsu || 0}<button onclick="incrementarAtributo('fAttrNin')">+</button>`;
-      document.getElementById('fAttrFor').innerHTML = `${attr.forca || 0}<button onclick="incrementarAtributo('fAttrFor')">+</button>`;
-      document.getElementById('fAttrRes').innerHTML = `${attr.resistencia || 0}<button onclick="incrementarAtributo('fAttrRes')">+</button>`;
-      document.getElementById('fAttrGen').innerHTML = `${attr.genjutsu || 0}<button onclick="incrementarAtributo('fAttrGen')">+</button>`;
-      document.getElementById('fAttrSel').innerHTML = `${attr.selos || 0}<button onclick="incrementarAtributo('fAttrSel')">+</button>`;
-      document.getElementById('fAttrInt').innerHTML = `${attr.inteligencia || 0}<button onclick="incrementarAtributo('fAttrInt')">+</button>`;
+      // —— Combate: HP + atributos ——
+      const hpAtual = p.hp_atual !== undefined && p.hp_atual !== null ? p.hp_atual : (p.hp_max || 5000);
+      transformarEmInput('fHpText', hpAtual, 'number');
 
-      document.getElementById('fSubFuin').innerHTML = `${attr.fuinjutsu || 0}<button onclick="incrementarSubAtributo('fSubFuin')">+</button>`;
-      document.getElementById('fSubNinG').innerHTML = `${attr.ningeral || 0}<button onclick="incrementarSubAtributo('fSubNinG')">+</button>`;
-      document.getElementById('fSubEle').innerHTML = `${attr.elementos || 0}<button onclick="incrementarSubAtributo('fSubEle')">+</button>`;
-      document.getElementById('fSubKen').innerHTML = `${attr.kenjutsu || 0}<button onclick="incrementarSubAtributo('fSubKen')">+</button>`;
-      document.getElementById('fSubShu').innerHTML = `${attr.shurikenjutsu || 0}<button onclick="incrementarSubAtributo('fSubShu')">+</button>`;
-      document.getElementById('fSubCom').innerHTML = `${attr.combate || 0}<button onclick="incrementarSubAtributo('fSubCom')">+</button>`;
+      document.getElementById('fAttrVel').innerHTML = `${attr.velocidade || 0}<button type="button" onclick="incrementarAtributo('fAttrVel')">+</button>`;
+      document.getElementById('fAttrTai').innerHTML = `${attr.taijutsu || 0}<button type="button" onclick="incrementarAtributo('fAttrTai')">+</button>`;
+      document.getElementById('fAttrNin').innerHTML = `${attr.ninjutsu || 0}<button type="button" onclick="incrementarAtributo('fAttrNin')">+</button>`;
+      document.getElementById('fAttrFor').innerHTML = `${attr.forca || 0}<button type="button" onclick="incrementarAtributo('fAttrFor')">+</button>`;
+      document.getElementById('fAttrRes').innerHTML = `${attr.resistencia || 0}<button type="button" onclick="incrementarAtributo('fAttrRes')">+</button>`;
+      document.getElementById('fAttrGen').innerHTML = `${attr.genjutsu || 0}<button type="button" onclick="incrementarAtributo('fAttrGen')">+</button>`;
+      document.getElementById('fAttrSel').innerHTML = `${attr.selos || 0}<button type="button" onclick="incrementarAtributo('fAttrSel')">+</button>`;
+      document.getElementById('fAttrInt').innerHTML = `${attr.inteligencia || 0}<button type="button" onclick="incrementarAtributo('fAttrInt')">+</button>`;
+
+      document.getElementById('fSubFuin').innerHTML = `${attr.fuinjutsu || 0}<button type="button" onclick="incrementarSubAtributo('fSubFuin')">+</button>`;
+      document.getElementById('fSubNinG').innerHTML = `${attr.ningeral || 0}<button type="button" onclick="incrementarSubAtributo('fSubNinG')">+</button>`;
+      document.getElementById('fSubEle').innerHTML = `${attr.elementos || 0}<button type="button" onclick="incrementarSubAtributo('fSubEle')">+</button>`;
+      document.getElementById('fSubKen').innerHTML = `${attr.kenjutsu || 0}<button type="button" onclick="incrementarSubAtributo('fSubKen')">+</button>`;
+      document.getElementById('fSubShu').innerHTML = `${attr.shurikenjutsu || 0}<button type="button" onclick="incrementarSubAtributo('fSubShu')">+</button>`;
+      document.getElementById('fSubCom').innerHTML = `${attr.combate || 0}<button type="button" onclick="incrementarSubAtributo('fSubCom')">+</button>`;
+
+      transformarEmTextarea('boxTecnicas', p.tecnicas || '');
+
+      // —— Jornada ——
+      transformarEmTextarea('boxGraduacoes', p.historico_graduacoes || '');
+      transformarEmInput('fMissaoS', p.missao_s ?? 0, 'number');
+      transformarEmInput('fMissaoA', p.missao_a ?? 0, 'number');
+      transformarEmInput('fMissaoB', p.missao_b ?? 0, 'number');
+      transformarEmInput('fMissaoC', p.missao_c ?? 0, 'number');
+      transformarEmInput('fMissaoD', p.missao_d ?? 0, 'number');
+
+      // —— Relações ——
+      transformarEmTextarea('boxRelacoes', p.relacoes || '');
 
       document.getElementById('editActionsProfile').classList.add('show');
       document.getElementById('editActionsCombate').classList.add('show');
+      document.getElementById('editActionsJornada').classList.add('show');
+      document.getElementById('editActionsRelacoes').classList.add('show');
     }
 
     function incrementarAtributo(id) {
       const elemento = document.getElementById(id);
-      const valor = parseInt(elemento.textContent.split('+')[0].trim()) || 0;
-      elemento.innerHTML = `${valor + 1}<button onclick="incrementarAtributo('${id}')">+</button>`;
+      const valor = parseInt(elemento.textContent.split('+')[0].trim(), 10) || 0;
+      elemento.innerHTML = `${valor + 1}<button type="button" onclick="incrementarAtributo('${id}')">+</button>`;
     }
 
     function incrementarSubAtributo(id) {
       const elemento = document.getElementById(id);
-      const valor = parseInt(elemento.textContent.split('+')[0].trim()) || 0;
-      elemento.innerHTML = `${valor + 1}<button onclick="incrementarSubAtributo('${id}')">+</button>`;
+      const valor = parseInt(elemento.textContent.split('+')[0].trim(), 10) || 0;
+      elemento.innerHTML = `${valor + 1}<button type="button" onclick="incrementarSubAtributo('${id}')">+</button>`;
     }
 
     function transformarEmInput(id, valor, tipo = 'text') {
       const element = document.getElementById(id);
+      if (!element) return;
       const input = document.createElement('input');
       input.type = tipo;
-      input.value = valor || '';
+      input.value = valor === null || valor === undefined ? '' : valor;
       input.id = `edit_${id}`;
       input.placeholder = 'Edite aqui...';
       element.innerHTML = '';
@@ -1118,10 +1131,13 @@
 
     function transformarEmTextarea(id, valor) {
       const element = document.getElementById(id);
+      if (!element) return;
       const textarea = document.createElement('textarea');
       textarea.value = valor || '';
       textarea.id = `edit_${id}`;
       textarea.placeholder = 'Edite aqui...';
+      textarea.style.minHeight = '120px';
+      textarea.style.width = '100%';
       element.innerHTML = '';
       element.appendChild(textarea);
     }
@@ -1132,6 +1148,19 @@
       const raw = el.textContent.split('+')[0].trim();
       const n = parseInt(raw, 10);
       return Number.isFinite(n) ? n : (fallback || 0);
+    }
+
+    function readEditNumber(editId, fallback) {
+      const el = document.getElementById(editId);
+      if (!el) return fallback ?? 0;
+      const n = parseInt(el.value, 10);
+      return Number.isFinite(n) ? n : (fallback ?? 0);
+    }
+
+    function readEditText(editId, fallback) {
+      const el = document.getElementById(editId);
+      if (!el) return fallback ?? null;
+      return el.value;
     }
 
     async function salvarEdicao() {
@@ -1147,28 +1176,37 @@
       const attr = p.atributos_personagem && p.atributos_personagem[0] ? p.atributos_personagem[0] : {};
 
       const dadosPersonagemNext = {
-        genero: document.getElementById('edit_fGenero')?.value ?? p.genero,
-        idade: document.getElementById('edit_fIdade')?.value ?? p.idade,
-        aniversario: document.getElementById('edit_fAniversario')?.value ?? p.aniversario,
-        score: parseInt(document.getElementById('edit_fScore')?.value ?? p.score ?? 0, 10),
-        origem_nascimento: document.getElementById('edit_fOrigem')?.value ?? p.origem_nascimento,
-        local_reside: document.getElementById('edit_fReside')?.value ?? p.local_reside,
-        profissao: document.getElementById('edit_fProfissao')?.value ?? p.profissao,
-        clan: document.getElementById('edit_fCla')?.value ?? KigenSchema.getClan(p),
-        ryos: parseInt(document.getElementById('edit_fRyos')?.value ?? p.ryos ?? 0, 10),
-        aparencia: document.getElementById('edit_fAparencia')?.value ?? p.aparencia,
-        altura: document.getElementById('edit_fAltura')?.value ?? p.altura,
-        peso: document.getElementById('edit_fPeso')?.value ?? p.peso,
-        cabelos: document.getElementById('edit_fCabelos')?.value ?? p.cabelos,
-        olhos: document.getElementById('edit_fOlhos')?.value ?? p.olhos,
-        historia: document.getElementById('edit_fHistoria')?.value ?? p.historia,
-        gosta_de: document.getElementById('edit_fGosta')?.value ?? p.gosta_de,
-        nao_gosta_de: document.getElementById('edit_fNaoGosta')?.value ?? p.nao_gosta_de,
-        proposito_1: document.getElementById('edit_fProp1')?.value ?? p.proposito_1,
-        proposito_2: document.getElementById('edit_fProp2')?.value ?? p.proposito_2,
-        proposito_3: document.getElementById('edit_fProp3')?.value ?? p.proposito_3,
-        proposito_4: document.getElementById('edit_fProp4')?.value ?? p.proposito_4,
-        proposito_5: document.getElementById('edit_fProp5')?.value ?? p.proposito_5,
+        genero: readEditText('edit_fGenero', p.genero),
+        idade: readEditText('edit_fIdade', p.idade),
+        aniversario: readEditText('edit_fAniversario', p.aniversario),
+        score: readEditNumber('edit_fScore', p.score ?? 0),
+        pais_vila: readEditText('edit_fOrigem', p.pais_vila),
+        elemento_basico: readEditText('edit_fProfissao', p.elemento_basico),
+        clan: readEditText('edit_fCla', KigenSchema.getClan(p)),
+        ryos: readEditNumber('edit_fRyos', p.ryos ?? 0),
+        aparencia: readEditText('edit_fAparencia', p.aparencia),
+        altura: readEditText('edit_fAltura', p.altura),
+        peso: readEditText('edit_fPeso', p.peso),
+        cabelos: readEditText('edit_fCabelos', p.cabelos),
+        olhos: readEditText('edit_fOlhos', p.olhos),
+        historia: readEditText('edit_fHistoria', p.historia),
+        gosta_de: readEditText('edit_fGosta', p.gosta_de),
+        nao_gosta_de: readEditText('edit_fNaoGosta', p.nao_gosta_de),
+        proposito_1: readEditText('edit_fProp1', p.proposito_1),
+        proposito_2: readEditText('edit_fProp2', p.proposito_2),
+        proposito_3: readEditText('edit_fProp3', p.proposito_3),
+        proposito_4: readEditText('edit_fProp4', p.proposito_4),
+        proposito_5: readEditText('edit_fProp5', p.proposito_5),
+        // Combate / Jornada / Relações (colunas reais em personagens)
+        hp_atual: readEditNumber('edit_fHpText', p.hp_atual ?? p.hp_max ?? 5000),
+        tecnicas: readEditText('edit_boxTecnicas', p.tecnicas),
+        historico_graduacoes: readEditText('edit_boxGraduacoes', p.historico_graduacoes),
+        missao_s: readEditNumber('edit_fMissaoS', p.missao_s ?? 0),
+        missao_a: readEditNumber('edit_fMissaoA', p.missao_a ?? 0),
+        missao_b: readEditNumber('edit_fMissaoB', p.missao_b ?? 0),
+        missao_c: readEditNumber('edit_fMissaoC', p.missao_c ?? 0),
+        missao_d: readEditNumber('edit_fMissaoD', p.missao_d ?? 0),
+        relacoes: readEditText('edit_boxRelacoes', p.relacoes),
       };
 
       const dadosAtributosNext = {
@@ -1209,22 +1247,29 @@
           if (errorPersonagem) throw errorPersonagem;
         }
 
-        if (attr.id && Object.keys(payloadAtributos).length > 0) {
-          const { error: errorAtributos } = await supabaseClient
-            .from('atributos_personagem')
-            .update(payloadAtributos)
-            .eq('id', attr.id);
-
-          if (errorAtributos) throw errorAtributos;
+        if (attr.id) {
+          if (Object.keys(payloadAtributos).length > 0) {
+            const { error: errorAtributos } = await supabaseClient
+              .from('atributos_personagem')
+              .update(payloadAtributos)
+              .eq('id', attr.id);
+            if (errorAtributos) throw errorAtributos;
+          }
+        } else {
+          const temValor = Object.values(dadosAtributosNext).some((v) => Number(v) > 0);
+          if (temValor) {
+            const { error: errorInsert } = await supabaseClient
+              .from('atributos_personagem')
+              .insert([{ personagem_id: p.id, ...dadosAtributosNext }]);
+            if (errorInsert) throw errorInsert;
+          }
         }
 
-        // Mantém sessão de edição — só sai do modo edição visual
         const personagemId = p.id;
+        esconderBotoesEdicao();
         modoEdicaoAtivo = false;
         document.getElementById('btnEditarFicha').textContent = '✎ Editar';
         document.getElementById('btnEditarFicha').classList.remove('edit-mode');
-        document.getElementById('editActionsProfile').classList.remove('show');
-        document.getElementById('editActionsCombate').classList.remove('show');
 
         mostrarMensagemSucesso();
         await carregarDados();
@@ -1236,13 +1281,17 @@
       }
     }
 
+    function esconderBotoesEdicao() {
+      ['editActionsProfile', 'editActionsCombate', 'editActionsJornada', 'editActionsRelacoes']
+        .forEach((id) => document.getElementById(id)?.classList.remove('show'));
+    }
+
     function cancelarEdicao(clearAuth = false) {
       const id = fichaAtualAberta?.id;
       modoEdicaoAtivo = false;
       document.getElementById('btnEditarFicha').textContent = '✎ Editar';
       document.getElementById('btnEditarFicha').classList.remove('edit-mode');
-      document.getElementById('editActionsProfile').classList.remove('show');
-      document.getElementById('editActionsCombate').classList.remove('show');
+      esconderBotoesEdicao();
       if (clearAuth) KigenAuth.clearFichaEditSession();
       if (id) abrirFicha(id);
     }
