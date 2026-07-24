@@ -1,0 +1,14 @@
+{
+  "name": "kigen-shinobi",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Wiki + sistema dinâmico Kigen Shinobi (HTML estático + Supabase)",
+  "scripts": {
+    "dev": "vite",
+    "preview": "vite preview",
+    "build": "echo Static HTML site - use vercel.json (no vite bundle required)"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}

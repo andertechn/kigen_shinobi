@@ -1,4 +1,6 @@
-
+// ============================================
+// CONFIGURAÇÃO SUPABASE 
+// ============================================
 
 const SUPABASE_CONFIG = {
   URL: 'https://etojqmmhdciphantyzoa.supabase.co',

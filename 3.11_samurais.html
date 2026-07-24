@@ -7,6 +7,10 @@
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="shared/config.js"></script>
+  <script src="shared/auth.js"></script>
+  <script src="shared/schema.js"></script>
+  <script src="shared/supabase.js"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -675,10 +679,6 @@
   </main>
 
   <script>
-    // ===== CONFIGURAÇÃO DO SUPABASE =====
-    const SUPABASE_URL = 'https://etojqmmhdciphantyzoa.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0b2pxbW1oZGNpcGhhbnR5em9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTY5OTIsImV4cCI6MjA5ODg3Mjk5Mn0.1_zs_w7E_MZ9O5Iq4F76UQsos6i8zZhvWpjzVtsfxAA';
-
     let supabaseClient;
     let todassPessoas = [];
     let radarChartInstance = null;
@@ -686,12 +686,15 @@
     let modoEdicaoAtivo = false;
 
     function inicializarSupabase() {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      supabaseClient = KigenDB.getClient();
     }
 
     async function carregarDados() {
       try {
-        const { data, error } = await supabaseClient.from('personagens').select('*').eq('estilo_vida', 'Samurai');
+        const { data, error } = await supabaseClient
+          .from('personagens')
+          .select(KigenSchema.getPublicSelect())
+          .eq('estilo_vida', 'Samurai');
         if (error) throw error;
         todassPessoas = data || [];
         renderizarPorPatente();
@@ -915,7 +918,38 @@
 
       // RESUMO DE ALTERAÇÕES
       const boxResumo = document.getElementById('boxResumo');
-      boxResumo.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma alteração registrada.</em></div>`;
+      const historico = Array.isArray(p.historico_alteracoes) ? p.historico_alteracoes : [];
+      if (historico.length > 0) {
+        const escapeHtml = (s) => String(s ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+
+        let resumoHtml = '';
+        historico.forEach((alteracao) => {
+          const data = alteracao.data ? new Date(alteracao.data) : null;
+          const dataFormatada = data && !Number.isNaN(data.getTime())
+            ? data.toLocaleString('pt-BR')
+            : '-';
+          resumoHtml += `
+            <div class="resumo-card">
+              <div class="resumo-header">
+                <div class="resumo-title">${escapeHtml(alteracao.campo_alterado)}</div>
+                <div class="resumo-date">${escapeHtml(dataFormatada)}</div>
+              </div>
+              <div class="resumo-desc">
+                <strong>Anterior:</strong> ${escapeHtml(alteracao.valor_anterior)}
+                → <strong>Novo:</strong> ${escapeHtml(alteracao.valor_novo)}
+                ${alteracao.editado_por_id ? `<br><small>Editado por personagem #${escapeHtml(alteracao.editado_por_id)}</small>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        boxResumo.innerHTML = resumoHtml;
+      } else {
+        boxResumo.innerHTML = `<div style="color: #888; text-align: center; padding: 20px;"><em>Nenhuma alteração registrada.</em></div>`;
+      }
 
       document.querySelectorAll('.f-tab-btn')[0].click();
       mostrarPagina('paginaFicha');
@@ -923,7 +957,19 @@
 
     function iniciarEdicao() {
       if (!fichaAtualAberta) return;
+
+      if (modoEdicaoAtivo) {
+        cancelarEdicao(false);
+        return;
+      }
+
       modoEdicaoAtivo = true;
+
+      if (KigenAuth.hasValidFichaEditSession(fichaAtualAberta.id)) {
+        ativarModoEdicao();
+        return;
+      }
+
       document.getElementById('modalAutenticacao').classList.add('show');
     }
 
@@ -944,17 +990,21 @@
       const modalError = document.getElementById('modalError');
 
       try {
-        const { data, error } = await supabaseClient
-          .from('personagens')
-          .select('id, senha_edicao')
-          .eq('id', idInput)
-          .single();
+        if (fichaAtualAberta && idInput !== fichaAtualAberta.id) {
+          modalError.textContent = '❌ O ID deve ser o desta ficha';
+          modalError.style.display = 'block';
+          return;
+        }
 
-        if (error || !data || data.senha_edicao !== senhaInput) {
+        const result = await KigenAuth.verifyFichaPassword(idInput, senhaInput);
+
+        if (!result.valido) {
           modalError.textContent = '❌ ID ou Senha incorretos';
           modalError.style.display = 'block';
           return;
         }
+
+        KigenAuth.saveFichaEditSession(idInput);
 
         modal.classList.remove('show');
         modalError.style.display = 'none';
@@ -1028,49 +1078,78 @@
     async function salvarEdicao() {
       if (!fichaAtualAberta) return;
 
+      if (!KigenAuth.hasValidFichaEditSession(fichaAtualAberta.id)) {
+        alert('Sessão de edição expirada. Autentique novamente.');
+        iniciarEdicao();
+        return;
+      }
+
       const p = fichaAtualAberta;
 
-      const dadosPersonagem = {
-        genero: document.getElementById('edit_fGenero')?.value || p.genero,
-        idade: document.getElementById('edit_fIdade')?.value || p.idade,
-        aniversario: document.getElementById('edit_fAniversario')?.value || p.aniversario,
-        aparencia: document.getElementById('edit_fAparencia')?.value || p.aparencia,
-        ryos: parseInt(document.getElementById('edit_fRyos')?.value || p.ryos || 0),
-        score: parseInt(document.getElementById('edit_fScore')?.value || p.score || 0),
-        kenjutsu: parseInt(document.getElementById('edit_fAttrKen')?.value || p.kenjutsu || 0),
-        taijutsu: parseInt(document.getElementById('edit_fAttrTai')?.value || p.taijutsu || 0),
-        forca: parseInt(document.getElementById('edit_fAttrFor')?.value || p.forca || 0),
-        resistencia: parseInt(document.getElementById('edit_fAttrRes')?.value || p.resistencia || 0),
-        velocidade: parseInt(document.getElementById('edit_fAttrVel')?.value || p.velocidade || 0),
-        inteligencia: parseInt(document.getElementById('edit_fAttrInt')?.value || p.inteligencia || 0),
-        hp_atual: parseInt(document.getElementById('edit_fHpText')?.value || p.hp_atual || 0),
+      const dadosPersonagemNext = {
+        genero: document.getElementById('edit_fGenero')?.value ?? p.genero,
+        idade: document.getElementById('edit_fIdade')?.value ?? p.idade,
+        aniversario: document.getElementById('edit_fAniversario')?.value ?? p.aniversario,
+        aparencia: document.getElementById('edit_fAparencia')?.value ?? p.aparencia,
+        ryos: parseInt(document.getElementById('edit_fRyos')?.value ?? p.ryos ?? 0, 10),
+        score: parseInt(document.getElementById('edit_fScore')?.value ?? p.score ?? 0, 10),
+        pais_vila: document.getElementById('edit_fOrigem')?.value
+          || document.getElementById('edit_fReside')?.value
+          || p.pais_vila,
+        hp_atual: parseInt(document.getElementById('edit_fHpText')?.value ?? p.hp_atual ?? 0, 10),
       };
 
+      const payload = KigenSchema.buildChangedPayload(
+        dadosPersonagemNext,
+        p,
+        KigenSchema.PERSONAGENS_COLUMNS
+      );
+
+      const novasEntradas = KigenSchema.buildHistoricoEntries(payload, p, p.id);
+      if (novasEntradas.length > 0) {
+        payload.historico_alteracoes = KigenSchema.mergeHistorico(
+          p.historico_alteracoes,
+          novasEntradas
+        );
+      }
+
       try {
-        const { error: errorPersonagem } = await supabaseClient
-          .from('personagens')
-          .update(dadosPersonagem)
-          .eq('id', p.id);
+        if (Object.keys(payload).length > 0) {
+          const { error: errorPersonagem } = await supabaseClient
+            .from('personagens')
+            .update(payload)
+            .eq('id', p.id);
 
-        if (errorPersonagem) throw errorPersonagem;
+          if (errorPersonagem) throw errorPersonagem;
+        }
 
-        cancelarEdicao();
+        const personagemId = p.id;
+        modoEdicaoAtivo = false;
+        document.getElementById('btnEditarFicha').textContent = '✎ Editar';
+        document.getElementById('btnEditarFicha').classList.remove('edit-mode');
+        document.getElementById('editActionsPerfil').classList.remove('show');
+        document.getElementById('editActionsStatus').classList.remove('show');
+        document.getElementById('editActionsCombate').classList.remove('show');
+
         mostrarMensagemSucesso();
-        carregarDados();
+        await carregarDados();
+        abrirFicha(personagemId);
       } catch (err) {
         console.error('Erro ao salvar:', err);
         alert('❌ Erro ao salvar a ficha: ' + err.message);
       }
     }
 
-    function cancelarEdicao() {
+    function cancelarEdicao(clearAuth = false) {
+      const id = fichaAtualAberta?.id;
       modoEdicaoAtivo = false;
       document.getElementById('btnEditarFicha').textContent = '✎ Editar';
       document.getElementById('btnEditarFicha').classList.remove('edit-mode');
       document.getElementById('editActionsPerfil').classList.remove('show');
       document.getElementById('editActionsStatus').classList.remove('show');
       document.getElementById('editActionsCombate').classList.remove('show');
-      abrirFicha(fichaAtualAberta.id);
+      if (clearAuth) KigenAuth.clearFichaEditSession();
+      if (id) abrirFicha(id);
     }
 
     function mostrarMensagemSucesso() {

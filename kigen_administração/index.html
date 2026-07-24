@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kigen - Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../shared/config.js"></script>
+  <script src="../shared/auth.js"></script>
+  <script src="../shared/schema.js"></script>
+  <script src="../shared/supabase.js"></script>
   <!-- ESTILOS AQUI (mantém igual) -->
   <style>
     * {
@@ -1152,14 +1156,11 @@
 
   <script src="config.js"></script>
   <script>
-    // ===== APPS SCRIPT WEBHOOK URL =====
     function getAppsScriptUrl() {
-      return "https://script.google.com/macros/s/AKfycbwmbXtMKSUURqf3l8ZektgF9-CDqHlGECEdEsOc-C6y4rYTH14qh0nBYJL30xLUefw4/exec";
+      return KIGEN_CONFIG.APPS_SCRIPT_URL;
     }
 
-    // Configuração Supabase
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+    const supabaseClient = KigenDB.getClient();
 
     let currentUser = null;
     let isSignUp = false;
@@ -1250,12 +1251,23 @@
           throw new Error('Usuário ou senha incorretos');
         }
 
-        const encodedPassword = btoa(password);
-        if (userData.password_hash !== encodedPassword) {
+        const ok = await KigenAuth.verifyPassword(password, userData.password_hash);
+        if (!ok) {
           throw new Error('Usuário ou senha incorretos');
         }
 
+        // Upgrade automático de hash legado (btoa → sha256)
+        if (KigenAuth.isLegacyHash(userData.password_hash)) {
+          const modern = await KigenAuth.hashPassword(password);
+          await supabaseClient
+            .from('usuarios')
+            .update({ password_hash: modern })
+            .eq('id', userData.id);
+          userData.password_hash = modern;
+        }
+
         currentUser = userData;
+        KigenAuth.saveAdminSession(userData);
         notificationsEnabled = userData.notificacoes_habilitadas || false;
         document.getElementById('notificationToggle').checked = notificationsEnabled;
         await showDashboard();
@@ -1265,6 +1277,32 @@
         errorDiv.classList.add('show');
       } finally {
         btnLogin.disabled = false;
+      }
+    }
+
+    async function restoreAdminSession() {
+      const session = KigenAuth.readAdminSession();
+      if (!session?.id) return;
+
+      try {
+        const { data: userData, error } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .eq('id', session.id)
+          .single();
+
+        if (error || !userData || userData.ativo === false) {
+          KigenAuth.clearAdminSession();
+          return;
+        }
+
+        currentUser = userData;
+        notificationsEnabled = userData.notificacoes_habilitadas || false;
+        document.getElementById('notificationToggle').checked = notificationsEnabled;
+        await showDashboard();
+      } catch (err) {
+        console.error('Falha ao restaurar sessão:', err);
+        KigenAuth.clearAdminSession();
       }
     }
 
@@ -1323,12 +1361,14 @@
           throw new Error('Role padrão não encontrado. Contate o administrador.');
         }
 
+        const passwordHash = await KigenAuth.hashPassword(password);
+
         const { data: newUser, error: insertError } = await supabaseClient
           .from('usuarios')
           .insert([{
             nome: username,
             whatsapp: whatsapp,
-            password_hash: btoa(password),
+            password_hash: passwordHash,
             role_id: roleData.id,
             ativo: true,
             notificacoes_habilitadas: false
@@ -1746,7 +1786,7 @@
           if (isAdmin || isGerencia || isSupervisor) {
             const { data: personagens } = await supabaseClient
               .from('personagens')
-              .select('*')
+              .select(KigenSchema.getPublicSelect())
               .eq('status', 'em_analise')
               .order('data_criacao', { ascending: false });
 
@@ -1777,7 +1817,7 @@
         if (isAdmin || isGerencia) {
           const { data: fichas } = await supabaseClient
             .from('personagens')
-            .select('*')
+            .select(KigenSchema.getPublicSelect())
             .eq('status', 'em_analise')
             .order('data_criacao', { ascending: false });
           personagens = fichas || [];
@@ -1792,7 +1832,7 @@
           if (userCompIds.length > 0) {
             const { data: fichas } = await supabaseClient
               .from('personagens')
-              .select('*')
+              .select(KigenSchema.getPublicSelect())
               .eq('status', 'em_analise')
               .in('companhia_id', userCompIds)
               .order('data_criacao', { ascending: false });
@@ -1961,7 +2001,7 @@
       try {
         const { data: personagens } = await supabaseClient
           .from('personagens')
-          .select('*')
+          .select(KigenSchema.getPublicSelect())
           .eq('companhia_id', compId)
           .eq('status', 'em_analise')
           .order('data_criacao', { ascending: false });
@@ -2089,7 +2129,7 @@
             <h3>🥷 Informações Ninja</h3>
             <div class="ficha-info-row">
               <div class="ficha-info-label">Clã:</div>
-              <div class="ficha-info-value">${pers.clan || '-'}</div>
+              <div class="ficha-info-value">${KigenSchema.getClan(pers) || '-'}</div>
             </div>
             <div class="ficha-info-row">
               <div class="ficha-info-label">Patente:</div>
@@ -2637,9 +2677,21 @@
           };
         }
 
+        const user = allUsers.find(u => u.id === editingUserId);
+        const payload = user
+          ? KigenSchema.buildChangedPayload(updateData, user, Object.keys(updateData).concat(Object.keys(user)))
+          : updateData;
+
+        // Só envia campos alterados
+        const finalPayload = Object.keys(payload).length ? payload : null;
+        if (!finalPayload) {
+          closeEditModal();
+          return;
+        }
+
         const { error } = await supabaseClient
           .from('usuarios')
-          .update(updateData)
+          .update(finalPayload)
           .eq('id', editingUserId);
 
         if (error) throw error;
@@ -2689,6 +2741,7 @@
       currentUser = null;
       isSignUp = false;
       notificationCount = 0;
+      KigenAuth.clearAdminSession();
 
       if (pollingInterval) clearInterval(pollingInterval);
 
@@ -2721,6 +2774,10 @@
         closePersonagemModal();
       }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      restoreAdminSession();
+    });
   </script>
 </body>
 </html>
