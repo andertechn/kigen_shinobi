@@ -1,7 +1,13 @@
 {
   "framework": null,
-  "installCommand": "echo 'skip install'",
-  "buildCommand": "echo 'static site - no vite build'",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
   "outputDirectory": ".",
-  "cleanUrls": false
+  "cleanUrls": false,
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "homol": true
+    }
+  }
 }
