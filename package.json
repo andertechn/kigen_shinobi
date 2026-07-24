@@ -6,9 +6,15 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "build": "echo Static HTML site - use vercel.json (no vite bundle required)"
+    "lint": "eslint .",
+    "typecheck": "node scripts/typecheck.mjs",
+    "generate:config": "node scripts/generate-config.mjs",
+    "build": "npm run generate:config && node scripts/validate-build.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "eslint": "^9.30.1",
+    "globals": "^16.3.0",
     "vite": "^6.3.5"
   }
 }
