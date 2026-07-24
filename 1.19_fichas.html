@@ -1,0 +1,2549 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Banco de Dados Completo - Kigen Shinobi</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ======= VARIÁVEIS DE TEMA GERAL ======= */
+    :root {
+      --bg:      #000000;
+      --surface: rgba(10, 10, 10, 0.85); 
+      --surface-inner: rgba(18, 18, 20, 0.95);
+      --border:  #cc0000;
+      --accent-shinobi:  #1a237e; 
+      --accent-shinobi2: #5c6bc0;
+      --accent-samurai:  #607D8B;
+      --accent-samurai2: #90A4AE;
+      --accent-civil:    #2e7d32;
+      --accent-civil2:   #43a047;
+      --accent-daymo:    #d4a574;
+      --accent-daymo2:   #8b6f47;
+      --shadow:  rgba(0, 0, 0, 0.8);
+      --text:    #e0e0e0;
+      --text-sub:#8a92a6;
+
+      /* Base Shinobi */
+      --ficha-bg: #111513;
+      --ficha-card: #171b19;
+      --ficha-border: #202722;
+      --ficha-green: #36b668;
+      --ficha-green-dark: #2f7e4b;
+    }
+    
+    [data-theme="light"] {
+      --bg:      #efefef;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-inner: #f5f5f7;
+      --border:  #cc0000;
+      --accent-shinobi:  #283593; 
+      --accent-shinobi2: #1a237e;
+      --accent-samurai:  #455A64;
+      --accent-samurai2: #607D8B;
+      --accent-civil:    #1b5e20;
+      --accent-civil2:   #2e7d32;
+      --accent-daymo:    #8b6f47;
+      --accent-daymo2:   #a1887f;
+      --shadow:  rgba(0, 0, 0, 0.15);
+      --text:    #111111;
+      --text-sub:#6b7280;
+    }
+
+    /* ESCOPO TEMA SAMURAI */
+    #ficha-page-samurai {
+      --ficha-bg: #121519;
+      --ficha-card: #1a202c;
+      --ficha-border: #2d3748;
+      --ficha-green: #a0aec0;
+      --ficha-green-dark: #4a5568;
+    }
+
+    /* ESCOPO TEMA CIVIL/DAYMO */
+    #ficha-page-civil {
+      --ficha-bg: #121612;
+      --ficha-card: #182218;
+      --ficha-border: #263827;
+      --ficha-green: #4caf50;
+      --ficha-green-dark: #2e7d32;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background-color: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; overflow-x: hidden; transition: background-color 0.4s, color 0.4s; }
+
+    /* ======= FUNDO E FLOATING UI ======= */
+    #fixed-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -10; overflow: hidden; background-color: #000; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.35) saturate(0.6); transition: filter 0.4s ease; }
+    [data-theme="light"] .hero-bg { filter: brightness(0.8) saturate(0.7); }
+    .hero-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%); }
+
+    #floating-ui { position: fixed; top: 20px; right: 22px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #menu-btn, #theme-toggle { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(204,0,0,0.5); transition: box-shadow 0.25s, transform 0.2s; }
+    #theme-toggle { width: 32px; height: 32px; padding: 0; }
+    #menu-btn:hover, #theme-toggle:hover { box-shadow: 0 0 20px rgba(204,0,0,0.7); transform: scale(1.07); }
+    #menu-btn svg.kunai { width: 22px; height: 22px; transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55); }
+    #menu-btn.open svg.kunai { transform: rotate(135deg); }
+    #theme-toggle svg { width: 14px; height: 14px; }
+    #theme-toggle .icon-sun { display: none; }
+    #theme-toggle .icon-moon { display: block; fill: #5c6bc0; }
+    [data-theme="light"] #theme-toggle .icon-sun { display: block; fill: none; stroke: #cc0000; stroke-width: 2; }
+    [data-theme="light"] #theme-toggle .icon-moon { display: none; }
+
+    /* ======= NAV OVERLAY ======= */
+    #nav-overlay { position: fixed; inset: 0; z-index: 900; display: flex; align-items: flex-start; justify-content: flex-end; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
+    #nav-overlay.open { pointer-events: all; opacity: 1; }
+    .overlay-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); cursor: pointer; }
+    #nav-panel { position: relative; z-index: 1; background: var(--surface-inner); border-left: 2px solid var(--border); width: min(280px, 80vw); height: 100%; display: flex; flex-direction: column; padding: 100px 30px 40px; gap: 4px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); box-shadow: -10px 0 40px var(--shadow); overflow-y: auto; }
+    #nav-overlay.open #nav-panel { transform: translateX(0); }
+    .nav-link { display: block; font-family: 'Russo One', sans-serif; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s; }
+    .nav-link:hover { color: var(--accent-shinobi2); padding-left: 10px; }
+
+    /* ======= SISTEMA DE PÁGINAS ======= */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ======= ESTRUTURA GERAL DA PÁGINA PRINCIPAL ======= */
+    #page-container { position: relative; z-index: 10; min-height: 100vh; padding: 100px 20px 80px; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+    
+    .main-title { text-align: center; margin-bottom: 50px; }
+    .main-title h1 { 
+      font-family: 'Bangers', cursive; 
+      font-size: 3rem; 
+      letter-spacing: 0.1em; 
+      background: linear-gradient(135deg, #5c6bc0, #607D8B, #43a047, #d4a574);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .main-title p { color: var(--text-sub); font-size: 1.1rem; font-style: italic; }
+
+    /* ======= ACCORDION CONTAINER ======= */
+    .accordion-wrapper { display: flex; flex-direction: column; gap: 20px; }
+    .accordion-item { background: var(--surface-inner); border-radius: 8px; overflow: hidden; border: 2px solid; box-shadow: 0 10px 30px rgba(0,0,0,0.6); transition: all 0.3s ease; }
+    .accordion-item.shinobi { border-color: var(--accent-shinobi2); }
+    .accordion-item.samurai { border-color: var(--accent-samurai2); }
+    .accordion-item.civil { border-color: var(--accent-civil2); }
+    .accordion-item.daymo { border-color: var(--accent-daymo); }
+    .accordion-header { padding: 25px 30px; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: all 0.3s ease; position: relative; }
+    .accordion-item.shinobi .accordion-header { background: linear-gradient(135deg, var(--accent-shinobi), var(--accent-shinobi2)); }
+    .accordion-item.samurai .accordion-header { background: linear-gradient(135deg, var(--accent-samurai), var(--accent-samurai2)); }
+    .accordion-item.civil .accordion-header { background: linear-gradient(135deg, var(--accent-civil), var(--accent-civil2)); }
+    .accordion-item.daymo .accordion-header { background: linear-gradient(135deg, var(--accent-daymo), var(--accent-daymo2)); }
+    .accordion-header:hover { transform: translateX(5px); }
+    .accordion-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: transform 0.3s ease; flex-shrink: 0; }
+    .accordion-item.open .accordion-icon { transform: scale(1.1); }
+    .accordion-title-group { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .accordion-title { font-family: 'Russo One', sans-serif; font-size: 1.8rem; color: #fff; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
+    .accordion-subtitle { font-size: 0.95rem; color: rgba(255,255,255,0.85); font-style: italic; }
+    .accordion-count { display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; font-family: 'Russo One', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; border: 2px solid rgba(255,255,255,0.4); }
+    .toggle-arrow { font-size: 1.5rem; color: #fff; transition: transform 0.3s ease; }
+    .accordion-item.open .toggle-arrow { transform: rotate(-90deg); }
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .accordion-item.open .accordion-content { max-height: 3000px; }
+    .accordion-body { padding: 30px; display: flex; flex-direction: column; gap: 25px; }
+
+    .patente-section { border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); }
+    .accordion-item.shinobi .patente-section { border-color: rgba(92, 107, 192, 0.3); }
+    .accordion-item.samurai .patente-section { border-color: rgba(96, 125, 139, 0.3); }
+    .accordion-item.civil .patente-section { border-color: rgba(67, 160, 71, 0.3); }
+    .accordion-item.daymo .patente-section { border-color: rgba(212, 165, 116, 0.3); }
+    .patente-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid; background: rgba(255,255,255,0.03); }
+    .accordion-item.shinobi .patente-header { border-color: var(--accent-shinobi2); }
+    .accordion-item.samurai .patente-header { border-color: var(--accent-samurai2); }
+    .accordion-item.civil .patente-header { border-color: var(--accent-civil2); }
+    .accordion-item.daymo .patente-header { border-color: var(--accent-daymo); }
+    .patente-header h3 { font-family: 'Russo One', sans-serif; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; flex: 1; }
+    .accordion-item.shinobi .patente-header h3 { color: var(--accent-shinobi2); }
+    .accordion-item.samurai .patente-header h3 { color: var(--accent-samurai2); }
+    .accordion-item.civil .patente-header h3 { color: var(--accent-civil2); }
+    .accordion-item.daymo .patente-header h3 { color: var(--accent-daymo); }
+    .patente-count { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 50%; font-weight: 700; color: #fff; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.2); }
+    .personagens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 12px; }
+    .personagem-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: all 0.3s ease; cursor: pointer; }
+    .accordion-item.shinobi .personagem-card:hover { background: rgba(92, 107, 192, 0.1); border-color: var(--accent-shinobi2); box-shadow: 0 0 15px var(--glow-shinobi); transform: translateY(-3px); }
+    .accordion-item.samurai .personagem-card:hover { background: rgba(96, 125, 139, 0.1); border-color: var(--accent-samurai2); box-shadow: 0 0 15px var(--glow-samurai); transform: translateY(-3px); }
+    .accordion-item.civil .personagem-card:hover { background: rgba(67, 160, 71, 0.1); border-color: var(--accent-civil2); box-shadow: 0 0 15px var(--glow-civil); transform: translateY(-3px); }
+    .accordion-item.daymo .personagem-card:hover { background: rgba(212, 165, 116, 0.1); border-color: var(--accent-daymo); box-shadow: 0 0 15px var(--glow-daymo); transform: translateY(-3px); }
+    .personagem-avatar { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: #fff; }
+    .accordion-item.shinobi .personagem-avatar { background: linear-gradient(135deg, #1a237e, #5c6bc0); }
+    .accordion-item.samurai .personagem-avatar { background: linear-gradient(135deg, #607D8B, #90A4AE); }
+    .accordion-item.civil .personagem-avatar { background: linear-gradient(135deg, #1b5e20, #43a047); }
+    .accordion-item.daymo .personagem-avatar { background: linear-gradient(135deg, #8b6f47, #d4a574); }
+    .personagem-info h4 { font-family: 'Russo One', sans-serif; font-size: 1rem; color: var(--text); text-transform: uppercase; margin: 0; }
+    .personagem-patente { font-size: 0.8rem; color: var(--text-sub); font-style: italic; }
+    .btn-ficha { padding: 6px 12px; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; font-size: 0.8rem; text-transform: uppercase; align-self: flex-start; }
+    .accordion-item.shinobi .btn-ficha { background: linear-gradient(135deg, #1a237e, #5c6bc0); }
+    .accordion-item.samurai .btn-ficha { background: linear-gradient(135deg, #607D8B, #90A4AE); }
+    .accordion-item.civil .btn-ficha { background: linear-gradient(135deg, #1b5e20, #43a047); }
+    .accordion-item.daymo .btn-ficha { background: linear-gradient(135deg, #8b6f47, #d4a574); }
+    .btn-ficha:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .empty-patente { padding: 30px 20px; text-align: center; color: var(--text-sub); font-style: italic; }
+    .loading { padding: 40px; text-align: center; color: var(--accent-shinobi2); font-size: 1.1rem; }
+
+    /* ======= FICHA LAYOUT (COMPARTILHADA) ======= */
+    .ficha-page-wrapper { position: relative; z-index: 10; min-height: 100vh; padding: 100px 20px 80px; max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+    .back-btn-top { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; color: #fff; font-family: 'Russo One', sans-serif; font-size: 0.85rem; margin-bottom: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; }
+    .back-btn-top:hover { background: var(--ficha-green-dark); border-color: var(--ficha-green); }
+
+    .ficha-layout { background: var(--ficha-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.7); position: relative; border: 1px solid var(--ficha-border); }
+
+    /* CAPA BANNER */
+    .ficha-capa-banner { background-color: var(--ficha-green); background-image: linear-gradient(135deg, var(--ficha-green-dark) 0%, var(--ficha-card) 100%); position: relative; padding: 50px 20px 30px; text-align: center; color: #fff; background-size: cover; background-position: center; border-bottom: 2px solid var(--ficha-green); }
+    .ficha-capa-overlay { position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>'); opacity: 0.6; pointer-events: none; }
+    
+    .ficha-avatar-wrapper { position: relative; width: 130px; height: 130px; margin: 0 auto 15px; border-radius: 50%; border: 4px solid var(--ficha-bg); background: #000; overflow: hidden; z-index: 2; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.6); }
+    .ficha-avatar-wrapper:hover { transform: scale(1.05); }
+    .ficha-avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .ficha-avatar-letter { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--ficha-green), var(--ficha-green-dark)); }
+
+    /* OVERLAYS DE EDIÇÃO FOTOS */
+    .edit-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Russo One', sans-serif; font-size: 1rem; cursor: pointer; z-index: 10; opacity: 0; transition: opacity 0.3s ease;}
+    .edit-overlay:hover { opacity: 1; background: rgba(54, 182, 104, 0.7); }
+    .edit-overlay.active-mode { opacity: 0.8; }
+    
+    .btn-edit-capa { position: absolute; top: 20px; left: 20px; z-index: 3; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid var(--ficha-green); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Russo One', sans-serif; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease; }
+    .btn-edit-capa:hover { background: var(--ficha-green); color: #000; }
+
+    .ficha-nome-txt { font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 0.08em; margin: 0 0 5px 0; position: relative; z-index: 2; text-transform: uppercase; text-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
+    .ficha-subtitulo-txt { font-size: 1.1rem; font-style: italic; color: rgba(255,255,255,0.9); margin-bottom: 20px; position: relative; z-index: 2; }
+
+    .ficha-badges-row { display: flex; gap: 10px; justify-content: center; position: relative; z-index: 2; flex-wrap: wrap; }
+    .badge-f { padding: 5px 15px; border-radius: 20px; font-family: 'Russo One', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    .badge-f.white { background: #fff; color: var(--ficha-green-dark); }
+    .badge-f.dark { background: var(--ficha-bg); color: #fff; border: 1px solid var(--ficha-border); }
+    .badge-f.theme { background: var(--ficha-green); color: #000; border: 1px solid rgba(255,255,255,0.3); }
+
+    .btn-editar-ficha { position: absolute; top: 20px; right: 20px; z-index: 3; background: var(--ficha-green); color: #000; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Russo One', sans-serif; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease; }
+    .btn-editar-ficha:hover { background: #fff; box-shadow: 0 4px 12px rgba(54, 182, 104, 0.4); }
+    .btn-editar-ficha.edit-mode { background: #ff6b6b; color: #000; }
+    .btn-editar-ficha.edit-mode:hover { background: #ff5252; }
+
+    /* NAV ABAS */
+    .ficha-nav-tabs { display: flex; background: #0b0e0c; padding: 15px 20px 0; gap: 5px; border-bottom: 2px solid var(--ficha-border); overflow-x: auto; position: relative; }
+    .f-tab-btn { background: var(--ficha-card); color: #717d75; border: 1px solid transparent; border-bottom: none; padding: 12px 20px; border-radius: 8px 8px 0 0; font-family: 'Russo One', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+    .f-tab-btn:hover { background: #1e2421; color: #fff; }
+    .f-tab-btn.active { background: var(--ficha-bg); color: var(--ficha-green); border-color: var(--ficha-border); border-top: 2px solid var(--ficha-green); }
+
+    .ficha-body-content { padding: 30px; background: var(--ficha-bg); }
+    .f-tab-content { display: none; animation: fadeIn 0.3s ease; }
+    .f-tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ======= SEÇÕES E GRIDS DETALHADOS ======= */
+    .f-section { margin-bottom: 40px; }
+    .f-section-title { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .f-section-title::before { content: ''; display: inline-block; width: 14px; height: 14px; background: var(--ficha-green); transform: rotate(45deg); flex-shrink: 0;}
+
+    .f-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+    .f-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-green); border-radius: 8px; padding: 20px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: border-color 0.3s;}
+    .f-card:hover { border-color: rgba(255,255,255,0.2); }
+    .f-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .f-card-value { color: #fff; font-family: 'Russo One', sans-serif; font-size: 1.8rem; text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
+
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .info-card { background: transparent; border: none; border-left: 3px solid var(--ficha-green); border-radius: 0; padding: 12px 0 12px 15px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; }
+    .info-card-label { color: var(--ficha-green); font-weight: 700; font-family: 'Russo One', sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .info-card-value { color: #e0e0e0; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; }
+    
+    .info-card input, .info-card textarea, .f-card input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--ficha-green); color: #fff; padding: 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; outline: none;}
+    .info-card textarea { min-height: 60px; resize: vertical; }
+
+    .f-card button { background: var(--ficha-green); color: #000; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: all 0.3s ease; margin-top: 10px; }
+    .f-card button:hover { background: #fff; transform: scale(1.1); }
+
+    .f-block { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-left: 3px solid var(--ficha-green); border-radius: 8px; padding: 20px; color: #e0e0e0; line-height: 1.6; }
+    .f-block-destaque { background: var(--ficha-card); border: 1px solid var(--ficha-border); padding: 25px; border-radius: 8px; margin-bottom: 20px; color: #d0d0d0; line-height: 1.7; position: relative; overflow: hidden; }
+    .f-block-destaque::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--ficha-green); }
+    .f-block-destaque .label-top { font-family: 'Russo One', sans-serif; color: var(--ficha-green); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; text-align: center; display: block; }
+    .f-block-destaque textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--ficha-green); color: #fff; padding: 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; min-height: 80px; resize: vertical; outline: none; }
+
+    /* PROPÓSITOS GRID */
+    .propositos-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
+    .proposito-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 15px; text-align: center; display: flex; flex-direction: column;}
+    .proposito-card .f-card-label { margin-bottom: 10px; font-family: 'Russo One', sans-serif; font-size: 0.85rem; color: var(--ficha-green); text-transform: uppercase; }
+    .proposito-card .f-card-value { color: #e0e0e0; font-size: 0.75rem; line-height: 1.3; word-break: break-word;}
+    .proposito-card textarea { width: 100%; min-height: 60px; background: rgba(255,255,255,0.05); border: 1px solid var(--ficha-green); color: #fff; padding: 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; outline: none;}
+
+    /* BARRAS DE STATUS (VITAIS) - VALOR BRUTO */
+    .status-box { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .status-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: 'Russo One', sans-serif; color: #fff; font-size: 1rem; text-transform: uppercase;}
+    .status-bar-bg { width: 100%; height: 20px; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #111; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
+    .status-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease-in-out; width: 100%; }
+    .fill-hp { background: linear-gradient(90deg, #c53030, #fc8181); }
+    .fill-chakra { background: linear-gradient(90deg, #2b6cb0, #63b3ed); }
+
+    /* CANVA CHART (DATABOOK RADAR) */
+    .chart-container { max-width: 450px; margin: 0 auto; background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 10px; padding: 20px; }
+
+    /* CARD ESTILO VERTICAL (SUBATRIBUTOS E ELEMENTOS) */
+    .subattr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+    .subattr-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 25px 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;}
+    .subattr-label { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
+    .subattr-value { font-family: 'Russo One', sans-serif; font-size: 2.2rem; color: var(--ficha-green); text-shadow: 0 0 10px rgba(54, 182, 104, 0.3); }
+    .subattr-card button { background: var(--ficha-green); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: all 0.3s ease; margin-top: 10px; }
+    .subattr-card button:hover { background: var(--ficha-green-dark); transform: scale(1.1); }
+
+    /* ESTILOS DA ABA JORNADA (MISSÕES E GRADUAÇÃO) */
+    .jornada-list { display: flex; flex-direction: column; gap: 12px; }
+    .jornada-card { background: var(--ficha-card); border: 1px solid var(--ficha-border); border-radius: 8px; padding: 15px 20px; display: flex; align-items: center; transition: 0.3s; }
+    .grad-icon { width: 40px; height: 40px; background: var(--ficha-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+    .grad-icon svg { width: 22px; height: 22px; fill: #fff; stroke: #fff; }
+    .grad-info { flex: 1; margin-left: 20px; }
+    .grad-info-title { color: #aaa; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; }
+    .grad-info-title strong { color: var(--text); font-weight: 600; text-transform: uppercase;}
+    .grad-info-date { color: #666; font-size: 0.85rem; margin-top: 4px; }
+    
+    .missao-badge { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: #fff; flex-shrink: 0; }
+    .badge-s { background: #ef5350; }
+    .badge-a { background: #ff9800; }
+    .badge-b { background: #66bb6a; }
+    .badge-c { background: #42a5f5; }
+    .badge-d { background: #ab47bc; }
+    .missao-info { flex: 1; margin-left: 20px; }
+    .missao-label { font-family: 'Rajdhani', sans-serif; color: #888; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
+    .missao-value { color: #fff; font-family: 'Russo One', sans-serif; font-size: 1.3rem; margin-top: 2px; }
+
+    /* ESTILOS DE RELAÇÕES / RESUMO */
+    .resumo-card { background: var(--ficha-card); border-left: 4px solid var(--ficha-green); border-radius: 8px; padding: 20px; border-top: 1px solid var(--ficha-border); border-right: 1px solid var(--ficha-border); border-bottom: 1px solid var(--ficha-border); margin-bottom: 15px;}
+    .resumo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .resumo-title { font-family: 'Russo One', sans-serif; font-size: 1.1rem; color: #fff; text-transform: uppercase; }
+    .resumo-date { font-family: 'Rajdhani', sans-serif; color: #888; font-size: 0.85rem; }
+
+    /* BOTÃO REACT / ADD ELEMENTO / VISIBILIDADE / COPIAR */
+    .btn-react { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--ficha-border); padding: 6px 14px; border-radius: 20px; color: #aaa; cursor: pointer; transition: 0.3s; font-family: 'Russo One', sans-serif; font-size: 0.8rem; margin-left: 15px;}
+    .btn-react:hover { background: rgba(255,255,255,0.1); color: var(--ficha-green); border-color: var(--ficha-green); }
+    .btn-vis { margin-left: auto; } 
+
+    /* MODAIS e SELECTS FIX (CAIXAS ESCURAS) */
+    select { background-color: #1a1e23 !important; color: #e0e0e0 !important; border: 1px solid var(--ficha-green) !important; padding: 12px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 1rem; width: 100%; outline: none;}
+    select option { background-color: #1a1e23 !important; color: #e0e0e0 !important; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); overflow-y: auto; }
+    .modal-overlay.show { display: flex; }
+    .modal-content { background: var(--ficha-card); border: 2px solid var(--ficha-green); border-radius: 12px; padding: 40px; max-width: 500px; width: 90%; box-shadow: 0 0 30px rgba(0,0,0,0.8); position: relative; margin: 20px 0; }
+    .modal-close-btn { position: absolute; top: 15px; right: 15px; background: var(--ficha-green); color: #000; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+    .modal-close-btn:hover { background: #fff; transform: rotate(90deg); }
+    .modal-content h2 { font-family: 'Russo One', sans-serif; color: var(--ficha-green); margin-bottom: 30px; text-align: center; font-size: 1.5rem; text-transform: uppercase; }
+    .modal-form { display: flex; flex-direction: column; gap: 15px; }
+    .modal-form input, .modal-form textarea { background: rgba(255,255,255,0.05); border: 1px solid var(--ficha-green); color: #fff; padding: 12px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 1rem; width: 100%; outline: none;}
+    .modal-form textarea { min-height: 80px; resize: vertical; }
+    .modal-form button { background: var(--ficha-green); color: #000; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Russo One', sans-serif; transition: all 0.3s ease; width: 100%; }
+    .modal-form button:hover { background: #fff; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
+    .modal-error { color: #ff5252; text-align: center; font-size: 0.9rem; margin-top: 15px; display: none; }
+    
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #ccc; font-size: 0.9rem;}
+    .checkbox-label input { width: 16px; height: 16px; accent-color: var(--ficha-green); }
+
+    /* ======= BOTÕES DE SALVAR/CANCELAR ======= */
+    .edit-actions { display: none; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--ficha-border); }
+    .edit-actions.show { display: flex; }
+    .btn-save, .btn-cancel { flex: 1; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Russo One', sans-serif; font-weight: 600; text-transform: uppercase; transition: all 0.3s ease; }
+    .btn-save { background: var(--ficha-green); color: #000; }
+    .btn-save:hover { background: #fff; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
+    .btn-cancel { background: #d32f2f; color: #fff; }
+    .btn-cancel:hover { background: #b71c1c; }
+
+    .success-message { display: none; padding: 15px 20px; background: rgba(255,255,255, 0.1); border: 1px solid var(--ficha-green); border-radius: 6px; color: var(--ficha-green); margin-bottom: 20px; text-align: center; font-weight: 600; }
+    .success-message.show { display: block; }
+
+    @media (max-width: 768px) {
+      #page-container, .ficha-page-wrapper { padding-top: 90px; padding-left: 15px; padding-right: 15px; }
+      .main-title h1 { font-size: 2rem; }
+      .propositos-grid { grid-template-columns: 1fr 1fr; }
+      .personagens-grid, .f-grid, .subattr-grid, .info-grid { grid-template-columns: 1fr; }
+      .ficha-body-content { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Inputs Escondidos para Upload Direto de Imagem -->
+  <input type="file" id="inputUploadAvatar" accept="image/*" style="display:none" onchange="iniciarUploadDireto(event, 'avatar')" />
+  <input type="file" id="inputUploadCapa" accept="image/*" style="display:none" onchange="iniciarUploadDireto(event, 'capa')" />
+
+  <div id="fixed-background">
+    <img src="00_fundo_2_kigen.jpg" alt="Fundo" class="hero-bg" onerror="this.style.display='none'" />
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div id="floating-ui">
+    <button id="menu-btn" aria-label="Abrir menu">
+      <svg class="kunai" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 20,14 16,18 12,14" fill="#ffffff"/>
+        <rect x="11" y="17" width="10" height="3" rx="1" fill="#cccccc"/>
+        <rect x="14" y="20" width="4" height="7" rx="1.5" fill="#aaaaaa"/>
+        <circle cx="16" cy="29" r="2" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="nav-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-bg" id="overlay-close"></div>
+    <nav id="nav-panel">
+      <a class="nav-link" href="index.html">Início</a>
+      <a class="nav-link" href="1.19_fichas.html">FICHAS GERAIS</a>
+      <a class="nav-link" href="5.0_shinobi.html">Evolução: Ninja</a>
+      <a class="nav-link" href="3.0_samurai.html">Evolução: Samurais</a>
+      <a class="nav-link" href="4.0_daymo.html">Evolução: Daymo</a>
+      <a class="nav-link" href="2.0_Civil.html">Evolução: Civil</a>
+      <a class="nav-link" href="1.2_historia.html">História</a>
+      <a class="nav-link" href="1.3_geografia.html">Geografia</a>
+      <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de Vida</a>
+      <a class="nav-link" href="1.8_sangue.html">Sangue</a>
+      <a class="nav-link" href="1.9_eternizados.html">Eternizados</a>
+      <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
+      <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
+      <a class="nav-link" href="1.6_jornal.html">Jornal</a>
+      <a class="nav-link" href="1.7_administracao.html">Administração</a>
+      <a class="nav-link" href="1.10_organizacoes.html">Organizações</a>
+      <a class="nav-link" href="1.11_religioes.html">Religiões</a>
+      <a class="nav-link" href="1.15_hall_da_fama.html">Hall da Fama</a>
+      <a class="nav-link" href="1.16_alcunhas.html">Alcunhas</a>
+      <a class="nav-link" href="1.17_legado.html">Legado</a>
+      <a class="nav-link" href="1.18_regras.html">Regras</a>
+    </nav>
+  </div>
+
+  <!-- MODAIS COMPARTILHADOS -->
+  <div id="modalAutenticacao" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAutenticacao()" title="Fechar">×</button>
+      <h2>Autenticação Necessária</h2>
+      <form class="modal-form" onsubmit="autenticarEdicao(event)">
+        <input type="number" id="inputId" placeholder="ID do Personagem" required />
+        <input type="password" id="inputSenha" placeholder="Senha de Edição" required />
+        <button type="submit">Autenticar</button>
+      </form>
+      <div class="modal-error" id="modalError"></div>
+    </div>
+  </div>
+
+  <div id="modalAddRelacao" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAddRelacao()" title="Fechar">×</button>
+      <h2>Adicionar Relação</h2>
+      <div class="modal-form">
+        <select id="selectPersonagemRelacao">
+          <option value="">Selecione um Personagem...</option>
+        </select>
+        <input type="text" id="nomeRelacao" placeholder="Nome da Relação (Ex: Amigo, Companheiro)" />
+        <select id="tipoRelacao">
+          <option value="Aliado">Aliado</option>
+          <option value="Amigo">Amigo</option>
+          <option value="Inimigo">Inimigo</option>
+          <option value="Rival">Rival</option>
+          <option value="Mentor">Mentor</option>
+          <option value="Aprendiz">Aprendiz</option>
+          <option value="Família">Família</option>
+          <option value="Parceiro">Parceiro</option>
+        </select>
+        <textarea id="descricaoRelacao" placeholder="Descrição da Relação (opcional)"></textarea>
+        <button onclick="confirmarAddRelacao()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalAddMissao" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAddMissao()" title="Fechar">×</button>
+      <h2 id="tituloModalMissao">Adicionar Missão/Contrato</h2>
+      <div class="modal-form">
+        <select id="novaMissaoRank">
+          <option value="S">Rank S</option>
+          <option value="A">Rank A</option>
+          <option value="B">Rank B</option>
+          <option value="C">Rank C</option>
+          <option value="D">Rank D</option>
+        </select>
+        <button onclick="confirmarAddMissao()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INVENTÁRIO -->
+  <div id="modalAddInventario" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAddInventario()" title="Fechar">×</button>
+      <h2>Adicionar Item / Equipamento</h2>
+      <div class="modal-form">
+        <input type="text" id="nomeItemNovo" placeholder="Nome do Item/Arma (Ex: Katana de Aço)" />
+        <textarea id="descricaoItemNovo" placeholder="Descrição ou efeito do item (opcional)"></textarea>
+        <button onclick="confirmarAddInventario()">Adicionar ao Inventário</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAIS ESPECÍFICOS SHINOBI -->
+  <div id="modalAddTecnica" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAddTecnica()" title="Fechar">×</button>
+      <h2>Adicionar Técnica</h2>
+      <div class="modal-form">
+        <input type="text" id="nomeTecnicaNova" placeholder="Nome da Técnica" />
+        <select id="rankTecnicaNova">
+          <option value="E">E</option>
+          <option value="D">D</option>
+          <option value="C">C</option>
+          <option value="B">B</option>
+          <option value="A">A</option>
+          <option value="S">S</option>
+          <option value="SS+">SS+</option>
+        </select>
+        <textarea id="descricaoTecnicaNova" placeholder="Descrição da Técnica (opcional)"></textarea>
+        <button onclick="confirmarAddTecnica()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalAddElemento" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalElemento()" title="Fechar">×</button>
+      <h2>Adicionar Elemento/KG</h2>
+      <div class="modal-form">
+        <select id="tipoElemento" onchange="toggleOpcoesElemento()">
+          <option value="elemento">Elemento Comum</option>
+          <option value="kekkei">Kekkei Genkai</option>
+        </select>
+        
+        <div id="boxNomeElemento">
+          <input type="text" id="nomeElementoNovo" placeholder="Nome do Elemento (Ex: Katon)" />
+        </div>
+
+        <div id="boxKekkei" style="display: none;">
+          <input type="text" id="nomeKekkeiNovo" placeholder="Nome da Kekkei Genkai (Ex: Mokuton)" style="margin-bottom: 10px;" />
+          <p style="color: var(--ficha-green); font-size: 0.85rem; margin-bottom: 5px;">Elementos base:</p>
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" value="Katon" class="ck-elemento"> Katon</label>
+            <label class="checkbox-label"><input type="checkbox" value="Doton" class="ck-elemento"> Doton</label>
+            <label class="checkbox-label"><input type="checkbox" value="Suiton" class="ck-elemento"> Suiton</label>
+            <label class="checkbox-label"><input type="checkbox" value="Raiton" class="ck-elemento"> Raiton</label>
+            <label class="checkbox-label"><input type="checkbox" value="Fuuton" class="ck-elemento"> Fuuton</label>
+          </div>
+        </div>
+        <button onclick="confirmarAddElemento()">Adicionar ao Banco</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalAddGraduacaoShinobi" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAddGraduacaoShinobi()" title="Fechar">×</button>
+      <h2>Adicionar Graduação Ninja</h2>
+      <div class="modal-form">
+        <select id="novaGraduacaoSelectShinobi">
+          <option value="Estudante da Academia">Estudante da Academia</option>
+          <option value="Genin">Genin</option>
+          <option value="Chunin">Chunin</option>
+          <option value="Jounin">Jounin</option>
+          <option value="ANBU">ANBU</option>
+          <option value="Estado-maior">Estado-maior</option>
+          <option value="Kage">Kage</option>
+        </select>
+        <button onclick="confirmarAddGraduacaoShinobi()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ESPECÍFICO SAMURAI -->
+  <div id="modalAddGraduacaoSamurai" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="fecharModalAddGraduacaoSamurai()" title="Fechar">×</button>
+      <h2>Adicionar Promoção Samurai</h2>
+      <div class="modal-form">
+        <select id="novaGraduacaoSelectSamurai">
+          <option value="Recruta">Recruta</option>
+          <option value="Soldado">Soldado</option>
+          <option value="Cabo">Cabo</option>
+          <option value="Sargento">Sargento</option>
+          <option value="Aspirante a Oficial">Aspirante a Oficial</option>
+          <option value="Tenente">Tenente</option>
+          <option value="Capitão">Capitão</option>
+          <option value="Major">Major</option>
+          <option value="General">General</option>
+          <option value="Mifune">Mifune</option>
+        </select>
+        <button onclick="confirmarAddGraduacaoSamurai()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =============================== PÁGINA PRINCIPAL (ACORDEÕES) =============================== -->
+  <main id="paginaPrincipal" class="page active" style="display: block;">
+    <div id="page-container">
+      <div class="main-title">
+        <h1>📚 Banco de Dados 📚</h1>
+        <p>Shinobi, Samurais, Civis e Governantes</p>
+      </div>
+
+      <div class="accordion-wrapper">
+        <div class="accordion-item shinobi" id="accordionShinobi">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-icon">🥷</div>
+            <div class="accordion-title-group">
+              <h2 class="accordion-title">Banco de Dados Shinobi</h2>
+              <p class="accordion-subtitle">Aldeias Ocultas dos Ninjas</p>
+            </div>
+            <div class="accordion-count" id="countShinobi">0</div>
+            <div class="toggle-arrow">▶</div>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-body" id="conteudoShinobi"><div class="loading">⏳ Carregando ninjas...</div></div>
+          </div>
+        </div>
+
+        <div class="accordion-item samurai" id="accordionSamurai">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-icon">⚔️</div>
+            <div class="accordion-title-group">
+              <h2 class="accordion-title">Banco de Dados - País do Ferro</h2>
+              <p class="accordion-subtitle">Guerreiros da Honra</p>
+            </div>
+            <div class="accordion-count" id="countSamurai">0</div>
+            <div class="toggle-arrow">▶</div>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-body" id="conteudoSamurai"><div class="loading">⏳ Carregando samurais...</div></div>
+          </div>
+        </div>
+
+        <div class="accordion-item civil" id="accordionCivil">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-icon">👥</div>
+            <div class="accordion-title-group">
+              <h2 class="accordion-title">Banco de Dados de Civis</h2>
+              <p class="accordion-subtitle">População Comum e Profissões</p>
+            </div>
+            <div class="accordion-count" id="countCivil">0</div>
+            <div class="toggle-arrow">▶</div>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-body" id="conteudoCivil"><div class="loading">⏳ Carregando civis...</div></div>
+          </div>
+        </div>
+
+        <div class="accordion-item daymo" id="accordionDaymo">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-icon">🏛️</div>
+            <div class="accordion-title-group">
+              <h2 class="accordion-title">Painel Geopolítico</h2>
+              <p class="accordion-subtitle">Governantes e Líderes Nacionais</p>
+            </div>
+            <div class="accordion-count" id="countDaymo">5</div>
+            <div class="toggle-arrow">▶</div>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-body" id="conteudoDaymo">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                <div class="patente-section" onclick="openDaymo('PAÍS DO FOGO')"><div class="patente-header" style="justify-content: center; padding: 20px; cursor: pointer;"><div style="text-align: center; width: 100%;"><div style="font-size: 2.5rem; margin-bottom: 10px;">🔥</div><h3 style="color: #fff; font-size: 1.1rem;">País do Fogo</h3></div></div></div>
+                <div class="patente-section" onclick="openDaymo('PAÍS DA ÁGUA')"><div class="patente-header" style="justify-content: center; padding: 20px; cursor: pointer;"><div style="text-align: center; width: 100%;"><div style="font-size: 2.5rem; margin-bottom: 10px;">🌊</div><h3 style="color: #fff; font-size: 1.1rem;">País da Água</h3></div></div></div>
+                <div class="patente-section" onclick="openDaymo('PAÍS DA TERRA')"><div class="patente-header" style="justify-content: center; padding: 20px; cursor: pointer;"><div style="text-align: center; width: 100%;"><div style="font-size: 2.5rem; margin-bottom: 10px;">🪨</div><h3 style="color: #fff; font-size: 1.1rem;">País da Terra</h3></div></div></div>
+                <div class="patente-section" onclick="openDaymo('PAÍS DO RELÂMPAGO')"><div class="patente-header" style="justify-content: center; padding: 20px; cursor: pointer;"><div style="text-align: center; width: 100%;"><div style="font-size: 2.5rem; margin-bottom: 10px;">⚡</div><h3 style="color: #fff; font-size: 1.1rem;">País do Raio</h3></div></div></div>
+                <div class="patente-section" onclick="openDaymo('PAÍS DO VENTO')"><div class="patente-header" style="justify-content: center; padding: 20px; cursor: pointer;"><div style="text-align: center; width: 100%;"><div style="font-size: 2.5rem; margin-bottom: 10px;">🍃</div><h3 style="color: #fff; font-size: 1.1rem;">País do Vento</h3></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+
+  <!-- =============================== FICHA 1: SHINOBI (VERDE) =============================== -->
+  <div id="ficha-page-shinobi" class="page" style="display: none;">
+      <div class="ficha-page-wrapper">
+      <button class="back-btn-top" onclick="voltarParaPrincipal()">← Voltar ao Painel</button>
+
+      <div class="ficha-layout">
+        
+        <div class="ficha-capa-banner" id="fichaBannerCapa">
+          <div class="ficha-capa-overlay"></div>
+          <button class="btn-edit-capa" id="btnEditCapa" onclick="document.getElementById('inputUploadCapa').click()" style="display:none;">📷 Trocar Capa</button>
+          <button class="btn-editar-ficha" id="btnEditarFicha" onclick="iniciarEdicao()">✎ Editar</button>
+          
+          <div class="ficha-avatar-wrapper" id="fichaAvatar">
+            <div class="ficha-avatar-letter">?</div>
+          </div>
+          
+          <h1 class="ficha-nome-txt" id="fichaNome">Personagem</h1>
+          <p class="ficha-subtitulo-txt" id="fichaTitulo">Shinobi</p>
+          <div class="ficha-badges-row">
+            <span class="badge-f white" id="badgePatente">PATENTE</span>
+            <span class="badge-f dark" id="badgeVila">VILA</span>
+            <span class="badge-f green" id="badgeStatus">VIVO</span>
+          </div>
+        </div>
+
+        <div class="ficha-nav-tabs">
+          <button class="f-tab-btn active" onclick="trocarAba(event, 'tabPerfil', 'ficha-page-shinobi')">PERFIL</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabCombate', 'ficha-page-shinobi')">COMBATE</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabJornada', 'ficha-page-shinobi')">JORNADA</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabRelacoes', 'ficha-page-shinobi')">RELAÇÕES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'tabResumo', 'ficha-page-shinobi')">RESUMO</button>
+        </div>
+
+        <div class="ficha-body-content">
+          <div class="success-message" id="successMessage">✓ Ficha salva com sucesso!</div>
+          
+          <div id="tabPerfil" class="f-tab-content active">
+            <div class="f-section">
+              <h2 class="f-section-title">INFORMAÇÕES BÁSICAS</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Estilo de Vida</div><div class="info-card-value" id="fEstilo">-</div></div>
+                <div class="info-card"><div class="info-card-label">Gênero</div><div class="info-card-value" id="fGenero">-</div></div>
+                <div class="info-card"><div class="info-card-label">Idade</div><div class="info-card-value" id="fIdade">-</div></div>
+                <div class="info-card"><div class="info-card-label">Aniversário</div><div class="info-card-value" id="fAniversario">-</div></div>
+                <div class="info-card"><div class="info-card-label">Tipo Sanguíneo</div><div class="info-card-value" id="fTipoSangue">-</div></div>
+                <div class="info-card"><div class="info-card-label">Clã</div><div class="info-card-value" id="fClan">-</div></div>
+                <div class="info-card"><div class="info-card-label">Origem de Nasc.</div><div class="info-card-value" id="fOrigem">-</div></div>
+                <div class="info-card"><div class="info-card-label">Local onde Reside</div><div class="info-card-value" id="fReside">-</div></div>
+                <div class="info-card"><div class="info-card-label">Profissão</div><div class="info-card-value" id="fProfissao">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">VALORES</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Score</div><div class="info-card-value" id="fScore">0</div></div>
+                <div class="info-card"><div class="info-card-label">Ryos</div><div class="info-card-value" id="fRyos">0</div></div>
+                <div class="info-card"><div class="info-card-label">Legado</div><div class="info-card-value" id="fLegado">0</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Altura</div><div class="info-card-value" id="fAltura">-</div></div>
+                <div class="info-card"><div class="info-card-label">Peso</div><div class="info-card-value" id="fPeso">-</div></div>
+                <div class="info-card"><div class="info-card-label">Cabelos</div><div class="info-card-value" id="fCabelos">-</div></div>
+                <div class="info-card"><div class="info-card-label">Olhos</div><div class="info-card-value" id="fOlhos">-</div></div>
+              </div>
+              <div class="f-block-destaque" style="margin-top: 20px;">
+                <span class="label-top">Aparência</span>
+                <p id="fAparencia">-</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRIA E BIOGRAFIA</h2>
+              <div class="f-block-destaque">
+                <p id="fHistoria">Nenhum registro histórico informado.</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PREFERÊNCIAS</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Gosta De</div><div class="info-card-value" id="fGosta">-</div></div>
+                <div class="info-card"><div class="info-card-label">Não Gosta De</div><div class="info-card-value" id="fNaoGosta">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PROPÓSITOS (5 TOTAL)</h2>
+              <div class="propositos-grid">
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 1</div><div class="f-card-value" id="fProp1">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 2</div><div class="f-card-value" id="fProp2">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 3</div><div class="f-card-value" id="fProp3">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 4</div><div class="f-card-value" id="fProp4">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 5</div><div class="f-card-value" id="fProp5">-</div></div>
+              </div>
+            </div>
+
+            <div class="edit-actions" id="editActionsProfile">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+
+          <div id="tabCombate" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">
+                STATUS VITAIS
+                <button class="btn-react btn-vis" onclick="copiarStatus()">📄 Imprimir</button>
+              </h2>
+              <div class="status-box">
+                <div class="status-header"><span>HP</span> <span id="fHpText" style="color: #ff5252;">0</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-hp" id="fHpBar" style="width: 100%;"></div></div>
+              </div>
+              <div class="status-box">
+                <div class="status-header"><span>CHAKRA</span> <span id="fChakraText" style="color: #448aff;">0</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-chakra" id="fChakraBar" style="width: 100%;"></div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">
+                ATRIBUTOS
+                <button class="btn-react btn-vis" id="btnVisAttr" style="display:none;" onclick="toggleVisibilidade('attr')">👁️ Visível</button>
+              </h2>
+              <div id="gridAtributos" class="f-grid">
+                <div class="f-card"><div class="f-card-label">Velocidade</div><div class="f-card-value" id="fAttrVel">0</div></div>
+                <div class="f-card"><div class="f-card-label">Taijutsu</div><div class="f-card-value" id="fAttrTai">0</div></div>
+                <div class="f-card"><div class="f-card-label">Ninjutsu</div><div class="f-card-value" id="fAttrNin">0</div></div>
+                <div class="f-card"><div class="f-card-label">Força</div><div class="f-card-value" id="fAttrFor">0</div></div>
+                <div class="f-card"><div class="f-card-label">Resistência</div><div class="f-card-value" id="fAttrRes">0</div></div>
+                <div class="f-card"><div class="f-card-label">Genjutsu</div><div class="f-card-value" id="fAttrGen">0</div></div>
+                <div class="f-card"><div class="f-card-label">Selos</div><div class="f-card-value" id="fAttrSel">0</div></div>
+                <div class="f-card"><div class="f-card-label">Inteligência</div><div class="f-card-value" id="fAttrInt">0</div></div>
+              </div>
+              <div id="msgOcultoAttr" class="f-block" style="display:none; text-align:center; color:#ff5252;">🙈 Informação oculta pelo jogador.</div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">
+                SUBATRIBUTOS
+                <button class="btn-react btn-vis" id="btnVisSub" style="display:none;" onclick="toggleVisibilidade('sub')">👁️ Visível</button>
+              </h2>
+              <div id="gridSubatributos" class="subattr-grid">
+                <div class="subattr-card"><div class="subattr-label">Fuinjutsu</div><div class="subattr-value" id="fSubFuin">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Ningeral</div><div class="subattr-value" id="fSubNinG">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Kenjutsu</div><div class="subattr-value" id="fSubKen">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Shurikenjutsu</div><div class="subattr-value" id="fSubShu">0</div></div>
+                <div class="subattr-card"><div class="subattr-label">Combate</div><div class="subattr-value" id="fSubCom">0</div></div>
+              </div>
+              <div id="msgOcultoSub" class="f-block" style="display:none; text-align:center; color:#ff5252;">🙈 Informação oculta pelo jogador.</div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">
+                ELEMENTOS E KEKKEI GENKAI 
+                <div style="margin-left:auto;">
+                  <button class="btn-react btn-vis" id="btnVisEle" style="display:none;" onclick="toggleVisibilidade('ele')">👁️ Visível</button>
+                  <button class="btn-react" id="btnElementoModal" style="display:none;" onclick="abrirModalElemento()">+ Adicionar</button>
+                </div>
+              </h2>
+              <div class="subattr-grid" id="boxElementosUi"></div>
+              <div id="msgOcultoEle" class="f-block" style="display:none; text-align:center; color:#ff5252;">🙈 Informação oculta pelo jogador.</div>
+            </div>
+
+            <div class="f-section" id="boxRadarChart">
+              <h2 class="f-section-title">DATABOOK RADAR</h2>
+              <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">
+                TÉCNICAS APRENDIDAS 
+                <div style="margin-left:auto;">
+                  <button class="btn-react btn-vis" id="btnVisTec" style="display:none;" onclick="toggleVisibilidade('tec')">👁️ Visível</button>
+                  <button class="btn-react" id="btnAddTecnica" style="display:none;" onclick="abrirModalAddTecnica()">+ Adicionar</button>
+                </div>
+              </h2>
+              <div id="fTecnicas">
+                <div class="f-block">Nenhuma técnica registrada</div>
+              </div>
+              <div id="msgOcultoTec" class="f-block" style="display:none; text-align:center; color:#ff5252;">🙈 Informação oculta pelo jogador.</div>
+            </div>
+            
+            <div class="f-section">
+              <h2 class="f-section-title">
+                INVENTÁRIO E EQUIPAMENTOS
+                <div style="margin-left:auto;">
+                  <button class="btn-react btn-vis" id="btnVisInv" style="display:none;" onclick="toggleVisibilidade('inv')">👁️ Visível</button>
+                  <button class="btn-react" id="btnAddInv" style="display:none;" onclick="abrirModalAddInventario()">+ Adicionar</button>
+                </div>
+              </h2>
+              <div id="fInventario"><div class="f-block">Nenhum item registrado no inventário.</div></div>
+              <div id="msgOcultoInv" class="f-block" style="display:none; text-align:center; color:#ff5252;">🙈 Informação oculta pelo jogador.</div>
+            </div>
+
+            <div class="edit-actions" id="editActionsCombate">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+
+          <div id="tabJornada" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRICO DE GRADUAÇÕES <button class="btn-react btn-vis" id="btnAddGraduacao" style="display:none;" onclick="abrirModalAddGraduacaoShinobi()">+ Adicionar</button></h2>
+              <div class="jornada-list" id="boxGraduacoes"><div class="f-block">Nenhuma graduação registrada.</div></div>
+            </div>
+            
+            <div class="f-section">
+              <h2 class="f-section-title">MISSÕES REALIZADAS <button class="btn-react btn-vis" id="btnAddMissao" style="display:none;" onclick="abrirModalAddMissao()">+ Adicionar</button></h2>
+              <div class="jornada-list">
+                <div class="jornada-card"><div class="missao-badge badge-s">S</div><div class="missao-info"><div class="missao-label">RANK S</div><div class="missao-value" id="fMissaoS">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-a">A</div><div class="missao-info"><div class="missao-label">RANK A</div><div class="missao-value" id="fMissaoA">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-b">B</div><div class="missao-info"><div class="missao-label">RANK B</div><div class="missao-value" id="fMissaoB">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-c">C</div><div class="missao-info"><div class="missao-label">RANK C</div><div class="missao-value" id="fMissaoC">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-d">D</div><div class="missao-info"><div class="missao-label">RANK D</div><div class="missao-value" id="fMissaoD">0</div></div></div>
+              </div>
+            </div>
+
+            <div class="edit-actions" id="editActionsJornada">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+
+          <div id="tabRelacoes" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">RELACIONAMENTOS <button class="btn-react btn-vis" id="btnAddRelacao" style="display:none;" onclick="abrirModalAddRelacao()">+ Adicionar</button></h2>
+              <div id="fRelacoes"><div class="f-block">Nenhum relacionamento registrado</div></div>
+            </div>
+          </div>
+
+          <div id="tabResumo" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">RESUMO DE ALTERAÇÕES</h2>
+              <div id="boxResumo" class="jornada-list"><div class="f-block">Nenhuma alteração registrada.</div></div>
+            </div>
+          </div>
+
+        </div> 
+      </div>
+      </div>
+  </div> 
+
+  <!-- =============================== FICHA 2: SAMURAI (AÇO) =============================== -->
+  <div id="ficha-page-samurai" class="page samurai-theme" style="display: none;">
+      <div class="ficha-page-wrapper">
+      <button class="back-btn-top" onclick="voltarParaPrincipal()">← Voltar ao Quartel</button>
+
+      <div class="ficha-layout">
+        
+        <div class="ficha-capa-banner" id="sam_fichaBannerCapa">
+          <div class="ficha-capa-overlay"></div>
+          <button class="btn-edit-capa" id="sam_btnEditCapa" onclick="document.getElementById('inputUploadCapa').click()" style="display:none;">📷 Trocar Capa</button>
+          <button class="btn-editar-ficha" id="sam_btnEditarFicha" onclick="iniciarEdicao()">✎ Editar</button>
+          
+          <div class="ficha-avatar-wrapper" id="sam_fichaAvatar">
+            <div class="ficha-avatar-letter">?</div>
+          </div>
+          
+          <h1 class="ficha-nome-txt" id="sam_fichaNome">NOME DO SAMURAI</h1>
+          <p class="ficha-subtitulo-txt" id="sam_fichaTitulo">"Título de Batalha"</p>
+          <div class="ficha-badges-row">
+            <span class="badge-f white" id="sam_badgePatente">PATENTE</span>
+            <span class="badge-f dark" id="sam_badgeVila">PAÍS DO FERRO</span>
+            <span class="badge-f theme" id="sam_badgeStatus">VIVO</span>
+          </div>
+        </div>
+
+        <div class="ficha-nav-tabs">
+          <button class="f-tab-btn active" onclick="trocarAba(event, 'sam_tabPerfil', 'ficha-page-samurai')">PERFIL</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'sam_tabStatus', 'ficha-page-samurai')">STATUS</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'sam_tabCombate', 'ficha-page-samurai')">COMBATE</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'sam_tabJornada', 'ficha-page-samurai')">JORNADA</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'sam_tabRelacoes', 'ficha-page-samurai')">RELAÇÕES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'sam_tabResumo', 'ficha-page-samurai')">HISTÓRICO</button>
+        </div>
+
+        <div class="ficha-body-content">
+          <div class="success-message" id="sam_successMessage">✓ Ficha salva com sucesso!</div>
+          
+          <div id="sam_tabPerfil" class="f-tab-content active">
+            <div class="f-section">
+              <h2 class="f-section-title">REGISTRO CIVIL</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Gênero</div><div class="info-card-value" id="sam_fGenero">-</div></div>
+                <div class="info-card"><div class="info-card-label">Idade</div><div class="info-card-value" id="sam_fIdade">-</div></div>
+                <div class="info-card"><div class="info-card-label">Aniversário</div><div class="info-card-value" id="sam_fAniversario">-</div></div>
+                <div class="info-card"><div class="info-card-label">Tipo Sanguíneo</div><div class="info-card-value" id="sam_fTipoSangue">-</div></div>
+                <div class="info-card"><div class="info-card-label">Origem de Nasc.</div><div class="info-card-value" id="sam_fOrigem">-</div></div>
+                <div class="info-card"><div class="info-card-label">Local onde Reside</div><div class="info-card-value" id="sam_fReside">-</div></div>
+                <div class="info-card"><div class="info-card-label">Organização</div><div class="info-card-value" id="sam_fOrg">-</div></div>
+              </div>
+            </div>
+            
+            <div class="f-section">
+              <h2 class="f-section-title">REPUTAÇÃO & RECURSOS</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Ryos</div><div class="info-card-value" id="sam_fRyos">0</div></div>
+                <div class="info-card"><div class="info-card-label">Score</div><div class="info-card-value" id="sam_fScore">0</div></div>
+                <div class="info-card"><div class="info-card-label">Legado</div><div class="info-card-value" id="sam_fLegado">0</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Altura</div><div class="info-card-value" id="sam_fAltura">-</div></div>
+                <div class="info-card"><div class="info-card-label">Peso</div><div class="info-card-value" id="sam_fPeso">-</div></div>
+                <div class="info-card"><div class="info-card-label">Cabelos</div><div class="info-card-value" id="sam_fCabelos">-</div></div>
+                <div class="info-card"><div class="info-card-label">Olhos</div><div class="info-card-value" id="sam_fOlhos">-</div></div>
+              </div>
+              <div class="f-block-destaque" style="margin-top: 20px;">
+                <span class="label-top">Aparência</span>
+                <p id="sam_fAparencia">-</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRIA</h2>
+              <div class="f-block-destaque">
+                <p id="sam_fHistoria">Nenhum registro histórico informado.</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PREFERÊNCIAS & PROPÓSITOS</h2>
+              <div class="info-grid" style="margin-bottom: 20px;">
+                <div class="info-card"><div class="info-card-label">Gosta De</div><div class="info-card-value" id="sam_fGosta">-</div></div>
+                <div class="info-card"><div class="info-card-label">Não Gosta De</div><div class="info-card-value" id="sam_fNaoGosta">-</div></div>
+              </div>
+              <div class="propositos-grid">
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 1</div><div class="f-card-value" id="sam_fProp1">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 2</div><div class="f-card-value" id="sam_fProp2">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 3</div><div class="f-card-value" id="sam_fProp3">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 4</div><div class="f-card-value" id="sam_fProp4">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 5</div><div class="f-card-value" id="sam_fProp5">-</div></div>
+              </div>
+            </div>
+
+            <div class="edit-actions" id="sam_editActionsPerfil">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+
+          <div id="sam_tabStatus" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">REPUTAÇÃO & RECURSOS</h2>
+              <div class="f-grid">
+                <div class="f-card"><div class="f-card-label">Ryos</div><div class="f-card-value" id="sam_fRyos">0</div></div>
+                <div class="f-card"><div class="f-card-label">Score</div><div class="f-card-value" id="sam_fScore">0</div></div>
+                <div class="f-card"><div class="f-card-label">Legado</div><div class="f-card-value" id="sam_fLegado">0</div></div>
+              </div>
+            </div>
+
+            <div class="edit-actions" id="sam_editActionsStatus">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+
+          <div id="sam_tabCombate" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">
+                STATUS VITAIS
+                <button class="btn-react btn-vis" onclick="copiarStatus()">📄 Imprimir</button>
+              </h2>
+              <div class="status-box">
+                <div class="status-header"><span>HP</span> <span id="sam_fHpText" style="color: #fc8181;">0</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-hp" style="width: 100%;"></div></div>
+              </div>
+              <div class="status-box">
+                <div class="status-header"><span>CHAKRA</span> <span id="sam_fChakraText" style="color: #63b3ed;">0</span></div>
+                <div class="status-bar-bg"><div class="status-bar-fill fill-chakra" style="width: 100%;"></div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">
+                ATRIBUTOS MARCIAIS
+                <button class="btn-react btn-vis" id="sam_btnVisAttr" style="display:none;" onclick="toggleVisibilidade('attr')">👁️ Visível</button>
+              </h2>
+              <div id="sam_gridAtributos" class="f-grid">
+                <div class="f-card"><div class="f-card-label">Kenjutsu</div><div class="f-card-value" id="sam_fAttrKen">0</div></div>
+                <div class="f-card"><div class="f-card-label">Força</div><div class="f-card-value" id="sam_fAttrFor">0</div></div>
+                <div class="f-card"><div class="f-card-label">Resistência</div><div class="f-card-value" id="sam_fAttrRes">0</div></div>
+                <div class="f-card"><div class="f-card-label">Velocidade</div><div class="f-card-value" id="sam_fAttrVel">0</div></div>
+                <div class="f-card"><div class="f-card-label">Inteligência</div><div class="f-card-value" id="sam_fAttrInt">0</div></div>
+              </div>
+              <div id="sam_msgOcultoAttr" class="f-block" style="display:none; text-align:center; color:#fc8181;">🙈 Informação oculta pelo jogador.</div>
+            </div>
+
+            <div class="f-section" id="sam_boxRadarChart">
+              <h2 class="f-section-title">DATABOOK MARCIAL</h2>
+              <div class="chart-container">
+                <canvas id="sam_radarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- INVENTARIO SAMURAI -->
+            <div class="f-section">
+              <h2 class="f-section-title">
+                INVENTÁRIO E EQUIPAMENTOS
+                <div style="margin-left:auto;">
+                  <button class="btn-react btn-vis" id="sam_btnVisInv" style="display:none;" onclick="toggleVisibilidade('inv')">👁️ Visível</button>
+                  <button class="btn-react" id="sam_btnAddInv" style="display:none;" onclick="abrirModalAddInventario()">+ Adicionar</button>
+                </div>
+              </h2>
+              <div id="sam_fInventario"><div class="f-block">Nenhum item registrado no inventário.</div></div>
+              <div id="sam_msgOcultoInv" class="f-block" style="display:none; text-align:center; color:#fc8181;">🙈 Informação oculta pelo jogador.</div>
+            </div>
+
+            <div class="edit-actions" id="sam_editActionsCombate">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+          
+          <div id="sam_tabJornada" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRICO MILITAR <button class="btn-react btn-vis" id="sam_btnAddGraduacao" style="display:none;" onclick="abrirModalAddGraduacaoSamurai()">+ Adicionar</button></h2>
+              <div class="jornada-list" id="sam_boxGraduacoes"><div class="f-block">Nenhuma promoção registrada.</div></div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">CONTRATOS EXECUTADOS <button class="btn-react btn-vis" id="sam_btnAddContrato" style="display:none;" onclick="abrirModalAddMissao()">+ Adicionar</button></h2>
+              <div class="jornada-list">
+                <div class="jornada-card"><div class="missao-badge badge-s">S</div><div class="missao-info"><div class="missao-label">CONTRATO S</div><div class="missao-value" id="sam_fMissaoS">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-a">A</div><div class="missao-info"><div class="missao-label">CONTRATO A</div><div class="missao-value" id="sam_fMissaoA">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-b">B</div><div class="missao-info"><div class="missao-label">CONTRATO B</div><div class="missao-value" id="sam_fMissaoB">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-c">C</div><div class="missao-info"><div class="missao-label">CONTRATO C</div><div class="missao-value" id="sam_fMissaoC">0</div></div></div>
+                <div class="jornada-card"><div class="missao-badge badge-d">D</div><div class="missao-info"><div class="missao-label">CONTRATO D</div><div class="missao-value" id="sam_fMissaoD">0</div></div></div>
+              </div>
+            </div>
+
+            <div class="edit-actions" id="sam_editActionsJornada">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+          
+          <div id="sam_tabRelacoes" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">REDE DE CONTATOS <button class="btn-react btn-vis" id="sam_btnAddRelacao" style="display:none;" onclick="abrirModalAddRelacao()">+ Adicionar</button></h2>
+              <div class="relacoes-list" id="sam_boxRelacoes"><div class="f-block">Nenhum relacionamento registrado</div></div>
+            </div>
+          </div>
+          
+          <div id="sam_tabResumo" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRICO DE LOGS</h2>
+              <div class="resumo-list" id="sam_boxResumo"><div class="f-block">Nenhuma alteração registrada.</div></div>
+            </div>
+          </div>
+
+        </div> 
+      </div>
+      </div>
+  </div>
+
+  <!-- =============================== FICHA 3: CIVIL (VERDE ESCURO) =============================== -->
+  <div id="ficha-page-civil" class="page" style="display: none;">
+      <div class="ficha-page-wrapper">
+      <button class="back-btn-top" onclick="voltarParaPrincipal()">← Voltar ao Painel</button>
+
+      <div class="ficha-layout">
+        
+        <div class="ficha-capa-banner" id="civ_fichaBannerCapa">
+          <div class="ficha-capa-overlay"></div>
+          <button class="btn-edit-capa" id="civ_btnEditCapa" onclick="document.getElementById('inputUploadCapa').click()" style="display:none;">📷 Trocar Capa</button>
+          <button class="btn-editar-ficha" id="civ_btnEditarFicha" onclick="iniciarEdicao()">✎ Editar</button>
+          
+          <div class="ficha-avatar-wrapper" id="civ_fichaAvatar">
+            <div class="ficha-avatar-letter">?</div>
+          </div>
+          
+          <h1 class="ficha-nome-txt" id="civ_fichaNome">NOME DO CIVIL</h1>
+          <p class="ficha-subtitulo-txt" id="civ_fichaTitulo">"Profissão"</p>
+          <div class="ficha-badges-row">
+            <span class="badge-f white" id="civ_badgePatente">CLASSE</span>
+            <span class="badge-f dark" id="civ_badgeVila">LOCAL</span>
+            <span class="badge-f green" id="civ_badgeStatus">VIVO</span>
+          </div>
+        </div>
+
+        <div class="ficha-nav-tabs">
+          <button class="f-tab-btn active" onclick="trocarAba(event, 'civ_tabPerfil', 'ficha-page-civil')">PERFIL</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'civ_tabRelacoes', 'ficha-page-civil')">RELAÇÕES</button>
+          <button class="f-tab-btn" onclick="trocarAba(event, 'civ_tabResumo', 'ficha-page-civil')">HISTÓRICO</button>
+        </div>
+
+        <div class="ficha-body-content">
+          <div class="success-message" id="civ_successMessage">✓ Ficha salva com sucesso!</div>
+          
+          <div id="civ_tabPerfil" class="f-tab-content active">
+            <div class="f-section">
+              <h2 class="f-section-title">REGISTRO CIVIL</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Estilo de Vida</div><div class="info-card-value" id="civ_fEstilo">-</div></div>
+                <div class="info-card"><div class="info-card-label">Gênero</div><div class="info-card-value" id="civ_fGenero">-</div></div>
+                <div class="info-card"><div class="info-card-label">Idade</div><div class="info-card-value" id="civ_fIdade">-</div></div>
+                <div class="info-card"><div class="info-card-label">Aniversário</div><div class="info-card-value" id="civ_fAniversario">-</div></div>
+                <div class="info-card"><div class="info-card-label">Tipo Sanguíneo</div><div class="info-card-value" id="civ_fTipoSangue">-</div></div>
+                <div class="info-card"><div class="info-card-label">Origem de Nasc.</div><div class="info-card-value" id="civ_fOrigem">-</div></div>
+                <div class="info-card"><div class="info-card-label">Local onde Reside</div><div class="info-card-value" id="civ_fReside">-</div></div>
+                <div class="info-card"><div class="info-card-label">Profissão/Classe</div><div class="info-card-value" id="civ_fProfissao">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">VALORES</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Score</div><div class="info-card-value" id="civ_fScore">0</div></div>
+                <div class="info-card"><div class="info-card-label">Ryos</div><div class="info-card-value" id="civ_fRyos">0</div></div>
+                <div class="info-card"><div class="info-card-label">Legado</div><div class="info-card-value" id="civ_fLegado">0</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">DESCRIÇÃO FÍSICA</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Altura</div><div class="info-card-value" id="civ_fAltura">-</div></div>
+                <div class="info-card"><div class="info-card-label">Peso</div><div class="info-card-value" id="civ_fPeso">-</div></div>
+                <div class="info-card"><div class="info-card-label">Cabelos</div><div class="info-card-value" id="civ_fCabelos">-</div></div>
+                <div class="info-card"><div class="info-card-label">Olhos</div><div class="info-card-value" id="civ_fOlhos">-</div></div>
+              </div>
+              <div class="f-block-destaque" style="margin-top: 20px;">
+                <span class="label-top">Aparência</span>
+                <p id="civ_fAparencia">-</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRIA E BIOGRAFIA</h2>
+              <div class="f-block-destaque">
+                <p id="civ_fHistoria">Nenhum registro histórico informado.</p>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PREFERÊNCIAS</h2>
+              <div class="info-grid">
+                <div class="info-card"><div class="info-card-label">Gosta De</div><div class="info-card-value" id="civ_fGosta">-</div></div>
+                <div class="info-card"><div class="info-card-label">Não Gosta De</div><div class="info-card-value" id="civ_fNaoGosta">-</div></div>
+              </div>
+            </div>
+
+            <div class="f-section">
+              <h2 class="f-section-title">PROPÓSITOS (5 TOTAL)</h2>
+              <div class="propositos-grid">
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 1</div><div class="f-card-value" id="civ_fProp1">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 2</div><div class="f-card-value" id="civ_fProp2">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 3</div><div class="f-card-value" id="civ_fProp3">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 4</div><div class="f-card-value" id="civ_fProp4">-</div></div>
+                <div class="proposito-card"><div class="f-card-label">PROPÓSITO 5</div><div class="f-card-value" id="civ_fProp5">-</div></div>
+              </div>
+            </div>
+
+            <div class="edit-actions" id="civ_editActionsPerfil">
+              <button class="btn-save" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+              <button class="btn-cancel" onclick="cancelarEdicao()">✕ Cancelar</button>
+            </div>
+          </div>
+          
+          <div id="civ_tabRelacoes" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">REDE DE CONTATOS <button class="btn-react btn-vis" id="civ_btnAddRelacao" style="display:none;" onclick="abrirModalAddRelacao()">+ Adicionar</button></h2>
+              <div class="relacoes-list" id="civ_boxRelacoes"><div class="f-block">Nenhum relacionamento registrado</div></div>
+            </div>
+          </div>
+          
+          <div id="civ_tabResumo" class="f-tab-content">
+            <div class="f-section">
+              <h2 class="f-section-title">HISTÓRICO DE LOGS</h2>
+              <div class="resumo-list" id="civ_boxResumo"><div class="f-block">Nenhuma alteração registrada.</div></div>
+            </div>
+          </div>
+
+        </div> 
+      </div>
+      </div>
+  </div> 
+
+  <!-- IMPORTANTE: Importar config.js ANTES do script principal -->
+  <script src="config.js"></script>
+
+  <script>
+    // ===== VARIÁVEIS GLOBAIS =====
+    let supabaseClient;
+    let todassShinobis = [], todosSamurais = [], todosCivis = [];
+    let todosPersonagens = {};
+    let personagemAtualAberto = null;
+    let radarChartShinobiInstance = null;
+    let radarChartSamuraiInstance = null;
+    let modoEdicaoAtivo = false;
+    
+    let listaElementosGlobais = [];
+    let listaTecnicasGlobais = [];
+    let listaRelacoes = [];
+    let listaInventarioGlobal = [];
+    
+    // Controle de Visibilidade
+    let visibilidadeAtual = {
+        attr: true,
+        sub: true,
+        ele: true,
+        tec: true,
+        inv: true
+    };
+
+    const ordemPatentesNinja = ['Kage', 'Estado-maior', 'ANBU', 'Jounin', 'Chunin', 'Genin', 'Sem Patente'];
+    const ordemPatentesSamurai = ['Mifune', 'General', 'Major', 'Capitão', 'Tenente', 'Aspirante a Oficial','Sargento', 'Cabo', 'Soldado', 'Recruta'];
+    const ordemClasses = ['Daymo','Comum', 'Mafioso', 'Engenheiro', 'Ferreiro', 'Ídolo'];
+    const iconesPorClasse = { 'Daymo': '👑', 'Comum': '👨‍🌾', 'Mafioso': '🔪', 'Engenheiro': '⚙️', 'Ferreiro': '🔨', 'Ídolo': '⭐' };
+
+    function inicializarSupabase() {
+      if (!SUPABASE_CONFIG || !SUPABASE_CONFIG.URL || !SUPABASE_CONFIG.KEY) {
+        console.error('❌ Erro: SUPABASE_CONFIG não carregado do config.js');
+        return false;
+      }
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+        console.log('✅ Supabase inicializado com sucesso!');
+        return true;
+      } catch (err) {
+        console.error('❌ Erro ao inicializar Supabase:', err);
+        return false;
+      }
+    }
+
+    async function carregarDados() {
+      if (!supabaseClient) return;
+      try {
+        const { data: shinobis } = await supabaseClient.from('personagens').select('*').eq('status', 'Vivo').eq('estilo_vida', 'Shinobi');
+        todassShinobis = shinobis || [];
+
+        const { data: samurais } = await supabaseClient.from('personagens').select('*').eq('status', 'Vivo').eq('estilo_vida', 'Samurai');
+        todosSamurais = samurais || [];
+
+        const { data: civis } = await supabaseClient.from('personagens').select('*').eq('status', 'Vivo').in('estilo_vida', ['Civil', 'Daymo']);
+        todosCivis = civis || [];
+
+        [...todassShinobis, ...todosSamurais, ...todosCivis].forEach(p => { todosPersonagens[p.id] = p; });
+
+        renderizarGrid('Shinobi', ordemPatentesNinja, todassShinobis, 'conteudoShinobi', 'countShinobi');
+        renderizarGrid('Samurai', ordemPatentesSamurai, todosSamurais, 'conteudoSamurai', 'countSamurai');
+        renderizarGridCivil();
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+      }
+    }
+
+    function renderizarGrid(tipo, ordem, dados, containerId, countId) {
+      const container = document.getElementById(containerId);
+      let html = '';
+      let total = 0;
+      ordem.forEach(patente => {
+        let pessoas = (patente === 'Sem Patente') ? dados.filter(p => !p.patente || p.patente === '-' || p.patente === '' || p.patente === 'Sem patente') : dados.filter(p => p.patente === patente);
+        total += pessoas.length;
+        html += `<div class="patente-section"><div class="patente-header"><h3>${patente}</h3><div class="patente-count">${pessoas.length}</div></div><div class="personagens-grid">`;
+        if (pessoas.length === 0) html += '<div class="empty-patente">Vazio</div>';
+        else {
+          pessoas.forEach(p => {
+            const l = (p.nome_personagem || '?').charAt(0).toUpperCase();
+            html += `<div class="personagem-card" onclick="abrirFicha(${p.id})"><div class="personagem-avatar">${l}</div><div class="personagem-info"><h4>${p.nome_personagem}</h4><p class="personagem-patente">${p.patente || 'Sem Patente'}</p></div><button class="btn-ficha">Ver Ficha</button></div>`;
+          });
+        }
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+      document.getElementById(countId).textContent = total;
+    }
+
+    function renderizarGridCivil() {
+      const container = document.getElementById('conteudoCivil');
+      let html = '', total = 0;
+      ordemClasses.forEach(classe => {
+        const civis = todosCivis.filter(c => c.classe_civil === classe);
+        total += civis.length;
+        html += `<div class="patente-section"><div class="patente-header"><span style="font-size: 1.3rem; margin-right: 10px;">${iconesPorClasse[classe]||'👤'}</span><h3>${classe}</h3><div class="patente-count">${civis.length}</div></div><div class="personagens-grid">`;
+        if (civis.length === 0) html += '<div class="empty-patente">Vazio</div>';
+        else {
+          civis.forEach(p => {
+            const l = (p.nome_personagem || '?').charAt(0).toUpperCase();
+            html += `<div class="personagem-card" onclick="abrirFicha(${p.id})"><div class="personagem-avatar">${l}</div><div class="personagem-info"><h4>${p.nome_personagem}</h4><p class="personagem-patente">${p.classe_civil || 'Civil'}</p></div><button class="btn-ficha">Ver Ficha</button></div>`;
+          });
+        }
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+      document.getElementById('countCivil').textContent = total;
+    }
+
+    function desenharGraficoRadarShinobi(nin, tai, gen, int, forca, vel, res, sel) {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if (radarChartShinobiInstance) radarChartShinobiInstance.destroy(); 
+      radarChartShinobiInstance = new Chart(ctx, {
+        type: 'radar',
+        data: { labels: ['NIN', 'TAI', 'GEN', 'INT', 'FOR', 'VEL', 'RES', 'SEL'], datasets: [{ data: [nin, tai, gen, int, forca, vel, res, sel], backgroundColor: 'rgba(54, 182, 104, 0.2)', borderColor: '#36b668', pointBackgroundColor: '#fff', pointBorderColor: '#36b668', borderWidth: 2 }] },
+        options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#8a92a6', font: { family: 'Russo One', size: 12 } }, ticks: { display: false, min: 0, max: 10 } } }, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function desenharGraficoRadarSamurai(ken, forca, res, vel, int) {
+      const ctx = document.getElementById('sam_radarChart').getContext('2d');
+      if (radarChartSamuraiInstance) radarChartSamuraiInstance.destroy(); 
+      radarChartSamuraiInstance = new Chart(ctx, {
+        type: 'radar',
+        data: { labels: ['KEN', 'FOR', 'RES', 'VEL', 'INT'], datasets: [{ data: [ken, forca, res, vel, int], backgroundColor: 'rgba(160, 174, 192, 0.2)', borderColor: '#a0aec0', pointBackgroundColor: '#fff', pointBorderColor: '#a0aec0', borderWidth: 2 }] },
+        options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#a0aec0', font: { family: 'Russo One', size: 12 } }, ticks: { display: false, min: 0, max: 10 } } }, plugins: { legend: { display: false } } }
+      });
+    }
+
+    async function abrirFicha(personagemId) {
+      const p = todosPersonagens[personagemId];
+      if (!p) return;
+      personagemAtualAberto = p;
+      modoEdicaoAtivo = false;
+      
+      const isSamurai = p.estilo_vida === 'Samurai';
+      const isCivil = p.estilo_vida === 'Civil' || p.estilo_vida === 'Daymo';
+
+      // Resetar Botoes Edicao GERAL
+      ['btnElementoModal', 'btnAddTecnica', 'btnAddRelacao', 'btnAddGraduacao', 'btnAddMissao', 'btnEditCapa', 'btnVisAttr', 'btnVisSub', 'btnVisEle', 'btnVisTec', 'btnVisInv', 'btnAddInv',
+       'sam_btnEditCapa', 'sam_btnAddRelacao', 'sam_btnAddGraduacao', 'sam_btnAddContrato', 'sam_btnVisAttr', 'sam_btnVisInv', 'sam_btnAddInv',
+       'civ_btnEditCapa', 'civ_btnAddRelacao'].forEach(id => {
+         if(document.getElementById(id)) document.getElementById(id).style.display = 'none';
+      });
+      document.getElementById('editActionsJornada').classList.remove('show');
+      if(document.getElementById('sam_editActionsJornada')) document.getElementById('sam_editActionsJornada').classList.remove('show');
+
+      try {
+        const { data: atributos } = await supabaseClient.from('atributos_personagem').select('*').eq('personagem_id', personagemId).maybeSingle();
+        const { data: propositos } = await supabaseClient.from('propositos').select('*').eq('personagem_id', personagemId);
+        const { data: tecnicas } = await supabaseClient.from('personagem_tecnica').select('*, tecnicas(nome, rank, descricao, tipo)').eq('personagem_id', personagemId);
+        const { data: relacoes } = await supabaseClient.from('relacoes').select('*').or(`personagem_id_1.eq.${personagemId},personagem_id_2.eq.${personagemId}`);
+        const { data: imagens } = await supabaseClient.from('personagem_imagem').select('*').eq('personagem_id', personagemId).maybeSingle();
+        const { data: inventario } = await supabaseClient.from('inventario_personagem').select('*').eq('personagem_id', personagemId);
+
+        listaElementosGlobais = atributos?.elementos_json ? JSON.parse(atributos.elementos_json) : [];
+        listaTecnicasGlobais = tecnicas || [];
+        listaRelacoes = relacoes || [];
+        listaInventarioGlobal = inventario || [];
+
+        // Atualizar estado de visibilidade baseado no BD
+        visibilidadeAtual.attr = atributos?.vis_atributos !== false; 
+        visibilidadeAtual.sub = atributos?.vis_subatributos !== false;
+        visibilidadeAtual.ele = atributos?.vis_elementos !== false;
+        visibilidadeAtual.tec = atributos?.vis_tecnicas !== false;
+        visibilidadeAtual.inv = atributos?.vis_inventario !== false;
+
+        if (isSamurai) {
+            preencherFichaSamurai(p, atributos || {}, propositos || [], relacoes || [], imagens);
+            mostrarPagina('ficha-page-samurai');
+        } else if (isCivil) {
+            preencherFichaCivil(p, propositos || [], relacoes || [], imagens);
+            mostrarPagina('ficha-page-civil');
+        } else {
+            preencherFichaShinobi(p, atributos || {}, propositos || [], tecnicas || [], relacoes || [], imagens);
+            mostrarPagina('ficha-page-shinobi');
+        }
+
+      } catch (err) {
+        console.error('❌ Erro ao carregar ficha:', err);
+        alert('Erro ao carregar os dados da ficha. Verifique o console.');
+      }
+    }
+
+    function preencherFichaShinobi(p, attr, propositos, tecnicas, relacoes, imagens) {
+      const primeiraLetra = (p.nome_personagem || '?').charAt(0).toUpperCase();
+      let overlayHtml = `<div class="edit-overlay ${modoEdicaoAtivo ? 'active-mode' : ''}" id="editAvatarOverlay" onclick="document.getElementById('inputUploadAvatar').click()" style="display:${modoEdicaoAtivo ? 'flex' : 'none'};">📷 Editar</div>`;
+
+      if (imagens?.url_avatar) document.getElementById('fichaAvatar').innerHTML = `<img src="${imagens.url_avatar}" alt="Avatar" />${overlayHtml}`;
+      else document.getElementById('fichaAvatar').innerHTML = `<div class="ficha-avatar-letter">${primeiraLetra}</div>${overlayHtml}`;
+
+      if (imagens?.url_capa) document.getElementById('fichaBannerCapa').style.backgroundImage = `url(${imagens.url_capa})`;
+      else document.getElementById('fichaBannerCapa').style.backgroundImage = `linear-gradient(135deg, var(--ficha-green-dark) 0%, var(--ficha-card) 100%)`;
+
+      document.getElementById('fichaNome').textContent = p.nome_personagem || 'Desconhecido';
+      document.getElementById('fichaTitulo').textContent = p.patente || p.classe_civil || 'Personagem';
+      document.getElementById('badgePatente').textContent = p.patente || p.classe_civil || '-';
+      document.getElementById('badgeVila').textContent = p.pais_vila || '-';
+      document.getElementById('badgeStatus').textContent = p.status || 'Vivo';
+
+      document.getElementById('fEstilo').textContent = p.estilo_vida || '-';
+      document.getElementById('fGenero').textContent = p.genero || '-';
+      document.getElementById('fIdade').textContent = p.idade || '-';
+      document.getElementById('fAniversario').textContent = p.aniversario || '-';
+      document.getElementById('fTipoSangue').textContent = p.tipo_sanguineo || '-';
+      document.getElementById('fClan').textContent = p.clan || '-';
+      document.getElementById('fOrigem').textContent = p.origem_nascimento || '-';
+      document.getElementById('fReside').textContent = p.local_reside || '-';
+      document.getElementById('fProfissao').textContent = p.profissao || '-';
+      
+      document.getElementById('fScore').textContent = p.score || 0;
+      document.getElementById('fRyos').textContent = p.ryos || 0;
+      document.getElementById('fLegado').textContent = p.legado || 0;
+
+      document.getElementById('fAltura').textContent = p.altura || '-';
+      document.getElementById('fPeso').textContent = p.peso || '-';
+      document.getElementById('fCabelos').textContent = p.cabelos || '-';
+      document.getElementById('fOlhos').textContent = p.olhos || '-';
+      document.getElementById('fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
+      document.getElementById('fHistoria').textContent = p.historia || 'Nenhum registro histórico informado.';
+      document.getElementById('fGosta').textContent = p.gosta_de || '-';
+      document.getElementById('fNaoGosta').textContent = p.nao_gosta_de || '-';
+
+      for(let i=1; i<=5; i++) { document.getElementById(`fProp${i}`).textContent = propositos[i-1] ? propositos[i-1].descricao : '-'; }
+
+      document.getElementById('fHpText').textContent = `${attr.hp || 0}`;
+      document.getElementById('fChakraText').textContent = `${attr.chakra || 0}`;
+      document.getElementById('fAttrVel').textContent = attr.velocidade || 0;
+      document.getElementById('fAttrTai').textContent = attr.taijutsu || 0;
+      document.getElementById('fAttrNin').textContent = attr.ninjutsu || 0;
+      document.getElementById('fAttrFor').textContent = attr.forca || 0;
+      document.getElementById('fAttrRes').textContent = attr.resistencia || 0;
+      document.getElementById('fAttrGen').textContent = attr.genjutsu || 0;
+      document.getElementById('fAttrSel').textContent = attr.selos || 0;
+      document.getElementById('fAttrInt').textContent = attr.inteligencia || 0;
+
+      document.getElementById('fSubFuin').textContent = attr.fuinjutsu || 0;
+      document.getElementById('fSubNinG').textContent = attr.ningeral || 0;
+      document.getElementById('fSubKen').textContent = attr.kenjutsu || 0;
+      document.getElementById('fSubShu').textContent = attr.shurikenjutsu || 0;
+      document.getElementById('fSubCom').textContent = attr.combate || 0;
+
+      renderizarElementosUI();
+      desenharGraficoRadarShinobi(attr.ninjutsu||0, attr.taijutsu||0, attr.genjutsu||0, attr.inteligencia||0, attr.forca||0, attr.velocidade||0, attr.resistencia||0, attr.selos||0);
+      renderizarTecnicasUI();
+      renderizarInventarioUI();
+
+      document.getElementById('fMissaoS').textContent = p.missao_s || '0';
+      document.getElementById('fMissaoA').textContent = p.missao_a || '0';
+      document.getElementById('fMissaoB').textContent = p.missao_b || '0';
+      document.getElementById('fMissaoC').textContent = p.missao_c || '0';
+      document.getElementById('fMissaoD').textContent = p.missao_d || '0';
+      document.getElementById('boxGraduacoes').innerHTML = p.historico_graduacoes || '<div class="f-block">Nenhuma graduação registrada.</div>';
+
+      renderizarRelacoesUI();
+
+      let resumoHtml = '';
+      if (p.historico_alteracoes && Array.isArray(p.historico_alteracoes)) {
+        p.historico_alteracoes.forEach(a => {
+          const d = new Date(a.data).toLocaleString('pt-BR');
+          resumoHtml += `<div class="resumo-card"><div class="resumo-header"><div class="resumo-title">${a.campo_alterado}</div><div class="resumo-date">${d}</div></div><div class="resumo-desc"><strong>Anterior:</strong> ${a.valor_anterior} → <strong>Novo:</strong> ${a.valor_novo}</div></div>`;
+        });
+      }
+      document.getElementById('boxResumo').innerHTML = resumoHtml || '<div class="f-block">Nenhuma alteração registrada.</div>';
+
+      aplicarVisibilidadeUi();
+      document.querySelectorAll('#ficha-page-shinobi .f-tab-btn')[0].click();
+    }
+
+    function preencherFichaSamurai(p, attr, propositos, relacoes, imagens) {
+      const primeiraLetra = (p.nome_personagem || '?').charAt(0).toUpperCase();
+      let overlayHtml = `<div class="edit-overlay ${modoEdicaoAtivo ? 'active-mode' : ''}" id="sam_editAvatarOverlay" onclick="document.getElementById('inputUploadAvatar').click()" style="display:${modoEdicaoAtivo ? 'flex' : 'none'};">📷 Editar</div>`;
+
+      if (imagens?.url_avatar) document.getElementById('sam_fichaAvatar').innerHTML = `<img src="${imagens.url_avatar}" alt="Avatar" />${overlayHtml}`;
+      else document.getElementById('sam_fichaAvatar').innerHTML = `<div class="ficha-avatar-letter">${primeiraLetra}</div>${overlayHtml}`;
+
+      if (imagens?.url_capa) document.getElementById('sam_fichaBannerCapa').style.backgroundImage = `url(${imagens.url_capa})`;
+      else document.getElementById('sam_fichaBannerCapa').style.backgroundImage = `linear-gradient(135deg, var(--theme-color-dark) 0%, #1a202c 100%)`;
+
+      document.getElementById('sam_fichaNome').textContent = p.nome_personagem || 'Desconhecido';
+      document.getElementById('sam_fichaTitulo').textContent = `"${p.nome_guerra || 'Sem título'}"`;
+      document.getElementById('sam_badgePatente').textContent = p.patente || '-';
+      document.getElementById('sam_badgeVila').textContent = p.pais_vila || 'País do Ferro';
+      document.getElementById('sam_badgeStatus').textContent = 'Ativo';
+
+      document.getElementById('sam_fGenero').textContent = p.genero || '-';
+      document.getElementById('sam_fIdade').textContent = p.idade || '-';
+      document.getElementById('sam_fAniversario').textContent = p.aniversario || '-';
+      document.getElementById('sam_fTipoSangue').textContent = p.tipo_sanguineo || '-';
+      document.getElementById('sam_fOrigem').textContent = p.origem_nascimento || p.pais_vila || '-';
+      document.getElementById('sam_fReside').textContent = p.local_reside || p.pais_vila || '-';
+      document.getElementById('sam_fOrg').textContent = 'Império do País do Ferro';
+
+      document.getElementById('sam_fAltura').textContent = p.altura || '-';
+      document.getElementById('sam_fPeso').textContent = p.peso || '-';
+      document.getElementById('sam_fCabelos').textContent = p.cabelos || '-';
+      document.getElementById('sam_fOlhos').textContent = p.olhos || '-';
+      document.getElementById('sam_fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
+      document.getElementById('sam_fHistoria').textContent = p.historia || 'Nenhum registro histórico informado.';
+      
+      document.getElementById('sam_fGosta').textContent = p.gosta_de || '-';
+      document.getElementById('sam_fNaoGosta').textContent = p.nao_gosta_de || '-';
+
+      for(let i=1; i<=5; i++) { document.getElementById(`sam_fProp${i}`).textContent = propositos[i-1] ? propositos[i-1].descricao : '-'; }
+
+      document.getElementById('sam_fRyos').textContent = p.ryos || '0';
+      document.getElementById('sam_fScore').textContent = p.score || '0';
+      document.getElementById('sam_fLegado').textContent = p.legado || '0';
+
+      document.getElementById('sam_fHpText').textContent = `${attr.hp || 0}`;
+      document.getElementById('sam_fChakraText').textContent = `${attr.chakra || 0}`;
+
+      document.getElementById('sam_fAttrKen').textContent = attr.kenjutsu || '0';
+      document.getElementById('sam_fAttrFor').textContent = attr.forca || '0';
+      document.getElementById('sam_fAttrRes').textContent = attr.resistencia || '0';
+      document.getElementById('sam_fAttrVel').textContent = attr.velocidade || '0';
+      document.getElementById('sam_fAttrInt').textContent = attr.inteligencia || '0';
+
+      desenharGraficoRadarSamurai(attr.kenjutsu||0, attr.forca||0, attr.resistencia||0, attr.velocidade||0, attr.inteligencia||0);
+
+      renderizarInventarioUI();
+
+      document.getElementById('sam_fMissaoS').textContent = p.missao_s || '0';
+      document.getElementById('sam_fMissaoA').textContent = p.missao_a || '0';
+      document.getElementById('sam_fMissaoB').textContent = p.missao_b || '0';
+      document.getElementById('sam_fMissaoC').textContent = p.missao_c || '0';
+      document.getElementById('sam_fMissaoD').textContent = p.missao_d || '0';
+
+      document.getElementById('sam_boxGraduacoes').innerHTML = p.historico_graduacoes || '<div class="f-block">Nenhuma promoção registrada.</div>';
+
+      renderizarRelacoesUI();
+
+      let resumoHtml = '';
+      if (p.historico_alteracoes && Array.isArray(p.historico_alteracoes)) {
+        p.historico_alteracoes.forEach(a => {
+          const d = new Date(a.data).toLocaleString('pt-BR');
+          resumoHtml += `<div class="resumo-card"><div class="resumo-header"><div class="resumo-title">${a.campo_alterado}</div><div class="resumo-date">${d}</div></div><div class="resumo-desc"><strong>Anterior:</strong> ${a.valor_anterior} → <strong>Novo:</strong> ${a.valor_novo}</div></div>`;
+        });
+      }
+      document.getElementById('sam_boxResumo').innerHTML = resumoHtml || '<div class="f-block">Nenhuma alteração registrada.</div>';
+
+      aplicarVisibilidadeUi();
+      document.querySelectorAll('#ficha-page-samurai .f-tab-btn')[0].click();
+    }
+
+    function preencherFichaCivil(p, propositos, relacoes, imagens) {
+      const primeiraLetra = (p.nome_personagem || '?').charAt(0).toUpperCase();
+      let overlayHtml = `<div class="edit-overlay ${modoEdicaoAtivo ? 'active-mode' : ''}" id="civ_editAvatarOverlay" onclick="document.getElementById('inputUploadAvatar').click()" style="display:${modoEdicaoAtivo ? 'flex' : 'none'};">📷 Editar</div>`;
+
+      if (imagens?.url_avatar) document.getElementById('civ_fichaAvatar').innerHTML = `<img src="${imagens.url_avatar}" alt="Avatar" />${overlayHtml}`;
+      else document.getElementById('civ_fichaAvatar').innerHTML = `<div class="ficha-avatar-letter">${primeiraLetra}</div>${overlayHtml}`;
+
+      if (imagens?.url_capa) document.getElementById('civ_fichaBannerCapa').style.backgroundImage = `url(${imagens.url_capa})`;
+      else document.getElementById('civ_fichaBannerCapa').style.backgroundImage = `linear-gradient(135deg, var(--ficha-green-dark) 0%, var(--ficha-card) 100%)`;
+
+      document.getElementById('civ_fichaNome').textContent = p.nome_personagem || 'Desconhecido';
+      document.getElementById('civ_fichaTitulo').textContent = p.profissao || 'Civil';
+      document.getElementById('civ_badgePatente').textContent = p.classe_civil || '-';
+      document.getElementById('civ_badgeVila').textContent = p.pais_vila || '-';
+      document.getElementById('civ_badgeStatus').textContent = p.status || 'Vivo';
+
+      // PERFIL CIVIL (Sem CLÃ)
+      document.getElementById('civ_fEstilo').textContent = p.estilo_vida || '-';
+      document.getElementById('civ_fGenero').textContent = p.genero || '-';
+      document.getElementById('civ_fIdade').textContent = p.idade || '-';
+      document.getElementById('civ_fAniversario').textContent = p.aniversario || '-';
+      document.getElementById('civ_fTipoSangue').textContent = p.tipo_sanguineo || '-';
+      document.getElementById('civ_fOrigem').textContent = p.origem_nascimento || '-';
+      document.getElementById('civ_fReside').textContent = p.local_reside || '-';
+      document.getElementById('civ_fProfissao').textContent = p.profissao || '-';
+      
+      document.getElementById('civ_fScore').textContent = p.score || 0;
+      document.getElementById('civ_fRyos').textContent = p.ryos || 0;
+      document.getElementById('civ_fLegado').textContent = p.legado || 0;
+
+      document.getElementById('civ_fAltura').textContent = p.altura || '-';
+      document.getElementById('civ_fPeso').textContent = p.peso || '-';
+      document.getElementById('civ_fCabelos').textContent = p.cabelos || '-';
+      document.getElementById('civ_fOlhos').textContent = p.olhos || '-';
+      document.getElementById('civ_fAparencia').textContent = p.aparencia || 'Nenhuma aparência cadastrada.';
+      document.getElementById('civ_fHistoria').textContent = p.historia || 'Nenhum registro histórico informado.';
+      
+      document.getElementById('civ_fGosta').textContent = p.gosta_de || '-';
+      document.getElementById('civ_fNaoGosta').textContent = p.nao_gosta_de || '-';
+
+      for(let i=1; i<=5; i++) { document.getElementById(`civ_fProp${i}`).textContent = propositos[i-1] ? propositos[i-1].descricao : '-'; }
+
+      renderizarRelacoesUI();
+
+      let resumoHtml = '';
+      if (p.historico_alteracoes && Array.isArray(p.historico_alteracoes)) {
+        p.historico_alteracoes.forEach(a => {
+          const d = new Date(a.data).toLocaleString('pt-BR');
+          resumoHtml += `<div class="resumo-card"><div class="resumo-header"><div class="resumo-title">${a.campo_alterado}</div><div class="resumo-date">${d}</div></div><div class="resumo-desc"><strong>Anterior:</strong> ${a.valor_anterior} → <strong>Novo:</strong> ${a.valor_novo}</div></div>`;
+        });
+      }
+      document.getElementById('civ_boxResumo').innerHTML = resumoHtml || '<div class="f-block">Nenhuma alteração registrada.</div>';
+
+      document.querySelectorAll('#ficha-page-civil .f-tab-btn')[0].click();
+    }
+
+    // ====== IMPRIMIR STATUS =======
+    function copiarStatus() {
+        if (!personagemAtualAberto) return;
+        const nome = personagemAtualAberto.nome_personagem || 'Desconhecido';
+        const pfx = personagemAtualAberto.estilo_vida === 'Samurai' ? 'sam_' : '';
+
+        const hpVal = document.getElementById(pfx+'fHpText').textContent || '0';
+        const chakraVal = document.getElementById(pfx+'fChakraText').textContent || '0';
+        const texto = `── ⚔️ ──\n${nome}/\nHP ❤️ : ${hpVal}\nChakra 🔵 : ${chakraVal}\n── ⚔️ ──`;
+        navigator.clipboard.writeText(texto).then(() => {
+            alert('✅ Status copiado para a área de transferência!');
+        }).catch(err => {
+            console.error('Erro:', err);
+            alert('❌ Erro ao copiar.');
+        });
+    }
+
+    // ====== VISIBILIDADE =======
+    function toggleVisibilidade(sec) {
+        visibilidadeAtual[sec] = !visibilidadeAtual[sec];
+        atualizarBotoesVisibilidade();
+    }
+    function atualizarBotoesVisibilidade() {
+        const isSamurai = personagemAtualAberto.estilo_vida === 'Samurai';
+        const isCivil = personagemAtualAberto.estilo_vida === 'Civil' || personagemAtualAberto.estilo_vida === 'Daymo';
+        
+        if(isCivil) return;
+
+        const map = isSamurai ? {attr: 'sam_btnVisAttr', inv: 'sam_btnVisInv'} : {attr: 'btnVisAttr', sub: 'btnVisSub', ele: 'btnVisEle', tec: 'btnVisTec', inv: 'btnVisInv'};
+        
+        for (let key in map) {
+            const btn = document.getElementById(map[key]);
+            if(btn) {
+                btn.innerHTML = visibilidadeAtual[key] ? '👁️ Visível' : '🙈 Oculto';
+                btn.style.color = visibilidadeAtual[key] ? (isSamurai ? '#a0aec0' : '#aaa') : '#ff5252';
+            }
+        }
+    }
+    function aplicarVisibilidadeUi() {
+       const isSamurai = personagemAtualAberto.estilo_vida === 'Samurai';
+       const isCivil = personagemAtualAberto.estilo_vida === 'Civil' || personagemAtualAberto.estilo_vida === 'Daymo';
+       if(isCivil) return;
+
+       let secKeys, containers, msgs;
+
+       if(isSamurai) {
+           secKeys = ['attr', 'inv'];
+           containers = { attr: 'sam_gridAtributos', inv: 'sam_fInventario' };
+           msgs = { attr: 'sam_msgOcultoAttr', inv: 'sam_msgOcultoInv' };
+       } else {
+           secKeys = ['attr', 'sub', 'ele', 'tec', 'inv'];
+           containers = { attr: 'gridAtributos', sub: 'gridSubatributos', ele: 'boxElementosUi', tec: 'fTecnicas', inv: 'fInventario' };
+           msgs = { attr: 'msgOcultoAttr', sub: 'msgOcultoSub', ele: 'msgOcultoEle', tec: 'msgOcultoTec', inv: 'msgOcultoInv' };
+       }
+
+       secKeys.forEach(k => {
+           const container = document.getElementById(containers[k]);
+           const msg = document.getElementById(msgs[k]);
+
+           if (modoEdicaoAtivo) {
+               if(container) container.style.display = (k === 'attr' || k === 'sub' || k === 'ele') ? 'grid' : 'block';
+               if(msg) msg.style.display = 'none';
+           } else {
+               if (visibilidadeAtual[k]) {
+                   if(container) container.style.display = (k === 'attr' || k === 'sub' || k === 'ele') ? 'grid' : 'block';
+                   if(msg) msg.style.display = 'none';
+               } else {
+                   if(container) container.style.display = 'none';
+                   if(msg) msg.style.display = 'block';
+               }
+           }
+       });
+       if(modoEdicaoAtivo) atualizarBotoesVisibilidade();
+    }
+
+    // ====== INVENTÁRIO (ITENS E EQUIPAMENTOS) =======
+    function renderizarInventarioUI() {
+      const isSamurai = personagemAtualAberto.estilo_vida === 'Samurai';
+      const isCivil = personagemAtualAberto.estilo_vida === 'Civil' || personagemAtualAberto.estilo_vida === 'Daymo';
+      if (isCivil) return;
+
+      const pfx = isSamurai ? 'sam_' : '';
+      const box = document.getElementById(pfx + 'fInventario');
+      if(!box) return;
+
+      if(listaInventarioGlobal.length === 0) {
+        box.innerHTML = `<div class="f-block">Nenhum item registrado no inventário.</div>`;
+        return;
+      }
+      
+      let html = '';
+      listaInventarioGlobal.forEach((item) => {
+        html += `<div class="f-block-destaque"><span class="label-top">📦 ${item.nome_item}</span><p>${item.descricao_item || '-'}</p></div>`;
+      });
+      box.innerHTML = html;
+    }
+    
+    function abrirModalAddInventario() {
+      document.getElementById('modalAddInventario').classList.add('show');
+    }
+    function fecharModalAddInventario() {
+      document.getElementById('modalAddInventario').classList.remove('show');
+      document.getElementById('nomeItemNovo').value = '';
+      document.getElementById('descricaoItemNovo').value = '';
+    }
+    function confirmarAddInventario() {
+      const nome = document.getElementById('nomeItemNovo').value.trim();
+      const descricao = document.getElementById('descricaoItemNovo').value.trim();
+      if(!nome) return alert('Digite o nome do item/equipamento.');
+      
+      listaInventarioGlobal.push({ nome_item: nome, descricao_item: descricao });
+      fecharModalAddInventario();
+      renderizarInventarioUI();
+    }
+
+    // ====== ELEMENTOS =======
+    function renderizarElementosUI() {
+      const box = document.getElementById('boxElementosUi');
+      if(!box) return;
+      if(listaElementosGlobais.length === 0) {
+        box.innerHTML = `<div class="f-block" style="grid-column: 1 / -1;">Nenhum elemento ou Kekkei Genkai cadastrado.</div>`;
+        return;
+      }
+      let html = '';
+      listaElementosGlobais.forEach((el, index) => {
+        let btn = modoEdicaoAtivo ? `<button onclick="incrementarElemento(${index})">+</button>` : '';
+        let tipoBadge = el.tipo === 'Kekkei' ? `<span style="font-size:0.6rem; color:#ff9800; display:block;">(Kekkei Genkai)</span>` : '';
+        html += `<div class="subattr-card"><div class="subattr-label">${el.nome} ${tipoBadge}</div><div class="subattr-value" id="el_val_${index}">${el.nivel}</div>${btn}</div>`;
+      });
+      box.innerHTML = html;
+    }
+
+    function abrirModalElemento() {
+      document.getElementById('modalAddElemento').classList.add('show');
+    }
+    function fecharModalElemento() {
+      document.getElementById('modalAddElemento').classList.remove('show');
+      document.getElementById('nomeElementoNovo').value = '';
+      document.getElementById('nomeKekkeiNovo').value = '';
+      document.querySelectorAll('.ck-elemento').forEach(c => c.checked = false);
+    }
+    function toggleOpcoesElemento() {
+      const tipo = document.getElementById('tipoElemento').value;
+      if(tipo === 'elemento') {
+        document.getElementById('boxNomeElemento').style.display = 'block';
+        document.getElementById('boxKekkei').style.display = 'none';
+      } else {
+        document.getElementById('boxNomeElemento').style.display = 'none';
+        document.getElementById('boxKekkei').style.display = 'block';
+      }
+    }
+    function confirmarAddElemento() {
+      const tipo = document.getElementById('tipoElemento').value;
+      if (tipo === 'elemento') {
+        const nome = document.getElementById('nomeElementoNovo').value.trim();
+        if(!nome) return alert('Digite o nome do elemento.');
+        listaElementosGlobais.push({ nome: nome, tipo: 'Elemento', nivel: 0 });
+      } else {
+        const nome = document.getElementById('nomeKekkeiNovo').value.trim();
+        if(!nome) return alert('Digite o nome da Kekkei Genkai.');
+        let selecionados = 0;
+        document.querySelectorAll('.ck-elemento:checked').forEach(c => selecionados += 1);
+        listaElementosGlobais.push({ nome: nome, tipo: 'Kekkei', nivel: selecionados });
+      }
+      fecharModalElemento();
+      renderizarElementosUI();
+    }
+
+    function incrementarElemento(index) {
+      listaElementosGlobais[index].nivel += 1;
+      document.getElementById(`el_val_${index}`).textContent = listaElementosGlobais[index].nivel;
+      renderizarElementosUI(); 
+    }
+
+    // ====== TÉCNICAS =======
+    function abrirModalAddTecnica() { document.getElementById('modalAddTecnica').classList.add('show'); }
+    function fecharModalAddTecnica() {
+      document.getElementById('modalAddTecnica').classList.remove('show');
+      document.getElementById('nomeTecnicaNova').value = '';
+      document.getElementById('descricaoTecnicaNova').value = '';
+      document.getElementById('rankTecnicaNova').value = 'E';
+    }
+    function confirmarAddTecnica() {
+      const nome = document.getElementById('nomeTecnicaNova').value.trim();
+      const rank = document.getElementById('rankTecnicaNova').value;
+      const descricao = document.getElementById('descricaoTecnicaNova').value.trim();
+      if(!nome) return alert('Digite o nome da técnica.');
+      listaTecnicasGlobais.push({ tecnicas: { nome: nome, rank: rank, descricao: descricao } });
+      fecharModalAddTecnica();
+      renderizarTecnicasUI();
+    }
+    function renderizarTecnicasUI() {
+      let htmlTecnicas = '';
+      const box = document.getElementById('fTecnicas');
+      if(!box) return;
+      if (listaTecnicasGlobais.length === 0) htmlTecnicas = '<div class="f-block">Nenhuma técnica registrada</div>';
+      else listaTecnicasGlobais.forEach((t, idx) => { 
+        htmlTecnicas += `<div class="f-block-destaque"><span class="label-top">${t.tecnicas.nome} (Rank ${t.tecnicas.rank})</span><p>${t.tecnicas.descricao || '-'}</p></div>`; 
+      });
+      box.innerHTML = htmlTecnicas;
+    }
+
+    // ====== RELAÇÕES =======
+    async function abrirModalAddRelacao() {
+      try {
+        const { data: personagens } = await supabaseClient.from('personagens').select('id, nome_personagem').eq('status', 'Vivo').order('nome_personagem');
+        const select = document.getElementById('selectPersonagemRelacao');
+        select.innerHTML = '<option value="">Selecione um Personagem...</option>';
+        personagens.forEach(p => {
+          if (p.id !== personagemAtualAberto.id) {
+            const option = document.createElement('option');
+            option.value = p.id;
+            option.textContent = p.nome_personagem;
+            select.appendChild(option);
+          }
+        });
+      } catch (err) { console.error('Erro ao carregar personagens:', err); }
+      document.getElementById('modalAddRelacao').classList.add('show');
+    }
+    function fecharModalAddRelacao() {
+      document.getElementById('modalAddRelacao').classList.remove('show');
+      document.getElementById('nomeRelacao').value = '';
+      document.getElementById('descricaoRelacao').value = '';
+      document.getElementById('tipoRelacao').value = 'Aliado';
+    }
+    function confirmarAddRelacao() {
+      const personagemId = parseInt(document.getElementById('selectPersonagemRelacao').value);
+      const nomeRelacao = document.getElementById('nomeRelacao').value.trim();
+      const tipoRelacao = document.getElementById('tipoRelacao').value;
+      const descricao = document.getElementById('descricaoRelacao').value.trim();
+
+      if(!personagemId) return alert('Selecione um personagem.');
+      if(!nomeRelacao) return alert('Digite o nome da relação.');
+
+      listaRelacoes.push({
+        personagem_id_1: personagemAtualAberto.id,
+        personagem_id_2: personagemId,
+        nome_relacao: nomeRelacao,
+        tipo_relacao: tipoRelacao,
+        descricao: descricao
+      });
+      fecharModalAddRelacao();
+      renderizarRelacoesUI();
+    }
+    function renderizarRelacoesUI() {
+      let htmlRelacoes = '';
+      let pfx = '';
+      if (personagemAtualAberto.estilo_vida === 'Samurai') pfx = 'sam_';
+      else if (personagemAtualAberto.estilo_vida === 'Civil' || personagemAtualAberto.estilo_vida === 'Daymo') pfx = 'civ_';
+
+      const box = document.getElementById(pfx+'fRelacoes');
+      if(!box) return;
+      if (listaRelacoes.length === 0) htmlRelacoes = '<div class="f-block">Nenhum relacionamento registrado</div>';
+      else listaRelacoes.forEach(r => { 
+        htmlRelacoes += `<div class="f-block-destaque"><span class="label-top">${r.nome_relacao} - ${r.tipo_relacao}</span><p>${r.descricao || '-'}</p></div>`; 
+      });
+      box.innerHTML = htmlRelacoes;
+    }
+
+    // ====== JORNADA (MISSÕES E GRADUAÇÕES) ======
+    function abrirModalAddGraduacaoShinobi() { document.getElementById('modalAddGraduacaoShinobi').classList.add('show'); }
+    function fecharModalAddGraduacaoShinobi() { document.getElementById('modalAddGraduacaoShinobi').classList.remove('show'); }
+    function confirmarAddGraduacaoShinobi() {
+      const patente = document.getElementById('novaGraduacaoSelectShinobi').value;
+      const dataAtual = new Date().toLocaleDateString('pt-BR');
+      let historico = document.getElementById('boxGraduacoes');
+      if (historico.innerHTML.includes('Nenhuma graduação registrada')) historico.innerHTML = '';
+      historico.innerHTML += `<div class="jornada-card"><div class="grad-icon"><svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg></div><div class="grad-info"><div class="grad-info-title">Promovido a <strong>${patente}</strong></div><div class="grad-info-date">${dataAtual}</div></div></div>`;
+      fecharModalAddGraduacaoShinobi();
+    }
+
+    function abrirModalAddGraduacaoSamurai() { document.getElementById('modalAddGraduacaoSamurai').classList.add('show'); }
+    function fecharModalAddGraduacaoSamurai() { document.getElementById('modalAddGraduacaoSamurai').classList.remove('show'); }
+    function confirmarAddGraduacaoSamurai() {
+      const patente = document.getElementById('novaGraduacaoSelectSamurai').value;
+      const dataAtual = new Date().toLocaleDateString('pt-BR');
+      let historico = document.getElementById('sam_boxGraduacoes');
+      if (historico.innerHTML.includes('Nenhuma promoção registrada')) historico.innerHTML = '';
+      historico.innerHTML += `<div class="jornada-card"><div class="grad-icon"><svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg></div><div class="grad-info"><div class="grad-info-title">Promovido a <strong>${patente}</strong></div><div class="grad-info-date">${dataAtual}</div></div></div>`;
+      fecharModalAddGraduacaoSamurai();
+    }
+
+    function abrirModalAddMissao() { document.getElementById('modalAddMissao').classList.add('show'); }
+    function fecharModalAddMissao() { document.getElementById('modalAddMissao').classList.remove('show'); }
+    function confirmarAddMissao() {
+      const rank = document.getElementById('novaMissaoRank').value;
+      const pfx = personagemAtualAberto.estilo_vida === 'Samurai' ? 'sam_' : '';
+      const el = document.getElementById(`${pfx}fMissao${rank}`);
+      let val = parseInt(el.textContent) || 0;
+      el.textContent = val + 1;
+      fecharModalAddMissao();
+    }
+
+    // ====== UPLOAD DIRETO DE IMAGEM =======
+    async function iniciarUploadDireto(event, tipo) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const isSamurai = personagemAtualAberto.estilo_vida === 'Samurai';
+      const isCivil = personagemAtualAberto.estilo_vida === 'Civil' || personagemAtualAberto.estilo_vida === 'Daymo';
+      
+      let pfx = isSamurai ? 'sam_' : (isCivil ? 'civ_' : '');
+      let overlayAvatarId = isSamurai ? 'sam_editAvatarOverlay' : (isCivil ? 'civ_editAvatarOverlay' : 'editAvatarOverlay');
+
+      const btnEditCapa = document.getElementById(pfx+'btnEditCapa');
+      const overlayAvatar = document.getElementById(overlayAvatarId);
+      let textoOriginal = '';
+
+      if (tipo === 'capa') {
+        textoOriginal = btnEditCapa.innerHTML;
+        btnEditCapa.innerHTML = '⏳ Enviando...';
+      } else {
+        textoOriginal = overlayAvatar.innerHTML;
+        overlayAvatar.innerHTML = '⏳...';
+      }
+
+      try {
+        const nomeArquivo = `personagem_${personagemAtualAberto.id}_${tipo}_${Date.now()}`;
+        const { data, error } = await supabaseClient.storage.from('kigen-fichas').upload(`imagens/${nomeArquivo}`, file);
+        if (error) throw error;
+
+        const { data: urlData } = supabaseClient.storage.from('kigen-fichas').getPublicUrl(`imagens/${nomeArquivo}`);
+        const urlFinal = urlData.publicUrl;
+
+        const { data: imagemExistente } = await supabaseClient.from('personagem_imagem').select('id').eq('personagem_id', personagemAtualAberto.id).maybeSingle();
+
+        if (imagemExistente) {
+          await supabaseClient.from('personagem_imagem').update({ [`url_${tipo}`]: urlFinal }).eq('personagem_id', personagemAtualAberto.id);
+        } else {
+          await supabaseClient.from('personagem_imagem').insert([{ personagem_id: personagemAtualAberto.id, [`url_${tipo}`]: urlFinal }]);
+        }
+
+        if (tipo === 'avatar') {
+          document.getElementById(pfx+'fichaAvatar').innerHTML = `<img src="${urlFinal}" alt="Avatar" /><div class="edit-overlay active-mode" id="${overlayAvatarId}" onclick="document.getElementById('inputUploadAvatar').click()" style="display:flex;">📷 Editar</div>`;
+        } else {
+          document.getElementById(pfx+'fichaBannerCapa').style.backgroundImage = `url(${urlFinal})`;
+        }
+        alert('✅ Imagem salva com sucesso!');
+      } catch (err) {
+        console.error('Erro ao fazer upload:', err);
+        alert('❌ Erro no upload. O bucket "kigen-fichas" está criado e configurado como Público?');
+      } finally {
+        if (tipo === 'capa') btnEditCapa.innerHTML = textoOriginal;
+        else if (document.getElementById(overlayAvatarId)) document.getElementById(overlayAvatarId).innerHTML = textoOriginal;
+        event.target.value = ''; 
+      }
+    }
+
+    // ====== EDIÇÃO =======
+    function iniciarEdicao() {
+      if (!personagemAtualAberto) return;
+      modoEdicaoAtivo = true;
+      document.getElementById('modalAutenticacao').classList.add('show');
+    }
+
+    function fecharModalAutenticacao() {
+      document.getElementById('modalAutenticacao').classList.remove('show');
+      document.getElementById('inputId').value = '';
+      document.getElementById('inputSenha').value = '';
+      document.getElementById('modalError').style.display = 'none';
+      
+      const isSamurai = personagemAtualAberto.estilo_vida === 'Samurai';
+      const isCivil = personagemAtualAberto.estilo_vida === 'Civil' || personagemAtualAberto.estilo_vida === 'Daymo';
+      let btnId = isSamurai ? 'sam_btnEditarFicha' : (isCivil ? 'civ_btnEditarFicha' : 'btnEditarFicha');
+      
+      if(!document.getElementById(btnId).classList.contains('edit-mode')) modoEdicaoAtivo = false;
+    }
+
+    async function autenticarEdicao(evt) {
+      evt.preventDefault();
+      const idInput = parseInt(document.getElementById('inputId').value);
+      const senhaInput = document.getElementById('inputSenha').value;
+      const modalError = document.getElementById('modalError');
+
+      try {
+        const response = await fetch(`${SUPABASE_CONFIG.URL}/functions/v1/swift-api`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_CONFIG.KEY}` },
+            body: JSON.stringify({ personagem_id: idInput, senha: senhaInput })
+        });
+        const result = await response.json();
+        if (!result.valido) {
+          modalError.textContent = '❌ ID ou Senha incorretos';
+          modalError.style.display = 'block';
+          return;
+        }
+        fecharModalAutenticacao();
+        ativarModoEdicao();
+      } catch (err) {
+        modalError.textContent = '❌ Erro ao autenticar';
+        modalError.style.display = 'block';
+      }
+    }
+
+    async function ativarModoEdicao() {
+      const p = personagemAtualAberto;
+      const isSamurai = p.estilo_vida === 'Samurai';
+      const isCivil = p.estilo_vida === 'Civil' || p.estilo_vida === 'Daymo';
+      const pfx = isSamurai ? 'sam_' : (isCivil ? 'civ_' : '');
+
+      document.getElementById(pfx+'btnEditarFicha').textContent = '✕ Cancelar Edição';
+      document.getElementById(pfx+'btnEditarFicha').classList.add('edit-mode');
+      
+      let showIds = [];
+      if (isSamurai) {
+         showIds = ['sam_btnEditCapa', 'sam_btnAddRelacao', 'sam_btnAddGraduacao', 'sam_btnAddContrato', 'sam_btnVisAttr', 'sam_btnVisInv', 'sam_btnAddInv'];
+      } else if (isCivil) {
+         showIds = ['civ_btnEditCapa', 'civ_btnAddRelacao'];
+      } else {
+         showIds = ['btnElementoModal', 'btnAddTecnica', 'btnAddRelacao', 'btnAddGraduacao', 'btnAddMissao', 'btnEditCapa', 'btnVisAttr', 'btnVisSub', 'btnVisEle', 'btnVisTec', 'btnVisInv', 'btnAddInv'];
+      }
+      showIds.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'inline-flex'; });
+      
+      const overlay = document.getElementById(isSamurai ? 'sam_editAvatarOverlay' : (isCivil ? 'civ_editAvatarOverlay' : 'editAvatarOverlay'));
+      if(overlay) { overlay.style.display = 'flex'; overlay.classList.add('active-mode'); }
+
+      aplicarVisibilidadeUi();
+
+      const { data: attr } = await supabaseClient.from('atributos_personagem').select('*').eq('personagem_id', p.id).maybeSingle() || {};
+
+      transformarEmInput(pfx+'fIdade', p.idade);
+      transformarEmInput(pfx+'fAniversario', p.aniversario);
+      if(!isSamurai && !isCivil) transformarEmInput('fClan', p.clan);
+      transformarEmInput(pfx+'fOrigem', p.origem_nascimento || p.pais_vila);
+      transformarEmInput(pfx+'fReside', p.local_reside || p.pais_vila);
+      if(!isSamurai) transformarEmInput(pfx+'fProfissao', p.profissao);
+      
+      transformarEmInput(pfx+'fScore', p.score, 'number');
+      transformarEmInput(pfx+'fRyos', p.ryos, 'number');
+      transformarEmInput(pfx+'fLegado', p.legado, 'number');
+
+      transformarEmInput(pfx+'fAltura', p.altura);
+      transformarEmInput(pfx+'fPeso', p.peso);
+      transformarEmInput(pfx+'fCabelos', p.cabelos);
+      transformarEmInput(pfx+'fOlhos', p.olhos);
+      
+      transformarEmTextarea(pfx+'fAparencia', p.aparencia);
+      transformarEmTextarea(pfx+'fHistoria', p.historia);
+
+      transformarEmInput(pfx+'fGosta', p.gosta_de);
+      transformarEmInput(pfx+'fNaoGosta', p.nao_gosta_de);
+
+      for(let i=1; i<=5; i++) {
+        let v = document.getElementById(pfx+`fProp${i}`).textContent;
+        transformarEmTextarea(pfx+`fProp${i}`, v === '-' ? '' : v);
+      }
+
+      if(isSamurai){
+          document.getElementById('sam_fAttrKen').innerHTML = `${attr?.kenjutsu || 0}<button onclick="incrementarNum('sam_fAttrKen')">+</button>`;
+          document.getElementById('sam_fAttrFor').innerHTML = `${attr?.forca || 0}<button onclick="incrementarNum('sam_fAttrFor')">+</button>`;
+          document.getElementById('sam_fAttrRes').innerHTML = `${attr?.resistencia || 0}<button onclick="incrementarNum('sam_fAttrRes')">+</button>`;
+          document.getElementById('sam_fAttrVel').innerHTML = `${attr?.velocidade || 0}<button onclick="incrementarNum('sam_fAttrVel')">+</button>`;
+          document.getElementById('sam_fAttrInt').innerHTML = `${attr?.inteligencia || 0}<button onclick="incrementarNum('sam_fAttrInt')">+</button>`;
+          
+          document.getElementById('sam_editActionsPerfil').classList.add('show');
+          document.getElementById('sam_editActionsStatus').classList.add('show');
+          document.getElementById('sam_editActionsCombate').classList.add('show');
+          document.getElementById('sam_editActionsJornada').classList.add('show');
+      } else if (isCivil) {
+          document.getElementById('civ_editActionsPerfil').classList.add('show');
+      } else {
+          document.getElementById('fAttrVel').innerHTML = `${attr?.velocidade || 0}<button onclick="incrementarNum('fAttrVel')">+</button>`;
+          document.getElementById('fAttrTai').innerHTML = `${attr?.taijutsu || 0}<button onclick="incrementarNum('fAttrTai')">+</button>`;
+          document.getElementById('fAttrNin').innerHTML = `${attr?.ninjutsu || 0}<button onclick="incrementarNum('fAttrNin')">+</button>`;
+          document.getElementById('fAttrFor').innerHTML = `${attr?.forca || 0}<button onclick="incrementarNum('fAttrFor')">+</button>`;
+          document.getElementById('fAttrRes').innerHTML = `${attr?.resistencia || 0}<button onclick="incrementarNum('fAttrRes')">+</button>`;
+          document.getElementById('fAttrGen').innerHTML = `${attr?.genjutsu || 0}<button onclick="incrementarNum('fAttrGen')">+</button>`;
+          document.getElementById('fAttrSel').innerHTML = `${attr?.selos || 0}<button onclick="incrementarNum('fAttrSel')">+</button>`;
+          document.getElementById('fAttrInt').innerHTML = `${attr?.inteligencia || 0}<button onclick="incrementarNum('fAttrInt')">+</button>`;
+
+          document.getElementById('fSubFuin').innerHTML = `${attr?.fuinjutsu || 0}<button onclick="incrementarNum('fSubFuin')">+</button>`;
+          document.getElementById('fSubNinG').innerHTML = `${attr?.ningeral || 0}<button onclick="incrementarNum('fSubNinG')">+</button>`;
+          document.getElementById('fSubKen').innerHTML = `${attr?.kenjutsu || 0}<button onclick="incrementarNum('fSubKen')">+</button>`;
+          document.getElementById('fSubShu').innerHTML = `${attr?.shurikenjutsu || 0}<button onclick="incrementarNum('fSubShu')">+</button>`;
+          document.getElementById('fSubCom').innerHTML = `${attr?.combate || 0}<button onclick="incrementarNum('fSubCom')">+</button>`;
+
+          renderElementosUI();
+          renderTecnicasUI();
+
+          document.getElementById('editActionsProfile').classList.add('show');
+          document.getElementById('editActionsCombate').classList.add('show');
+          document.getElementById('editActionsJornada').classList.add('show');
+      }
+      renderRelacoesUI();
+      if(!isCivil) renderizarInventarioUI();
+    }
+
+    function incrementarNum(id) {
+      const el = document.getElementById(id);
+      const val = parseInt(el.textContent.split('+')[0].trim()) || 0;
+      el.innerHTML = `${val + 1}<button onclick="incrementarNum('${id}')">+</button>`;
+    }
+    function transformarEmInput(id, valor, tipo = 'text') {
+      const el = document.getElementById(id);
+      el.innerHTML = `<input type="${tipo}" value="${valor || ''}" id="edit_${id}" />`;
+    }
+    function transformarEmTextarea(id, valor) {
+      const el = document.getElementById(id);
+      el.innerHTML = `<textarea id="edit_${id}">${valor || ''}</textarea>`;
+    }
+
+    async function salvarEdicao() {
+      if (!personagemAtualAberto) return;
+      const p = personagemAtualAberto;
+      const isSamurai = p.estilo_vida === 'Samurai';
+      const isCivil = p.estilo_vida === 'Civil' || p.estilo_vida === 'Daymo';
+      const pfx = isSamurai ? 'sam_' : (isCivil ? 'civ_' : '');
+
+      const dadosPersonagem = {
+        idade: document.getElementById('edit_'+pfx+'fIdade')?.value || p.idade,
+        aniversario: document.getElementById('edit_'+pfx+'fAniversario')?.value || p.aniversario,
+        origem_nascimento: document.getElementById('edit_'+pfx+'fOrigem')?.value || p.origem_nascimento,
+        local_reside: document.getElementById('edit_'+pfx+'fReside')?.value || p.local_reside,
+        score: parseInt(document.getElementById('edit_'+pfx+'fScore')?.value || p.score || 0),
+        ryos: parseInt(document.getElementById('edit_'+pfx+'fRyos')?.value || p.ryos || 0),
+        legado: parseInt(document.getElementById('edit_'+pfx+'fLegado')?.value || p.legado || 0),
+        altura: document.getElementById('edit_'+pfx+'fAltura')?.value || p.altura,
+        peso: document.getElementById('edit_'+pfx+'fPeso')?.value || p.peso,
+        cabelos: document.getElementById('edit_'+pfx+'fCabelos')?.value || p.cabelos,
+        olhos: document.getElementById('edit_'+pfx+'fOlhos')?.value || p.olhos,
+        aparencia: document.getElementById('edit_'+pfx+'fAparencia')?.value || p.aparencia,
+        historia: document.getElementById('edit_'+pfx+'fHistoria')?.value || p.historia,
+        gosta_de: document.getElementById('edit_'+pfx+'fGosta')?.value || p.gosta_de,
+        nao_gosta_de: document.getElementById('edit_'+pfx+'fNaoGosta')?.value || p.nao_gosta_de
+      };
+
+      if(!isSamurai && !isCivil) {
+         dadosPersonagem.clan = document.getElementById('edit_fClan')?.value || p.clan;
+      }
+      if(!isSamurai) {
+         dadosPersonagem.profissao = document.getElementById('edit_'+pfx+'fProfissao')?.value || p.profissao;
+      }
+
+      if(!isCivil) {
+          dadosPersonagem.missao_s = parseInt(document.getElementById(pfx+'fMissaoS')?.textContent) || 0;
+          dadosPersonagem.missao_a = parseInt(document.getElementById(pfx+'fMissaoA')?.textContent) || 0;
+          dadosPersonagem.missao_b = parseInt(document.getElementById(pfx+'fMissaoB')?.textContent) || 0;
+          dadosPersonagem.missao_c = parseInt(document.getElementById(pfx+'fMissaoC')?.textContent) || 0;
+          dadosPersonagem.missao_d = parseInt(document.getElementById(pfx+'fMissaoD')?.textContent) || 0;
+          dadosPersonagem.historico_graduacoes = document.getElementById(pfx+'boxGraduacoes')?.innerHTML;
+      }
+
+      let dadosAtributos = {};
+      
+      if(!isCivil) {
+          dadosAtributos = {
+            velocidade: parseInt(document.getElementById(pfx+'fAttrVel')?.textContent.split('+')[0].trim() || 0),
+            taijutsu: parseInt(document.getElementById(pfx+'fAttrTai')?.textContent.split('+')[0].trim() || 0),
+            forca: parseInt(document.getElementById(pfx+'fAttrFor')?.textContent.split('+')[0].trim() || 0),
+            resistencia: parseInt(document.getElementById(pfx+'fAttrRes')?.textContent.split('+')[0].trim() || 0),
+            inteligencia: parseInt(document.getElementById(pfx+'fAttrInt')?.textContent.split('+')[0].trim() || 0),
+            kenjutsu: parseInt(document.getElementById(pfx+'fAttrKen') ? document.getElementById(pfx+'fAttrKen')?.textContent.split('+')[0].trim() : document.getElementById('fSubKen')?.textContent.split('+')[0].trim() || 0),
+          };
+
+          if(!isSamurai){
+            dadosAtributos.ninjutsu = parseInt(document.getElementById('fAttrNin')?.textContent.split('+')[0].trim() || 0);
+            dadosAtributos.genjutsu = parseInt(document.getElementById('fAttrGen')?.textContent.split('+')[0].trim() || 0);
+            dadosAtributos.selos = parseInt(document.getElementById('fAttrSel')?.textContent.split('+')[0].trim() || 0);
+            dadosAtributos.fuinjutsu = parseInt(document.getElementById('fSubFuin')?.textContent.split('+')[0].trim() || 0);
+            dadosAtributos.ningeral = parseInt(document.getElementById('fSubNinG')?.textContent.split('+')[0].trim() || 0);
+            dadosAtributos.shurikenjutsu = parseInt(document.getElementById('fSubShu')?.textContent.split('+')[0].trim() || 0);
+            dadosAtributos.combate = parseInt(document.getElementById('fSubCom')?.textContent.split('+')[0].trim() || 0);
+            dadosAtributos.elementos_json = JSON.stringify(listaElementosGlobais);
+            dadosAtributos.vis_atributos = visibilidadeAtual.attr;
+            dadosAtributos.vis_subatributos = visibilidadeAtual.sub;
+            dadosAtributos.vis_elementos = visibilidadeAtual.ele;
+            dadosAtributos.vis_tecnicas = visibilidadeAtual.tec;
+            dadosAtributos.vis_inventario = visibilidadeAtual.inv;
+          } else {
+            dadosAtributos.vis_atributos = visibilidadeAtual.attr;
+            dadosAtributos.vis_inventario = visibilidadeAtual.inv;
+          }
+      }
+
+      try {
+        await supabaseClient.from('personagens').update(dadosPersonagem).eq('id', p.id);
+        
+        if(!isCivil) {
+            const { data: attrExists } = await supabaseClient.from('atributos_personagem').select('id').eq('personagem_id', p.id).maybeSingle();
+            if (attrExists) await supabaseClient.from('atributos_personagem').update(dadosAtributos).eq('personagem_id', p.id);
+            else { dadosAtributos.personagem_id = p.id; await supabaseClient.from('atributos_personagem').insert([dadosAtributos]); }
+            
+            // Sincronizar Inventário no BD
+            await supabaseClient.from('inventario_personagem').delete().eq('personagem_id', p.id);
+            if(listaInventarioGlobal.length > 0) {
+                const inserts = listaInventarioGlobal.map(i => ({
+                    personagem_id: p.id,
+                    nome_item: i.nome_item,
+                    descricao_item: i.descricao_item
+                }));
+                await supabaseClient.from('inventario_personagem').insert(inserts);
+            }
+        }
+
+        const suc = document.getElementById(pfx+'successMessage');
+        if(suc) {
+            suc.classList.add('show');
+            setTimeout(() => suc.classList.remove('show'), 3000);
+        }
+        cancelarEdicao();
+      } catch (err) { alert('❌ Erro ao salvar: ' + err); }
+    }
+
+    function cancelarEdicao() {
+      modoEdicaoAtivo = false;
+      const isSamurai = personagemAtualAberto.estilo_vida === 'Samurai';
+      const isCivil = personagemAtualAberto.estilo_vida === 'Civil' || personagemAtualAberto.estilo_vida === 'Daymo';
+      const pfx = isSamurai ? 'sam_' : (isCivil ? 'civ_' : '');
+
+      document.getElementById(pfx+'btnEditarFicha').textContent = '✎ Editar';
+      document.getElementById(pfx+'btnEditarFicha').classList.remove('edit-mode');
+      
+      const hideIds = ['btnElementoModal', 'btnAddTecnica', 'btnAddRelacao', 'btnAddGraduacao', 'btnAddMissao', 'btnEditCapa', 'btnVisAttr', 'btnVisSub', 'btnVisEle', 'btnVisTec', 'btnVisInv', 'btnAddInv',
+                       'sam_btnEditCapa', 'sam_btnAddRelacao', 'sam_btnAddGraduacao', 'sam_btnAddContrato', 'sam_btnVisAttr', 'sam_btnVisInv', 'sam_btnAddInv',
+                       'civ_btnEditCapa', 'civ_btnAddRelacao'];
+      hideIds.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'none'; });
+      
+      const overlay = document.getElementById(isSamurai ? 'sam_editAvatarOverlay' : (isCivil ? 'civ_editAvatarOverlay' : 'editAvatarOverlay'));
+      if(overlay) overlay.style.display = 'none';
+
+      if(isSamurai){
+          document.getElementById('sam_editActionsPerfil').classList.remove('show');
+          document.getElementById('sam_editActionsStatus').classList.remove('show');
+          document.getElementById('sam_editActionsCombate').classList.remove('show');
+          document.getElementById('sam_editActionsJornada').classList.remove('show');
+      } else if(isCivil) {
+          document.getElementById('civ_editActionsPerfil').classList.remove('show');
+      } else {
+          document.getElementById('editActionsProfile').classList.remove('show');
+          document.getElementById('editActionsCombate').classList.remove('show');
+          document.getElementById('editActionsJornada').classList.remove('show');
+      }
+      
+      abrirFicha(personagemAtualAberto.id); 
+    }
+
+    // UX Helpers
+    function renderElementosUI(){ renderizarElementosUI(); }
+    function renderTecnicasUI(){ renderizarTecnicasUI(); }
+    function renderRelacoesUI(){ renderizarRelacoesUI(); }
+    
+    function toggleAccordion(h) {
+      const i = h.parentElement; const o = i.classList.contains('open');
+      document.querySelectorAll('.accordion-item').forEach(a => a.classList.remove('open'));
+      if(!o) i.classList.add('open');
+    }
+    function trocarAba(evt, tabId, wrapperId) {
+      const wrapper = document.getElementById(wrapperId);
+      wrapper.querySelectorAll(".f-tab-content").forEach(c => c.classList.remove("active"));
+      wrapper.querySelectorAll(".f-tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+    function mostrarPagina(paginaId) {
+      document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+      const a = document.getElementById(paginaId);
+      a.classList.add('active'); a.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function voltarParaPrincipal() { mostrarPagina('paginaPrincipal'); }
+    async function openDaymo(nation) {
+        try {
+            console.log('🔍 Procurando país:', nation);
+            
+            // Tenta busca exata primeiro
+            let { data: paises, error: errorPais } = await supabaseClient
+                .from('paises')
+                .select('*')
+                .eq('nome_pais', nation);
+            
+            // Se não achar, tenta case-insensitive
+            if (!paises || paises.length === 0) {
+                console.log('❌ Busca exata não funcionou, tentando case-insensitive...');
+                ({ data: paises, error: errorPais } = await supabaseClient
+                    .from('paises')
+                    .select('*')
+                    .ilike('nome_pais', `%${nation}%`));
+            }
+            
+            if (errorPais) {
+                console.error('❌ Erro Supabase:', errorPais);
+                throw errorPais;
+            }
+            
+            console.log('📊 Dados encontrados:', paises);
+            
+            if (!paises || paises.length === 0) {
+                console.error('❌ Nenhum país encontrado com o nome:', nation);
+                alert(`❌ País "${nation}" não foi encontrado no banco de dados!\n\nVerifique se:\n1. Os dados foram inseridos na tabela "paises"\n2. Os nomes estão exatamente iguais (com acentos e maiúsculas corretos)`);
+                return;
+            }
+
+            const pais = paises[0];
+            console.log('✅ País carregado:', pais.nome_pais);
+
+            document.getElementById('dash-title').innerText = nation;
+            document.getElementById('dash-img').src = pais.imagem || 'https://via.placeholder.com/450/111/e53935?text=FOTO';
+            document.getElementById('dash-daimyo').innerText = pais.daimyo_nome || '--';
+            document.getElementById('dash-kage').innerText = pais.kage_nome || '--';
+            
+            document.getElementById('status-populacao').innerText = pais.populacional_status || '--';
+            const starsPopulacao = '★'.repeat(pais.populacional_estrelas || 0) + '☆'.repeat(5 - (pais.populacional_estrelas || 0));
+            document.querySelector('#status-populacao').parentElement.querySelector('.stars').innerText = starsPopulacao;
+            
+            document.getElementById('status-militar').innerText = pais.militar_status || '--';
+            const starsMilitar = '★'.repeat(pais.militar_estrelas || 0) + '☆'.repeat(5 - (pais.militar_estrelas || 0));
+            document.querySelector('#status-militar').parentElement.querySelector('.stars').innerText = starsMilitar;
+            
+            document.getElementById('status-economia').innerText = pais.economica_status || '--';
+            const starsEconomia = '★'.repeat(pais.economica_estrelas || 0) + '☆'.repeat(5 - (pais.economica_estrelas || 0));
+            document.querySelector('#status-economia').parentElement.querySelector('.stars').innerText = starsEconomia;
+            
+            document.getElementById('status-seguranca').innerText = pais.tecnologica_status || '--';
+            const starsTecnologia = '★'.repeat(pais.tecnologica_estrelas || 0) + '☆'.repeat(5 - (pais.tecnologica_estrelas || 0));
+            document.querySelector('#status-seguranca').parentElement.querySelector('.stars').innerText = starsTecnologia;
+
+            document.getElementById('rep-titulo').innerText = pais.reputacao_titulo || '--';
+            document.getElementById('rep-pontos').innerText = pais.reputacao_prestigio || '--';
+
+            document.getElementById('dash-tesouro').innerText = (pais.tesouro_nacional || 0).toLocaleString('pt-BR') + ' Ryōs';
+            document.getElementById('dash-imposto').innerText = (pais.imposto_atual || 0) + '%';
+
+            const { data: zonas } = await supabaseClient
+                .from('paises_zonas')
+                .select('*')
+                .eq('pais_id', pais.id);
+
+            const zonasHTML = zonas && zonas.length > 0 ? zonas.map(z => `
+                <div class="list-row">
+                    <div>
+                        <div class="list-title">🏙️ ${z.nome_zona}</div>
+                        <div class="list-subtitle">${z.detalhes || 'Sem detalhes'}</div>
+                    </div>
+                </div>
+            `).join('') : '<p style="color: #aaa;">Nenhuma zona registrada</p>';
+            
+            const abaEconomia = document.getElementById('tab-economia');
+            const sectionZonas = abaEconomia.querySelector('.section-title:nth-of-type(2)');
+            if (sectionZonas) {
+                let container = sectionZonas.nextElementSibling;
+                while (container && !container.classList.contains('section-title')) {
+                    container.remove();
+                    container = sectionZonas.nextElementSibling;
+                }
+                sectionZonas.insertAdjacentHTML('afterend', zonasHTML);
+            }
+
+            const { data: clas } = await supabaseClient
+                .from('paises_clas')
+                .select('*')
+                .eq('pais_id', pais.id);
+
+            const clasHTML = clas && clas.length > 0 ? clas.map(c => `
+                <div class="list-row">
+                    <div>
+                        <div class="list-title">🛡️ ${c.nome_cla}</div>
+                        <div class="list-subtitle">Força Bruta: ${c.membros_ativos} Membros Ativos</div>
+                    </div>
+                    <div style="text-align: right; min-width: 150px;">
+                        <div class="status-badge ${c.lealdade === 'ALTA' ? 'bg-green' : c.lealdade === 'MÉDIA' ? 'bg-blue' : 'bg-red'}" style="margin-bottom: 5px; display: inline-block;">Lealdade ${c.lealdade}</div><br>
+                        ${c.status_efeito ? `<span style="font-size: 12px; color: #aaa;">Status: ${c.status_efeito}</span>` : ''}
+                    </div>
+                </div>
+            `).join('') : '<p style="color: #aaa;">Nenhum clã registrado</p>';
+
+            const abaMilitar = document.getElementById('tab-militar');
+            const sectionClas = abaMilitar.querySelector('.section-title:nth-of-type(1)');
+            if (sectionClas) {
+                let container = sectionClas.nextElementSibling;
+                while (container && !container.classList.contains('section-title') && !container.classList.contains('grid-2')) {
+                    container.remove();
+                    container = sectionClas.nextElementSibling;
+                }
+                sectionClas.insertAdjacentHTML('afterend', clasHTML);
+            }
+
+            const { data: forcas } = await supabaseClient
+                .from('paises_forcas')
+                .select('*')
+                .eq('pais_id', pais.id);
+
+            const forcasHTML = forcas && forcas.length > 0 ? forcas.map(f => `
+                <div class="data-card">
+                    <div class="data-value">${f.nome_forca}</div>
+                    <div class="data-label" style="margin-top: 5px;">${f.detalhes || 'Sem informações'}</div>
+                </div>
+            `).join('') : '<p style="color: #aaa;">Nenhuma força registrada</p>';
+
+            const gridForcas = abaMilitar.querySelector('.grid-2');
+            if (gridForcas) {
+                gridForcas.innerHTML = forcasHTML;
+            }
+
+            const { data: relacoes } = await supabaseClient
+                .from('paises_relacoes')
+                .select('*')
+                .eq('pais_id', pais.id);
+
+            const aliados = relacoes && relacoes.length > 0
+                ? relacoes.filter(r => r.tipo === 'ALIADOS').map(r => r.pais_alvo).join(', ') || 'Nenhum'
+                : 'Nenhum';
+            const inimigos = relacoes && relacoes.length > 0
+                ? relacoes.filter(r => r.tipo === 'INIMIGOS').map(r => r.pais_alvo).join(', ') || 'Nenhum'
+                : 'Nenhum';
+
+            document.getElementById('diplo-aliados').innerText = aliados;
+            document.getElementById('diplo-inimigos').innerText = inimigos;
+
+            document.getElementById('hier-soberano-nome').innerText = pais.daimyo_nome || 'Desconhecido';
+            document.getElementById('hier-soberano-casa').innerText = pais.casa_soberana || 'Família Desconhecida';
+
+            const { data: hierarquia } = await supabaseClient
+                .from('paises_hierarquia')
+                .select('*')
+                .eq('pais_id', pais.id)
+                .order('cargo_chave', { ascending: true });
+
+            if (hierarquia && hierarquia.length > 0) {
+                const ministros = hierarquia.filter(h => h.cargo_chave && h.cargo_chave.includes('MINISTRO'));
+                const governadores = hierarquia.filter(h => h.cargo_chave && h.cargo_chave.includes('GOVERNADOR'));
+
+                let ministroHTML = ministros.length > 0 ? ministros.map(m => `
+                    <div class="person-card ministro">
+                        <img src="${m.url_foto || 'https://via.placeholder.com/100/111/1e88e5?text=FOTO'}" class="person-img">
+                        <div class="person-role">${m.cargo_chave.replace('MINISTRO_', 'Ministro de ').replace(/_/g, ' ')}</div>
+                        <div class="person-name">${m.nome_player || '[Nome Player]'}</div>
+                        <div class="person-house">${m.casa_familia || 'Família Desconhecida'}</div>
+                        <div class="person-domain">${m.subtitulo || ''}</div>
+                    </div>
+                `).join('') : '';
+
+                let governadorHTML = governadores.length > 0 ? governadores.map(g => `
+                    <div class="person-card governador">
+                        <img src="${g.url_foto || 'https://via.placeholder.com/100/111/e53935?text=FOTO'}" class="person-img">
+                        <div class="person-role">${g.cargo_chave.replace('GOVERNADOR_', 'Governador de ').replace(/_/g, ' ')}</div>
+                        <div class="person-name">${g.nome_player || '[Nome Player]'}</div>
+                        <div class="person-house">${g.casa_familia || 'Família Desconhecida'}</div>
+                        <div class="person-domain">${g.subtitulo || ''}</div>
+                    </div>
+                `).join('') : '';
+
+                const tierConselho = document.querySelector('.hierarquia-tier:nth-of-type(2) .tier-cards');
+                if (tierConselho && ministroHTML) {
+                    tierConselho.innerHTML = ministroHTML;
+                }
+
+                const tierGovernadores = document.querySelector('.hierarquia-tier:nth-of-type(3) .tier-cards');
+                if (tierGovernadores && governadorHTML) {
+                    tierGovernadores.innerHTML = governadorHTML;
+                }
+            }
+
+            document.getElementById('selection-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'flex';
+            
+            const btnVisao = document.getElementById('btn-visao');
+            if (btnVisao) {
+                btnVisao.click();
+            }
+
+            window.scrollTo(0, 0);
+
+        } catch (err) {
+            alert('❌ Erro ao carregar país: ' + err.message);
+            console.error('Erro completo:', err);
+        }
+    }
+
+    // Init
+    const menuBtn = document.getElementById('menu-btn');
+    const navOverlay = document.getElementById('nav-overlay');
+    document.getElementById('overlay-close').addEventListener('click', () => { navOverlay.classList.remove('open'); menuBtn.classList.remove('open'); });
+    menuBtn.addEventListener('click', () => { const o = navOverlay.classList.toggle('open'); menuBtn.classList.toggle('open', o); });
+
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ks-theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('ks-theme', next);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => { if (inicializarSupabase()) carregarDados(); });
+  </script>
+</body>
+</html>

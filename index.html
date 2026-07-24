@@ -186,15 +186,55 @@
 
     #nav-overlay.open #nav-panel { transform: translateX(0); }
     
+    /* ======= DETALHES/ABAS DO MENU ======= */
+    .nav-group {
+      margin: 0; flex-shrink: 0;
+    }
+
+    .nav-group details {
+      list-style: none;
+    }
+
+    .nav-group summary {
+      cursor: pointer;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18);
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.92rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      user-select: none;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .nav-group summary:hover {
+      color: var(--accent2);
+    }
+
     .nav-link {
-      display: block; font-family: 'Russo One', sans-serif; font-size: 0.92rem; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--text); text-decoration: none; padding: 13px 0;
-      border-bottom: 1px solid rgba(204,0,0,0.18); position: relative; transition: color 0.2s, padding-left 0.2s;
+      display: block;
+      font-family: 'Russo One', sans-serif;
+      font-size: 0.92rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(204,0,0,0.18);
+      position: relative;
+      transition: color 0.2s;
       flex-shrink: 0;
     }
-    .nav-link::before { content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.25s; }
-    .nav-link:hover { color: var(--accent2); padding-left: 12px; }
-    .nav-link:hover::before { width: 20px; }
+
+    .nav-link:hover {
+      color: var(--accent2);
+    }
+
+    .nav-group .nav-link {
+      padding: 13px 0 13px 24px;
+    }
 
     /* ======= BLOCO DE CAMPANHAS ======= */
     .campaign-wrapper {
@@ -313,68 +353,13 @@
         display: flex; 
         flex-direction: column; 
         gap: 6px; 
-        border-left: 3px solid var(--accent); /* Borda lateral vermelha */
-        padding-left: 15px; /* Espaçamento da borda */
+        border-left: 3px solid var(--accent);
+        padding-left: 15px;
     }
     .details-panel .campaign-item:last-child { border-bottom: none; }
     .details-panel .campaign-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #ffffff; font-size: 1.25rem; }
     .details-panel .campaign-desc { color: #cccccc; font-size: 0.95rem; line-height: 1.4; margin-bottom: 4px; }
     .details-panel .campaign-reward { color: var(--accent); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1rem; }
-
-    /* ======= LISTA DE SISTEMAS (LINKS) ======= */
-    .systems-list {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        margin-top: 20px;
-    }
-    
-    .system-link {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 20px 15px;
-        text-decoration: none;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        transition: background 0.3s, padding-left 0.3s;
-    }
-    
-    .system-link:last-child {
-        border-bottom: none;
-    }
-    
-    .system-link:hover {
-        background: rgba(255,255,255,0.03);
-        padding-left: 25px;
-    }
-    
-    .sys-title {
-        font-family: 'Russo One', sans-serif;
-        font-size: 1.2rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-    }
-    
-    .sys-arrow {
-        width: 24px;
-        height: 24px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 2.5;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        transition: transform 0.3s;
-    }
-    
-    .system-link:hover .sys-arrow {
-        transform: translateX(8px);
-    }
-
-    /* Cores das Fontes da Lista */
-    .sys-civil { color: #00cc00; }
-    .sys-daymo { color: #9900cc; }
-    .sys-ninja { color: #cc0000; }
-    .sys-samurai { color: #0066ff; }
   </style>
 </head>
 <body>
@@ -415,23 +400,26 @@
     <div class="overlay-bg" id="overlay-close"></div>
     <nav id="nav-panel">
       <a class="nav-link" href="index.html">Início</a>
+      <a class="nav-link" href="1.19_fichas.html">FICHAS</a>
+      <a class="nav-link" href="">Tutorial do RPG</a>
+      <a class="nav-link" href="5.0_shinobi.html">Evolução: Ninja</a>
+      <a class="nav-link" href="3.0_samurai.html">Evolução: Samurais</a>
+      <a class="nav-link" href="4.0_daymo.html">Evolução: Daymo</a>
+      <a class="nav-link" href="2.0_Civil.html">Evolução: Civil</a>
       <a class="nav-link" href="1.2_historia.html">História</a>
       <a class="nav-link" href="1.3_geografia.html">Geografia</a>
-      <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de vida</a>
-      <a class="nav-link" href="1.5_calendario.html">Calendário</a>
-      <a class="nav-link" href="1.6_jornal.html">Jornal</a>
-      <a class="nav-link" href="1.7_administracao.html">Administração</a>
+      <a class="nav-link" href="1.4_estilos_de_vida.html">Estilos de Vida</a>
       <a class="nav-link" href="1.8_sangue.html">Sangue</a>
       <a class="nav-link" href="1.9_eternizados.html">Eternizados</a>
+      <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
+      <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
+      <a class="nav-link" href="1.6_jornal.html">Jornal</a>
+      <a class="nav-link" href="1.7_administracao.html">Administração</a>
       <a class="nav-link" href="1.10_organizacoes.html">Organizações</a>
       <a class="nav-link" href="1.11_religioes.html">Religiões</a>
-      <a class="nav-link" href="1.12_tag.html">TAGS</a>
-      <a class="nav-link" href="1.13_vinculos.html">Vínculos</a>
-      <a class="nav-link" href="1.14_propositos_de_vida.html">Próposito de Vida</a>
       <a class="nav-link" href="1.15_hall_da_fama.html">Hall da Fama</a>
       <a class="nav-link" href="1.16_alcunhas.html">Alcunhas</a>
       <a class="nav-link" href="1.17_legado.html">Legado</a>
-      <a class="nav-link" href="#">Loja</a>
       <a class="nav-link" href="1.18_regras.html">Regras</a>
     </nav>
   </div>
@@ -451,7 +439,7 @@
   <section id="welcome">
     <div class="welcome-inner">
       <div class="season-block">
-        <div class="season-badge">1ª Geração: Era dos Estados Combatentes</div>
+        <div class="season-badge">Era dos Estados Combatentes</div>
         <span class="season-label">Temporada 1: O Quebra-Terras</span>
       </div>
 
@@ -487,43 +475,6 @@
                 <div id="camp-details-content">
                     <!-- Conteúdo dinâmico será injetado aqui -->
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="campaign-wrapper">
-        <div class="campaign-inner">
-            <h2 class="campaign-header">SISTEMAS</h2>
-            <p class="campaign-sub-label">Selecione seu estilo de vida para acessar as regras e mecânicas.</p>
-            
-            <div class="systems-list">
-                <a href="2.0_Civil.html" class="system-link sys-civil">
-                    <span class="sys-title">Sistema Civil</span>
-                    <svg class="sys-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </a>
-
-                <a href="4.0_daymo.html" class="system-link sys-daymo">
-                    <span class="sys-title">Sistema Daymo</span>
-                    <svg class="sys-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </a>
-
-                <a href="5.0_shinobi.html" class="system-link sys-ninja">
-                    <span class="sys-title">Sistema Ninja</span>
-                    <svg class="sys-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </a>
-
-                <a href="3.0_samurai.html" class="system-link sys-samurai">
-                    <span class="sys-title">Sistema Samurai</span>
-                    <svg class="sys-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </a>
             </div>
         </div>
     </div>
